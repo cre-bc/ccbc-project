@@ -406,6 +406,35 @@ class ComKokokuMenteForm extends React.Component {
     }
   }
 
+  handleSubmit = () => {
+    this.setState({ loadFlg: true })
+    var bkcomment = this.state.comment
+    const comment_copy = this.state.comment.slice()
+    for (var i in this.state.comment) {
+      comment_copy[i] = this.state.comment[i].value
+    }
+    this.state.comment = comment_copy
+
+    request
+      .post(restdomain + '/tohyo_toroku/create')
+      .send(this.state)
+      .end((err, res) => {
+        this.setState({ loadFlg: false })
+        if (err) {
+          return
+        }
+        if (!res.body.status) {
+          this.setState({
+            msg: '不正なログインです。'
+          })
+          this.setState({ dialogOpen: false })
+          this.state.comment = bkcomment
+          return
+        }
+        this.props.history.push('/menu')
+      })
+  }
+
   render() {
     const { classes, theme } = this.props
     const { anchor, open, open2 } = this.state
@@ -911,7 +940,7 @@ class ComKokokuMenteForm extends React.Component {
                         いいえ
                       </Button>
                       <Button
-                        onClick={this.clickPostBtn}
+                        onClick={this.handleSubmit}
                         onClick={this.handleClose}
                         color="primary"
                         autoFocus
