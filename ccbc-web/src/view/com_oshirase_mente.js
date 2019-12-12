@@ -164,13 +164,13 @@ const toolbarStyles = theme => ({
   highlight:
     theme.palette.type === 'light'
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark
+      },
   spacer: {
     flex: '1 1 100%'
   },
@@ -197,10 +197,10 @@ let EnhancedTableToolbar = props => {
             {numSelected} 件選択
           </Typography>
         ) : (
-          <Typography variant="title" id="tableTitle">
-            おしらせ一覧
+            <Typography variant="title" id="tableTitle">
+              おしらせ一覧
           </Typography>
-        )}
+          )}
       </div>
       <div className={classes.spacer} />
       {/* <div className={classes.actions}>
@@ -504,6 +504,12 @@ class ComOshiraseMenteForm extends React.Component {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
 
     for (var i in loginInfos) {
@@ -515,6 +521,49 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
+
+    request.get(restdomain + '/con_oshirase_mente/find').end((err, res) => {
+      if (err) return
+      // 検索結果表示
+      this.setState({ resultList: res.body.data })
+    })
+
+    /** 年度表示
+    request
+      .get(restdomain + '/con_oshirase_mente/findall')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.tohyo_kaishi_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
+      })
+    */
+
+    request
+      .post(restdomain + '/con_oshirase_mente/findall')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultAllList: res.body.data })
+      })
+
   }
 
   handleDrawerOpen = () => {
@@ -651,8 +700,8 @@ class ComOshiraseMenteForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -678,8 +727,8 @@ class ComOshiraseMenteForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
