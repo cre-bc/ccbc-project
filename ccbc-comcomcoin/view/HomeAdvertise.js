@@ -68,10 +68,12 @@ export default class HomeAdvertise extends BaseComponent {
             </View>
             <View style={{ margin: 10 }}>
               {/* コメント */}
-              <Text style={{ fontSize: 16 }}>
+              <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                 {this.state.comment}
               </Text>
             </View>
+            {/* スクロールが最下部まで表示されないことの暫定対応... */}
+            <View style={{ marginBottom: 100 }} />
           </ScrollView>
         </View>
       </View>

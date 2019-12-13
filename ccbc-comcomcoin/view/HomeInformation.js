@@ -71,15 +71,17 @@ export default class HomeInformation extends BaseComponent {
                 {moment(new Date(this.state.notice_dt)).format('YYYY/MM/DD')}
               </Text>
             </View>
-            <View style={{ marginTop: 20 }}>
+            <View selectable style={{ marginTop: 20 }}>
               {/* タイトル ＆ コメント */}
               <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                 {this.state.title}{'\n'}
               </Text>
-              <Text style={{ fontSize: 16 }}>
+              <Text style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                 {this.state.comment}
               </Text>
             </View>
+            {/* スクロールが最下部まで表示されないことの暫定対応... */}
+            <View style={{ marginBottom: 100 }} />
           </ScrollView>
         </View>
       </View>

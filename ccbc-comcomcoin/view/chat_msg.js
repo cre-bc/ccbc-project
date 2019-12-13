@@ -66,7 +66,7 @@ export default class ChatMsgForm extends Component {
     this.state.tShainPk = 1
     this.state.fromShainPk = 2
     this.state.shimei = 'テスト　太郎'
-    this.state.imageFileName = require('./../images/man1.jpg')
+    // this.state.imageFileName = require('./../images/man1.jpg')
     /**　＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝*/
 
     // this.setState({ imageFileName: loginInfo['imageFileName'] })
@@ -217,7 +217,7 @@ export default class ChatMsgForm extends Component {
       user: {
         _id: 2,
         name: '安倍　大翔',
-        avatar: require('./../images/man1.jpg')
+        // avatar: require('./../images/man1.jpg')
       }
     }
   }

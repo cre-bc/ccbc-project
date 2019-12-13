@@ -432,7 +432,7 @@ export default class ArticleRefer extends BaseComponent {
 
                 {/* 記事内容 */}
                 <View style={{ marginTop: 10, marginBottom: 10 }}>
-                  <Text>
+                  <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                     {item.contents}
                   </Text>
                 </View>
@@ -442,14 +442,15 @@ export default class ArticleRefer extends BaseComponent {
                   {(item.file_path !== "" && item.file_path !== null) &&
                     <Image
                       source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                      style={{ width: 300, height: 300 }} />
+                      style={{ width: 300, height: 300 }}
+                      resizeMode='contain' />
                   }
                 </View>
               </Card>
             )
           })}
           {/* スクロールが最下部まで表示されないことの暫定対応... */}
-          <View style={{ marginBottom: 100 }} />
+          <View style={{ marginBottom: 120 }} />
         </ScrollView>
 
         {/* -- 検索ダイアログ -- */}

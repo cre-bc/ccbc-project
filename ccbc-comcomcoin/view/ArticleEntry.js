@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker'
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
+import axios from "axios"
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -69,7 +70,7 @@ export default class ArticleEntry extends BaseComponent {
         post_dt: paramArticle.post_dt,
         post_tm: paramArticle.post_tm,
         file_path: paramArticle.file_path,
-        hashtag_str: paramArticle.hashtag_str.replace(/#/g, ' ')
+        hashtag_str: paramArticle.hashtag_str.replace(/#/g, "")
       })
     } else {
       // 新規投稿時
@@ -140,82 +141,106 @@ export default class ArticleEntry extends BaseComponent {
   entry = async () => {
     this.setState({ confirmDialogVisible: false })
 
-    // APIパラメータ作成
-    const data = new FormData()
-    data.append('db_name', this.state.db_name)
-    data.append('loginShainPk', this.state.loginShainPk)
-
-    // 画像ファイル
-    let fileName = ""
     if (this.state.imageData.uri !== "") {
-      fileName = moment(new Date()).format('YYYYMMDDHHmmssSS') + ".png"
-      data.append('imageData', {
-        uri: this.state.imageData.uri,
+      // 画像ファイルのアップロードがある場合
+      const fileName = moment(new Date()).format('YYYYMMDDHHmmssSS') + ".png"
+      let data = new FormData()
+      data.append('image', {
+        uri: (Constants.platform.android ? this.state.imageData.uri : this.state.imageData.uri.replace("file://", "")),
+        // uri: this.state.imageData.uri,
         type: this.state.imageData.type,
         name: fileName
       })
-    } else if (this.state.file_path !== "") {
-      fileName = this.state.file_path
-    }
-    data.append('t_kiji_pk', this.state.t_kiji_pk)
-    data.append('t_kiji_category_pk', this.state.t_kiji_category_pk)
-    data.append('t_shain_pk', this.state.t_shain_pk)
-    data.append('title', this.state.title)
-    data.append('contents', this.state.contents)
-    data.append('post_dt', new Date())
-    data.append('post_tm', new Date())
-    data.append('file_path', fileName)
-    data.append('hashtag', this.state.hashtag)
-    data.append('hashtag_str', this.state.hashtag_str)
-    // data.append('editArticle', {
-    //   t_kiji_pk: this.state.t_kiji_pk,
-    //   t_kiji_category_pk: this.state.t_kiji_category_pk,
-    //   t_shain_pk: this.state.t_shain_pk,
-    //   title: this.state.title,
-    //   contents: this.state.contents,
-    //   post_dt: new Date(),
-    //   post_tm: new Date(),
-    //   file_path: fileName,
-    //   hashtag: this.state.hashtag,
-    //   hashtag_str: this.state.hashtag_str
-    // })
 
-    // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+      // var http = new XMLHttpRequest()
+      // http.open("POST", restdomain + '/article/upload')
+      // http.setRequestHeader("Content-type", "multipart/form-data")
+      // http.onreadystatechange = async (e) => {
+      //   if (request.readyState !== 4) {
+      //     return
+      //   }
+      //   if (http.status === 200) {
+      //     // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+      //     this.edit(fileName)
+      //   } else {
+      //     alert("画像ファイルのアップロードに失敗しました status:" + http.status)
+      //   }
+      // }
+      // http.send(data)
+
+      await fetch(restdomain + '/article/upload', {
+        method: 'POST',
+        body: data,
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+        .then(function (response) {
+          return response.json()
+        })
+        .then(function (json) {
+          if (json.status) {
+            // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+            this.edit(fileName)
+          } else {
+            alert("画像ファイルのアップロードに失敗しました")
+          }
+        }.bind(this))
+        .catch(error => alert(error))
+
+      // axios
+      //   .post(restdomain + '/article/upload',
+      //     data,
+      //     { headers: new Headers({ 'Accept': 'application/json', 'Content-Type': 'multipart/form-data' }) }
+      //   )
+      //   .then((res) => {
+      //     if (res.data.status) {
+      //       // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+      //       this.edit(fileName)
+      //     } else {
+      //       alert("画像ファイルのアップロードに失敗しました")
+      //     }
+      //   })
+      //   .catch((error) => alert(error))
+    } else {
+      // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+      this.edit(this.state.file_path)
+    }
+  }
+
+  edit = async (fileName) => {
+    this.state.file_path = fileName
+
     await fetch(restdomain + '/article/edit', {
       method: 'POST',
       mode: 'cors',
-      body: data,
-      // body: JSON.stringify(this.state),
-      headers: new Headers({ 'Accept': 'application/json', 'Content-Type': 'multipart/form-data' })
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(
-        function (response) {
-          return response.json()
-        }.bind(this)
-      )
-      .then(
-        function (json) {
-          if (!json.status) {
-            // TODO：エラー処理
-            alert("APIエラー")
-          } else {
-            // 記事照会画面に戻る
-            this.props.navigation.navigate('ArticleRefer', {
-              mode: this.state.mode,
-              selectCategory: this.state.selectCategory
-            })
-          }
-        }.bind(this)
-      )
-      .catch(error => console.error(error))
+      .then(function (response) {
+        return response.json()
+      })
+      .then(function (json) {
+        if (!json.status) {
+          alert("投稿処理でエラーが発生しました")
+        } else {
+          // 記事照会画面に戻る
+          this.props.navigation.navigate('ArticleRefer', {
+            mode: this.state.mode,
+            selectCategory: this.state.selectCategory
+          })
+        }
+      }.bind(this))
+      .catch((error) => alert(error))
   }
 
   /** 画像選択処理 */
   onClickPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3]
+      allowsEditing: true
+      // aspect: [1, 1]
     })
     let data = {}
     if (!result.cancelled) {
@@ -292,7 +317,8 @@ export default class ArticleEntry extends BaseComponent {
                     <View style={{ marginTop: 10 }}>
                       <Image
                         source={{ uri: restdomain + `/uploads/article/${this.state.file_path}` }}
-                        style={{ width: 300, height: 300 }} />
+                        style={{ width: 300, height: 300 }}
+                        resizeMode='contain' />
                     </View>
                   )}
                   {this.state.imageData.uri !== "" && (
@@ -305,6 +331,7 @@ export default class ArticleEntry extends BaseComponent {
                           marginTop: 30,
                           marginBottom: 30
                         }}
+                        resizeMode='contain'
                       />
                     </View>
                   )}

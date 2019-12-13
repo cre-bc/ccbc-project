@@ -17,66 +17,66 @@ import {
 } from 'react-native-elements'
 
 const users = [
-  {
-    name: '安倍　大翔',
-    avatar: require('./../images/man1.jpg'),
-    cnt: 1
-  },
-  {
-    name: '伊藤　俊介',
-    avatar: require('./../images/man2.jpg'),
-    cnt: 9
-  },
-  {
-    name: '牛込　達也',
-    avatar: require('./../images/man3.jpg'),
-    cnt: 0
-  },
-  {
-    name: '江藤　蓮',
-    avatar: require('./../images/man4.jpg'),
-    cnt: 3
-  },
-  {
-    name: '織田　結月',
-    avatar: require('./../images/woman1.jpg'),
-    cnt: 2
-  },
-  {
-    name: '小川　結愛',
-    avatar: require('./../images/woman2.jpg'),
-    cnt: 2
-  },
-  {
-    name: '佐藤　結菜',
-    avatar: require('./../images/woman3.jpg'),
-    cnt: 6
-  },
-  {
-    name: '島崎　杏',
-    avatar: require('./../images/woman4.jpg'),
-    cnt: 2
-  },
-  {
-    name: '須藤　陽翔',
-    avatar: require('./../images/man5.jpg'),
-    cnt: 0
-  },
-  {
-    name: '瀬川　大和',
-    avatar: require('./../images/man6.jpg'),
-    cnt: 0
-  },
-  {
-    name: '曽我　湊',
-    avatar: require('./../images/man7.jpg'),
-    cnt: 1
-  },
-  {
-    name: '西村　新',
-    avatar: require('./../images/man8.jpg'),
-    cnt: 0
-  }
+  // {
+  //   name: '安倍　大翔',
+  //   avatar: require('./../images/man1.jpg'),
+  //   cnt: 1
+  // },
+  // {
+  //   name: '伊藤　俊介',
+  //   avatar: require('./../images/man2.jpg'),
+  //   cnt: 9
+  // },
+  // {
+  //   name: '牛込　達也',
+  //   avatar: require('./../images/man3.jpg'),
+  //   cnt: 0
+  // },
+  // {
+  //   name: '江藤　蓮',
+  //   avatar: require('./../images/man4.jpg'),
+  //   cnt: 3
+  // },
+  // {
+  //   name: '織田　結月',
+  //   avatar: require('./../images/woman1.jpg'),
+  //   cnt: 2
+  // },
+  // {
+  //   name: '小川　結愛',
+  //   avatar: require('./../images/woman2.jpg'),
+  //   cnt: 2
+  // },
+  // {
+  //   name: '佐藤　結菜',
+  //   avatar: require('./../images/woman3.jpg'),
+  //   cnt: 6
+  // },
+  // {
+  //   name: '島崎　杏',
+  //   avatar: require('./../images/woman4.jpg'),
+  //   cnt: 2
+  // },
+  // {
+  //   name: '須藤　陽翔',
+  //   avatar: require('./../images/man5.jpg'),
+  //   cnt: 0
+  // },
+  // {
+  //   name: '瀬川　大和',
+  //   avatar: require('./../images/man6.jpg'),
+  //   cnt: 0
+  // },
+  // {
+  //   name: '曽我　湊',
+  //   avatar: require('./../images/man7.jpg'),
+  //   cnt: 1
+  // },
+  // {
+  //   name: '西村　新',
+  //   avatar: require('./../images/man8.jpg'),
+  //   cnt: 0
+  // }
 ]
 
 export default class ChatSelectForm extends Component {

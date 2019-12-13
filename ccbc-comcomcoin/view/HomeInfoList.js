@@ -20,7 +20,7 @@ export default class HomeInfoList extends BaseComponent {
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
-    
+
     // ホームAPI.ComComCoinホームお知らせ一覧取得処理の呼び出し
     await fetch(restdomain + '/comcomcoin_home/findHomeInfoList', {
       method: 'POST',
@@ -60,9 +60,9 @@ export default class HomeInfoList extends BaseComponent {
                 return (
                   <ListItem
                     key={i}
-                    titleStyle={{ fontSize: 12 }}
+                    titleStyle={{ fontSize: 12, marginLeft: 0 }}
                     title={item.title}
-                    subtitleStyle={{ fontSize: 10 }}
+                    subtitleStyle={{ fontSize: 10, marginLeft: 0 }}
                     subtitle={moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
                     onPress={() => this.props.navigation.navigate('HomeInformation', {
                       renban: item.renban
@@ -70,6 +70,8 @@ export default class HomeInfoList extends BaseComponent {
                 )
               })}
             </Card>
+            {/* スクロールが最下部まで表示されないことの暫定対応... */}
+            <View style={{ marginBottom: 80 }} />
           </ScrollView>
         </View>
       </View >

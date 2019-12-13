@@ -419,7 +419,6 @@ function getHomeOshirase(db, req) {
       "select renban, notice_dt, title" +
       " from t_oshirase" +
       " where delete_flg = '0'" +
-      " and notice_dt >= current_timestamp + '-1 months'" +
       " order by notice_dt desc" +
       " limit 3"
     db.query(sql, {
@@ -492,18 +491,16 @@ function getKokoku(db, req) {
 }
 
 /**
- * お知らせ一覧（直近1ヶ月）を取得（DBアクセス）
+ * お知らせ一覧を取得（DBアクセス）
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
  */
 function getOshiraseList(db, req) {
   return new Promise((resolve, reject) => {
-    // 直近1ヶ月を取得
     var sql =
       "select renban, notice_dt, title" +
       " from t_oshirase" +
       " where delete_flg = '0'" +
-      " and notice_dt >= current_timestamp + '-1 months'" +
       " order by notice_dt desc"
     db.query(sql, {
       type: db.QueryTypes.RAW
@@ -548,7 +545,6 @@ function getOshirase(db, req) {
  */
 function getKijiList(db, req, mode) {
   return new Promise((resolve, reject) => {
-    // 最新の3件を取得
     var sql =
       "select kij.t_kiji_pk, kij.title, kij.file_path," +
       " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
