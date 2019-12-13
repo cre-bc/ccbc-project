@@ -2,6 +2,7 @@ import React from 'react'
 import { Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
+import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -13,6 +14,7 @@ export default class Home extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
+      isProcessing: false,
       activeSlide: 0,
       adList: [],
       infoList: [],
@@ -29,6 +31,8 @@ export default class Home extends BaseComponent {
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
+    this.setState({ isProcessing: true })
+
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
@@ -44,21 +48,23 @@ export default class Home extends BaseComponent {
       })
       .then(
         function (json) {
-          // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
-            return
+            // 結果が取得できない場合は終了
+          } else {
+            // 取得したデータをStateに格納
+            this.setState({
+              // activeSlide: 0,
+              adList: json.data.adList,
+              infoList: json.data.infoList,
+              newArticleList: json.data.newArticleList,
+              popularArticleList: json.data.popularArticleList
+            })
           }
-          // 取得したデータをStateに格納
-          this.setState({
-            // activeSlide: 0,
-            adList: json.data.adList,
-            infoList: json.data.infoList,
-            newArticleList: json.data.newArticleList,
-            popularArticleList: json.data.popularArticleList
-          })
         }.bind(this)
       )
       .catch(error => console.error(error))
+
+    this.setState({ isProcessing: false })
   }
 
   renderItem = ({ item, index }) => (
@@ -80,6 +86,13 @@ export default class Home extends BaseComponent {
   render() {
     return (
       <View style={{ flex: 1 }}>
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={'Processing…'}
+          textStyle={styles.spinnerTextStyle}
+        />
+
         <View style={[{ flex: 0.15 }]}>
           <Text />
         </View>
@@ -339,5 +352,9 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     width: Dimensions.get('window').width * 0.85
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
+    fontSize: 18
   }
 })

@@ -71,7 +71,7 @@ export default class HomeInformation extends BaseComponent {
                 {moment(new Date(this.state.notice_dt)).format('YYYY/MM/DD')}
               </Text>
             </View>
-            <View selectable style={{ marginTop: 20 }}>
+            <View selectable style={{ marginTop: 20, padding: 10 }}>
               {/* タイトル ＆ コメント */}
               <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                 {this.state.title}{'\n'}

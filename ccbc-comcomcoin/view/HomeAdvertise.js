@@ -66,7 +66,7 @@ export default class HomeAdvertise extends BaseComponent {
                 source={{ uri: restdomain + `/uploads/advertise/${this.state.file_path}` }}
                 style={{ width: 300, height: 300 }} />
             </View>
-            <View style={{ margin: 10 }}>
+            <View style={{ marginTop: 10, padding: 10 }}>
               {/* コメント */}
               <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                 {this.state.comment}
