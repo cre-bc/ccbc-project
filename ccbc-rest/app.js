@@ -28,6 +28,7 @@ const shain_kensakuRouter = require('./routes/shain_kensaku')
 const loginGroupRouter = require('./routes/login_group')
 
 // TODO : ここにComComCoin用のAPIを追加していく
+const com_oshirase_menteRouter = require('./routes/com_oshirase_mente')
 const comcomcoinHomeRouter = require('./routes/comcomcoin_home')
 const articleRouter = require('./routes/article')
 const chatRouter = require('./routes/chat')
@@ -99,6 +100,7 @@ app.use('/login_group', loginGroupRouter)
 
 // ComComCoin
 // TODO : ここにComComCoin用のAPIを追加していく
+app.use('/com_oshirase_mente', com_oshirase_menteRouter)
 app.use('/comcomcoin_home', comcomcoinHomeRouter)
 app.use('/article', articleRouter)
 app.use('/chat', chatRouter)

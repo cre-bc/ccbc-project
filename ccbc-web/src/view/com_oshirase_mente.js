@@ -48,11 +48,37 @@ import NativeSelect from '@material-ui/core/NativeSelect'
 import AddIcon from '@material-ui/icons/Add'
 import Icon from '@material-ui/core/Icon'
 import EditIcon from '@material-ui/icons/Edit'
+import moment from 'moment'
+import 'moment/locale/ja'
+import request from 'superagent'
+
+const restdomain = require('../common/constans.js').restdomain
 
 let counter = 0
 function createData(date, name, tytle, calories) {
   counter += 1
   return { id: counter, date, name, tytle, calories }
+}
+
+function getNendo(val) {
+  var result = '日付文字列が不正です。' //日付不正時のメッセージ
+  try {
+    var y = Number(val.substr(0, 4))
+    var m = Number(val.substr(4, 2))
+    var d = Number(val.substr(6, 2))
+    var dt = new Date(y, m - 1, d)
+    if (dt.getFullYear() == y && dt.getMonth() == m - 1 && dt.getDate() == d) {
+      if (m < 4) {
+        //4月はじまり
+        result = y - 1
+      } else {
+        result = y
+      }
+    }
+    return result
+  } catch (ex) {
+    return result
+  }
 }
 
 function desc(a, b, orderBy) {
@@ -438,66 +464,13 @@ class ComOshiraseMenteForm extends React.Component {
         '2021年度卒業者対象のインターンシップ情報を掲載いたしました。詳細は下記をご覧ください。https://www.hokkaido-ima.co.jp/'
       ),
       createData(
-        20190625,
-        '2019/06/25',
-        'SSLサーバー証明書 月額版サービス「wwwあり/なし」両方のhttps表示に対応しました',
-        '各種関連サービスにおきまして提供内容の拡張を行いました。これにより、wwwあり/なし両方のURLでお客様のホームぺージをhttpsで表示することができるようになる証明書がご利用いただけます。'
-      ),
-      createData(
-        20190624,
-        '2019/06/24',
-        'お問い合わせ窓口受付時間変更のお知らせ',
-        '2019年6月24日（月）より、技術内容の問い合わせ窓口の受付時間を変更いたします。'
-      ),
-      createData(
-        20190620,
-        '2019/06/20',
-        'Webサーババージョン2への切替えに関するご案内',
-        'サーババージョン1環境で公開中のホームページ閲覧に関する重要な内容となりますので、内容をご確認いただき是非サーババージョン2環境への切替えをご検討いただきますよう、お願い申し上げます。'
-      ),
-      createData(
-        20190526,
-        '2019/05/26',
-        '事業内容に2018年度の実績を追加しました',
-        '事業内容に2018年度の実績を追加しました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190416,
-        '2019/04/16',
-        '財界さっぽろ様の「企業特集」に掲載されました',
-        '財界さっぽろ様の「企業特集」に掲載されました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190101,
-        '2019/01/01',
-        'Windows 10（バージョン 1809　ビルド 17763）の対応について',
-        'Windows 10(バージョン 1809　ビルド 17763)の対応状況について、ご案内させていただきます。'
-      ),
-      createData(
-        20190310,
-        '2019/03/10',
-        'サーバメンテナンスのお知らせ',
-        '下記日程におきまして、メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
-        20190626,
-        '2019/06/26',
-        'メンテナンスのお知らせ',
-        '下記日程におきまして、メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
-        20190610,
-        '2019/06/10',
-        '緊急メンテナンスのお知らせ',
-        '下記日程におきまして、緊急メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
         20190607,
         '2019/06/07',
         '管理者機能・ご利用メニュー障害発生のご報告',
         '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
       )
     ],
+    resultList: [],
     page: 0,
     rowsPerPage: 5
   }
@@ -510,17 +483,17 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ Target_year: yyyy })
     this.state.targetYear = yyyy
 
-    var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    // var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
 
-    for (var i in loginInfos) {
-      var loginInfo = loginInfos[i]
-      this.setState({ userid: loginInfo['userid'] })
-      this.setState({ password: loginInfo['password'] })
-      this.setState({ tShainPk: loginInfo['tShainPk'] })
-      this.setState({ imageFileName: loginInfo['imageFileName'] })
-      this.setState({ shimei: loginInfo['shimei'] })
-      this.setState({ kengenCd: loginInfo['kengenCd'] })
-    }
+    // for (var i in loginInfos) {
+    //   var loginInfo = loginInfos[i]
+    //   this.setState({ userid: loginInfo['userid'] })
+    //   this.setState({ password: loginInfo['password'] })
+    //   this.setState({ tShainPk: loginInfo['tShainPk'] })
+    //   this.setState({ imageFileName: loginInfo['imageFileName'] })
+    //   this.setState({ shimei: loginInfo['shimei'] })
+    //   this.setState({ kengenCd: loginInfo['kengenCd'] })
+    // }
 
     request.get(restdomain + '/con_oshirase_mente/find').end((err, res) => {
       if (err) return
@@ -555,14 +528,14 @@ class ComOshiraseMenteForm extends React.Component {
       })
     */
 
-    request
-      .post(restdomain + '/con_oshirase_mente/findall')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 検索結果表示
-        this.setState({ resultAllList: res.body.data })
-      })
+    // request
+    //   .post(restdomain + '/con_oshirase_mente/findall')
+    //   .send(this.state)
+    //   .end((err, res) => {
+    //     if (err) return
+    //     // 検索結果表示
+    //     this.setState({ resultAllList: res.body.data })
+    //   })
 
   }
 
@@ -842,58 +815,61 @@ class ComOshiraseMenteForm extends React.Component {
                       rowCount={data.length}
                     />
                     <TableBody>
-                      {data
-                        .sort(getSorting(order, orderBy))
-                        .slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
-                        .map(n => {
-                          const isSelected = this.isSelected(n.id)
-                          return (
-                            <TableRow
-                              hover
-                              onClick={event => this.handleClick(event, n.id)}
-                              role="checkbox"
-                              aria-checked={isSelected}
-                              tabIndex={-1}
-                              key={n.id}
-                              selected={isSelected}
+                      {this.state.resultList.map(n => {
+                        // {data
+                        //   .sort(getSorting(order, orderBy))
+                        //   .slice(
+                        //     page * rowsPerPage,
+                        //     page * rowsPerPage + rowsPerPage
+                        //   )
+                        //   .map(n => {
+                        const isSelected = this.isSelected(n.id)
+                        return (
+                          <TableRow
+                            hover
+                            onClick={event => this.handleClick(event, n.id)}
+                            role="checkbox"
+                            aria-checked={isSelected}
+                            tabIndex={-1}
+                            key={n.id}
+                            selected={isSelected}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox checked={isSelected} />
+                            </TableCell>
+                            <TableCell
+                              component="th"
+                              scope="row"
+                              padding="dense"
+                              style={{ width: '10%', fontSize: '120%' }}
                             >
-                              <TableCell padding="checkbox">
-                                <Checkbox checked={isSelected} />
-                              </TableCell>
-                              <TableCell
-                                component="th"
-                                scope="row"
-                                padding="dense"
-                                style={{ width: '10%', fontSize: '120%' }}
-                              >
-                                {n.name}
-                              </TableCell>
-                              <TableCell
-                                component="th"
-                                scope="row"
-                                padding="dense"
-                                style={{ width: '30%', fontSize: '120%' }}
-                              >
-                                {n.tytle}
-                              </TableCell>
-                              <TableCell
-                                // numeric
-                                component="th"
-                                scope="row"
-                                padding="dense"
-                                style={{ width: '60%', fontSize: '120%' }}
-                              >
-                                {n.calories}
-                              </TableCell>
-                              {/* <TableCell numeric>{n.fat}</TableCell>
+                              {moment(new Date(n.notice_dt)).format(
+                                'YYYY/MM/DD'
+                              )}
+                            </TableCell>
+                            <TableCell
+                              component="th"
+                              scope="row"
+                              padding="dense"
+                              style={{ width: '30%', fontSize: '120%' }}
+                            >
+                              {n.title}
+                            </TableCell>
+                            <TableCell
+                              // numeric
+                              component="th"
+                              scope="row"
+                              padding="dense"
+                              style={{ width: '60%', fontSize: '120%' }}
+                            >
+                              {n.comment}
+                            </TableCell>
+                            {/* <TableCell numeric>{n.fat}</TableCell>
                               <TableCell numeric>{n.carbs}</TableCell>
                               <TableCell numeric>{n.protein}</TableCell> */}
-                            </TableRow>
-                          )
-                        })}
+                          </TableRow>
+                        )
+                      })}
                       {emptyRows > 0 && (
                         <TableRow style={{ height: 49 * emptyRows }}>
                           <TableCell colSpan={3} />
