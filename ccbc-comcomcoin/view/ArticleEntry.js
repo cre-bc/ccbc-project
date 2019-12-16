@@ -259,12 +259,12 @@ export default class ArticleEntry extends BaseComponent {
 
   render() {
     return (
-      <View>
+      <View style={{ flex: 1 }}>
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
         {/* -- 入力部 -- */}
-        <KeyboardAvoidingView behavior="padding">
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           <View style={{ height: "90%" }}>
             <ScrollView>
               <View style={{ padding: 10 }}>
@@ -305,6 +305,7 @@ export default class ArticleEntry extends BaseComponent {
                   <TextInput
                     multiline={true}
                     numberOfLines={8}
+                    scrollEnabled={false}
                     style={[styles.inputText, { textAlignVertical: 'top' }]}
                     value={this.state.contents}
                     onChangeText={text => { this.setState({ contents: text }) }}
