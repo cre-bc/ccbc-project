@@ -456,21 +456,22 @@ class ComOshiraseMenteForm extends React.Component {
     order: 'asc',
     orderBy: 'name',
     selected: [],
-    data: [
-      createData(
-        20190627,
-        '2019/06/27',
-        '2021年度卒業者対象のインターンシップ情報を掲載いたしました',
-        '2021年度卒業者対象のインターンシップ情報を掲載いたしました。詳細は下記をご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190607,
-        '2019/06/07',
-        '管理者機能・ご利用メニュー障害発生のご報告',
-        '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
-      )
-    ],
+    // data: [
+    //   createData(
+    //     20190627,
+    //     '2019/06/27',
+    //     '2021年度卒業者対象のインターンシップ情報を掲載いたしました',
+    //     '2021年度卒業者対象のインターンシップ情報を掲載いたしました。詳細は下記をご覧ください。https://www.hokkaido-ima.co.jp/'
+    //   ),
+    //   createData(
+    //     20190607,
+    //     '2019/06/07',
+    //     '管理者機能・ご利用メニュー障害発生のご報告',
+    //     '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
+    //   )
+    // ],
     resultList: [],
+    Target_year: '',
     page: 0,
     rowsPerPage: 5
   }
@@ -601,7 +602,7 @@ class ComOshiraseMenteForm extends React.Component {
 
   handleSelectAllClick = (event, checked) => {
     if (checked) {
-      this.setState(state => ({ selected: state.data.map(n => n.id) }))
+      this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
       return
     }
     this.setState({ selected: [] })
@@ -653,10 +654,11 @@ class ComOshiraseMenteForm extends React.Component {
       orderBy,
       selected,
       rowsPerPage,
-      page
+      page,
+      resultList
     } = this.state
     const emptyRows =
-      rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage)
+      rowsPerPage - Math.min(rowsPerPage, resultList.length - page * rowsPerPage)
     const loginLink = props => <Link to="../" {...props} />
 
     const drawer = (
@@ -812,64 +814,63 @@ class ComOshiraseMenteForm extends React.Component {
                       orderBy={orderBy}
                       onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
-                      rowCount={data.length}
+                      rowCount={this.state.resultList.length}
                     />
                     <TableBody>
-                      {this.state.resultList.map(n => {
-                        // {data
-                        //   .sort(getSorting(order, orderBy))
-                        //   .slice(
-                        //     page * rowsPerPage,
-                        //     page * rowsPerPage + rowsPerPage
-                        //   )
-                        //   .map(n => {
-                        const isSelected = this.isSelected(n.id)
-                        return (
-                          <TableRow
-                            hover
-                            onClick={event => this.handleClick(event, n.id)}
-                            role="checkbox"
-                            aria-checked={isSelected}
-                            tabIndex={-1}
-                            key={n.id}
-                            selected={isSelected}
-                          >
-                            <TableCell padding="checkbox">
-                              <Checkbox checked={isSelected} />
-                            </TableCell>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              padding="dense"
-                              style={{ width: '10%', fontSize: '120%' }}
+                      {this.state.resultList
+                        .sort(getSorting(order, orderBy))
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map(n => {
+                          const isSelected = this.isSelected(n.id)
+                          return (
+                            <TableRow
+                              hover
+                              onClick={event => this.handleClick(event, n.id)}
+                              role="checkbox"
+                              aria-checked={isSelected}
+                              tabIndex={-1}
+                              key={n.id}
+                              selected={isSelected}
                             >
-                              {moment(new Date(n.notice_dt)).format(
-                                'YYYY/MM/DD'
-                              )}
-                            </TableCell>
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              padding="dense"
-                              style={{ width: '30%', fontSize: '120%' }}
-                            >
-                              {n.title}
-                            </TableCell>
-                            <TableCell
-                              // numeric
-                              component="th"
-                              scope="row"
-                              padding="dense"
-                              style={{ width: '60%', fontSize: '120%' }}
-                            >
-                              {n.comment}
-                            </TableCell>
-                            {/* <TableCell numeric>{n.fat}</TableCell>
+                              <TableCell padding="checkbox">
+                                <Checkbox checked={isSelected} />
+                              </TableCell>
+                              <TableCell
+                                component="th"
+                                scope="row"
+                                padding="dense"
+                                style={{ width: '10%', fontSize: '120%' }}
+                              >
+                                {moment(new Date(n.notice_dt)).format(
+                                  'YYYY/MM/DD'
+                                )}
+                              </TableCell>
+                              <TableCell
+                                component="th"
+                                scope="row"
+                                padding="dense"
+                                style={{ width: '30%', fontSize: '120%' }}
+                              >
+                                {n.title}
+                              </TableCell>
+                              <TableCell
+                                // numeric
+                                component="th"
+                                scope="row"
+                                padding="dense"
+                                style={{ width: '60%', fontSize: '120%' }}
+                              >
+                                {n.comment}
+                              </TableCell>
+                              {/* <TableCell numeric>{n.fat}</TableCell>
                               <TableCell numeric>{n.carbs}</TableCell>
                               <TableCell numeric>{n.protein}</TableCell> */}
-                          </TableRow>
-                        )
-                      })}
+                            </TableRow>
+                          )
+                        })}
                       {emptyRows > 0 && (
                         <TableRow style={{ height: 49 * emptyRows }}>
                           <TableCell colSpan={3} />
@@ -880,7 +881,7 @@ class ComOshiraseMenteForm extends React.Component {
                 </div>
                 <TablePagination
                   component="div"
-                  count={data.length}
+                  count={resultList.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   backIconButtonProps={{
