@@ -1,10 +1,8 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, KeyboardAvoidingView } from 'react-native'
+import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, KeyboardAvoidingView } from 'react-native'
 import { Icon } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker'
-import Constants from 'expo-constants';
-import * as Permissions from 'expo-permissions';
-import axios from "axios"
+import * as Permissions from 'expo-permissions'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -88,7 +86,7 @@ export default class ArticleEntry extends BaseComponent {
   }
 
   getPermissionAsync = async () => {
-    if (Constants.platform.ios) {
+    if (Platform.OS === "ios") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
       if (status !== 'granted') {
         alert('Sorry, we need camera roll permissions to make this work!');
@@ -143,30 +141,14 @@ export default class ArticleEntry extends BaseComponent {
 
     if (this.state.imageData.uri !== "") {
       // 画像ファイルのアップロードがある場合
-      const fileName = moment(new Date()).format('YYYYMMDDHHmmssSS') + ".png"
+      const extension = this.getExtension(this.state.imageData.uri)
+      const fileName = moment(new Date()).format('YYYYMMDDHHmmssSS') + "." + extension
       let data = new FormData()
       data.append('image', {
-        uri: (Constants.platform.android ? this.state.imageData.uri : this.state.imageData.uri.replace("file://", "")),
-        // uri: this.state.imageData.uri,
-        type: this.state.imageData.type,
-        name: fileName
+        uri: this.state.imageData.uri,
+        name: fileName,
+        type: this.state.imageData.type + "/" + extension
       })
-
-      // var http = new XMLHttpRequest()
-      // http.open("POST", restdomain + '/article/upload')
-      // http.setRequestHeader("Content-type", "multipart/form-data")
-      // http.onreadystatechange = async (e) => {
-      //   if (request.readyState !== 4) {
-      //     return
-      //   }
-      //   if (http.status === 200) {
-      //     // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-      //     this.edit(fileName)
-      //   } else {
-      //     alert("画像ファイルのアップロードに失敗しました status:" + http.status)
-      //   }
-      // }
-      // http.send(data)
 
       await fetch(restdomain + '/article/upload', {
         method: 'POST',
@@ -189,26 +171,28 @@ export default class ArticleEntry extends BaseComponent {
         }.bind(this))
         .catch(error => alert(error))
 
-      // axios
-      //   .post(restdomain + '/article/upload',
-      //     data,
-      //     { headers: new Headers({ 'Accept': 'application/json', 'Content-Type': 'multipart/form-data' }) }
-      //   )
-      //   .then((res) => {
-      //     if (res.data.status) {
-      //       // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-      //       this.edit(fileName)
-      //     } else {
-      //       alert("画像ファイルのアップロードに失敗しました")
-      //     }
-      //   })
-      //   .catch((error) => alert(error))
     } else {
       // 記事API.投稿処理の呼び出し（DB登録→BC登録）
       this.edit(this.state.file_path)
     }
   }
 
+  /** ファイルパスよりファイルの拡張子を取得 */
+  getExtension = (fileName) => {
+    var ret = ""
+    if (!fileName) {
+      return ret
+    }
+    var fileTypes = fileName.split(".")
+    var len = fileTypes.length
+    if (len === 0) {
+      return ret
+    }
+    ret = fileTypes[len - 1]
+    return ret
+  }
+
+  /** データ更新処理 */
   edit = async (fileName) => {
     this.state.file_path = fileName
 
