@@ -470,10 +470,27 @@ class ComOshiraseMenteForm extends React.Component {
     //     '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
     //   )
     // ],
-    resultList: [],
-    Target_year: '',
     page: 0,
     rowsPerPage: 5
+  }
+
+  constructor(props) {
+    super(props)
+    const params = this.props.match
+    this.state = {
+      status: true,
+      loaded: false,
+      mode: params.params.mode,
+      readonly: false,
+      resultList: [],
+      resultAllList: [],
+      open: false,
+      anchor: 'left',
+      anchorEl: null,
+      addFlg: true,
+      Target_year: '',
+      nendoList: []
+    }
   }
 
   /** コンポーネントのマウント時処理 */
@@ -496,7 +513,7 @@ class ComOshiraseMenteForm extends React.Component {
     //   this.setState({ kengenCd: loginInfo['kengenCd'] })
     // }
 
-    request.get(restdomain + '/con_oshirase_mente/find').end((err, res) => {
+    request.get(restdomain + '/com_oshirase_mente/find').end((err, res) => {
       if (err) return
       // 検索結果表示
       this.setState({ resultList: res.body.data })
@@ -504,7 +521,7 @@ class ComOshiraseMenteForm extends React.Component {
 
     /** 年度表示
     request
-      .get(restdomain + '/con_oshirase_mente/findall')
+      .get(restdomain + '/com_oshirase_mente/findall')
       .send(this.state)
       .end((err, res) => {
         if (err) return
@@ -529,14 +546,14 @@ class ComOshiraseMenteForm extends React.Component {
       })
     */
 
-    // request
-    //   .post(restdomain + '/con_oshirase_mente/findall')
-    //   .send(this.state)
-    //   .end((err, res) => {
-    //     if (err) return
-    //     // 検索結果表示
-    //     this.setState({ resultAllList: res.body.data })
-    //   })
+    request
+      .post(restdomain + '/com_oshirase_mente/findall')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultAllList: res.body.data })
+      })
 
   }
 
@@ -805,11 +822,11 @@ class ComOshiraseMenteForm extends React.Component {
             <div>
               {/* 一覧 */}
               <Paper className={classes.root2}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                {/* <EnhancedTableToolbar numSelected={selected.length} /> */}
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table} aria-labelledby="tableTitle">
                     <EnhancedTableHead
-                      numSelected={selected.length}
+                      // numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
                       onSelectAllClick={this.handleSelectAllClick}
@@ -818,11 +835,11 @@ class ComOshiraseMenteForm extends React.Component {
                     />
                     <TableBody>
                       {this.state.resultList
-                        .sort(getSorting(order, orderBy))
-                        .slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
+                        // .sort(getSorting(order, orderBy))
+                        // .slice(
+                        //   page * rowsPerPage,
+                        //   page * rowsPerPage + rowsPerPage
+                        // )
                         .map(n => {
                           const isSelected = this.isSelected(n.id)
                           return (

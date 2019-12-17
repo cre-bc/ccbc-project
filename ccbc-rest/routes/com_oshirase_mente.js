@@ -17,6 +17,54 @@ const query = (sql, params, res) => {
     })
 }
 
+// /**
+//  * API : find
+//  * ○○○を取得
+//  */
+// router.post('/find', (req, res) => {
+//     console.log('API : find - start')
+//     find(req, res)
+//     console.log('API : find - end')
+// })
+
+// // ----------------------------------------------------------------------
+// /**
+//  * ○○○を取得
+//  * @param req リクエスト
+//  * @param res レスポンス
+//  */
+// async function find(req, res) {
+//     db = db2.sequelizeDB(db, req)
+//     var resdatas = await getXxxList(req)
+//     res.json({
+//         status: true,
+//         data: resdatas
+//     })
+// }
+
+// // ----------------------------------------------------------------------
+// /**
+//  * ○○○テーブルよりselect（DBアクセス）
+//  * @param db SequelizeされたDBインスタンス
+//  * @param req リクエスト
+//  */
+// function getXxxList(db, req) {
+//     return new Promise((resolve, reject) => {
+//         // SQLとパラメータを指定
+//         var sql =
+//             "select title,comment,notice_dt from t_oshirase where delete_flg = '0' order by notice_dt"
+//         db.query(sql, {
+//             //   replacements: { shain_pk: req.body.login_shain_pk },
+//             type: db.QueryTypes.RAW
+//         })
+//             .spread((datas, metadata) => {
+//                 console.log('DBAccess : getXxxList result...')
+//                 console.log(datas)
+//                 return resolve(datas)
+//             })
+//     })
+// }
+
 /**
  * 
  * 検索結果表示
