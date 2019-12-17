@@ -89,7 +89,7 @@ export default class ChatSelectForm extends BaseComponent {
                   roundAvatar
                   title={n.shimei}
                   titleStyle={{ fontSize: 18 }}
-                  avatar={n.image_file_nm}
+                  avatar={{ uri: restdomain + `/uploads/${n.image_file_nm}` }}
                   onPress={e =>
                     this.onPressChatMsgButton(
                       e,

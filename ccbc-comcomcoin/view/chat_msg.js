@@ -97,9 +97,7 @@ export default class ChatMsgForm extends BaseComponent {
               user: {
                 _id: chatNo,
                 name: this.state.shimei,
-                avatar: {
-                  uri: restdomain + `/uploads/${this.state.imageFileName}`
-                }
+                avatar: restdomain + `/uploads/${this.state.imageFileName}`
               }
             })
           }
@@ -152,6 +150,8 @@ export default class ChatMsgForm extends BaseComponent {
         <InAppHeader navigate={this.props.navigation.navigate} />
         {/* -- 画面タイトル -- */}
         <View style={[styles.screenTitleView, { flexDirection: 'row' }]}>
+          {/* 空項目 */}
+          <View style={{ flex: 1, alignItems: 'flex-start' }} />
           {/* チャット相手 */}
           <View style={{ alignItems: 'center' }}>
             <Text style={styles.screenTitleText}>{this.state.chatUser}</Text>
