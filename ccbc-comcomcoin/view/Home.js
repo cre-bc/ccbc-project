@@ -155,7 +155,7 @@ export default class Home extends BaseComponent {
           {this.state.infoList.map((item, i) => {
             return (
               <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ marginTop: 0 }} key={i}>
-                {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{' '}{item.title}
+                {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
               </Text>
             )
           })}
@@ -302,11 +302,15 @@ export default class Home extends BaseComponent {
         {/* -- 各機能アイコン -- */}
         <View style={[{ flex: 0.35, flexDirection: 'row' }]}>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Image
-              resizeMode="contain"
-              source={require('./../images/icons8-chat-bubble-48.png')}
-            />
-            <Text>チャット</Text>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => this.props.navigation.navigate('ChatSelect')}>
+              <Image
+                resizeMode="contain"
+                source={require('./../images/icons8-chat-bubble-48.png')}
+              />
+              <Text>チャット</Text>
+            </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <Image

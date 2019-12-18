@@ -95,7 +95,7 @@ export default class Login extends Component {
             }
             this.setLoginInfo(JSON.stringify(loginInfo))
 
-            this.props.navigation.navigate('Home2')
+            this.props.navigation.navigate('Home')
           } else {
             this.setState({
               msg: 'ユーザ名またはパスワードを確認してください'
