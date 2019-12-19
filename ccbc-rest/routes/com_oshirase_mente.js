@@ -4,18 +4,44 @@ const async = require('async')
 var db = require('./common/sequelize_helper.js').sequelize
 var db2 = require('./common/sequelize_helper.js')
 
-const query = (sql, params, res) => {
-    db.query(sql, params, (err, datas) => {
-        if (err) {
-            console.log(`failed...${err}`)
-            res.status(400).send(`エラーが発生しました<br />${err}`)
-            return
-        }
-        console.log('success!!')
-        console.log(datas)
-        res.json({ status: true, data: datas })
-    })
+// const query = (sql, params, res) => {
+//     db.query(sql, params, (err, datas) => {
+//         if (err) {
+//             console.log(`failed...${err}`)
+//             res.status(400).send(`エラーが発生しました<br />${err}`)
+//             return
+//         }
+//         console.log('success!!')
+//         console.log(datas)
+//         res.json({ status: true, data: datas })
+//     })
+// }
+
+const query = (sql, params, res, req) => {
+    if (req.body.db_name != null && req.body.db_name != '') {
+        db = db2.sequelize3(req.body.db_name)
+    } else {
+        db = require('./common/sequelize_helper.js').sequelize
+    }
+
+    db
+        .query(sql, {
+            type: db.QueryTypes.RAW
+        })
+        .spread(async (datas, metadata) => {
+            res.json({ status: true, data: datas })
+        })
 }
+
+router.get('/find', async (req, res) => {
+    console.log('OK')
+    console.log('req.params:' + req.params)
+    // console.log('req.body.Target_year:' + req.body.Target_year)
+    const params = []
+    const sql =
+        "select title, comment, notice_dt from t_oshirase where delete_flg = '0' order by notice_dt desc"
+    query(sql, params, res, req)
+})
 
 // /**
 //  * API : find
@@ -70,14 +96,14 @@ const query = (sql, params, res) => {
  * 検索結果表示
  * 
  */
-router.get('/find', (req, res) => {
-    console.log('OK')
-    console.log(req.params)
-    const params = []
-    const sql =
-        "select title,comment,notice_dt from t_oshirase where delete_flg = '0' order by notice_dt"
-    query(sql, params, res)
-})
+// router.get('/find', (req, res) => {
+//     console.log('OK')
+//     console.log(req.params)
+//     const params = []
+//     const sql =
+//         "select title, comment, notice_dt from t_oshirase where delete_flg = '0' order by notice_dt desc"
+//     query(sql, params, res)
+// })
 
 // /**
 //  * 

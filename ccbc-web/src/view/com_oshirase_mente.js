@@ -455,7 +455,7 @@ class ComOshiraseMenteForm extends React.Component {
     anchor: 'left',
     order: 'asc',
     orderBy: 'name',
-    selected: [],
+    // selected: [],
     // data: [
     //   createData(
     //     20190627,
@@ -482,6 +482,7 @@ class ComOshiraseMenteForm extends React.Component {
       loaded: false,
       mode: params.params.mode,
       readonly: false,
+      selected: [],
       resultList: [],
       resultAllList: [],
       open: false,
@@ -546,14 +547,14 @@ class ComOshiraseMenteForm extends React.Component {
       })
     */
 
-    request
-      .post(restdomain + '/com_oshirase_mente/findall')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 検索結果表示
-        this.setState({ resultAllList: res.body.data })
-      })
+    // request
+    //   .post(restdomain + '/com_oshirase_mente/findall')
+    //   .send(this.state)
+    //   .end((err, res) => {
+    //     if (err) return
+    //     // 検索結果表示
+    //     this.setState({ resultAllList: res.body.data })
+    //   })
 
   }
 
@@ -813,9 +814,12 @@ class ComOshiraseMenteForm extends React.Component {
                   // }}
                   input={<Input name="age" id="age-native-label-placeholder" />}
                 >
-                  <option value="">2019年</option>
+                  {/* <option value="">2019年</option>
                   <option value={10}>2018年</option>
-                  <option value={20}>2017年</option>
+                  <option value={20}>2017年</option> */}
+                  {/* {this.state.nendoList.map(n => {
+                    return <option value={n}>{n}年</option>
+                  })} */}
                 </Select>
               </FormControl>
             </div>
