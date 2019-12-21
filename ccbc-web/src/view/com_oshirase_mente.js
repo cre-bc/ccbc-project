@@ -55,10 +55,6 @@ import request from 'superagent'
 const restdomain = require('../common/constans.js').restdomain
 
 let counter = 0
-function createData(date, name, tytle, calories) {
-  counter += 1
-  return { id: counter, date, name, tytle, calories }
-}
 
 function getNendo(val) {
   var result = '日付文字列が不正です。' //日付不正時のメッセージ
@@ -79,6 +75,13 @@ function getNendo(val) {
   } catch (ex) {
     return result
   }
+}
+
+function getArray(array1) {
+  var array2 = array1.filter(function (x, i, self) {
+    return self.indexOf(x) === i
+  })
+  return array2
 }
 
 function desc(a, b, orderBy) {
@@ -456,20 +459,6 @@ class ComOshiraseMenteForm extends React.Component {
     order: 'asc',
     orderBy: 'name',
     // selected: [],
-    // data: [
-    //   createData(
-    //     20190627,
-    //     '2019/06/27',
-    //     '2021年度卒業者対象のインターンシップ情報を掲載いたしました',
-    //     '2021年度卒業者対象のインターンシップ情報を掲載いたしました。詳細は下記をご覧ください。https://www.hokkaido-ima.co.jp/'
-    //   ),
-    //   createData(
-    //     20190607,
-    //     '2019/06/07',
-    //     '管理者機能・ご利用メニュー障害発生のご報告',
-    //     '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
-    //   )
-    // ],
     page: 0,
     rowsPerPage: 5
   }
@@ -514,15 +503,25 @@ class ComOshiraseMenteForm extends React.Component {
     //   this.setState({ kengenCd: loginInfo['kengenCd'] })
     // }
 
-    request.get(restdomain + '/com_oshirase_mente/find').end((err, res) => {
-      if (err) return
-      // 検索結果表示
-      this.setState({ resultList: res.body.data })
-    })
+    // request.get(restdomain + '/com_oshirase_mente/find').end((err, res) => {
+    //   if (err) return
+    //   // 検索結果表示
+    //   this.setState({ resultList: res.body.data })
+    // })
 
-    /** 年度表示
     request
-      .get(restdomain + '/com_oshirase_mente/findall')
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        // this.state.resultList = res.body.data
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
       .send(this.state)
       .end((err, res) => {
         if (err) return
@@ -530,7 +529,7 @@ class ComOshiraseMenteForm extends React.Component {
         var nendoList = []
         for (var i in res.body.data) {
           var r = res.body.data[i]
-          var d = moment(new Date(r.tohyo_kaishi_dt)).format('YYYYMMDD')
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
           var nendo = getNendo(d)
           nendoList.push(nendo)
         }
@@ -545,16 +544,6 @@ class ComOshiraseMenteForm extends React.Component {
         this.state.nendoList = nendoList2
         this.setState({ nendoList: nendoList2 })
       })
-    */
-
-    // request
-    //   .post(restdomain + '/com_oshirase_mente/findall')
-    //   .send(this.state)
-    //   .end((err, res) => {
-    //     if (err) return
-    //     // 検索結果表示
-    //     this.setState({ resultAllList: res.body.data })
-    //   })
 
   }
 
@@ -655,8 +644,23 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ rowsPerPage: event.target.value })
   }
 
-  handleChange = name => event => {
-    this.setState({ [name]: event.target.value })
+  // handleChange = name => event => {
+  //   this.setState({ [name]: event.target.value })
+  // }
+
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value })
+    //postdata(event.target.value)
+    this.state.targetYear = Number(event.target.value)
+    request
+      //    .get('/com_oshirase_mente/find')
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
   }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
@@ -667,7 +671,6 @@ class ComOshiraseMenteForm extends React.Component {
       anchor,
       open,
       open2,
-      data,
       order,
       orderBy,
       selected,
@@ -801,25 +804,26 @@ class ComOshiraseMenteForm extends React.Component {
               {/* 年度選択 */}
               <FormControl className={classes.formControl}>
                 {/* <InputLabel htmlFor="age-native-simple" /> */}
-                <InputLabel shrink htmlFor="age-native-simple">
+                <InputLabel shrink htmlFor="Target_year-simple">
                   年度
                 </InputLabel>
                 <Select
                   native
-                  value={this.state.age}
-                  onChange={this.handleChange('age')}
-                  // inputProps={{
-                  //   name: 'age',
-                  //   id: 'age-native-simple'
-                  // }}
-                  input={<Input name="age" id="age-native-label-placeholder" />}
+                  id="Target_year-simple"
+                  value={this.state.Target_year}
+                  onChange={this.handleChange}
+                  inputProps={{
+                    name: 'Target_year',
+                    id: 'Target_year-simple'
+                  }}
+                // input={<Input name="age" id="age-native-label-placeholder" />}
                 >
                   {/* <option value="">2019年</option>
                   <option value={10}>2018年</option>
                   <option value={20}>2017年</option> */}
-                  {/* {this.state.nendoList.map(n => {
+                  {this.state.nendoList.map(n => {
                     return <option value={n}>{n}年</option>
-                  })} */}
+                  })}
                 </Select>
               </FormControl>
             </div>

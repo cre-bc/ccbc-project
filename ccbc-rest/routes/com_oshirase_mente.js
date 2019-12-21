@@ -34,12 +34,32 @@ const query = (sql, params, res, req) => {
 }
 
 router.get('/find', async (req, res) => {
-    console.log('OK')
+    console.log('OK!')
     console.log('req.params:' + req.params)
-    // console.log('req.body.Target_year:' + req.body.Target_year)
+    console.log('req.body.Target_year:' + req.body.Target_year)
     const params = []
     const sql =
-        "select title, comment, notice_dt from t_oshirase where delete_flg = '0' order by notice_dt desc"
+        "select renban, title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm from t_oshirase where delete_flg = '0' order by notice_dt desc"
+    query(sql, params, res, req)
+})
+
+/**
+ * 
+ * 検索結果表示
+ * 
+ */
+router.post('/find', (req, res) => {
+    console.log('OK!!')
+    console.log(req.params)
+    console.log('req.body.targetYear:' + req.body.targetYear)
+    const params = []
+    const sql =
+        "select title, comment, notice_dt from t_oshirase where delete_flg = '0' and notice_dt between '" +
+        req.body.targetYear +
+        "0401' and '" +
+        (req.body.targetYear + 1) +
+        "0331'" +
+        ' order by notice_dt desc'
     query(sql, params, res, req)
 })
 
@@ -118,27 +138,6 @@ router.get('/find', async (req, res) => {
 //         "select t_senkyo_pk, senkyo_nm, tohyo_kaishi_dt, tohyo_shuryo_dt from t_senkyo where delete_flg = '0' order by tohyo_kaishi_dt desc,senkyo_nm"
 //     query(sql, params, res)
 // })
-
-/**
- * 
- * 検索結果表示
- * 
- */
-router.post('/findall', (req, res) => {
-    console.log('OK')
-    console.log(req.params)
-    const params = []
-    const sql =
-        "select title,comment,notice_dt from t_oshirase where delete_flg = '0' and notice_dt between '" +
-        req.body.targetYear +
-        "0401' and '" +
-        (req.body.targetYear + 1) +
-        "0331'" +
-        ' order by notice_dt desc'
-    query(sql, params, res)
-})
-
-
 
 // /**
 //  * API : find
