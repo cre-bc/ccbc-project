@@ -178,13 +178,11 @@ async function edit(req, res) {
       }
     }
 
-    // BCへの書き込み
-    // TODO : テスト環境が整っていないため、コメントアウト
-    // const transactionId = await bcrequest(req)
-    const transactionId = ""
-
     // 贈与テーブルの追加と、記事テーブルに贈与PKを更新
     if (isInsert) {
+      // BCへの書き込み
+      const transactionId = await bcrequest(req)
+
       // 贈与テーブルの追加
       var ret = await insertZoyo(db, tx, req, transactionId)
       const zoyoPk = ret[0].t_zoyo_pk
@@ -644,23 +642,22 @@ function bcrequest(req) {
   return new Promise((resolve, reject) => {
     var param = {
       from_account: [jimuAccount],
-      to_account: [req.body.loginShainPk],
+      to_account: [req.body.bcAccount],
       password: [jimuPassword],
       coin: [GET_COIN],
       bc_addr: req.body.bc_addr
     }
-    console.log('★★★')
+    console.log('bcrequest.param:', param)
     request
       .post(bcdomain + '/bc-api/send_coin')
       .send(param)
       .end((err, res) => {
-        console.log('★★★')
         if (err) {
-          console.log('★' + err)
+          console.log('bcrequest.err:', err)
           return
         }
         // 検索結果表示
-        console.log('★★★' + res.body.transaction)
+        console.log('bcrequest.result.transaction:', res.body.transaction)
         return resolve(res.body.transaction[0])
       })
   })

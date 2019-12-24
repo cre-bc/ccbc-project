@@ -73,11 +73,11 @@ export default class Login extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -89,6 +89,7 @@ export default class Login extends Component {
               password: this.state.passwordInput,
               tShainPk: resList.t_shain_pk,
               imageFileName: resList.image_file_nm,
+              bcAccount: resList.bc_account,
               shimei: resList.shimei,
               kengenCd: resList.kengen_cd,
               tokenId: json.token
@@ -166,7 +167,7 @@ export default class Login extends Component {
             </View>
             <View>
               <Text style={{ textAlign: 'right' }}>
-                　※ID、パスワード紛失時は管理者に連絡してください
+                ※ID、パスワード紛失時は管理者に連絡してください
               </Text>
             </View>
           </Card>
