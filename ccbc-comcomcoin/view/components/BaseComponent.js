@@ -21,5 +21,6 @@ export default class BaseComponent extends Component {
 		this.state.shimei = loginInfo['shimei']
 		this.state.kengenCd = loginInfo['kengenCd']
 		this.state.tokenId = loginInfo['tokenId']
+		this.state.bcAccount = loginInfo['bcAccount']
 	}
 }

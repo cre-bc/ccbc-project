@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View, Image, ScrollView, Modal, TextInput, TouchableOpacity, RefreshControl } from 'react-native'
 import { Icon, Avatar, Card } from 'react-native-elements'
+import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -15,6 +16,7 @@ export default class ArticleRefer extends BaseComponent {
     super(props)
     this.state = {
       mode: "",
+      isProcessing: false,
       current_kiji_category_pk: "",
       selectCategory: {
         t_kiji_category_pk: null,
@@ -62,10 +64,12 @@ export default class ArticleRefer extends BaseComponent {
     }
 
     // 記事リスト取得
-    this.readArticle(true)
+    await this.readArticle(true)
   }
 
   readArticle = async (isFirst) => {
+    this.setState({ isProcessing: true })
+
     // 記事API.記事リスト取得処理の呼び出し
     await fetch(restdomain + '/article/findArticle', {
       method: 'POST',
@@ -78,34 +82,36 @@ export default class ArticleRefer extends BaseComponent {
       })
       .then(
         function (json) {
-          // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
-            return
-          }
-          // 取得したデータをStateに格納
-          if (this.state.mode === "home") {
+            // 結果が取得できない場合は終了
+          } else {
+            // 取得したデータをStateに格納
+            if (this.state.mode === "home") {
+              this.setState({
+                selectCategory: {
+                  t_kiji_category_pk: json.data[0].t_kiji_category_pk,
+                  category_nm: json.data[0].category_nm
+                }
+              })
+            }
+            var data = json.data
+            if (!isFirst) {
+              data = this.state.articleList.concat(data)
+            }
+            var readLastKijiPk = this.state.readLastKijiPk
+            if (json.data.length > 0) {
+              readLastKijiPk = json.data[json.data.length - 1].t_kiji_pk
+            }
             this.setState({
-              selectCategory: {
-                t_kiji_category_pk: json.data[0].t_kiji_category_pk,
-                category_nm: json.data[0].category_nm
-              }
+              articleList: data,
+              readLastKijiPk: readLastKijiPk
             })
           }
-          var data = json.data
-          if (!isFirst) {
-            data = this.state.articleList.concat(data)
-          }
-          var readLastKijiPk = this.state.readLastKijiPk
-          if (json.data.length > 0) {
-            readLastKijiPk = json.data[json.data.length - 1].t_kiji_pk
-          }
-          this.setState({
-            articleList: data,
-            readLastKijiPk: readLastKijiPk
-          })
         }.bind(this)
       )
       .catch(error => console.error(error))
+
+    this.setState({ isProcessing: false })
   }
 
   /** 記事投稿画面へ遷移 */
@@ -236,7 +242,7 @@ export default class ArticleRefer extends BaseComponent {
     }
 
     // 記事リスト取得（次の記事の読み込み）
-    this.readArticle(false)
+    await this.readArticle(false)
   }
 
   /** スクロールのリフレッシュ（ページを引っ張った操作） */
@@ -266,7 +272,7 @@ export default class ArticleRefer extends BaseComponent {
     this.state.readLastKijiPk = ""
 
     // 記事リスト取得（条件付与）
-    this.readArticle(true)
+    await this.readArticle(true)
   }
 
   /** 検索条件クリアボタン押下 */
@@ -291,6 +297,13 @@ export default class ArticleRefer extends BaseComponent {
   render() {
     return (
       <View>
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={'Processing…'}
+          textStyle={styles.spinnerTextStyle}
+        />
+
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
@@ -420,7 +433,7 @@ export default class ArticleRefer extends BaseComponent {
 
                     {/* タイトル */}
                     <Text style={{ fontSize: 16, color: 'blue' }}>
-                      【{item.title}】
+                      {item.title}
                     </Text>
 
                     {/* ハッシュタグ */}
@@ -432,7 +445,7 @@ export default class ArticleRefer extends BaseComponent {
 
                 {/* 記事内容 */}
                 <View style={{ marginTop: 10, marginBottom: 10 }}>
-                  <Text>
+                  <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                     {item.contents}
                   </Text>
                 </View>
@@ -442,14 +455,15 @@ export default class ArticleRefer extends BaseComponent {
                   {(item.file_path !== "" && item.file_path !== null) &&
                     <Image
                       source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                      style={{ width: 300, height: 300 }} />
+                      style={{ width: 300, height: 300 }}
+                      resizeMode='contain' />
                   }
                 </View>
               </Card>
             )
           })}
           {/* スクロールが最下部まで表示されないことの暫定対応... */}
-          <View style={{ marginBottom: 100 }} />
+          <View style={{ marginBottom: 120 }} />
         </ScrollView>
 
         {/* -- 検索ダイアログ -- */}
@@ -552,5 +566,9 @@ const styles = StyleSheet.create({
     padding: 5,
     borderColor: 'gray',
     borderWidth: 1
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
+    fontSize: 18
   }
 })

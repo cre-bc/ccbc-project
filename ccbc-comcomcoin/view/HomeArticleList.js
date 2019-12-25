@@ -17,6 +17,12 @@ export default class HomeArticleList extends BaseComponent {
   }
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.props.navigation.addListener(
+      'willFocus', () => this.onWillFocus())
+  }
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
@@ -73,9 +79,9 @@ export default class HomeArticleList extends BaseComponent {
                 return (
                   <ListItem
                     key={i}
-                    titleStyle={{ fontSize: 12 }}
+                    titleStyle={{ fontSize: 12, marginLeft: 0 }}
                     title={item.title}
-                    subtitleStyle={{ fontSize: 10 }}
+                    subtitleStyle={{ fontSize: 10, marginLeft: 0 }}
                     subtitle={item.hashtag_str}
                     roundAvatar
                     // avatar={item.avatar}
@@ -91,6 +97,8 @@ export default class HomeArticleList extends BaseComponent {
                 )
               })}
             </Card>
+            {/* スクロールが最下部まで表示されないことの暫定対応... */}
+            <View style={{ marginBottom: 80 }} />
           </ScrollView>
         </View>
       </View>
