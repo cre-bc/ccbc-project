@@ -34,6 +34,8 @@ const articleRouter = require('./routes/article')
 const chatRouter = require('./routes/chat')
 
 const sampleRouter = require('./routes/sample')
+const comcomcoinMainteRouter = require('./routes/comcomcoin_mainte')
+const comcomcoinToolsRouter = require('./routes/comcomcoin_tools')
 
 const helmet = require('helmet')
 
@@ -107,6 +109,8 @@ app.use('/chat', chatRouter)
 
 // sample
 app.use('/sample', sampleRouter)
+app.use('/comcomcoinMainte', comcomcoinMainteRouter)
+app.use('/comcomcoinTools', comcomcoinToolsRouter)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
