@@ -33,6 +33,11 @@ const query = (sql, params, res, req) => {
         })
 }
 
+/**
+ * 
+ * 年度リスト取得
+ * 
+ */
 router.get('/find', async (req, res) => {
     console.log('OK!')
     console.log('req.params:' + req.params)
@@ -62,6 +67,122 @@ router.post('/find', (req, res) => {
         ' order by notice_dt desc'
     query(sql, params, res, req)
 })
+
+router.post('/create', (req, res) => {
+    console.log('◆◆◆')
+    var resultList = req.body.resultList
+    var selected = req.body.selected
+
+    // トークンチェック
+    // var sql =
+    //   'select token' +
+    //   ' from t_shain tsha' +
+    //   " where tsha.delete_flg = '0' and tsha.token = :mytoken"
+    // db
+    //     .query(sql, {
+    //         replacements: { mytoken: req.body.tokenId },
+    //         type: db.QueryTypes.RAW
+    //     })
+    //     .spread(async (datas, metadata) => {
+    //         console.log(datas)
+    //         if (datas.length == 0) {
+    //             console.log('★★★★★トークンチェックエラー')
+    //             res.json({ status: false })
+    //             return
+    //         }
+    //     })
+
+    db
+        .transaction(async function (tx) {
+            // var resdatas = []
+            // var t_senkyo_pk = await tSenkyoInsert(tx, resdatas, req)
+            var selected = req.body.selected
+            console.log(req)
+            console.log(selected)
+            for (var i in resultList) {
+                var resultdata = resultList[i]
+                console.log(resultdata)
+                for (var x in selected) {
+                    if (resultdata.id == selected[x]) {
+                        // var t_shussekisha_pk = await tShussekishaInsert(
+                        //     tx,
+                        //     resdatas,
+                        //     req,
+                        //     t_senkyo_pk,
+                        //     resultdata
+                        // )
+                        await tOshiraseInsert(tx, req, resultdata)
+                        // var transaction_id = await bcrequest(req, resultdata, i)
+                        // await dbupdate(tx, transaction_id)
+                    }
+                }
+                // for (var x in selected2) {
+                //     if (resultdata.id == selected2[x]) {
+                //         await tPresenterInsert(
+                //             tx,
+                //             resdatas,
+                //             req,
+                //             t_senkyo_pk,
+                //             resultdata,
+                //             i
+                //         )
+                //     }
+                // }
+            }
+            res.json({ status: true, data: resdatas })
+
+            // このあとにawait sequelizeXXXXを記載することで連続して処理をかける
+        })
+        .then(result => {
+            // コミットしたらこっち
+            console.log('正常')
+        })
+        .catch(e => {
+            // ロールバックしたらこっち
+            console.log('異常')
+            console.log(e)
+        })
+})
+
+/**
+ * t_oshiraseテーブルのinsert用関数
+ * @param {*} tx
+ * @param {*} req
+ * @param {*} resultdata
+ */
+function tOshiraseInsert(tx, req, resultdata) {
+    return new Promise((resolve, reject) => {
+        var sql =
+            'insert into t_oshirase (title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) ' +
+            'VALUES (?, ?, ?, ?, ?, current_timestamp, ?, ?) '
+        // 'insert into t_zoyo (zoyo_moto_shain_pk, zoyo_saki_shain_pk, zoyo_comment, delete_flg, insert_user_id, insert_tm) ' +
+        // 'VALUES (?, ?, ?, ?, ?, current_timestamp) '
+
+        db
+            .query(sql, {
+                transaction: tx,
+                replacements: [
+                    // resultdata.title,
+                    // resultdata.comment,
+                    // resultdata.notice_dt,
+                    req.body.title,
+                    req.body.comment,
+                    req.body.notice_dt,
+                    '0',
+                    // req.body.userid,
+                    '',
+                    '',
+                    ''
+                ]
+            })
+            .spread((datas, metadata) => {
+                console.log('◆6')
+                console.log(datas)
+                resdatas.push(datas)
+                return resolve(datas)
+            })
+    })
+}
 
 // /**
 //  * API : find

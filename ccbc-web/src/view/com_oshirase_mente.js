@@ -84,23 +84,23 @@ function getArray(array1) {
   return array2
 }
 
-function desc(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1
-  }
-  if (b[orderBy] > a[orderBy]) {
-    return 1
-  }
-  return 0
-}
+// function desc(a, b, orderBy) {
+//   if (b[orderBy] < a[orderBy]) {
+//     return -1
+//   }
+//   if (b[orderBy] > a[orderBy]) {
+//     return 1
+//   }
+//   return 0
+// }
 
-function getSorting(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => -desc(a, b, orderBy)
-    : (a, b) => desc(a, b, orderBy)
-}
+// function getSorting(order, orderBy) {
+//   return order === 'desc'
+//     ? (a, b) => -desc(a, b, orderBy)
+//     : (a, b) => desc(a, b, orderBy)
+// }
 
-const rows = [
+const columnData = [
   {
     id: 'name',
     numeric: false,
@@ -113,7 +113,6 @@ const rows = [
     disablePadding: true,
     label: '件名'
   },
-  // { id: 'calorie', numeric: true, disablePadding: false, label: '内容' }
   {
     id: 'calorie',
     numeric: false,
@@ -146,26 +145,26 @@ class EnhancedTableHead extends React.Component {
               onChange={onSelectAllClick}
             />
           </TableCell>
-          {rows.map(row => {
+          {columnData.map(column => {
             return (
               <TableCell
-                key={row.id}
-                numeric={row.numeric}
-                padding={row.disablePadding ? 'dense' : 'none'}
-                sortDirection={orderBy === row.id ? order : false}
+                key={column.id}
+                numeric={column.numeric}
+                padding={column.disablePadding ? 'dense' : 'none'}
+                sortDirection={orderBy === column.id ? order : false}
                 style={{ fontSize: '120%' }}
               >
                 <Tooltip
                   title="Sort"
-                  placement={row.numeric ? 'bottom-end' : 'bottom-start'}
+                  placement={column.numeric ? 'bottom-end' : 'bottom-start'}
                   enterDelay={300}
                 >
                   <TableSortLabel
-                    active={order === row.id}
+                    active={order === column.id}
                     direction={orderBy}
-                    onClick={this.createSortHandler(row.id)}
+                    onClick={this.createSortHandler(column.id)}
                   >
-                    {row.label}
+                    {column.label}
                   </TableSortLabel>
                 </Tooltip>
               </TableCell>
@@ -479,7 +478,14 @@ class ComOshiraseMenteForm extends React.Component {
       anchorEl: null,
       addFlg: true,
       Target_year: '',
-      nendoList: []
+      nendoList: [],
+
+      order: 'asc',
+      orderBy: 'name',
+      page: 0,
+      rowsPerPage: 5,
+      // checked: [1],
+      name: []
     }
   }
 
@@ -604,7 +610,16 @@ class ComOshiraseMenteForm extends React.Component {
       order = 'asc'
     }
 
-    this.setState({ order, orderBy })
+    const resultList =
+      order === 'desc'
+        ? this.state.resultList.sort(
+          (a, b) => (b[orderBy] < a[orderBy] ? -1 : 1)
+        )
+        : this.state.resultList.sort(
+          (a, b) => (a[orderBy] < b[orderBy] ? -1 : 1)
+        )
+
+    this.setState({ resultList, order, orderBy })
   }
 
   handleSelectAllClick = (event, checked) => {
@@ -662,6 +677,59 @@ class ComOshiraseMenteForm extends React.Component {
         this.setState({ resultList: res.body.data })
       })
   }
+
+  handleSubmit() {
+    // this.setState({ loadFlg: true })
+    request
+      .post(restdomain + '/com_oshirase_mente/create')
+      .send(this.state)
+      .end((err, res) => {
+        // this.setState({ loadFlg: false })
+        if (err) {
+          return
+        }
+        if (!res.body.status) {
+          this.setState({
+            msg: '不正なログインです。'
+          })
+          this.setState({ dialogOpen: false })
+          return
+        }
+        this.props.history.push('/senkyo_kanri')
+      })
+  }
+
+  // handleSubmit = event => {
+  //   // this.setState({ loadFlg: true })
+  //   var form = new FormData()
+  //   form.append('image', this.state.gazo)
+
+  //   request
+  //     .post(restdomain + '/com_oshirase_mente/create')
+  //     .send(form)
+  //     //.send(form)
+  //     .end((err, res) => {
+  //       // this.setState({ loadFlg: false })
+  //       if (err) {
+  //         return
+  //       }
+  //       if (res.body.status) {
+  //         this.props.history.push('/shain_kensaku')
+  //       } else {
+  //         if (res.body.tokencheck) {
+  //           this.setState({
+  //             msg: '入力したユーザIDは既に登録済みです。'
+  //           })
+  //         } else {
+  //           this.setState({
+  //             msg: '不正なログインです。'
+  //           })
+  //         }
+  //         this.setState({ dialogOpen: false })
+  //         return
+  //       }
+  //     })
+  // }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
 
@@ -834,26 +902,36 @@ class ComOshiraseMenteForm extends React.Component {
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table} aria-labelledby="tableTitle">
                     <EnhancedTableHead
-                      // numSelected={selected.length}
+                      numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
                       onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
                       rowCount={this.state.resultList.length}
                     />
+                    {/* <div className={classes.tableWrapper}> */}
+                    {/* <Table className={classes.table} aria-labelledby="tableTitle"> */}
+                    {/* <EnhancedTableHead
+                      numSelected={selected.length}
+                      order={order}
+                      orderBy={orderBy}
+                      onSelectAllClick={this.handleSelectAllClick}
+                      onRequestSort={this.handleRequestSort}
+                      rowCount={this.state.resultList.length}
+                    /> */}
                     <TableBody>
                       {this.state.resultList
                         // .sort(getSorting(order, orderBy))
-                        // .slice(
-                        //   page * rowsPerPage,
-                        //   page * rowsPerPage + rowsPerPage
-                        // )
-                        .map(n => {
-                          const isSelected = this.isSelected(n.id)
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map((n, id) => {
+                          const isSelected = this.isSelected(id)
                           return (
                             <TableRow
                               hover
-                              onClick={event => this.handleClick(event, n.id)}
+                              onClick={event => this.handleClick(event, id)}
                               role="checkbox"
                               aria-checked={isSelected}
                               tabIndex={-1}
@@ -959,6 +1037,9 @@ class ComOshiraseMenteForm extends React.Component {
                     type="date"
                     defaultValue="2019-05-24"
                     fullWidth
+                    inputRef={input => {
+                      this.state.comment[i] = input
+                    }}
                   />
                   <TextField
                     margin="normal"
@@ -979,10 +1060,15 @@ class ComOshiraseMenteForm extends React.Component {
                   />
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={this.handleCloseAdd} color="primary">
+                  <Button
+                    onClick={this.handleCloseAdd}
+                    color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseAdd} color="secondary">
+                  <Button
+                    onClick={this.handleSubmit.bind(this)}
+                    // onClick={this.handleCloseAdd}
+                    color="secondary">
                     決定
                   </Button>
                 </DialogActions>
