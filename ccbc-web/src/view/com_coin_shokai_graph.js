@@ -432,7 +432,7 @@ class ComCoinShokaiGraphForm extends React.Component {
                           src={restUrl + `uploads/${this.state.imageFileName}`}
                         />
                       }
-                      label={this.state.shimei + '　' + this.state.coin}
+                      label={this.state.shimei}
                       className={classes.chip}
                       aria-label="More"
                       aria-haspopup="true"
@@ -552,7 +552,7 @@ class ComCoinShokaiGraphForm extends React.Component {
               <br />
               <div>
                 <ComposedChart //グラフ全体のサイズや位置、データを指定。場合によってmarginで上下左右の位置を指定する必要あり。
-                  width={1280} //グラフ全体の幅を指定
+                  width={1800} //グラフ全体の幅を指定
                   height={650} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
                   data={data_event} //Array型のデータを指定
@@ -562,14 +562,14 @@ class ComCoinShokaiGraphForm extends React.Component {
                     xAxisId="use"
                     orientation="top"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
-                    domain={[0, 5000]} //軸の表示領域を指定
+                    domain={[0, 1000]} //軸の表示領域を指定
                     stroke="#000000"
                   />
                   <XAxis //X軸に関する設定
                     xAxisId="get"
                     orientation="bottom"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
-                    domain={[0, 5000]} //軸の表示領域を指定
+                    domain={[0, 1000]} //軸の表示領域を指定
                     stroke="#000000"
                   />
                   <YAxis //Y軸に関する設定
