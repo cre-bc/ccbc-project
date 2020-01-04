@@ -400,6 +400,7 @@ const styles = theme => ({
   }
 });
 
+// 画面内で利用する情報
 // 検索条件：操作者 取引相手 イベント 検索結果：送付者 受領者 コイン イベント 日付
 class ComCoinShokaiForm extends React.Component {
   state = {
@@ -408,16 +409,28 @@ class ComCoinShokaiForm extends React.Component {
     anchor: "left",
     completed: {},
     resultList: [],
+    userid: null,
+    password: null,
     tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
     target_manager: 0,
     comment: "",
+    checked: false,
     zoyoCoin: 0,
     from_bcaccount: "",
     to_bcaccount: "",
     to_tShainPk: "",
     nenjiFlg: "0",
     jimuId: 0,
-    alertMsg: ""
+    jimuFlg: false,
+    alertOpen: false,
+    dialogOpen: false,
+    alertMsg: "",
+    tokenId: null,
+    msg: null,
+    loadFlg: false
   };
 
   handleChange5 = event => {
@@ -719,6 +732,8 @@ class ComCoinShokaiForm extends React.Component {
                   </MenuItem>
                 ))}
               </TextField>
+
+              {/* 操作者と取引相手間の矢印 */}
               <img
                 src="/images/yajirushi.png"
                 alt="サンプル"
@@ -727,6 +742,7 @@ class ComCoinShokaiForm extends React.Component {
                 height="30"
                 style={{ marginTop: 30 }}
               />
+
               <TextField
                 select
                 label="取引相手"
@@ -789,27 +805,6 @@ class ComCoinShokaiForm extends React.Component {
                   />
                   検索
                 </Button>
-                {/*                 <Button
-                  size="midium"
-                  variant="raised"
-                  aria-label="Delete"
-                  className={classes.button}
-                >
-                  <ListIcon
-                    className={classNames(classes.leftIcon, classes.iconSmall)}
-                  />
-                  所持コイン
-                </Button>
-                <Button
-                  variant="raised"
-                  size="medium"
-                  className={classes.button}
-                >
-                  <Assessment
-                    className={classNames(classes.leftIcon, classes.iconSmall)}
-                  />
-                  グラフ
-                </Button> */}
               </div>
               <strong>
                 <h2>検索結果</h2>

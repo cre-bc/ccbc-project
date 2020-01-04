@@ -40,35 +40,35 @@ async function finddata(req, res) {
   });
 }
 // 所持コイン一覧は、検索条件なしで、社員とコイン情報のみ取得しグラフに表示
-// /**
-//  * 社員取得用関数
-//  * @req {*} req
-//  */
-// function tShainGet(req) {
-//   return new Promise((resolve, reject) => {
-//     if (req.body.db_name != null && req.body.db_name != "") {
-//       db = db2.sequelize3(req.body.db_name);
-//     } else {
-//       db = require("./common/sequelize_helper.js").sequelize;
-//     }
-//     var sql =
-//       "select row_number() over () as id, *, tsha.t_shain_pk as t_shain_pk, tsha.shimei as shimei, tsha.image_file_nm as image_file_nm, tsha.bc_account as bc_account, null as title, tsha.kengen_cd as kengen_cd, tsha2.bc_account as from_bc_account, tsha2.shimei as fromShimei" +
-//       " from t_shain tsha, t_shain tsha2 " +
-//       " where tsha.delete_flg = '0' and tsha2.delete_flg = '0' and tsha.t_shain_pk <> :mypk and tsha2.t_shain_pk = :mypk order by tsha.kengen_cd";
-//     db
-//       .query(sql, {
-//         replacements: { mypk: req.body.tShainPk },
-//         type: db.QueryTypes.RAW
-//       })
-//       .spread((datas, metadata) => {
-//         console.log("★★★");
-//         console.log(datas);
-//         console.log(datas[0].from_bc_account);
+/**
+ * 社員取得用関数
+ * @req {*} req
+ */
+function tShainGet(req) {
+  return new Promise((resolve, reject) => {
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
+    } else {
+      db = require("./common/sequelize_helper.js").sequelize;
+    }
+    var sql =
+      "select row_number() over () as id, *, tsha.t_shain_pk as t_shain_pk, tsha.shimei as shimei, tsha.image_file_nm as image_file_nm, tsha.bc_account as bc_account, null as title, tsha.kengen_cd as kengen_cd, tsha2.bc_account as from_bc_account, tsha2.shimei as fromShimei" +
+      " from t_shain tsha, t_shain tsha2 " +
+      " where tsha.delete_flg = '0' and tsha2.delete_flg = '0' and tsha.t_shain_pk <> :mypk and tsha2.t_shain_pk = :mypk order by tsha.kengen_cd";
+    db
+      .query(sql, {
+        replacements: { mypk: req.body.tShainPk },
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        console.log("★★★");
+        console.log(datas);
+        console.log(datas[0].from_bc_account);
 
-//         return resolve(datas);
-//       });
-//   });
-// }
+        return resolve(datas);
+      });
+  });
+}
 // /**
 //  * 取引情報取得用関数(送付者）
 //  * @req {*} req
