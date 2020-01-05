@@ -479,13 +479,15 @@ class ComOshiraseMenteForm extends React.Component {
       addFlg: true,
       Target_year: '',
       nendoList: [],
-
       order: 'asc',
       orderBy: 'name',
       page: 0,
       rowsPerPage: 5,
       // checked: [1],
-      name: []
+      name: [],
+      notice_dt: null,
+      title: null,
+      comment: null
     }
   }
 
@@ -680,6 +682,12 @@ class ComOshiraseMenteForm extends React.Component {
 
   handleSubmit() {
     // this.setState({ loadFlg: true })
+    // const comment_copy = this.state.comment.slice()
+    // for (var i in this.state.comment) {
+    // comment_copy[i] = this.state.comment[i].value
+    // }
+    // this.state.comment = comment_copy
+
     request
       .post(restdomain + '/com_oshirase_mente/create')
       .send(this.state)
@@ -688,14 +696,17 @@ class ComOshiraseMenteForm extends React.Component {
         if (err) {
           return
         }
-        if (!res.body.status) {
-          this.setState({
-            msg: '不正なログインです。'
-          })
-          this.setState({ dialogOpen: false })
-          return
-        }
-        this.props.history.push('/senkyo_kanri')
+        // if (!res.body.status) {
+        //   this.setState({
+        //     msg: '不正なログインです。'
+        //   })
+        //   this.setState({ dialogOpen: false })
+        //   return
+        // }
+        // this.props.history.push('/menu')
+        this.setState({ resultList: res.body.data })
+        // this.handleChange()
+        this.setState({ openAdd: false })
       })
   }
 
@@ -730,6 +741,28 @@ class ComOshiraseMenteForm extends React.Component {
   //       }
   //     })
   // }
+
+  handleSubmitEdit() {
+    request
+      .post(restdomain + '/com_oshirase_mente/edit')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        this.setState({ resultList: res.body.data })
+        this.setState({ openEdit: false })
+      })
+  }
+
+  handleSubmitDelete() {
+    request
+      .post(restdomain + '/com_oshirase_mente/delete')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        this.setState({ resultList: res.body.data })
+        this.setState({ openDelete: false })
+      })
+  }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
 
@@ -1032,31 +1065,40 @@ class ComOshiraseMenteForm extends React.Component {
                   <TextField
                     autoFocus
                     margin="dense"
-                    id="name1"
+                    id="notice_dt"
+                    name="notice_dt"
                     label="日付"
                     type="date"
-                    defaultValue="2019-05-24"
+                    // defaultValue="2019-05-24"
                     fullWidth
                     inputRef={input => {
-                      this.state.comment[i] = input
+                      this.state.notice_dt = input
                     }}
                   />
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="title"
+                    name="title"
                     label="件名(25文字)"
-                    defaultValue="財界さっぽろ様の「企業特集」に掲載されました"
+                    // defaultValue="財界さっぽろ様の「企業特集」に掲載されました"
                     fullWidth
+                    inputRef={input => {
+                      this.state.title = input
+                    }}
                   />
                   <TextField
-                    id="multiline-static"
+                    id="comment"
+                    name="comment"
                     label="内容(1000文字)"
                     multiline
                     rows="4"
-                    defaultValue="詳細は下記をご覧ください。"
+                    // defaultValue="詳細は下記をご覧ください。"
                     className={classes.textField}
                     margin="normal"
                     fullWidth
+                    inputRef={input => {
+                      this.state.comment = input
+                    }}
                   />
                 </DialogContent>
                 <DialogActions>
@@ -1136,7 +1178,11 @@ class ComOshiraseMenteForm extends React.Component {
                   <Button onClick={this.handleCloseEdit} color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseEdit} color="secondary">
+                  <Button
+                    // onClick={this.handleCloseEdit}
+                    color="secondary"
+                    onClick={this.handleSubmitEdit.bind(this)}
+                  >
                     決定
                   </Button>
                 </DialogActions>
@@ -1180,7 +1226,8 @@ class ComOshiraseMenteForm extends React.Component {
                     いいえ
                   </Button>
                   <Button
-                    onClick={this.handleCloseDelete}
+                    // onClick={this.handleCloseDelete}
+                    onClick={this.handleSubmitDelete.bind(this)}
                     color="secondary"
                     autoFocus
                   >
