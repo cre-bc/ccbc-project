@@ -459,7 +459,11 @@ class ComOshiraseMenteForm extends React.Component {
     orderBy: 'name',
     // selected: [],
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
+    notice_dt: null,
+    title: null,
+    comment: null
+
   }
 
   constructor(props) {
@@ -485,9 +489,9 @@ class ComOshiraseMenteForm extends React.Component {
       rowsPerPage: 5,
       // checked: [1],
       name: [],
-      notice_dt: null,
-      title: null,
-      comment: null
+      // notice_dt: null,
+      // title: null,
+      // comment: null
     }
   }
 

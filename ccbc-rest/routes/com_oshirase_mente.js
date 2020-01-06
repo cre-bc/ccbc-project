@@ -203,9 +203,9 @@ function tOshiraseInsert(tx, req) {
                     req.body.notice_dt,
                     '0',
                     // req.body.userid,
-                    '',
-                    '',
-                    ''
+                    null,
+                    null,
+                    null
                 ]
             })
             .spread((datas, metadata) => {
