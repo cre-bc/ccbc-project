@@ -1,14 +1,14 @@
-import React from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
-import { ListItem } from 'react-native-elements'
-import BaseComponent from './components/BaseComponent'
-import InAppHeader from './components/InAppHeader'
+import React from "react";
+import { StyleSheet, View, ScrollView } from "react-native";
+import { ListItem } from "react-native-elements";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
 
-const restdomain = require('./common/constans.js').restdomain
+const restdomain = require("./common/constans.js").restdomain;
 
 export default class ChatSelectForm extends BaseComponent {
   constructor(props) {
-    super()
+    super();
     this.state = {
       resultList: [],
       userid: null,
@@ -17,60 +17,65 @@ export default class ChatSelectForm extends BaseComponent {
       imageFileName: null,
       shimei: null,
       kengenCd: null
-    }
-    this.props = props
+    };
+    this.props = props;
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus());
+  };
+
+  /** コンポーネントのマウント時処理 */
+  onWillFocus = async () => {
     // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
+    await this.getLoginInfo();
 
     /** テスト用 */
     /**======================================== */
-    // this.setState({ userid: '1001' })
-    // this.setState({ password: '5555' })
-    // this.setState({ loginShainPk: 1 })
-    // this.state.loginShainPk = 2
+    // this.setState({ userid: "1001" });
+    // this.setState({ password: "5555" });
+    // this.setState({ loginShainPk: 1 });
+    // this.state.loginShainPk = 2;
     /**======================================== */
 
     // 初期表示情報取得
-    this.findChatUser()
-  }
+    this.findChatUser();
+  };
 
   //画面初期表示情報取得
   findChatUser = async () => {
-    await fetch(restdomain + '/chat_select/find', {
-      method: 'POST',
+    await fetch(restdomain + "/chat_select/find", {
+      method: "POST",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" })
     })
       .then(function(response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function(json) {
           // 結果が取得できない場合は終了
-          if (typeof json.data === 'undefined') {
-            return
+          if (typeof json.data === "undefined") {
+            return;
           }
           // 検索結果の取得
-          var dataList = json.data
-          this.setState({ resultList: dataList })
+          var dataList = json.data;
+          this.setState({ resultList: dataList });
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch(error => console.error(error));
+  };
 
   /** チャットユーザー選択 */
   onPressChatMsgButton = (e, t_shain_Pk, shimei, image_file_nm) => {
     // 画面遷移
-    this.props.navigation.navigate('ChatMsg', {
+    this.props.navigation.navigate("ChatMsg", {
       fromShainPk: t_shain_Pk,
       shimei: shimei,
       image_file_nm: image_file_nm
-    })
-  }
+    });
+  };
 
   render() {
     return (
@@ -99,7 +104,7 @@ export default class ChatSelectForm extends BaseComponent {
                     )
                   }
                 />
-              )
+              );
             } else {
               return (
                 <ListItem
@@ -110,8 +115,8 @@ export default class ChatSelectForm extends BaseComponent {
                   avatar={{ uri: restdomain + `/uploads/${n.image_file_nm}` }}
                   badge={{
                     value: n.new_info_cnt,
-                    textStyle: { color: '#FFFFFF' },
-                    containerStyle: { backgroundColor: '#ff5622' }
+                    textStyle: { color: "#FFFFFF" },
+                    containerStyle: { backgroundColor: "#ff5622" }
                   }}
                   onPress={e =>
                     this.onPressChatMsgButton(
@@ -122,17 +127,17 @@ export default class ChatSelectForm extends BaseComponent {
                     )
                   }
                 />
-              )
+              );
             }
           })}
         </ScrollView>
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    backgroundColor: "#F5FCFF"
   }
-})
+});
