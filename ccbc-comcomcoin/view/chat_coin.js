@@ -129,7 +129,7 @@ export default class ChatMsgForm extends Component {
                 <Avatar
                   large
                   rounded
-                  source={require('./../images/man6.jpg')}
+                  // source={require('./../images/man6.jpg')}
                   //activeOpacity={0.7}
                   containerStyle={{ marginLeft: 10, marginRight: 10 }}
                 />
@@ -155,7 +155,7 @@ export default class ChatMsgForm extends Component {
               <Avatar
                 large
                 rounded
-                source={require('./../images/woman4.jpg')}
+                // source={require('./../images/woman4.jpg')}
                 //activeOpacity={0.7}
                 containerStyle={{ marginLeft: 10, marginRight: 10 }}
               />
