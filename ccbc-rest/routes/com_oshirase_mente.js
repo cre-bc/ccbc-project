@@ -195,9 +195,6 @@ function tOshiraseInsert(tx, req) {
             .query(sql, {
                 transaction: tx,
                 replacements: [
-                    // resultdata.title,
-                    // resultdata.comment,
-                    // resultdata.notice_dt,
                     req.body.title,
                     req.body.comment,
                     req.body.notice_dt,

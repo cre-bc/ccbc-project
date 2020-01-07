@@ -459,11 +459,7 @@ class ComOshiraseMenteForm extends React.Component {
     orderBy: 'name',
     // selected: [],
     page: 0,
-    rowsPerPage: 5,
-    notice_dt: null,
-    title: null,
-    comment: null
-
+    rowsPerPage: 5
   }
 
   constructor(props) {
@@ -489,9 +485,9 @@ class ComOshiraseMenteForm extends React.Component {
       rowsPerPage: 5,
       // checked: [1],
       name: [],
-      // notice_dt: null,
-      // title: null,
-      // comment: null
+      notice_dt: '',
+      title: '',
+      comment: ''
     }
   }
 
@@ -685,18 +681,10 @@ class ComOshiraseMenteForm extends React.Component {
   }
 
   handleSubmit() {
-    // this.setState({ loadFlg: true })
-    // const comment_copy = this.state.comment.slice()
-    // for (var i in this.state.comment) {
-    // comment_copy[i] = this.state.comment[i].value
-    // }
-    // this.state.comment = comment_copy
-
     request
       .post(restdomain + '/com_oshirase_mente/create')
       .send(this.state)
       .end((err, res) => {
-        // this.setState({ loadFlg: false })
         if (err) {
           return
         }
@@ -766,6 +754,18 @@ class ComOshiraseMenteForm extends React.Component {
         this.setState({ resultList: res.body.data })
         this.setState({ openDelete: false })
       })
+  }
+
+  handleChange_notice_dt(e) {
+    this.setState({ notice_dt: e.target.value })
+  }
+
+  handleChange_title(e) {
+    this.setState({ title: e.target.value })
+  }
+
+  handleChange_comment(e) {
+    this.setState({ comment: e.target.value })
   }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
@@ -1005,9 +1005,6 @@ class ComOshiraseMenteForm extends React.Component {
                               >
                                 {n.comment}
                               </TableCell>
-                              {/* <TableCell numeric>{n.fat}</TableCell>
-                              <TableCell numeric>{n.carbs}</TableCell>
-                              <TableCell numeric>{n.protein}</TableCell> */}
                             </TableRow>
                           )
                         })}
@@ -1075,9 +1072,10 @@ class ComOshiraseMenteForm extends React.Component {
                     type="date"
                     // defaultValue="2019-05-24"
                     fullWidth
-                    inputRef={input => {
-                      this.state.notice_dt = input
-                    }}
+                    // inputRef={input => {
+                    //   this.state.notice_dt = input
+                    // }}
+                    onChange={this.handleChange_notice_dt.bind(this)}
                   />
                   <TextField
                     margin="normal"
@@ -1086,9 +1084,10 @@ class ComOshiraseMenteForm extends React.Component {
                     label="件名(25文字)"
                     // defaultValue="財界さっぽろ様の「企業特集」に掲載されました"
                     fullWidth
-                    inputRef={input => {
-                      this.state.title = input
-                    }}
+                    // inputRef={input => {
+                    //   this.state.title = input
+                    // }}]
+                    onChange={this.handleChange_title.bind(this)}
                   />
                   <TextField
                     id="comment"
@@ -1100,9 +1099,10 @@ class ComOshiraseMenteForm extends React.Component {
                     className={classes.textField}
                     margin="normal"
                     fullWidth
-                    inputRef={input => {
-                      this.state.comment = input
-                    }}
+                    // inputRef={input => {
+                    //   this.state.comment = input
+                    // }}
+                    onChange={this.handleChange_comment.bind(this)}
                   />
                 </DialogContent>
                 <DialogActions>
