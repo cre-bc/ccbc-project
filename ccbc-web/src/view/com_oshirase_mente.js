@@ -459,7 +459,20 @@ class ComOshiraseMenteForm extends React.Component {
     orderBy: 'name',
     // selected: [],
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
+    userid: null,
+    password: null,
+    tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
+    configCoin: 0,
+    submitFlg: true,
+    alertOpen: false,
+    dialogOpen: false,
+    tokenId: null,
+    msg: null,
+    loadFlg: false
   }
 
   constructor(props) {
@@ -499,17 +512,17 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ Target_year: yyyy })
     this.state.targetYear = yyyy
 
-    // var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
 
-    // for (var i in loginInfos) {
-    //   var loginInfo = loginInfos[i]
-    //   this.setState({ userid: loginInfo['userid'] })
-    //   this.setState({ password: loginInfo['password'] })
-    //   this.setState({ tShainPk: loginInfo['tShainPk'] })
-    //   this.setState({ imageFileName: loginInfo['imageFileName'] })
-    //   this.setState({ shimei: loginInfo['shimei'] })
-    //   this.setState({ kengenCd: loginInfo['kengenCd'] })
-    // }
+    for (var i in loginInfos) {
+      var loginInfo = loginInfos[i]
+      this.setState({ userid: loginInfo['userid'] })
+      this.setState({ password: loginInfo['password'] })
+      this.setState({ tShainPk: loginInfo['tShainPk'] })
+      this.setState({ imageFileName: loginInfo['imageFileName'] })
+      this.setState({ shimei: loginInfo['shimei'] })
+      this.setState({ kengenCd: loginInfo['kengenCd'] })
+    }
 
     // request.get(restdomain + '/com_oshirase_mente/find').end((err, res) => {
     //   if (err) return

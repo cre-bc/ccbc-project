@@ -199,8 +199,8 @@ function tOshiraseInsert(tx, req) {
                     req.body.comment,
                     req.body.notice_dt,
                     '0',
-                    // req.body.userid,
-                    null,
+                    req.body.userid,
+                    // null,
                     null,
                     null
                 ]
