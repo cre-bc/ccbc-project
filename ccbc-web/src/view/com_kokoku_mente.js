@@ -46,6 +46,8 @@ TabContainer.propTypes = {
   dir: PropTypes.string.isRequired
 }
 
+
+
 const drawerWidth = 240
 const drawerWidthTab = 100
 
@@ -415,24 +417,24 @@ class ComKokokuMenteForm extends React.Component {
     }
     this.state.comment = comment_copy
 
-    request
-      .post(restdomain + '/tohyo_toroku/create')
-      .send(this.state)
-      .end((err, res) => {
-        this.setState({ loadFlg: false })
-        if (err) {
-          return
-        }
-        if (!res.body.status) {
-          this.setState({
-            msg: '不正なログインです。'
-          })
-          this.setState({ dialogOpen: false })
-          this.state.comment = bkcomment
-          return
-        }
-        this.props.history.push('/menu')
-      })
+    // request
+    //   .post(restdomain + '/com_kokoku_mente/create')
+    //   .send(this.state)
+    //   .end((err, res) => {
+    //     this.setState({ loadFlg: false })
+    //     if (err) {
+    //       return
+    //     }
+    //     if (!res.body.status) {
+    //       this.setState({
+    //         msg: '不正なログインです。'
+    //       })
+    //       this.setState({ dialogOpen: false })
+    //       this.state.comment = bkcomment
+    //       return
+    //     }
+    //     this.props.history.push('/menu')
+    //   })
   }
 
   render() {

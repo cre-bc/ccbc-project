@@ -48,22 +48,22 @@ async function edit(req, res) {
   db = db2.sequelizeDB(req)
 
   // トークンチェック
-  var sql =
-    'select token' +
-    ' from t_shain tsha' +
-    " where tsha.delete_flg = '0' and tsha.token = :mytoken"
-  db.query(sql, {
-      replacements: { mytoken: req.body.tokenId },
-      type: db.QueryTypes.RAW
-    })
-    .spread(async (datas, metadata) => {
-      console.log(datas)
-      if (datas.length == 0) {
-        console.log('トークンチェックエラー')
-        res.json({ status: false, tokencheck: false })
-        return
-      }
-    })
+  // var sql =
+  //   'select token' +
+  //   ' from t_shain tsha' +
+  //   " where tsha.delete_flg = '0' and tsha.token = :mytoken"
+  // db.query(sql, {
+  //     replacements: { mytoken: req.body.tokenId },
+  //     type: db.QueryTypes.RAW
+  //   })
+  //   .spread(async (datas, metadata) => {
+  //     console.log(datas)
+  //     if (datas.length == 0) {
+  //       console.log('トークンチェックエラー')
+  //       res.json({ status: false, tokencheck: false })
+  //       return
+  //     }
+  //   })
 
   db.transaction(async function(tx) {
       await insertOrUpdateXxx(db, tx, req)
