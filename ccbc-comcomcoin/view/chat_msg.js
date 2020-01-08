@@ -1,143 +1,87 @@
 import React, { Component } from 'react'
-import {
-  StyleSheet,
-  View,
-  Image,
-  AsyncStorage,
-  Text,
-  ScrollView,
-  TouchableHighlight
-} from 'react-native'
-import {
-  Header,
-  Icon,
-  Avatar,
-  Card,
-  ListItem,
-  FormInput,
-  Divider
-} from 'react-native-elements'
+import { StyleSheet, View, Image, Text, TouchableHighlight } from 'react-native'
 import { GiftedChat } from 'react-native-gifted-chat'
+import io from 'socket.io-client'
+import BaseComponent from './components/BaseComponent'
+import InAppHeader from './components/InAppHeader'
 
 const restdomain = require('./common/constans.js').restdomain
+const socket = io(restdomain, { secure: true, transports: ['websocket'] })
+// const socket = io(restdomain)
 
-export default class ChatMsgForm extends Component {
+export default class ChatMsgForm extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
-      anchor: 'left',
-      completed: {},
       comment: {},
-      coin: 0,
-      headList: [],
       resultList: [],
       userid: null,
       password: null,
-      tShainPk: 0,
+      loginShainPk: 0,
       imageFileName: null,
       shimei: null,
       kengenCd: null,
-      configCoin: 0,
       text: '',
       fromShainPk: 0,
       chatUser: null,
       messages: [],
-      message: [],
-      kidokuPk: 0
+      message: []
     }
   }
+
   /** コンポーネントのマウント時処理 */
-  async componentWillMount() {
-    // var loginInfo = await this.getLoginInfo()
-    // this.setState({ userid: loginInfo['userid'] })
-    // this.setState({ password: loginInfo['password'] })
-    // this.setState({ tShainPk: loginInfo['tShainPk'] })
-    // this.state.tShainPk = Number(loginInfo['tShainPk'])
-    // this.setState({ imageFileName: loginInfo['imageFileName'] })
-    // this.setState({ shimei: loginInfo['shimei'] })
-    // this.setState({ kengenCd: loginInfo['kengenCd'] })
+  componentWillMount = async () => {
+    this.props.navigation.addListener('willFocus', () => this.onWillFocus())
+
+    // チャットメッセージの受信（websocket）
+    socket.on('comcomcoin_chat', function (message) {
+      this.getChatMessage(message)
+    }.bind(this))
+  }
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
+
+    // チャットルーム（自分の社員PK）に接続
+    socket.emit('join', this.state.loginShainPk)
 
     /** テスト用 */
     /**　＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝*/
-    this.setState({ userid: '1001' })
-    this.setState({ password: '5555' })
-    this.setState({ tShainPk: 1 })
-    this.state.userid = '1001'
-    this.state.tShainPk = 1
-    this.state.fromShainPk = 2
-    this.state.shimei = 'テスト　太郎'
-    // this.state.imageFileName = require('./../images/man1.jpg')
+    // this.setState({ userid: '1001' })
+    // this.setState({ password: '5555' })
+    // this.setState({ loginShainPk: 1 })
+    // this.state.userid = '1001'
+    // this.state.loginShainPk = 2
     /**　＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝*/
 
-    // this.setState({ imageFileName: loginInfo['imageFileName'] })
-    // this.setState({ shimei: loginInfo['shimei'] })
-    // this.setState({ kengenCd: loginInfo['kengenCd'] })
-
     // 前画面情報取得
-    // var chatSelectInfo = await this.getChatSelectInfo()
-    // this.setState({ fromShainPk: chatSelectInfo['t_shain_Pk'] })
+    // チャット相手
+    this.state.fromShainPk = this.props.navigation.getParam('fromShainPk')
+    // チャット相手氏名
+    this.state.shimei = this.props.navigation.getParam('shimei')
+    // チャット相手イメージファイル
+    this.state.imageFileName = this.props.navigation.getParam('image_file_nm')
 
     // 初期表示情報取得
     this.setState({ chatUser: this.state.shimei })
+
     this.findChat()
-
-    // this.setState({
-    //   messages: [
-    //     {
-    //       _id: 5,
-    //       text:
-    //         '障害の原因調査について、助けていただきありがとうございました。',
-    //       createdAt: new Date(),
-    //       user: {
-    //         _id: 6,
-    //         name: '安倍　大翔',
-    //         avatar: require('./../images/man1.jpg')
-    //       }
-    //     },
-    //     {
-    //       _id: 1,
-    //       text: 'お疲れ様です。',
-    //       createdAt: '2019/05/15',
-    //       user: {
-    //         _id: 2,
-    //         name: '安倍　大翔',
-    //         avatar: require('./../images/man1.jpg')
-    //       }
-    //     }
-    //   ]
-    // })
-  }
-
-  //ログイン情報取得
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
-  // チャット選択情報取得（前画面からのパラメータ）
-  getChatSelectInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('chatInfo'))
-    } catch (error) {
-      return
-    }
   }
 
   //画面初期表示情報取得
   findChat = async () => {
-    await fetch(restdomain + '/chat/find', {
+    await fetch(restdomain + '/chat_msg/find', {
       method: 'POST',
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -147,172 +91,120 @@ export default class ChatMsgForm extends Component {
           this.setState({ resultList: dataList })
 
           var chat = []
+          var chatNo = 0
           for (var i in dataList) {
-            // alert(dataList[i].t_chat_pk)
+            // 恐らくuser._idの値の大きい方がチャット画面の左側に表示されるため、
+            // 自分（ログインユーザー）は[1]固定、チャット相手は[2]固定とする
+            if (dataList[i].from_shain_pk == this.state.loginShainPk) {
+              chatNo = 1
+            } else {
+              chatNo = 2
+            }
+            // 取得結果をチャットにセット
             chat.push({
-              // _id: dataList[i].t_chat_pk,
               _id: dataList[i].t_chat_pk,
               text: dataList[i].comment,
               createdAt: dataList[i].post_dttm,
               user: {
-                _id: dataList[i].from_shain_pk,
-                name: 'あいうえお',
-                avatar: this.state.imageFileName
+                _id: chatNo,
+                name: this.state.shimei,
+                avatar: restdomain + `/uploads/${this.state.imageFileName}`
               }
             })
           }
           this.setState({ messages: chat })
-          alert(JSON.stringify(chat))
         }.bind(this)
       )
       .catch(error => console.error(error))
   }
 
-  onPressLogoutButton = () => {
-    this.props.navigation.navigate('Login')
-  }
-  onPressMenuButton = () => {
-    this.props.navigation.navigate('Menu')
-  }
-  onPressLoginGroupButton = () => {
-    this.props.navigation.navigate('LoginGroup')
-  }
-  onPressChatButton = () => {
-    this.props.navigation.navigate('Chat')
-  }
-  onPressChatSelectButton = () => {
-    this.props.navigation.navigate('ChatSelect')
-  }
-  onPressHomeButton = () => {
-    this.props.navigation.navigate('Home')
-  }
-
+  /** コイン送付ボタン押下 */
   onPressChatCoin() {
-    // パラメータ設定
-    let chatCoinInfo = {
-      t_shain_Pk: this.state.fromShainPk,
+    // 画面遷移（コイン送付画面）
+    this.props.navigation.navigate('ChatCoin', {
+      fromShainPk: this.state.fromShainPk,
       shimei: this.state.chatUser,
       image_file_nm: this.state.imageFileName
-    }
-    this.setChatCoinInfo(JSON.stringify(chatCoinInfo))
-    // 画面遷移
-    this.props.navigation.navigate('ChatCoin')
-  }
-  setChatCoinInfo = async chatCoinInfo => {
-    try {
-      await AsyncStorage.removeItem('chatCoinInfo')
-      await AsyncStorage.setItem('chatCoinInfo', chatCoinInfo)
-    } catch (error) {
-      alert(error)
-      return
-    }
+    })
   }
 
-  reply() {
-    return {
-      _id: 1,
-      text:
-        '【300コインを送付しました】\n障害の原因調査について、わかりやすく教えていただき、ありがとうございました。大変勉強になりました!',
-      createdAt: new Date(),
-      user: {
-        _id: 2,
-        name: '安倍　大翔',
-        // avatar: require('./../images/man1.jpg')
-      }
-    }
+  /** 送信ボタン押下 */
+  onSend = async (messages = []) => {
+    this.state.message = messages[0].text
+    await fetch(restdomain + '/chat_msg/create', {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(
+        function (response) {
+          return response.json()
+        }.bind(this)
+      )
+      .then(
+        function (json) {
+          if (json.status) {
+            this.setState(previousState => ({
+              messages: GiftedChat.append(previousState.messages, messages)
+            }))
+            // チャットメッセージの送信
+            const message = {
+              room_id: this.state.fromShainPk,
+              _id: messages[0]._id,
+              text: this.state.message,
+              createdAt: new Date()
+            }
+            socket.emit('comcomcoin_chat', JSON.stringify(message))
+          }
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
 
-  // onSend = async (messages = []) => {
-  //   this.state.message = messages[0].text
-  //   await fetch(restdomain + '/chat_msg/create', {
-  //     method: 'POST',
-  //     mode: 'cors',
-  //     body: JSON.stringify(this.state),
-  //     headers: new Headers({ 'Content-type': 'application/json' })
-  //   })
-  //     .then(
-  //       function(response) {
-  //         return response.json()
-  //       }.bind(this)
-  //     )
-  //     .then(
-  //       function(json) {
-  //         if (json.status) {
-  //           this.setState(previousState => ({
-  //             messages: GiftedChat.append(
-  //               GiftedChat.append(previousState.messages, messages)
-  //             )
-  //           }))
-  //         }
-  //       }.bind(this)
-  //     )
-  //     .catch(error => console.error(error))
+  /** チャットメッセージ受信時の処理 */
+  getChatMessage = async (message) => {
+    var chat = JSON.parse(message)
+    var user = {
+      _id: 2,
+      name: this.state.shimei,
+      avatar: restdomain + `/uploads/${this.state.imageFileName}`
+    }
+    chat.user = user
 
-  onSend(messages = []) {
+    var messages = [chat]
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages)
     }))
-
-    // this.setState(previousState => ({
-    //   messages: GiftedChat.append(
-    //     GiftedChat.append(previousState.messages, messages),
-    //     this.reply()
-    //   )
-    // }))
   }
 
   render() {
-    const { name, email } = this.state
-    const footerStyle = {
-      ...StyleSheet.flatten(styles.footerOverlay),
-      width: this.state.footerWidth
-    }
     return (
       <View style={styles.container}>
-        <Header
-          leftComponent={
-            <Icon
-              name={'chevron-left'}
-              type={'font-awesome'}
-              color="#fff"
-              onPress={this.onPressMenuButton}
-            />
-          }
-          centerComponent={
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <View>
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: '#FFFFFF',
-                    textAlign: 'center',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {this.state.chatUser}
-                </Text>
-              </View>
-            </View>
-          }
-          rightComponent={
+        {/* -- 共有ヘッダ -- */}
+        <InAppHeader navigate={this.props.navigation.navigate} />
+        {/* -- 画面タイトル -- */}
+        <View style={[styles.screenTitleView, { flexDirection: 'row' }]}>
+          {/* 空項目 */}
+          <View style={{ flex: 1, alignItems: 'flex-start' }} />
+          {/* チャット相手 */}
+          <View style={{ alignItems: 'center' }}>
+            <Text style={styles.screenTitleText}>{this.state.chatUser}</Text>
+          </View>
+          {/* コイン贈与アイコン */}
+          <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
             <TouchableHighlight onPress={() => this.onPressChatCoin()}>
               <Image
                 source={require('./../images/coin_icon.png')}
                 style={styles.menu_icon}
               />
             </TouchableHighlight>
-          }
-          backgroundColor="#ff5622"
-        />
+          </View>
+        </View>
+        {/* チャット内容 */}
         <GiftedChat
           dateFormat={'YYYY/MM/DD'}
-          timeFormat={'H:mm'}
+          timeFormat={'HH:MM'}
           messages={this.state.messages} //stateで管理しているメッセージ
           onSend={messages => this.onSend(messages)} //送信ボタン押した時の動作
           user={{
@@ -329,22 +221,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5FCFF'
   },
-  header: {},
-  menu_item: {
-    flexDirection: 'row',
-    marginTop: 30,
-    marginLeft: 30,
-    marginRight: 30
-  },
   menu_icon: {
     width: 25,
     height: 25
   },
-  menu_button: {},
-  menu_icon_view: {},
-  menu_button_view: {
-    flex: 1,
-    flexDirection: 'column',
-    marginLeft: 10
+  screenTitleView: {
+    alignItems: 'center',
+    backgroundColor: '#ff5622'
+  },
+  screenTitleText: {
+    fontSize: 18,
+    color: 'white',
+    padding: 10
   }
 })
