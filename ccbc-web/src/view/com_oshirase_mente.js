@@ -715,38 +715,6 @@ class ComOshiraseMenteForm extends React.Component {
       })
   }
 
-  // handleSubmit = event => {
-  //   // this.setState({ loadFlg: true })
-  //   var form = new FormData()
-  //   form.append('image', this.state.gazo)
-
-  //   request
-  //     .post(restdomain + '/com_oshirase_mente/create')
-  //     .send(form)
-  //     //.send(form)
-  //     .end((err, res) => {
-  //       // this.setState({ loadFlg: false })
-  //       if (err) {
-  //         return
-  //       }
-  //       if (res.body.status) {
-  //         this.props.history.push('/shain_kensaku')
-  //       } else {
-  //         if (res.body.tokencheck) {
-  //           this.setState({
-  //             msg: '入力したユーザIDは既に登録済みです。'
-  //           })
-  //         } else {
-  //           this.setState({
-  //             msg: '不正なログインです。'
-  //           })
-  //         }
-  //         this.setState({ dialogOpen: false })
-  //         return
-  //       }
-  //     })
-  // }
-
   handleSubmitEdit() {
     request
       .post(restdomain + '/com_oshirase_mente/edit')
@@ -989,7 +957,13 @@ class ComOshiraseMenteForm extends React.Component {
                               selected={isSelected}
                             >
                               <TableCell padding="checkbox">
-                                <Checkbox checked={isSelected} />
+                                <Checkbox
+                                  // onClick={event =>
+                                  //   this.handleClick(event, n.id)
+                                  // }
+                                  checked={isSelected}
+                                // disabled={this.state.disabledFlg}
+                                />
                               </TableCell>
                               <TableCell
                                 component="th"
@@ -1177,7 +1151,7 @@ class ComOshiraseMenteForm extends React.Component {
                     margin="normal"
                     id="tytle2"
                     label="件名(25文字)"
-                    defaultValue="事業内容に2018年度の実績を追加しました"
+                    defaultValue={this.state.resultList[this.state.selected].title}
                     fullWidth
                   />
                   <TextField
