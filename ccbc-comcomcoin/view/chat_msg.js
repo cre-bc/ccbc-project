@@ -6,7 +6,8 @@ import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
 const restdomain = require('./common/constans.js').restdomain
-const socket = io(restdomain, { secure: true, transports: ['websocket'] })
+const restdomain_ws = require('./common/constans.js').restdomain_ws
+const socket = io(restdomain_ws, { secure: true, transports: ['websocket'] })
 // const socket = io(restdomain)
 
 export default class ChatMsgForm extends BaseComponent {
