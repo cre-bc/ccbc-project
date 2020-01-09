@@ -33,6 +33,7 @@ export default class Shopping extends BaseComponent {
       alertDialogMessage: "",
       confirmDialogVisible: false,
       confirmDialogMessage: "",
+      isScaning: false,
     }
     this.props = props
   }
@@ -94,6 +95,8 @@ export default class Shopping extends BaseComponent {
   handleBarCodeScanned = async ({ type, data }) => {
     console.log("barcode type:" + type + " \ndata: " + data)
 
+    this.setState({ isScaning: true })
+    this.state.isScaning = true
     this.state.qrcode = data
 
     await fetch(restdomain + '/shopping/checkQRCode', {
@@ -106,11 +109,15 @@ export default class Shopping extends BaseComponent {
       })
       .then(
         function (json) {
+          this.setState({ isScaning: false })
+          this.state.isScaning = false
+
           // 結果が取得できない場合は終了
           if (typeof json.status === 'undefined') {
             return
           } else if (json.status === false) {
             alert("有効なQRコードではありません")
+            this.cancelCamera()
             return
           }
 
@@ -235,7 +242,7 @@ export default class Shopping extends BaseComponent {
       // --- スキャナモード ---
       return (
         <BarCodeScanner
-          onBarCodeRead={this.handleBarCodeScanned}
+          onBarCodeScanned={this.state.isScaning ? undefined : this.handleBarCodeScanned}
           style={[StyleSheet.absoluteFill, styles.container]}
         >
           <View style={styles.layerTop}>
@@ -253,7 +260,7 @@ export default class Shopping extends BaseComponent {
               キャンセル
             </Text>
             {/* TODO : テスト用にQRコードを読み込んだ状態を再現 */}
-            <Text onPress={() => this.handleBarCodeScanned({ type: "QR", data: "CCC_0000" })} style={styles.cancel}>
+            <Text onPress={() => this.handleBarCodeScanned({ type: "QR", data: "CCC_0001" })} style={styles.cancel}>
               テスト
             </Text>
           </View>

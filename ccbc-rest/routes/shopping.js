@@ -86,6 +86,7 @@ async function checkQRCode(req, res) {
   db = db2.sequelizeDB(req)
 
   var qrcode = req.body.qrcode
+  console.log("QRコード:", qrcode)
 
   // QRコードを解析（NGの場合はstatus = falseで返却）
   var isError = false
@@ -94,7 +95,7 @@ async function checkQRCode(req, res) {
   } else if (qrcode.length !== 8) {
     // 8桁でない場合はNG
     isError = true
-  } else if (qrcode.substring(0, 4) !== "CCC_") {
+  } else if (qrcode.substr(0, 4) !== "CCC_") {
     // 先頭4桁が"CCC_"でない場合はNG
     isError = true
   }
@@ -104,7 +105,8 @@ async function checkQRCode(req, res) {
   }
 
   // 末尾4桁の商品コードを取得
-  var shohin_code = qrcode.substring(4, 4)
+  var shohin_code = qrcode.substr(4, 4)
+  console.log("商品コード:", shohin_code)
 
   // 商品マスタを取得
   const resdatas = await selectShohin(db, shohin_code)
@@ -238,8 +240,8 @@ function selectBokin(db, req) {
 function selectShohin(db, shohin_code) {
   return new Promise((resolve, reject) => {
     var sql =
-      // "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin from m_shohin where shohin_code = :shohin_code and delete_flg = '0'"
-      "select m_shohin_pk, '0000' as shohin_code, shohin_nm1, shohin_nm2, coin from m_shohin where delete_flg = '0'"
+      "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin from m_shohin where shohin_code = :shohin_code and delete_flg = '0'"
+
     db.query(sql, {
       replacements: { shohin_code: shohin_code },
       type: db.QueryTypes.RAW
