@@ -12,6 +12,7 @@
     "axios": "^0.19.0",
     "emoji-utils": "^1.0.1",
     "expo": "^35.0.0",
+    "expo-barcode-scanner": "^8.0.0",
     "expo-constants": "~7.0.0",
     "expo-image-picker": "~7.0.0",
     "expo-permissions": "~7.0.0",
@@ -35,6 +36,7 @@
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "rmc-input-number": "^1.0.5",
+    "socket.io-client": "^2.3.0",
     "styled-components": "^3.4.2"
   },
   "devDependencies": {

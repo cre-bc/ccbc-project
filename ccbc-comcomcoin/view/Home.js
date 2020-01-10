@@ -313,11 +313,17 @@ export default class Home extends BaseComponent {
             </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Image
-              resizeMode="contain"
-              source={require('./../images/icons8-qr-code-48.png')}
-            />
-            <Text>買い物</Text>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => this.props.navigation.navigate('Shopping', {
+                mode: "favorite"
+              })}>
+              <Image
+                resizeMode="contain"
+                source={require('./../images/icons8-qr-code-48.png')}
+              />
+              <Text>買い物</Text>
+            </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <TouchableOpacity
