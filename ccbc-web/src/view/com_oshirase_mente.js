@@ -148,7 +148,7 @@ class EnhancedTableHead extends React.Component {
           {columnData.map(column => {
             return (
               <TableCell
-                key={column.id}
+                key={column}
                 numeric={column.numeric}
                 padding={column.disablePadding ? 'dense' : 'none'}
                 sortDirection={orderBy === column.id ? order : false}
@@ -498,6 +498,7 @@ class ComOshiraseMenteForm extends React.Component {
       rowsPerPage: 5,
       // checked: [1],
       name: [],
+      renban: null,
       notice_dt: '',
       title: '',
       comment: ''
@@ -645,7 +646,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ selected: [] })
   }
 
-  handleClick = (event, id) => {
+  handleClick = (event, id, checked) => {
     const { selected } = this.state
     const selectedIndex = selected.indexOf(id)
     let newSelected = []
@@ -662,8 +663,13 @@ class ComOshiraseMenteForm extends React.Component {
         selected.slice(selectedIndex + 1)
       )
     }
-
     this.setState({ selected: newSelected })
+    if (this.state.page == 1) id = id + 5
+    if (this.state.page == 2) id = id + 10
+    this.setState({ renban: this.state.resultList[id].renban })
+    this.setState({ notice_dt: this.state.resultList[id].notice_dt })
+    this.setState({ title: this.state.resultList[id].title })
+    this.setState({ comment: this.state.resultList[id].comment })
   }
 
   handleChangePage = (event, page) => {
@@ -708,10 +714,51 @@ class ComOshiraseMenteForm extends React.Component {
         //   this.setState({ dialogOpen: false })
         //   return
         // }
-        // this.props.history.push('/menu')
-        this.setState({ resultList: res.body.data })
+        // this.setState({ resultList: res.body.data })
         // this.handleChange()
         this.setState({ openAdd: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        // this.state.resultList = res.body.data
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
       })
   }
 
@@ -721,8 +768,50 @@ class ComOshiraseMenteForm extends React.Component {
       .send(this.state)
       .end((err, res) => {
         if (err) return
-        this.setState({ resultList: res.body.data })
+        // this.setState({ resultList: res.body.data })
         this.setState({ openEdit: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        // this.state.resultList = res.body.data
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
       })
   }
 
@@ -732,8 +821,50 @@ class ComOshiraseMenteForm extends React.Component {
       .send(this.state)
       .end((err, res) => {
         if (err) return
-        this.setState({ resultList: res.body.data })
+        // this.setState({ resultList: res.body.data })
         this.setState({ openDelete: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        // this.state.resultList = res.body.data
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
       })
   }
 
@@ -953,7 +1084,7 @@ class ComOshiraseMenteForm extends React.Component {
                               role="checkbox"
                               aria-checked={isSelected}
                               tabIndex={-1}
-                              key={n.id}
+                              key={n}
                               selected={isSelected}
                             >
                               <TableCell padding="checkbox">
@@ -1135,6 +1266,9 @@ class ComOshiraseMenteForm extends React.Component {
                   おしらせの編集
                 </DialogTitle>
                 <DialogContent>
+                  {/* {this.state.resultList.map((n, id) => {
+                    // const isSelected = this.isSelected(id)
+                    return ( */}
                   <DialogContentText>
                     日付、件名、内容を入力してください。
                   </DialogContentText>
@@ -1144,26 +1278,31 @@ class ComOshiraseMenteForm extends React.Component {
                     id="name2"
                     label="日付"
                     type="date"
-                    defaultValue="2019-05-24"
+                    defaultValue={this.state.notice_dt}
                     fullWidth
+                    onChange={this.handleChange_notice_dt.bind(this)}
                   />
                   <TextField
                     margin="normal"
                     id="tytle2"
                     label="件名(25文字)"
-                    defaultValue={this.state.resultList[this.state.selected].title}
+                    defaultValue={this.state.title}
                     fullWidth
+                    onChange={this.handleChange_title.bind(this)}
                   />
                   <TextField
                     id="multiline-static2"
                     label="内容(1000文字)"
                     multiline
                     rows="4"
-                    defaultValue="事業内容に2018年度の実績を追加しました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/"
+                    defaultValue={this.state.comment}
                     className={classes.textField}
                     margin="normal"
                     fullWidth
+                    onChange={this.handleChange_comment.bind(this)}
                   />
+                  {/* ) */}
+                  {/* })} */}
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">
