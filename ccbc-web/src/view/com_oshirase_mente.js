@@ -639,14 +639,19 @@ class ComOshiraseMenteForm extends React.Component {
   }
 
   handleSelectAllClick = (event, checked) => {
+    // if (checked) {
+    //   this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
+    //   return
+    // }
+    // this.setState({ selected: [] })
     if (checked) {
-      this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
-      return
+      this.setState({ selected: this.state.resultList.map(n => n.id) })
+    } else {
+      this.setState({ selected: [] })
     }
-    this.setState({ selected: [] })
   }
 
-  handleClick = (event, id, checked) => {
+  handleClick = (event, id) => {
     const { selected } = this.state
     const selectedIndex = selected.indexOf(id)
     let newSelected = []
