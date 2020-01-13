@@ -30,8 +30,11 @@ const loginGroupRouter = require('./routes/login_group')
 // TODO : ここにComComCoin用のAPIを追加していく
 const com_oshirase_menteRouter = require('./routes/com_oshirase_mente')
 const comcomcoinHomeRouter = require('./routes/comcomcoin_home')
+const shoppingRouter = require('./routes/shopping')
 const articleRouter = require('./routes/article')
-const chatRouter = require('./routes/chat')
+const chatSelectRouter = require('./routes/chat_select')
+const chatMsgRouter = require('./routes/chat_msg')
+const chatCoinRouter = require('./routes/chat_coin')
 
 const sampleRouter = require('./routes/sample')
 const comcomcoinMainteRouter = require('./routes/comcomcoin_mainte')
@@ -104,8 +107,11 @@ app.use('/login_group', loginGroupRouter)
 // TODO : ここにComComCoin用のAPIを追加していく
 app.use('/com_oshirase_mente', com_oshirase_menteRouter)
 app.use('/comcomcoin_home', comcomcoinHomeRouter)
+app.use('/shopping', shoppingRouter)
 app.use('/article', articleRouter)
-app.use('/chat', chatRouter)
+app.use('/chat_select', chatSelectRouter)
+app.use('/chat_msg', chatMsgRouter)
+app.use('/chat_coin', chatCoinRouter)
 
 // sample
 app.use('/sample', sampleRouter)

@@ -21,6 +21,7 @@
     "pg": "^7.4.3",
     "save": "^2.3.2",
     "sequelize": "^4.37.10",
+    "socket.io": "^2.3.0",
     "superagent": "^3.8.3"
   },
   "devDependencies": {
