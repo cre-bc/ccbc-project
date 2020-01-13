@@ -21,6 +21,7 @@ import Paper from "@material-ui/core/Paper";
 import MenuList from "@material-ui/core/MenuList";
 
 /** 検索条件部分 */
+/** ※単体テスト終了後 commentアウト部分は削除 */
 // import Input from '@material-ui/core/Input'
 // import InputLabel from '@material-ui/core/InputLabel'
 import InputAdornment from "@material-ui/core/InputAdornment";
@@ -92,6 +93,7 @@ const data_event = [
 ];
 
 /** 検索部分のリストボックス */
+/** リストボックスに表示されるのはソート条件のみ */
 const ranges1 = [
   {
     value: "ソート１",
@@ -399,17 +401,17 @@ class ComShojiCoinForm extends React.Component {
     this.setState({ [prop]: event.target.value });
   };
 
-  handleChange2 = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
+  // handleChange2 = prop => event => {
+  //   this.setState({ [prop]: event.target.value });
+  // };
 
-  handleChange3 = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
+  // handleChange3 = prop => event => {
+  //   this.setState({ [prop]: event.target.value });
+  // };
 
-  handleChange4 = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
+  // handleChange4 = prop => event => {
+  //   this.setState({ [prop]: event.target.value });
+  // };
 
   handleMouseDownPassword = event => {
     event.preventDefault();

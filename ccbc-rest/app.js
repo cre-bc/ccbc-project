@@ -28,7 +28,7 @@ const shain_kensakuRouter = require("./routes/shain_kensaku");
 const loginGroupRouter = require("./routes/login_group");
 const com_coin_shokaiRouter = require("./routes/com_coin_shokai");
 const com_coin_shokai_graphRouter = require("./routes/com_coin_shokai_graph");
-const com_coin_shojiconRouter = require("./routes/com_coin_shojicoin");
+const com_coin_shojicoinRouter = require("./routes/com_coin_shojicoin");
 
 // TODO : ここにComComCoin用のAPIを追加していく
 const articleRouter = require("./routes/article");

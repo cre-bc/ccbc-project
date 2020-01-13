@@ -56,6 +56,8 @@ import PageviewIcon from "@material-ui/icons/Pageview";
 // import ListIcon from '@material-ui/icons/List'
 
 /** 検索部分のリストボックス */
+/** 検索条件：操作者（管理者権限がない場合自分のみ） */
+/** tShainGet(req)から取得する */
 const ranges1 = [
   {
     value: "操作者0",
@@ -78,6 +80,9 @@ const ranges1 = [
     label: "事務局"
   }
 ];
+/** 検索条件：取引相手 */
+/** tShainGet(req)から取得する */
+/** ※検索条件：取引で授受を切り替えるため、社員全員を表示 */
 const ranges2 = [
   {
     value: "取引相手0",
@@ -100,6 +105,8 @@ const ranges2 = [
     label: "事務局"
   }
 ];
+/** 検索条件：イベント */
+/** ccCoinEventget(req)から取得する */
 const ranges3 = [
   {
     value: "イベント１",
@@ -118,6 +125,8 @@ const ranges3 = [
     label: "HARVEST投票"
   }
 ];
+/** 検索条件：イベント */
+/** findNendo(req)から取得する */
 const ranges4 = [
   {
     value: "年度１",
@@ -133,7 +142,9 @@ const ranges4 = [
   }
 ];
 
-const ranges6 = [
+/** 検索条件：取引 */
+/** 固定値のため、DB取得無し */
+const ranges5 = [
   {
     value: "取引種類１",
     label: "もらった"
@@ -769,7 +780,7 @@ class ComCoinShokaiForm extends React.Component {
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
-                {ranges6.map(option => (
+                {ranges5.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>

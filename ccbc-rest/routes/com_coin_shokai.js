@@ -148,6 +148,39 @@ function ccCoinEventget(req) {
 }
 
 /**
+ * 年度情報取得用関数（コイン照会より流用）
+ * @req {*} req
+ */
+function findNendo(req) {
+  return new Promise((resolve, reject) => {
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
+    } else {
+      db = require("./common/sequelize_helper.js").sequelize;
+    }
+    var sql =
+      "select to_char(tzo.insert_tm,'yyyyMM') as year" +
+      " from t_zoyo tzo" +
+      " where tzo.delete_flg = '0'" +
+      " group by to_char(tzo.insert_tm,'yyyyMM') order by year desc";
+    db
+      .query(sql, {
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        var y = [];
+        for (var i in datas) {
+          y.push(getNendo(datas[i].year + "01"));
+        }
+        var res = y.filter(function(x, i, self) {
+          return self.indexOf(x) === i;
+        });
+        return resolve(res);
+      });
+  });
+}
+
+/**
  * BCコイン取得用関数
  * @param {*} param
  */
