@@ -33,6 +33,7 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
+import request from 'superagent'
 
 function TabContainer({ children, dir }) {
   return (
@@ -46,7 +47,7 @@ TabContainer.propTypes = {
   dir: PropTypes.string.isRequired
 }
 
-
+const restdomain = require('../common/constans.js').restdomain
 
 const drawerWidth = 240
 const drawerWidthTab = 100
@@ -417,23 +418,29 @@ class ComKokokuMenteForm extends React.Component {
     }
     this.state.comment = comment_copy
 
+    // // 年度表示
     // request
-    //   .post(restdomain + '/com_kokoku_mente/create')
+    //   .get(restdomain + '/com_kokoku_mente/find')
     //   .send(this.state)
     //   .end((err, res) => {
-    //     this.setState({ loadFlg: false })
-    //     if (err) {
-    //       return
+    //     if (err) return
+    //     // 画像リスト生成
+    //     var pictureList = []
+    //     for (var i in res.body.data) {
+    //       var r = res.body.data[i]
+    //       var picture = getPicture(r)
+    //       pictureList.push(picture)
     //     }
-    //     if (!res.body.status) {
-    //       this.setState({
-    //         msg: '不正なログインです。'
-    //       })
-    //       this.setState({ dialogOpen: false })
-    //       this.state.comment = bkcomment
-    //       return
+    //     if (
+    //       this.state.resultList.length === 0 ||
+    //       getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+    //     ) {
+    //       nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
     //     }
-    //     this.props.history.push('/menu')
+    //     // 年度重複削除
+    //     var nendoList2 = getArray(nendoList)
+    //     this.state.nendoList = nendoList2
+    //     this.setState({ nendoList: nendoList2 })
     //   })
   }
 
