@@ -496,7 +496,7 @@ class ComOshiraseMenteForm extends React.Component {
       orderBy: 'name',
       page: 0,
       rowsPerPage: 5,
-      // checked: [1],
+      checked: false,
       name: [],
       renban: null,
       notice_dt: '',
@@ -669,16 +669,45 @@ class ComOshiraseMenteForm extends React.Component {
       )
     }
     this.setState({ selected: newSelected })
-    if (this.state.page == 1) id = id + 5
-    if (this.state.page == 2) id = id + 10
-    this.setState({ renban: this.state.resultList[id].renban })
-    this.setState({ notice_dt: this.state.resultList[id].notice_dt })
-    this.setState({ title: this.state.resultList[id].title })
-    this.setState({ comment: this.state.resultList[id].comment })
+    let check = false
+    check = this.state.selected.indexOf(id) !== -1
+    // this.setState({ checked: event.target.checked })
+    // if (this.state.selected == true) {
+    if (check == true) {
+      this.setState({ renban: null })
+      this.setState({ notice_dt: null })
+      this.setState({ title: null })
+      this.setState({ comment: null })
+    } else {
+      if (this.state.page == 1) id = id + 5
+      if (this.state.page == 2) id = id + 10
+      this.setState({ renban: this.state.resultList[id].renban })
+      this.setState({ notice_dt: this.state.resultList[id].notice_dt })
+      this.setState({ title: this.state.resultList[id].title })
+      this.setState({ comment: this.state.resultList[id].comment })
+    }
   }
+
+  // handleClick1 = (event, id) => {
+  //   let check = false
+  //   check = event.target.checked
+  //   if (this.state.page == 1) id = id + 5
+  //   if (this.state.page == 2) id = id + 10
+  //   this.setState({ renban: this.state.resultList[id].renban })
+  //   this.setState({ notice_dt: this.state.resultList[id].notice_dt })
+  //   this.setState({ title: this.state.resultList[id].title })
+  //   this.setState({ comment: this.state.resultList[id].comment })
+  // }
+  // チェックボックスのところを押したら check = event.target.checked できる
+  // ページ遷移はわからない
 
   handleChangePage = (event, page) => {
     this.setState({ page })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleChangeRowsPerPage = event => {
@@ -702,6 +731,11 @@ class ComOshiraseMenteForm extends React.Component {
         // 検索結果表示
         this.setState({ resultList: res.body.data })
       })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleSubmit() {
@@ -765,6 +799,11 @@ class ComOshiraseMenteForm extends React.Component {
         this.state.nendoList = nendoList2
         this.setState({ nendoList: nendoList2 })
       })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleSubmitEdit() {
@@ -818,6 +857,11 @@ class ComOshiraseMenteForm extends React.Component {
         this.state.nendoList = nendoList2
         this.setState({ nendoList: nendoList2 })
       })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleSubmitDelete() {
@@ -871,6 +915,11 @@ class ComOshiraseMenteForm extends React.Component {
         this.state.nendoList = nendoList2
         this.setState({ nendoList: nendoList2 })
       })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleChange_notice_dt(e) {
@@ -1095,9 +1144,10 @@ class ComOshiraseMenteForm extends React.Component {
                               <TableCell padding="checkbox">
                                 <Checkbox
                                   // onClick={event =>
-                                  //   this.handleClick(event, n.id)
+                                  //   this.handleClick(event, id)
                                   // }
                                   checked={isSelected}
+                                // checked={this.state.checked}
                                 // disabled={this.state.disabledFlg}
                                 />
                               </TableCell>
