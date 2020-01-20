@@ -1,11 +1,6 @@
 /**
  * ブロックチェーンAPI
  */
-var express = require("express");
-var router = express.Router();
-var Web3 = require("web3");
-var web3 = new Web3();
-
 // 接続情報（環境変数に設定）
 const bcUrl = process.env.CCBC_BC_URL;
 // スマートコントラクトのアドレス（ベース）
@@ -13,6 +8,10 @@ const baseContractAddress = process.env.CCBC_BASE_CONTRACT_ADDRESS;
 // スマートコントラクトのアドレス（パラメータにより書き換え可能）
 let contractAddress = baseContractAddress;
 
+var express = require("express");
+var router = express.Router();
+var Web3 = require("web3");
+var web3 = new Web3(new Web3.providers.HttpProvider(bcUrl));
 var request = require("superagent");
 
 /**
@@ -25,17 +24,15 @@ var request = require("superagent");
  *          [ message ]    - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/add_account", function(req, res, err) {
+router.post("/add_account", async function (req, res, err) {
   var methodNm = "## add_account";
   // console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
   var password = req.body.password;
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     // アカウント作成
-    var result = web3.personal.newAccount(password);
+    var result = await web3.eth.personal.newAccount(password);
     res.json({ bc_account: result, result: true });
     console.log(methodNm + ":success" + result);
   } catch (e) {
@@ -55,7 +52,7 @@ router.post("/add_account", function(req, res, err) {
  *          [ message ]  - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/login", function(req, res, err) {
+router.post("/login", async function (req, res, err) {
   var methodNm = "## login";
   // console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
@@ -63,10 +60,8 @@ router.post("/login", function(req, res, err) {
   var password = req.body.password;
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     // 認証
-    var result = web3.personal.unlockAccount(account, password);
+    var result = await web3.eth.personal.unlockAccount(account, password, 600);
     res.json({ result: result });
     console.log(methodNm + ":success:");
   } catch (e) {
@@ -98,7 +93,7 @@ router.post("/login", function(req, res, err) {
  *          [ message ]        - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/send_coin", function(req, res, err) {
+router.post("/send_coin", async function (req, res, err) {
   var methodNm = "## send_coin";
   // console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
@@ -115,22 +110,29 @@ router.post("/send_coin", function(req, res, err) {
   }
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     // 認証
-    web3.personal.unlockAccount(fromAccount, password);
+    await web3.eth.personal.unlockAccount(fromAccount, password, 600);
     console.log(methodNm + ":success:unlockAccount");
 
     // 送金
-    web3.eth.defaultAccount = fromAccount;
-    var abi = getAbi();
+    //web3.eth.defaultAccount = fromAccount;
+    var contract = new web3.eth.Contract(getAbi(), contractAddress);
     var i = 0;
     while (i < toAccounts.length) {
       // 対象者分繰返し
-      var resTransId = web3.eth
-        .contract(abi)
-        .at(contractAddress)
-        .transfer.sendTransaction(toAccounts[i], coins[i]);
+      var resTransId = "";
+      await contract.methods.transfer(toAccounts[i], coins[i]).send({ from: fromAccount })
+        .on('transactionHash', function (hash) {
+          resTransId = hash;
+          console.log(methodNm + ":transfer:transactionHash", hash)
+        })
+        .on('receipt', function (receipt) {
+          console.log(methodNm + ":transfer:receipt", receipt)
+        })
+        .on('error', function (error, receipt) {
+          throw error
+        });
+
       ////etherの場合
       //var resTransId = web3.eth.sendTransaction({from: fromAccount, to: toAccounts[i], value: web3.toWei(coins[i], "ether")})
       resTransactions[i] = resTransId;
@@ -158,7 +160,7 @@ router.post("/send_coin", function(req, res, err) {
  *          [ message ] - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_coin", function(req, res, err) {
+router.post("/get_coin", async function (req, res, err) {
   var methodNm = "## get_coin";
   console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
@@ -171,14 +173,9 @@ router.post("/get_coin", function(req, res, err) {
   }
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     // 照会
-    var abi = getAbi();
-    var resCoin = web3.eth
-      .contract(abi)
-      .at(contractAddress)
-      .balanceOf(account);
+    var contract = new web3.eth.Contract(getAbi(), contractAddress);
+    var resCoin = await contract.methods.balanceOf(account).call();
     res.json({ coin: resCoin, result: true });
   } catch (e) {
     console.log(methodNm + ":err:" + e);
@@ -198,7 +195,7 @@ router.post("/get_coin", function(req, res, err) {
  *          [ message ] - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_coin_year", function(req, res, err) {
+router.post("/get_coin_year", async function (req, res, err) {
   var methodNm = "## get_coin_year";
   console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
@@ -220,8 +217,6 @@ router.post("/get_coin_year", function(req, res, err) {
   }
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     //------------------------------------------------------------------
     // テスト処理
     /*
@@ -252,7 +247,7 @@ router.post("/get_coin_year", function(req, res, err) {
     console.log("# maxNo:" + maxNo);
 
     for (var i = 0; i < maxNo + 1; i++) {
-      var block = web3.eth.getBlock(i);
+      var block = await web3.eth.getBlock(i);
       console.log(
         "## blockNumber:" + i + " block.timestamp:" + block.timestamp
       );
@@ -264,7 +259,7 @@ router.post("/get_coin_year", function(req, res, err) {
         );
 
         for (var j = 0; j < block.transactions.length; j++) {
-          var trans = web3.eth.getTransaction(block.transactions[j]);
+          var trans = await web3.eth.getTransaction(block.transactions[j]);
 
           // コントラクトのアドレス（送金処理）であれば
           if (trans.to == contractAddress) {
@@ -311,17 +306,15 @@ router.post("/get_coin_year", function(req, res, err) {
  *          [ message ]     - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_transaction", function(req, res, err) {
+router.post("/get_transaction", async function (req, res, err) {
   var methodNm = "## get_transaction";
   console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
   var transaction = req.body.transaction;
 
   try {
-    web3.setProvider(new web3.providers.HttpProvider(bcUrl));
-
     // 照会
-    var trans = web3.eth.getTransaction(transaction);
+    var trans = await web3.eth.getTransaction(transaction);
     var input = trans.input;
     var fromAccount = trans.from;
 
@@ -367,7 +360,7 @@ router.post("/get_transaction", function(req, res, err) {
  *          [ message ]     - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_transactions", function(req, res, err) {
+router.post("/get_transactions", function (req, res, err) {
   var methodNm = "## get_transactions";
   console.log(methodNm + ":param:" + JSON.stringify(req.body));
 
@@ -394,7 +387,7 @@ router.post("/get_transactions", function(req, res, err) {
     request
       .post(bcUrl)
       .send(param)
-      .end(function(bcerr, bcres) {
+      .end(function (bcerr, bcres) {
         if (bcerr) {
           console.log("** err:" + bcerr);
           return;
@@ -439,10 +432,9 @@ router.post("/get_transactions", function(req, res, err) {
  * ABI取得（コントラクトにアクセスするために必要な情報）
  */
 function getAbi() {
-  var abi = JSON.parse(
-    '[{"constant": true,"inputs": [{"name": "","type": "address"}],"name": "balanceOf","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"},{"constant": false,"inputs": [{"name": "_to","type": "address"},{"name": "_value","type": "uint256"}],"name": "transfer","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": false,"inputs": [{"name": "_to","type": "address"},{"name": "_value","type": "uint256"},{"name": "_prm1","type": "uint256"},{"name": "_prm2","type": "uint256"},{"name": "_prm3","type": "uint256"}],"name": "transfer_custom","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"inputs": [{"name": "initialSupply","type": "uint256"}],"payable": false,"stateMutability": "nonpayable","type": "constructor"}]'
-  );
-  return abi;
+  var AbiJson = require("../abi.json");
+  //console.log(AbiJson.abi)
+  return AbiJson.abi;
 }
 
 module.exports = router;
