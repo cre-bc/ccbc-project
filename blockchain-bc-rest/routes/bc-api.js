@@ -114,6 +114,26 @@ router.post("/send_coin", async function (req, res, err) {
     await web3.eth.personal.unlockAccount(fromAccount, password, 600);
     console.log(methodNm + ":success:unlockAccount");
 
+    // // 同時実行時にコイン不足チェックに該当しないために、PendingTransactionをチェックし、
+    // // 自分が発行したトランザクションがある場合は待機する
+    // var isFindTrans = true;
+    // while (isFindTrans) {
+    //   isFindTrans = false;
+
+    //   await web3.eth.subscribe('pendingTransactions', function (error, result) {
+    //     if (!error) {
+    //       console.log(methodNm + ":pendingTransactions:error", error);
+    //     }
+    //   })
+    //     .on("data", async function (transaction) {
+    //       console.log(methodNm + ":pendingTransactions:data", transaction);
+    //       var trans = await web3.eth.getTransaction(transaction);
+    //       if (trans.from === fromAccount) {
+    //         isFindTrans = true;
+    //       }
+    //     })
+    // }
+
     // 送金
     //web3.eth.defaultAccount = fromAccount;
     var contract = new web3.eth.Contract(getAbi(), contractAddress);
@@ -121,6 +141,36 @@ router.post("/send_coin", async function (req, res, err) {
     while (i < toAccounts.length) {
       // 対象者分繰返し
       var resTransId = "";
+
+      // await contract.methods.transfer(toAccounts[i], coins[i])
+      //   .send({
+      //     from: fromAccount,
+      //     gasPrice: "200000000000",
+      //     gas: 100000
+      //   })
+      //   .on('transactionHash', function (hash) {
+      //     resTransId = hash;
+      //     console.log(methodNm + ":transfer:transactionHash", hash)
+      //   })
+      // .on('receipt', function (receipt) {
+      //   console.log(methodNm + ":transfer:receipt", receipt)
+      // })
+      // // .on('confirmation', function (confNumber, receipt) {
+      // //   console.log(methodNm + ":transfer:confirmation", confNumber, receipt)
+      // // })
+      // .on('error', function (error, receipt) {
+      //   console.log(methodNm + ":transfer:error", error, receipt)
+      //   throw error
+      // })
+      // .then(async function (receipt) {
+      //   console.log(methodNm + ":transfer:fin", receipt)
+      //   var status = await web3.eth.getTransactionReceipt(receipt.transactionHash);
+      //   console.log(methodNm + ":transfer:fin:getTransactionReceipt:status", status)
+      //   if (status === 0) {
+      //     throw "An error occurred when storing a transaction in a block."
+      //   }
+      // });
+
       if (toAccounts.length === 1) {
         // １件のコイン送金では、同時実行によりコイン不足になる場面があるため、トランザクションがブロックに取り込まれるまで処理を待機する
         await contract.methods.transfer(toAccounts[i], coins[i]).send({ from: fromAccount })
@@ -131,15 +181,19 @@ router.post("/send_coin", async function (req, res, err) {
           .on('receipt', function (receipt) {
             console.log(methodNm + ":transfer:receipt", receipt)
           })
-          .on('confirmation', function (confNumber, receipt) {
-            console.log(methodNm + ":transfer:confirmation", confNumber, receipt)
-          })
           .on('error', function (error, receipt) {
             console.log(methodNm + ":transfer:error", error, receipt)
             throw error
           })
-          .then(function (receipt) {
+          .then(async function (receipt) {
             console.log(methodNm + ":transfer:fin", receipt)
+            var result = await web3.eth.getTransactionReceipt(receipt.transactionHash);
+            console.log(methodNm + ":transfer:fin:getTransactionReceipt", result)
+            if (result !== null) {
+              if (result.status === false) {
+                throw "An error occurred when storing a transaction in a block."
+              }
+            }
           });
       } else {
         // 複数件のコイン送金では、同時実行によりコイン不足になる場面がないため、トランザクションが生成された時点で処理を次に進める
@@ -153,6 +207,8 @@ router.post("/send_coin", async function (req, res, err) {
             throw error
           });
       }
+
+      // resTransId = contract.methods.transfer(toAccounts[i], coins[i]).send({ from: fromAccount });
 
       ////etherの場合
       //var resTransId = web3.eth.sendTransaction({from: fromAccount, to: toAccounts[i], value: web3.toWei(coins[i], "ether")})
