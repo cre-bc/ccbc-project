@@ -24,6 +24,9 @@ import { Link } from 'react-router-dom'
 import { kanriListItems, systemName, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 
+import Search from '@material-ui/icons/Search'
+import EditIcon from '@material-ui/icons/Edit'
+
 import Chip from '@material-ui/core/Chip'
 import { Manager, Target, Popper } from 'react-popper'
 import Grow from '@material-ui/core/Grow'
@@ -51,7 +54,7 @@ const drawerWidth = 240
 const styles = theme => ({
     root: {
         flexGrow: 1,
-        overflowY: "hidden"
+        overflow: 'hidden'
     },
     appFrame: {
         zIndex: 1,
@@ -305,11 +308,11 @@ const styles = theme => ({
     },
     categoryTable: {
         width: "20%",
-        float: "left"
+        float: "left",
+        // position: "absolute"
     },
     articleTable: {
         width: "80%",
-        height: "95%",
         float: "left",
     },
     articleHeaderTable: {
@@ -318,7 +321,6 @@ const styles = theme => ({
     },
     articleCardTable: {
         width: "98%",
-        height: "90%",
         marginLeft: 50,
         overflowY: "scroll",
         overflowX: "hidden"
@@ -580,7 +582,23 @@ class ArticleForm extends React.Component {
 
                         <div className={classes.articleTable}>
                             <div className={classes.articleHeaderTable}>
-                                <span>記事のカテゴリ</span>
+                                <span>ライフハック</span>
+                                <Button
+                                    // onClick={this.handleClickOpenEdit}
+                                    variant="raised"
+                                    aria-label="Search"
+                                    className={classes.button}>
+                                    <Search className={classes.extendedIcon} />
+                                    検索
+                                </Button>
+                                <Button
+                                    // onClick={this.handleClickOpenEdit}
+                                    variant="raised"
+                                    aria-label="New"
+                                    className={classes.button}>
+                                    <EditIcon className={classes.extendedIcon} />
+                                    投稿
+                                </Button>
                             </div>
                             <div className={classes.articleCardTable}>
                                 <Card className={classes.articleCard}>
