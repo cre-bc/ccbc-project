@@ -65,10 +65,10 @@ import TableCell from "@material-ui/core/TableCell";
 // import FormLabel from '@material-ui/core/FormLabel'
 
 /** 投票照会より流用 */
-// import request from 'superagent'
-// import { connect } from 'react-redux'
-// import List from '@material-ui/core/List'
-// import Typography from '@material-ui/core/Typography'
+import request from 'superagent'
+import { connect } from 'react-redux'
+import List from '@material-ui/core/List'
+import Typography from '@material-ui/core/Typography'
 import {
   ComposedChart,
   Line,
@@ -80,6 +80,8 @@ import {
   Tooltip,
   Legend
 } from "recharts";
+
+const restdomain = require('../common/constans.js').restdomain
 
 //表示させたいデータ群
 const data_event = [
@@ -94,26 +96,27 @@ const data_event = [
 
 /** 検索部分のリストボックス */
 /** リストボックスに表示されるのはソート条件のみ */
+/** 課題：bccoinはブロックチェーンから取得する。その場合のソートは？ */
 const ranges1 = [
   {
-    value: "ソート１",
+    value: "bccoin ASC",
     label: "所持コイン（昇順）"
   },
   {
-    value: "ソート２",
+    value: "bccoin DESC",
     label: "所持コイン（降順）"
   },
   {
-    value: "ソート３",
+    value: "CAST(shimei_kana AS CHAR) ASC",
     label: "氏名（昇順）"
   },
   {
-    value: "ソート４",
+    value: "CAST(shimei_kana AS CHAR) DESC",
     label: "氏名（降順）"
   }
 ];
 /** ここまで検索条件部分のconst */
-
+// ----------------------------------------------------------------------
 /**　テーブル部分のconst */
 const CustomTableCell = withStyles(theme => ({
   head: {
@@ -140,7 +143,7 @@ const rows = [
   createData("佐藤　源生", 50)
 ];
 /**　ここまでがテーブル部分のconst */
-
+// ----------------------------------------------------------------------
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -361,7 +364,7 @@ const styles = theme => ({
     backgroundColor: "rgba(255, 136, 0, 0.92)"
   }
 });
-
+// ----------------------------------------------------------------------
 // 画面内で利用する情報
 // 検索条件：なし 検索結果　社員 所持コイン
 class ComShojiCoinForm extends React.Component {
@@ -392,34 +395,16 @@ class ComShojiCoinForm extends React.Component {
     alertMsg: "",
     tokenId: null,
     msg: null,
-    loadFlg: false
-    // 以下のデータにconstに積んでいるような取得したデータを設定する
-    // data: [],
+    loadFlg: false,
+    // 以下のデータにconstに積んでいるような取得したデータを設定する(ソート順、取得情報)
+    sort_graph: 0,
+    data: []
   };
 
-  handleChange = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  handleChange = sort_graph => event => {
+    this.setState({ [sort_graph]: event.target.value });
   };
-
-  // handleChange2 = prop => event => {
-  //   this.setState({ [prop]: event.target.value });
-  // };
-
-  // handleChange3 = prop => event => {
-  //   this.setState({ [prop]: event.target.value });
-  // };
-
-  // handleChange4 = prop => event => {
-  //   this.setState({ [prop]: event.target.value });
-  // };
-
-  handleMouseDownPassword = event => {
-    event.preventDefault();
-  };
-
-  handleClickShowPassword = () => {
-    this.setState(state => ({ showPassword: !state.showPassword }));
-  };
+// ----------------------------------------------------------------------
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
@@ -433,8 +418,32 @@ class ComShojiCoinForm extends React.Component {
       this.setState({ shimei: loginInfo["shimei"] });
       this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
+// ----------------------------------------------------------------------
+    request
+    .post(restdomain + '/com_coin_shojicoin/findshojicoin')
+    .send(this.state)
+    .end((err, res) => {
+      if (err) {
+        return
+      }
+      var resList = res.body.data
+      var bccoin = String(res.body.bccoin)
+      // 検索結果表示
+      this.setState({ resultList: resList })
+      this.state.bccoin = bccoin
+      this.setState({ bccoin: bccoin })
+      this.setState({ shimei: res.body.shimei })
+      this.setState({ from_bcaccount: res.body.from_bcaccount })
+  
+      for (var i in resList) {
+        var data = resList[i]
+        if (data.kengen_cd === '0') {
+          this.setState({ jimuId: data.id })
+        }
+      }
+    })
   }
-
+// ----------------------------------------------------------------------
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -506,8 +515,6 @@ class ComShojiCoinForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -615,8 +622,9 @@ class ComShojiCoinForm extends React.Component {
                   width={1800} //グラフ全体の幅を指定
                   height={650} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
-                  data={data_event} //Array型のデータを指定
-                  // data={this.state.data} //constを使用しないときに切り替える
+                  // ----------------------------------------------------------------------
+                  // data={data_event} //Array型のデータを指定
+                  data={this.state.data} //constを使用しないときに切り替える
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
                 >
                   {/* <XAxis //X軸に関する設定
