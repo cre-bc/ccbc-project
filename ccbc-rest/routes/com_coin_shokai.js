@@ -69,6 +69,101 @@ function tShainGet(req) {
       });
   });
 }
+
+// ----------------------------------------------------------------------
+/**
+ * API : findshokai_sosa
+ * 検索条件操作者用の情報取得
+ */
+router.post('/findshokai_sosa', (req, res) => {
+  console.log('API : findshokai_sosa - start')
+  findshokai_sosa(req, res)
+  console.log('API : findshokai_sosa - end')
+})
+
+// ----------------------------------------------------------------------
+/**
+ * API : findshokai_torihiki
+ * 検索条件操作者用の情報取得
+ */
+router.post('/findshokai_torihiki', (req, res) => {
+  console.log('API : findshokai_torihiki - start')
+  findshokai_torihiki(req, res)
+  console.log('API : findshokai_torihiki - end')
+})
+
+// ----------------------------------------------------------------------
+/**
+ * API : findshokai_event
+ * 検索条件イベント用の情報取得
+ */
+router.post('/findshokai_event', (req, res) => {
+  console.log('API : findshokai_event - start')
+  findshokai_event(req, res)
+  console.log('API : findshokai_event - end')
+})
+
+// ----------------------------------------------------------------------
+/**
+ * 初期表示データ取得用関数（操作者取得）
+ * @req {*} req
+ * @res {*} res
+ */
+async function findshokai_sosa(req, res) {
+  var resdatas = [];
+  var sosa = null;
+  resdatas = await ccCoinSendUserget(req);
+  sosa = resdatas[0].sosa
+  console.log(resdatas);
+  console.log(sosa);
+  res.json({
+    status: true,
+    data: resdatas,
+    sosa: sosa
+  });
+}
+
+// ----------------------------------------------------------------------
+/**
+ * 初期表示データ取得用関数（取引相手取得）
+ * @req {*} req
+ * @res {*} res
+ */
+async function findshokai_torihiki(req, res) {
+  var resdatas = [];
+  var torihiki = null;
+  resdatas = await ccCoinGetUserget(req);
+  torihiki = resdatas[0].torihiki
+  console.log(resdatas);
+  console.log(torihiki);
+  res.json({
+    status: true,
+    data: resdatas,
+    torihiki: torihiki
+  });
+}
+
+// ----------------------------------------------------------------------
+/**
+ * 初期表示データ取得用関数（イベント取得）
+ * @req {*} req
+ * @res {*} res
+ */
+async function findshokai_event(req, res) {
+  var resdatas = [];
+  var event = null;
+  resdatas = await ccCoinEventget(req);
+  event = resdatas[0].event
+  console.log(resdatas);
+  console.log(event);
+  res.json({
+    status: true,
+    data: resdatas,
+    event: event
+  });
+}
+
+// ----------------------------------------------------------------------
 /**
  * 取引情報取得用関数(コインを使用している社員）
  * @req {*} req
@@ -79,8 +174,10 @@ function ccCoinSendUserget(req) {
     // グラフの使用コインの情報取得用
     var sql =
       "select distinct(from_shain_pk)" +
-      "  from t_coin_ido" +
+      "  from t_zoyo tzoyo" +
       " where delete_flg = '0'" +
+      "left join t_shain tsha1 on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
+      "left join t_shain tsha2 on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
       " order by from_shain_pk";
     db
       .query(sql, {
@@ -95,6 +192,7 @@ function ccCoinSendUserget(req) {
   });
 }
 
+// ----------------------------------------------------------------------
 /**
  * 取引情報取得用関数(コインを受領している社員）
  * @req {*} req
@@ -121,6 +219,7 @@ function ccCoinGetUserget(req) {
   });
 }
 
+// ----------------------------------------------------------------------
 /**
  * 取引情報取得用関数(イベント）
  * @req {*} req
@@ -130,10 +229,10 @@ function ccCoinEventget(req) {
     // SQLとパラメータを指定
     // 検索のリストボックス用に発生しているイベントの情報を取得
     var sql =
-      "select distinct(comment)" +
-      "  from t_coin_ido" +
-      " where delete_flg = '0'" +
-      " order by comment";
+    "select distinct(zoyo_comment)" +
+    "  from t_zoyo" +
+    " where delete_flg = '0'" +
+    " order by zoyo_comment";
     db
       .query(sql, {
         replacements: { shain_pk: req.body.login_shain_pk },
@@ -147,6 +246,7 @@ function ccCoinEventget(req) {
   });
 }
 
+// ----------------------------------------------------------------------
 /**
  * 年度情報取得用関数（コイン照会より流用）
  * @req {*} req

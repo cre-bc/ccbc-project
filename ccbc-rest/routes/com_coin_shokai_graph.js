@@ -68,71 +68,101 @@ function tShainGet(req) {
       });
   });
 }
+
+// ----------------------------------------------------------------------
 /**
- * 取引情報取得用関数(送付者）
- * @req {*} req
+ * API : findshokaigraph_event
+ * 検索条件イベント用の情報取得
  */
-function ccCoinSendUserget(req) {
-  return new Promise((resolve, reject) => {
-    // SQLとパラメータを指定
-    var sql =
-      "select distinct(from_shain_pk)" +
-      "  from t_coin_ido" +
-      " where delete_flg = '0'" +
-      " order by from_shain_pk";
-    db
-      .query(sql, {
-        replacements: { shain_pk: req.body.login_shain_pk },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        console.log("★★★");
-        console.log(datas);
-        return resolve(datas);
-      });
+router.post('/findshokaigraph_event', (req, res) => {
+  console.log('API : findshokaigraph_event - start')
+  findshokaigraph_event(req, res)
+  console.log('API : findshokaigraphs_event - end')
+})
+
+// ----------------------------------------------------------------------
+/**
+ * API : findshokaigraph
+ * グラフの情報取得
+ */
+router.post('/findshokaigraph', (req, res) => {
+  console.log('API : findshokaigraph - start')
+  findshokaigraph(req, res)
+  console.log('API : findshokaigraphs - end')
+})
+
+
+// ----------------------------------------------------------------------
+/**
+ * 初期表示データ取得用関数（イベント取得）
+ * グラフの要素は、社員と受領コインと使用コイン
+ * @req {*} req
+ * @res {*} res
+ */
+async function findshokaigraph_event(req, res) {
+  var resdatas = [];
+  var event = null;
+  resdatas = await ccCoinEventget(req);
+  event = resdatas[0].event
+  console.log(resdatas);
+  console.log(event);
+  res.json({
+    status: true,
+    data: resdatas,
+    event: event
   });
 }
 
+// ----------------------------------------------------------------------
 /**
- * 取引情報取得用関数(受領者）
+ * データ取得用関数（グラフ情報取得）
+ * グラフの要素は、社員と受領コインと使用コイン
+ * 課題：所持コインではなく、使用したコインと受領したコインの情報の取得
  * @req {*} req
+ * @res {*} res
  */
-function ccCoinGetUserget(req) {
-  return new Promise((resolve, reject) => {
-    // SQLとパラメータを指定
-    var sql =
-      "select distinct(to_shain_pk)" +
-      "  from t_coin_ido" +
-      " where delete_flg = '0'" +
-      " order by to_shain_pk";
-    db
-      .query(sql, {
-        replacements: { shain_pk: req.body.login_shain_pk },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        console.log("★★★");
-        console.log(datas);
-        return resolve(datas);
-      });
+async function findshokaigraph(req, res) {
+  var resdatas = [];
+  var bccoin_get = 0;
+  var bccoin_use = 0;
+  var shimei = null;
+  resdatas = await getgraphcoinList(req);
+  param = {
+    account: resdatas[0].from_bc_account,
+    bc_addr: req.body.bc_addr
+  };
+  bccoin_get = await bccoinget(param);
+  bccoin_use = await bccoinget(param);
+  shimei = resdatas[0].shimei
+  console.log(bccoin_get);
+  console.log(bccoin_use);
+  console.log(resdatas);
+  console.log(shimei);
+  res.json({
+    status: true,
+    data: resdatas,
+    bccoin_get: bccoin_get,
+    bccoin_use: bccoin_use,
+    shimei: shimei
   });
 }
 
+
+// ----------------------------------------------------------------------
 /**
- * 取引情報取得用関数(イベント）
+ * イベントの検索条件取得用
  * @req {*} req
  */
 function ccCoinEventget(req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
     var sql =
-      "select distinct(comment)" +
-      "  from t_coin_ido" +
+      "select distinct(zoyo_comment) as event" +
+      "  from t_zoyo" +
       " where delete_flg = '0'" +
-      " order by comment";
+      " order by zoyo_comment";
     db
       .query(sql, {
-        replacements: { shain_pk: req.body.login_shain_pk },
         type: db.QueryTypes.RAW
       })
       .spread((datas, metadata) => {
@@ -143,6 +173,43 @@ function ccCoinEventget(req) {
   });
 }
 
+// ----------------------------------------------------------------------
+/**
+ * テーブルよりselect（DBアクセス）
+ * グラフ表示用の情報取得
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getgraphcoinList(db, req) {
+  return new Promise((resolve, reject) => {
+    // SQLとパラメータを指定
+    var sql =
+      "select  tzoyo.zoyo_moto_shain_pk AS sosasha  , tsha1.shimei AS shimei_saki  , tsha1.shimei_kana AS shimei_kana_saki  , tzoyo.zoyo_saki_shain_pk AS torihikisaki  , tsha2.shimei AS shimei_moto  , tsha2.shimei_kana AS shimei_kana_moto  , tzoyo.zoyo_comment AS event  , tzoyo.transaction_id AS transaction_idelect tsha.t_shain_pk as t_shain_pk,tsha.shimei as shimei,tsha.shimei_kana as shimei_kana,tsha.bc_account as bc_account,tsha.kengen_cd as kengen_cd" +
+      "from  t_zoyo tzoyo" +
+      "left join t_shain tsha1 on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
+      "left join t_shain tsha2 on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
+      "where tzoyo.delete_flg = '0'" + 
+      "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth"
+      "and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth"
+      "and tzoyo.zoyo_comment = :event" +
+      " order by :sort_graph"
+    db.query(sql, {
+        replacements: { 
+          startmonth: req.body.startmonth,
+          endmonth: req.body.endmonth,
+          sort_graph: req.body.sort_graph 
+        },
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        console.log('DBAccess : getshojicoinList result...')
+        console.log(datas)
+        return resolve(datas)
+      })
+  })
+}
+
+// ----------------------------------------------------------------------
 /**
  * BCコイン取得用関数
  * @param {*} param
