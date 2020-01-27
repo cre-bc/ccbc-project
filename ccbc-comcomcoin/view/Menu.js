@@ -18,16 +18,17 @@ export default class MenuPh2 extends Component {
       saveFlg: "1",
       group_id: "CCCtest",
       db_name: "crecoin",
-      bc_addr: "0xf8be729ec16c4ad729b10202e408263d2b286f07"
+      bc_addr: "0x3250089B97CD64855F24B0ccE163dFE786d89B6d"
     }
     let loginInfo = {
-      userid: "sapporo",
-      password: "password",
+      userid: "kadoya",
+      password: "pass",
       tShainPk: 23,
       imageFileName: "man1.jpg",
       shimei: "札幌　太郎",
       kengenCd: "1",
-      tokenId: "*****"
+      tokenId: "*****",
+      bcAccount: "0xee6c10a136f71d1fec50464a12d16fd0d7921847"
     }
     try {
       // alert(JSON.stringify(loginInfo))
