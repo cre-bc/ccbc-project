@@ -154,7 +154,7 @@ export default class Home extends BaseComponent {
           {/* お知らせの件数分、繰り返し（最大3件） */}
           {this.state.infoList.map((item, i) => {
             return (
-              <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ marginTop: 0 }} key={i}>
+              <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 15, marginTop: 0 }} key={i}>
                 {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
               </Text>
             )
@@ -186,7 +186,7 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ width: 150, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
+                  <Card containerStyle={{ width: 150, height: 100, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
                     {/* 画像 */}
                     <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
@@ -205,24 +205,19 @@ export default class Home extends BaseComponent {
                       }
                     </View>
                     {/* タイトル */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 10, marginBottom: 10 }}>
+                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 14 }}>
                       {item.title}
                     </Text>
-                    {/* ハッシュタグ */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 8, color: 'gray', marginTop: -10 }}>
-                      {item.hashtag_str}
-                    </Text>
-                    {/* いいね */}
-                    <View style={[{ flexDirection: 'row' }]}>
-                      {/* <Image
-                        resizeMode="contain"
-                        source={require('./../images/good-on.png')}
-                        style={{ width: 25, height: 25 }}
-                      /> */}
-                      <Text style={{ color: 'red', fontSize: 10 }}>
-                        {'♡ '}{item.good_cnt}
+                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 12 }}>
+                      {/* いいね */}
+                      <Text style={{ color: 'red' }}>
+                        {'♡ '}{item.good_cnt}{'　'}
                       </Text>
-                    </View>
+                      {/* ハッシュタグ */}
+                      <Text style={{ color: 'gray' }}>
+                        {item.hashtag_str}
+                      </Text>
+                    </Text>
                   </Card>
                 </TouchableOpacity>
               )
@@ -255,7 +250,7 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ width: 150, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
+                  <Card containerStyle={{ width: 150, height: 100, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
                     {/* 画像 */}
                     <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
@@ -274,24 +269,19 @@ export default class Home extends BaseComponent {
                       }
                     </View>
                     {/* タイトル */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 10, marginBottom: 10 }}>
+                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 14 }}>
                       {item.title}
                     </Text>
-                    {/* ハッシュタグ */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 8, color: 'gray', marginTop: -10 }}>
-                      {item.hashtag_str}
-                    </Text>
-                    {/* いいね */}
-                    <View style={[{ flexDirection: 'row' }]}>
-                      {/* <Image
-                        resizeMode="contain"
-                        source={require('./../images/good-on.png')}
-                        style={{ width: 25, height: 25 }}
-                      /> */}
-                      <Text style={{ color: 'red', fontSize: 10 }}>
-                        {'♡ '}{item.good_cnt}
+                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 12 }}>
+                      {/* いいね */}
+                      <Text style={{ color: 'red' }}>
+                        {'♡ '}{item.good_cnt}{'　'}
                       </Text>
-                    </View>
+                      {/* ハッシュタグ */}
+                      <Text style={{ color: 'gray' }}>
+                        {item.hashtag_str}
+                      </Text>
+                    </Text>
                   </Card>
                 </TouchableOpacity>
               )
@@ -350,7 +340,7 @@ export default class Home extends BaseComponent {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </View >
     )
   }
 }
