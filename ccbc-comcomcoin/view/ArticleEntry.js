@@ -3,6 +3,7 @@ import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, Touchab
 import { Icon } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker'
 import * as Permissions from 'expo-permissions'
+import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -42,6 +43,7 @@ export default class ArticleEntry extends BaseComponent {
       confirmDialogMessage: "",
       alertDialogVisible: false,
       alertDialogMessage: "",
+      isProcessing: false,
     }
   }
 
@@ -128,15 +130,18 @@ export default class ArticleEntry extends BaseComponent {
       return
     }
 
+    // this.setState({ isProcessing: true })
+
     // 確認ダイアログを表示（YESの場合、entry()を実行）
     this.setState({
       confirmDialogVisible: true,
-      confirmDialogMessage: "記事を投稿します。よろしいですか？"
+      confirmDialogMessage: "記事を投稿します。よろしいですか？",
     })
   }
 
   /** 記事更新処理 */
   entry = async () => {
+    this.setState({ isProcessing: true })
     this.setState({ confirmDialogVisible: false })
 
     if (this.state.imageData.uri !== "") {
@@ -194,6 +199,7 @@ export default class ArticleEntry extends BaseComponent {
 
   /** データ更新処理 */
   edit = async (fileName) => {
+    this.setState({ isProcessing: true })
     this.state.file_path = fileName
 
     await fetch(restdomain + '/article/edit', {
@@ -217,6 +223,8 @@ export default class ArticleEntry extends BaseComponent {
         }
       }.bind(this))
       .catch((error) => alert(error))
+
+    this.setState({ isProcessing: false })
   }
 
   /** 画像選択処理 */
@@ -244,6 +252,13 @@ export default class ArticleEntry extends BaseComponent {
   render() {
     return (
       <View style={{ flex: 1 }}>
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={'Processing…'}
+          textStyle={styles.spinnerTextStyle}
+        />
+
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
@@ -429,5 +444,9 @@ const styles = StyleSheet.create({
     padding: 5,
     borderColor: 'gray',
     borderWidth: 1
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
+    fontSize: 18
   }
 })

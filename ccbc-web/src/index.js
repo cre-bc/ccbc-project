@@ -61,6 +61,7 @@ import ComCoinShojicoinForm from './view/com_coin_shojicoin'
 import ComShohinMenteForm from './view/com_shohin_mente'
 import ComKokokuMenteForm from './view/com_kokoku_mente'
 import ComOshiraseMenteForm from './view/com_oshirase_mente'
+import ArtcleForm from './view/article'
 
 import AppSelectForm from './view/app_select'
 import ComMenuForm from './view/com_menu'
@@ -164,6 +165,7 @@ ReactDOM.render(
                 <Route path="/shain_kensaku" component={ShainKensakuForm} />
                 <Route path="/shain_toroku" component={ShainTorokuForm} />
                 <Route path="/coin_zoyo" component={CoinZoyoForm} />
+                <Route path="/article" component={ArtcleForm} />
               </Switch>
             </Auth>
             <FooterForm />
