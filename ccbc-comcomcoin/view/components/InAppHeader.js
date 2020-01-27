@@ -18,12 +18,12 @@ class InAppHeader extends Component {
 		return (
 			<View>
 				<Header
-					containerStyle={{}}
+					outerContainerStyles={{ height: 80 }}
 					leftComponent={
 						<View>
 							<Icon
-								containerStyle={{ marginTop: 20 }}
-								size={30}
+								containerStyle={{ marginTop: 22 }}
+								size={32}
 								name={'home'}
 								type={'font-awesome'}
 								color="#fff"
@@ -39,14 +39,14 @@ class InAppHeader extends Component {
 								alignItems: 'center',
 							}}
 						>
-							<Image source={require('./../../images/ComComCoin_logo_02.png')} style={{ marginTop: 20, marginBottom: 0 }} />
+							<Image source={require('./../../images/ComComCoin_logo_02.png')} />
 						</View>
 					}
 					rightComponent={
 						<View>
 							<Icon
-								containerStyle={{ marginTop: 20 }}
-								size={30}
+								containerStyle={{ marginTop: 22 }}
+								size={32}
 								name={'sign-out'}
 								type={'font-awesome'}
 								color="#fff"

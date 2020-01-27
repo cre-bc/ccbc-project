@@ -186,13 +186,13 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ width: 150, height: 100, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
+                  <Card containerStyle={styles.articleCard}>
                     {/* 画像 */}
-                    <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
+                    <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
                         <Image
                           source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={{ width: 55, height: 55 }}
+                          style={styles.articleImage}
                           resizeMode='contain'
                         />
                       }
@@ -200,7 +200,7 @@ export default class Home extends BaseComponent {
                       {(item.file_path === "" || item.file_path === null) &&
                         <Image
                           source={require('./../images/icon-noimage.png')}
-                          style={{ width: 55, height: 55 }}
+                          style={styles.articleImage}
                         />
                       }
                     </View>
@@ -250,13 +250,13 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ width: 150, height: 100, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
+                  <Card containerStyle={styles.articleCard}>
                     {/* 画像 */}
-                    <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
+                    <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
                         <Image
                           source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={{ width: 55, height: 55 }}
+                          style={styles.articleImage}
                           resizeMode='contain'
                         />
                       }
@@ -264,7 +264,7 @@ export default class Home extends BaseComponent {
                       {(item.file_path === "" || item.file_path === null) &&
                         <Image
                           source={require('./../images/icon-noimage.png')}
-                          style={{ width: 55, height: 55 }}
+                          style={styles.articleImage}
                         />
                       }
                     </View>
@@ -352,6 +352,22 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     width: Dimensions.get('window').width * 0.85
+  },
+  articleCard: {
+    width: 170,
+    height: 120,
+    marginTop: 2,
+    marginBottom: 2,
+    marginLeft: 5,
+    marginRight: 5,
+    paddingBottom: 0,
+    padding: 5
+  },
+  articleImage: {
+    width: 55,
+    height: 55,
+    // minWidth: 55,
+    // minHeight: 55
   },
   spinnerTextStyle: {
     color: '#FFF',
