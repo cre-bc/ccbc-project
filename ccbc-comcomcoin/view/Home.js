@@ -2,6 +2,7 @@ import React from 'react'
 import { Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
+import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -13,6 +14,7 @@ export default class Home extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
+      isProcessing: false,
       activeSlide: 0,
       adList: [],
       infoList: [],
@@ -29,6 +31,8 @@ export default class Home extends BaseComponent {
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
+    this.setState({ isProcessing: true })
+
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
@@ -44,21 +48,23 @@ export default class Home extends BaseComponent {
       })
       .then(
         function (json) {
-          // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
-            return
+            // 結果が取得できない場合は終了
+          } else {
+            // 取得したデータをStateに格納
+            this.setState({
+              // activeSlide: 0,
+              adList: json.data.adList,
+              infoList: json.data.infoList,
+              newArticleList: json.data.newArticleList,
+              popularArticleList: json.data.popularArticleList
+            })
           }
-          // 取得したデータをStateに格納
-          this.setState({
-            activeSlide: 0,
-            adList: json.data.adList,
-            infoList: json.data.infoList,
-            newArticleList: json.data.newArticleList,
-            popularArticleList: json.data.popularArticleList
-          })
         }.bind(this)
       )
       .catch(error => console.error(error))
+
+    this.setState({ isProcessing: false })
   }
 
   renderItem = ({ item, index }) => (
@@ -69,7 +75,7 @@ export default class Home extends BaseComponent {
           renban: item.renban
         })}
       >
-        <Image style={{ height: 185, width: windowWidth }}
+        <Image style={{ height: 180, width: windowWidth }}
           resizeMode="contain"
           source={{ uri: restdomain + `/uploads/advertise/${item.file_path}` }}
         />
@@ -80,47 +86,57 @@ export default class Home extends BaseComponent {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <View style={[{ flex: 0.2 }]}>
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={'Processing…'}
+          textStyle={styles.spinnerTextStyle}
+        />
+
+        <View style={[{ flex: 0.15 }]}>
           <Text />
         </View>
 
         {/* -- 広告 -- */}
-        <View style={{ flex: 1.0, flexDirection: 'row' }}>
-          <View style={styles.container}>
-            <Carousel
-              data={this.state.adList}
-              firstItem={0}
-              layout={'default'}
-              renderItem={this.renderItem}
-              onSnapToItem={index => {
-                this.setState({ activeSlide: index })
-              }}
-              itemWidth={windowWidth}
-              sliderWidth={windowWidth}
-              containerCustomStyle={styles.carousel}
-              slideStyle={{ flex: 1 }}
-              loop={true}
-              autoplay={true}
-            />
-            <View>
-              <Pagination
-                dotsLength={this.state.adList.length}
-                activeDotIndex={this.state.activeSlide}
-                dotStyle={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: 5,
-                  marginHorizontal: 8,
-                  backgroundColor: 'rgba(200, 200, 200, 0.92)'
+        <View style={{ flex: 0.95, flexDirection: 'row' }}>
+          {this.state.adList.length > 0 && (
+            <View style={styles.container}>
+              <Carousel
+                data={this.state.adList}
+                firstItem={0}
+                layout={'default'}
+                renderItem={this.renderItem}
+                onSnapToItem={index => {
+                  this.setState({ activeSlide: index })
                 }}
-                inactiveDotStyle={
-                  {}
-                }
-                inactiveDotOpacity={0.4}
-                inactiveDotScale={0.6}
+                itemWidth={windowWidth}
+                sliderWidth={windowWidth}
+                containerCustomStyle={styles.carousel}
+                slideStyle={{ flex: 1 }}
+                loop={true}
+                autoplay={true}
               />
+              <View>
+                <Pagination
+                  dotsLength={this.state.adList.length}
+                  activeDotIndex={this.state.activeSlide}
+                  containerStyle={{ paddingVertical: 5 }}
+                  dotStyle={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    marginHorizontal: 8,
+                    backgroundColor: 'rgba(200, 200, 200, 0.92)'
+                  }}
+                  inactiveDotStyle={
+                    {}
+                  }
+                  inactiveDotOpacity={0.4}
+                  inactiveDotScale={0.6}
+                />
+              </View>
             </View>
-          </View>
+          )}
         </View>
 
         {/* -- お知らせ -- */}
@@ -138,8 +154,8 @@ export default class Home extends BaseComponent {
           {/* お知らせの件数分、繰り返し（最大3件） */}
           {this.state.infoList.map((item, i) => {
             return (
-              <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ marginTop: 5 }} key={i}>
-                {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{' '}{item.title}
+              <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ marginTop: 0 }} key={i}>
+                {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
               </Text>
             )
           })}
@@ -170,20 +186,21 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ height: 120, width: 150 }}>
+                  <Card containerStyle={{ width: 150, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
                     {/* 画像 */}
                     <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
                         <Image
                           source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={{ width: 70, height: 70 }}
+                          style={{ width: 55, height: 55 }}
+                          resizeMode='contain'
                         />
                       }
                       {/* 画像が未登録の場合はNo-Imageを表示 */}
                       {(item.file_path === "" || item.file_path === null) &&
                         <Image
                           source={require('./../images/icon-noimage.png')}
-                          style={{ width: 70, height: 70 }}
+                          style={{ width: 55, height: 55 }}
                         />
                       }
                     </View>
@@ -192,7 +209,7 @@ export default class Home extends BaseComponent {
                       {item.title}
                     </Text>
                     {/* ハッシュタグ */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 10, color: 'gray', marginTop: -10 }}>
+                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 8, color: 'gray', marginTop: -10 }}>
                       {item.hashtag_str}
                     </Text>
                     {/* いいね */}
@@ -202,7 +219,7 @@ export default class Home extends BaseComponent {
                         source={require('./../images/good-on.png')}
                         style={{ width: 25, height: 25 }}
                       /> */}
-                      <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>
+                      <Text style={{ color: 'red', fontSize: 10 }}>
                         {'♡ '}{item.good_cnt}
                       </Text>
                     </View>
@@ -238,20 +255,21 @@ export default class Home extends BaseComponent {
                     mode: "home",
                     selectKijiPk: item.t_kiji_pk
                   })}>
-                  <Card containerStyle={{ height: 120, width: 150 }}>
+                  <Card containerStyle={{ width: 150, marginTop: 2, marginBottom: 2, paddingBottom: 0 }}>
                     {/* 画像 */}
                     <View style={{ justifyContent: 'center', flexDirection: 'row', marginTop: -15 }}>
                       {(item.file_path !== "" && item.file_path !== null) &&
                         <Image
                           source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={{ width: 70, height: 70 }}
+                          style={{ width: 55, height: 55 }}
+                          resizeMode='contain'
                         />
                       }
                       {/* 画像が未登録の場合はNo-Imageを表示 */}
                       {(item.file_path === "" || item.file_path === null) &&
                         <Image
                           source={require('./../images/icon-noimage.png')}
-                          style={{ width: 70, height: 70 }}
+                          style={{ width: 55, height: 55 }}
                         />
                       }
                     </View>
@@ -260,7 +278,7 @@ export default class Home extends BaseComponent {
                       {item.title}
                     </Text>
                     {/* ハッシュタグ */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 10, color: 'gray', marginTop: -10 }}>
+                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 8, color: 'gray', marginTop: -10 }}>
                       {item.hashtag_str}
                     </Text>
                     {/* いいね */}
@@ -270,7 +288,7 @@ export default class Home extends BaseComponent {
                         source={require('./../images/good-on.png')}
                         style={{ width: 25, height: 25 }}
                       /> */}
-                      <Text style={{ color: 'red', fontWeight: 'bold', fontSize: 12 }}>
+                      <Text style={{ color: 'red', fontSize: 10 }}>
                         {'♡ '}{item.good_cnt}
                       </Text>
                     </View>
@@ -282,13 +300,17 @@ export default class Home extends BaseComponent {
         </View>
 
         {/* -- 各機能アイコン -- */}
-        <View style={[{ flex: 0.4, flexDirection: 'row' }]}>
+        <View style={[{ flex: 0.35, flexDirection: 'row' }]}>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <Image
-              resizeMode="contain"
-              source={require('./../images/icons8-chat-bubble-48.png')}
-            />
-            <Text>チャット</Text>
+            <TouchableOpacity
+              activeOpacity={1}
+              onPress={() => this.props.navigation.navigate('ChatSelect')}>
+              <Image
+                resizeMode="contain"
+                source={require('./../images/icons8-chat-bubble-48.png')}
+              />
+              <Text>チャット</Text>
+            </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <Image
@@ -316,7 +338,7 @@ export default class Home extends BaseComponent {
               })}>
               <Image
                 resizeMode="contain"
-                source={require('./../images/icons8-services-48.png')}
+                source={require('./../images/icons8-star-48.png')}
               />
               <Text>お気に入り</Text>
             </TouchableOpacity>
@@ -334,5 +356,9 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     width: Dimensions.get('window').width * 0.85
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
+    fontSize: 18
   }
 })

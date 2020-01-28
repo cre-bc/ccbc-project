@@ -3,8 +3,11 @@ import { StyleSheet, View, ScrollView } from "react-native";
 import { ListItem } from "react-native-elements";
 import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
+import io from "socket.io-client";
 
 const restdomain = require("./common/constans.js").restdomain;
+const restdomain_ws = require("./common/constans.js").restdomain_ws;
+const socket = io(restdomain_ws, { secure: true, transports: ["websocket"] });
 
 export default class ChatSelectForm extends BaseComponent {
   constructor(props) {
@@ -23,6 +26,9 @@ export default class ChatSelectForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    if (!socket.disconnected) {
+      socket.disconnect();
+    }
     this.props.navigation.addListener("willFocus", () => this.onWillFocus());
   };
 
