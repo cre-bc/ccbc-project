@@ -45,11 +45,20 @@ async function finddata(req, res) {
  * API : findgraphcoin
  * 所持コイン一覧に表示する情報を取得
  */
-router.post('/findshojicoin', (req, res) => {
-  console.log('API : findshojicoin - start')
-  findshojicoindata(req, res)
-  console.log('API : findshojicoin - end')
-})
+router.post("/findshojicoin", (req, res) => {
+  console.log("API : findshojicoin - start");
+  findshojicoindata(req, res);
+  console.log("API : findshojicoin - end");
+});
+
+// ----------------------------------------------------------------------
+/**
+ * 比較関数
+ * 数値でソートが動かない場合使用する
+ */
+function compareFunc(a, b) {
+  return a < b;
+}
 
 // ----------------------------------------------------------------------
 /**
@@ -68,7 +77,39 @@ async function findshojicoindata(req, res) {
     bc_addr: req.body.bc_addr
   };
   bccoin = await bccoinget(param);
-  shimei = resdatas[0].shimei
+  shimei = resdatas[0].shimei;
+
+  //** 課題：sort_graphはそのまま使える？ */
+  if ((sort_graph = "1")) {
+    //所持コインの順にソート（昇順）
+    resdatas.sort(function(a, b) {
+      if (a.bccoin < b.bccoin) return -1;
+      if (a.bccoin > b.bccoin) return 1;
+      return 0;
+    });
+  } else if ((sort_graph = "2")) {
+    //所持コインの順にソート（降順）
+    resdatas.sort(function(a, b) {
+      if (a.bccoin > b.bccoin) return -1;
+      if (a.bccoin < b.bccoin) return 1;
+      return 0;
+    });
+    //氏名の順にソート（昇順）
+  } else if ((sort_graph = "3")) {
+    resdatas.sort(function(a, b) {
+      if (a.shimei < b.shimei) return -1;
+      if (a.shimei > b.shimei) return 1;
+      return 0;
+    });
+    //氏名の順にソート（降順）
+  } else {
+    resdatas.sort(function(a, b) {
+      if (a.shimei > b.shimei) return -1;
+      if (a.shimei < b.shimei) return 1;
+      return 0;
+    });
+  }
+
   console.log(bccoin);
   console.log(resdatas);
   console.log(shimei);
@@ -93,21 +134,23 @@ function getshojicoinList(db, req) {
     var sql =
       "select tsha.t_shain_pk as t_shain_pk,tsha.shimei as shimei,tsha.shimei_kana as shimei_kana,tsha.bc_account as bc_account,tsha.kengen_cd as kengen_cd" +
       "  from t_kiji_category" +
-      " where delete_flg = '0'" + 
-      " order by :sort_graph"
-    db.query(sql, {
-        replacements: { sort_graph: req.body.sort_graph },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        console.log('DBAccess : getshojicoinList result...')
-        console.log(datas)
-        return resolve(datas)
-      })
-  })
+      " where delete_flg = '0'" +
+      // " order by :sort_graph"
+      db
+        .query(sql, {
+          replacements: { sort_graph: req.body.sort_graph },
+          type: db.QueryTypes.RAW
+        })
+        .spread((datas, metadata) => {
+          console.log("DBAccess : getshojicoinList result...");
+          console.log(datas);
+          return resolve(datas);
+        });
+  });
 }
 
 // ----------------------------------------------------------------------
+// 以降、元からある関数
 /**
  * 社員取得用関数
  * @req {*} req

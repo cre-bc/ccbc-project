@@ -74,23 +74,22 @@ function tShainGet(req) {
  * API : findshokaigraph_event
  * 検索条件イベント用の情報取得
  */
-router.post('/findshokaigraph_event', (req, res) => {
-  console.log('API : findshokaigraph_event - start')
-  findshokaigraph_event(req, res)
-  console.log('API : findshokaigraphs_event - end')
-})
+router.post("/findshokaigraph_event", (req, res) => {
+  console.log("API : findshokaigraph_event - start");
+  findshokaigraph_event(req, res);
+  console.log("API : findshokaigraphs_event - end");
+});
 
 // ----------------------------------------------------------------------
 /**
  * API : findshokaigraph
  * グラフの情報取得
  */
-router.post('/findshokaigraph', (req, res) => {
-  console.log('API : findshokaigraph - start')
-  findshokaigraph(req, res)
-  console.log('API : findshokaigraphs - end')
-})
-
+router.post("/findshokaigraph", (req, res) => {
+  console.log("API : findshokaigraph - start");
+  findshokaigraph(req, res);
+  console.log("API : findshokaigraphs - end");
+});
 
 // ----------------------------------------------------------------------
 /**
@@ -103,7 +102,7 @@ async function findshokaigraph_event(req, res) {
   var resdatas = [];
   var event = null;
   resdatas = await ccCoinEventget(req);
-  event = resdatas[0].event
+  event = resdatas[0].event;
   console.log(resdatas);
   console.log(event);
   res.json({
@@ -133,7 +132,7 @@ async function findshokaigraph(req, res) {
   };
   bccoin_get = await bccoinget(param);
   bccoin_use = await bccoinget(param);
-  shimei = resdatas[0].shimei
+  shimei = resdatas[0].shimei;
   console.log(bccoin_get);
   console.log(bccoin_use);
   console.log(resdatas);
@@ -146,7 +145,6 @@ async function findshokaigraph(req, res) {
     shimei: shimei
   });
 }
-
 
 // ----------------------------------------------------------------------
 /**
@@ -188,25 +186,48 @@ function getgraphcoinList(db, req) {
       "from  t_zoyo tzoyo" +
       "left join t_shain tsha1 on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
       "left join t_shain tsha2 on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
-      "where tzoyo.delete_flg = '0'" + 
-      "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth"
-      "and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth"
-      "and tzoyo.zoyo_comment = :event" +
-      " order by :sort_graph"
-    db.query(sql, {
-        replacements: { 
+      "where tzoyo.delete_flg = '0'" +
+      "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth";
+    ("and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth");
+    "and tzoyo.zoyo_comment = :event" + " order by :sort_graph";
+    db
+      .query(sql, {
+        replacements: {
           startmonth: req.body.startmonth,
           endmonth: req.body.endmonth,
-          sort_graph: req.body.sort_graph 
+          sort_graph: req.body.sort_graph
         },
         type: db.QueryTypes.RAW
       })
       .spread((datas, metadata) => {
-        console.log('DBAccess : getshojicoinList result...')
-        console.log(datas)
-        return resolve(datas)
-      })
-  })
+        console.log("DBAccess : getshojicoinList result...");
+        console.log(datas);
+        return resolve(datas);
+      });
+  });
+}
+// ----------------------------------------------------------------------
+/**
+ * 取引情報取得用関数
+ * @param {*} param
+ * 受領コインと使用コインをグラフに出力用
+ */
+
+function bctransactionsget() {
+  return new Promise((resolve, reject) => {
+    request
+      .post(bcdomain + "/get_transactions")
+      .send(param)
+      .end((err, res) => {
+        console.log("★★★");
+        if (err) {
+          console.log("★" + err);
+          return;
+        }
+        console.log("★★★" + res.body.coin);
+        return resolve(res.body.coin);
+      });
+  });
 }
 
 // ----------------------------------------------------------------------

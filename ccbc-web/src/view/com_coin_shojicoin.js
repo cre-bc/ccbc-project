@@ -97,21 +97,26 @@ const data_event = [
 /** 検索部分のリストボックス */
 /** リストボックスに表示されるのはソート条件のみ */
 /** 課題：bccoinはブロックチェーンから取得する。その場合のソートは？ */
+/** 選んだソートにより、restのfindshojicoindataのsortを切り替える */
 const ranges1 = [
   {
-    value: "bccoin ASC",
+    // value: "bccoin ASC",
+    value: "1",
     label: "所持コイン（昇順）"
   },
   {
-    value: "bccoin DESC",
+    // value: "bccoin DESC",
+    value: "2",
     label: "所持コイン（降順）"
   },
   {
-    value: "CAST(shimei_kana AS CHAR) ASC",
+    // value: "CAST(shimei_kana AS CHAR) ASC",
+    value: "3",
     label: "氏名（昇順）"
   },
   {
-    value: "CAST(shimei_kana AS CHAR) DESC",
+    // value: "CAST(shimei_kana AS CHAR) DESC",
+    value: "4",
     label: "氏名（降順）"
   }
 ];
