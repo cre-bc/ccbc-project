@@ -54,8 +54,6 @@ import request from 'superagent'
 
 const restdomain = require('../common/constans.js').restdomain
 
-let counter = 0
-
 function getNendo(val) {
   var result = '日付文字列が不正です。' //日付不正時のメッセージ
   try {
@@ -102,7 +100,7 @@ function getArray(array1) {
 
 const columnData = [
   {
-    id: 'name',
+    id: 'date',
     numeric: false,
     disablePadding: true,
     label: '日付'
@@ -114,7 +112,7 @@ const columnData = [
     label: '件名'
   },
   {
-    id: 'calorie',
+    id: 'comment',
     numeric: false,
     disablePadding: true,
     label: '内容'
@@ -128,22 +126,22 @@ class EnhancedTableHead extends React.Component {
 
   render() {
     const {
-      onSelectAllClick,
+      // onSelectAllClick,
       order,
-      orderBy,
-      numSelected,
-      rowCount
+      orderBy
+      // numSelected,
+      // rowCount
     } = this.props
 
     return (
       <TableHead>
         <TableRow>
           <TableCell padding="checkbox">
-            <Checkbox
+            {/* <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
               onChange={onSelectAllClick}
-            />
+            /> */}
           </TableCell>
           {columnData.map(column => {
             return (
@@ -179,7 +177,7 @@ class EnhancedTableHead extends React.Component {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
+  // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired
@@ -231,21 +229,6 @@ let EnhancedTableToolbar = props => {
           )}
       </div>
       <div className={classes.spacer} />
-      {/* <div className={classes.actions}>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div> */}
     </Toolbar>
   )
 }
@@ -457,7 +440,6 @@ class ComOshiraseMenteForm extends React.Component {
     anchor: 'left',
     order: 'asc',
     orderBy: 'name',
-    // selected: [],
     page: 0,
     rowsPerPage: 5,
     userid: null,
@@ -525,19 +507,12 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
 
-    // request.get(restdomain + '/com_oshirase_mente/find').end((err, res) => {
-    //   if (err) return
-    //   // 検索結果表示
-    //   this.setState({ resultList: res.body.data })
-    // })
-
     request
       .post(restdomain + '/com_oshirase_mente/find')
       .send(this.state)
       .end((err, res) => {
         if (err) return
         // 検索結果表示
-        // this.state.resultList = res.body.data
         this.setState({ resultList: res.body.data })
       })
 
@@ -638,18 +613,18 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ resultList, order, orderBy })
   }
 
-  handleSelectAllClick = (event, checked) => {
-    // if (checked) {
-    //   this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
-    //   return
-    // }
-    // this.setState({ selected: [] })
-    if (checked) {
-      this.setState({ selected: this.state.resultList.map(n => n.id) })
-    } else {
-      this.setState({ selected: [] })
-    }
-  }
+  // handleSelectAllClick = (event, checked) => {
+  //   // if (checked) {
+  //   //   this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
+  //   //   return
+  //   // }
+  //   // this.setState({ selected: [] })
+  //   if (checked) {
+  //     this.setState({ selected: this.state.resultList.map(n => n.id) })
+  //   } else {
+  //     this.setState({ selected: [] })
+  //   }
+  // }
 
   handleClick = (event, id) => {
     const { selected } = this.state
@@ -671,8 +646,6 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ selected: newSelected })
     let check = false
     check = this.state.selected.indexOf(id) !== -1
-    // this.setState({ checked: event.target.checked })
-    // if (this.state.selected == true) {
     if (check == true) {
       this.setState({ renban: null })
       this.setState({ notice_dt: null })
@@ -688,19 +661,6 @@ class ComOshiraseMenteForm extends React.Component {
     }
   }
 
-  // handleClick1 = (event, id) => {
-  //   let check = false
-  //   check = event.target.checked
-  //   if (this.state.page == 1) id = id + 5
-  //   if (this.state.page == 2) id = id + 10
-  //   this.setState({ renban: this.state.resultList[id].renban })
-  //   this.setState({ notice_dt: this.state.resultList[id].notice_dt })
-  //   this.setState({ title: this.state.resultList[id].title })
-  //   this.setState({ comment: this.state.resultList[id].comment })
-  // }
-  // チェックボックスのところを押したら check = event.target.checked できる
-  // ページ遷移はわからない
-
   handleChangePage = (event, page) => {
     this.setState({ page })
     this.setState({ selected: [] })
@@ -714,16 +674,10 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ rowsPerPage: event.target.value })
   }
 
-  // handleChange = name => event => {
-  //   this.setState({ [name]: event.target.value })
-  // }
-
   handleChange = event => {
     this.setState({ [event.target.name]: event.target.value })
-    //postdata(event.target.value)
     this.state.targetYear = Number(event.target.value)
     request
-      //    .get('/com_oshirase_mente/find')
       .post(restdomain + '/com_oshirase_mente/find')
       .send(this.state)
       .end((err, res) => {
@@ -746,15 +700,6 @@ class ComOshiraseMenteForm extends React.Component {
         if (err) {
           return
         }
-        // if (!res.body.status) {
-        //   this.setState({
-        //     msg: '不正なログインです。'
-        //   })
-        //   this.setState({ dialogOpen: false })
-        //   return
-        // }
-        // this.setState({ resultList: res.body.data })
-        // this.handleChange()
         this.setState({ openAdd: false })
       })
 
@@ -770,7 +715,6 @@ class ComOshiraseMenteForm extends React.Component {
       .end((err, res) => {
         if (err) return
         // 検索結果表示
-        // this.state.resultList = res.body.data
         this.setState({ resultList: res.body.data })
       })
 
@@ -812,13 +756,11 @@ class ComOshiraseMenteForm extends React.Component {
       .send(this.state)
       .end((err, res) => {
         if (err) return
-        // this.setState({ resultList: res.body.data })
         this.setState({ openEdit: false })
       })
 
     // 現在年の取得。取得した年を初期表示する
     var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
-    //var yyyy = new Date().getFullYear()
     this.setState({ Target_year: yyyy })
     this.state.targetYear = yyyy
 
@@ -828,7 +770,6 @@ class ComOshiraseMenteForm extends React.Component {
       .end((err, res) => {
         if (err) return
         // 検索結果表示
-        // this.state.resultList = res.body.data
         this.setState({ resultList: res.body.data })
       })
 
@@ -870,13 +811,11 @@ class ComOshiraseMenteForm extends React.Component {
       .send(this.state)
       .end((err, res) => {
         if (err) return
-        // this.setState({ resultList: res.body.data })
         this.setState({ openDelete: false })
       })
 
     // 現在年の取得。取得した年を初期表示する
     var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
-    //var yyyy = new Date().getFullYear()
     this.setState({ Target_year: yyyy })
     this.state.targetYear = yyyy
 
@@ -886,7 +825,6 @@ class ComOshiraseMenteForm extends React.Component {
       .end((err, res) => {
         if (err) return
         // 検索結果表示
-        // this.state.resultList = res.body.data
         this.setState({ resultList: res.body.data })
       })
 
@@ -1074,7 +1012,6 @@ class ComOshiraseMenteForm extends React.Component {
             <div className={classes.root3}>
               {/* 年度選択 */}
               <FormControl className={classes.formControl}>
-                {/* <InputLabel htmlFor="age-native-simple" /> */}
                 <InputLabel shrink htmlFor="Target_year-simple">
                   年度
                 </InputLabel>
@@ -1087,11 +1024,7 @@ class ComOshiraseMenteForm extends React.Component {
                     name: 'Target_year',
                     id: 'Target_year-simple'
                   }}
-                // input={<Input name="age" id="age-native-label-placeholder" />}
                 >
-                  {/* <option value="">2019年</option>
-                  <option value={10}>2018年</option>
-                  <option value={20}>2017年</option> */}
                   {this.state.nendoList.map(n => {
                     return <option value={n}>{n}年</option>
                   })}
@@ -1101,27 +1034,16 @@ class ComOshiraseMenteForm extends React.Component {
             <div>
               {/* 一覧 */}
               <Paper className={classes.root2}>
-                {/* <EnhancedTableToolbar numSelected={selected.length} /> */}
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table} aria-labelledby="tableTitle">
                     <EnhancedTableHead
                       numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
-                      onSelectAllClick={this.handleSelectAllClick}
+                      // onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
                       rowCount={this.state.resultList.length}
                     />
-                    {/* <div className={classes.tableWrapper}> */}
-                    {/* <Table className={classes.table} aria-labelledby="tableTitle"> */}
-                    {/* <EnhancedTableHead
-                      numSelected={selected.length}
-                      order={order}
-                      orderBy={orderBy}
-                      onSelectAllClick={this.handleSelectAllClick}
-                      onRequestSort={this.handleRequestSort}
-                      rowCount={this.state.resultList.length}
-                    /> */}
                     <TableBody>
                       {this.state.resultList
                         // .sort(getSorting(order, orderBy))
@@ -1143,12 +1065,7 @@ class ComOshiraseMenteForm extends React.Component {
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox
-                                  // onClick={event =>
-                                  //   this.handleClick(event, id)
-                                  // }
                                   checked={isSelected}
-                                // checked={this.state.checked}
-                                // disabled={this.state.disabledFlg}
                                 />
                               </TableCell>
                               <TableCell
