@@ -15,6 +15,7 @@ import InAppHeader from "./components/InAppHeader";
 import AlertDialog from "./components/AlertDialog";
 import ConfirmDialog from "./components/ConfirmDialog";
 import RNPickerSelect from "react-native-picker-select";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const restdomain = require("./common/constans.js").restdomain;
 
@@ -35,13 +36,15 @@ export default class Shopping extends BaseComponent {
       alertDialogMessage: "",
       confirmDialogVisible: false,
       confirmDialogMessage: "",
-      isScaning: false
+      isScaning: false,
+      isProcessing: false
     };
     this.props = props;
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.setState({ isProcessing: true });
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
 
@@ -53,6 +56,8 @@ export default class Shopping extends BaseComponent {
 
     // 初期表示情報取得
     this.findShopping();
+
+    this.setState({ isProcessing: false });
   };
 
   /** 画面初期表示情報取得 */
@@ -62,11 +67,11 @@ export default class Shopping extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function (response) {
+      .then(function(response) {
         return response.json();
       })
       .then(
-        function (json) {
+        function(json) {
           // 結果が取得できない場合は終了
           if (typeof json.bokinList === "undefined") {
             return;
@@ -106,11 +111,11 @@ export default class Shopping extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function (response) {
+      .then(function(response) {
         return response.json();
       })
       .then(
-        function (json) {
+        function(json) {
           this.setState({ isScaning: false });
           this.state.isScaning = false;
 
@@ -210,6 +215,7 @@ export default class Shopping extends BaseComponent {
 
   /** 支払更新処理 */
   pay = async () => {
+    this.setState({ isProcessing: true });
     this.setState({ confirmDialogVisible: false });
 
     await fetch(restdomain + "/shopping/pay", {
@@ -218,11 +224,11 @@ export default class Shopping extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function (response) {
+      .then(function(response) {
         return response.json();
       })
       .then(
-        function (json) {
+        function(json) {
           if (typeof json.status === "undefined" || json.status === false) {
             var alertMessage = "";
             if (typeof json.coin === "undefined") {
@@ -238,6 +244,7 @@ export default class Shopping extends BaseComponent {
           } else {
             // ホーム画面に戻る
             this.props.navigation.navigate("Home");
+            this.setState({ isProcessing: false });
           }
         }.bind(this)
       )
@@ -330,6 +337,12 @@ export default class Shopping extends BaseComponent {
       // --- ショッピングカートモード ---
       return (
         <View style={{ flex: 1 }}>
+          {/* -- 処理中アニメーション -- */}
+          <Spinner
+            visible={this.state.isProcessing}
+            textContent={"Processing…"}
+            textStyle={styles.spinnerTextStyle}
+          />
           {/* -- 共有ヘッダ -- */}
           <InAppHeader navigate={this.props.navigation.navigate} />
 
