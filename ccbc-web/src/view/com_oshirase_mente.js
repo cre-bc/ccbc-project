@@ -208,37 +208,37 @@ const toolbarStyles = theme => ({
   }
 })
 
-let EnhancedTableToolbar = props => {
-  const { numSelected, classes } = props
+// let EnhancedTableToolbar = props => {
+//   const { numSelected, classes } = props
 
-  return (
-    <Toolbar
-      className={classNames(classes.root, {
-        [classes.highlight]: numSelected > 0
-      })}
-    >
-      <div className={classes.title}>
-        {numSelected > 0 ? (
-          <Typography color="inherit" variant="subheading">
-            {numSelected} 件選択
-          </Typography>
-        ) : (
-            <Typography variant="title" id="tableTitle">
-              おしらせ一覧
-          </Typography>
-          )}
-      </div>
-      <div className={classes.spacer} />
-    </Toolbar>
-  )
-}
+//   return (
+//     <Toolbar
+//       className={classNames(classes.root, {
+//         [classes.highlight]: numSelected > 0
+//       })}
+//     >
+//       <div className={classes.title}>
+//         {numSelected > 0 ? (
+//           <Typography color="inherit" variant="subheading">
+//             {numSelected} 件選択
+//           </Typography>
+//         ) : (
+//             <Typography variant="title" id="tableTitle">
+//               おしらせ一覧
+//           </Typography>
+//           )}
+//       </div>
+//       <div className={classes.spacer} />
+//     </Toolbar>
+//   )
+// }
 
-EnhancedTableToolbar.propTypes = {
-  classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired
-}
+// EnhancedTableToolbar.propTypes = {
+//   classes: PropTypes.object.isRequired,
+//   numSelected: PropTypes.number.isRequired
+// }
 
-EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
+// EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
 
 const drawerWidth = 240
 
@@ -253,6 +253,11 @@ const styles = theme => ({
   root3: {
     display: 'flex',
     flexWrap: 'wrap'
+  },
+  root4: {
+    ...theme.mixins.gutters(),
+    paddingTop: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit * 2,
   },
   appFrame: {
     zIndex: 1,
@@ -474,8 +479,8 @@ class ComOshiraseMenteForm extends React.Component {
       addFlg: true,
       Target_year: '',
       nendoList: [],
-      order: 'asc',
-      orderBy: 'name',
+      // order: 'asc',
+      // orderBy: 'name',
       page: 0,
       rowsPerPage: 5,
       checked: false,
@@ -612,19 +617,6 @@ class ComOshiraseMenteForm extends React.Component {
 
     this.setState({ resultList, order, orderBy })
   }
-
-  // handleSelectAllClick = (event, checked) => {
-  //   // if (checked) {
-  //   //   this.setState(state => ({ selected: state.resultList.map(n => n.id) }))
-  //   //   return
-  //   // }
-  //   // this.setState({ selected: [] })
-  //   if (checked) {
-  //     this.setState({ selected: this.state.resultList.map(n => n.id) })
-  //   } else {
-  //     this.setState({ selected: [] })
-  //   }
-  // }
 
   handleClick = (event, id) => {
     const { selected } = this.state
@@ -1034,13 +1026,15 @@ class ComOshiraseMenteForm extends React.Component {
             <div>
               {/* 一覧 */}
               <Paper className={classes.root2}>
+                <Typography className={classes.root4} elevation={1} variant="headline" component="h3">
+                  お知らせ一覧
+                </Typography>
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table} aria-labelledby="tableTitle">
                     <EnhancedTableHead
                       numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
-                      // onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
                       rowCount={this.state.resultList.length}
                     />
