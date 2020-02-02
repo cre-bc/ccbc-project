@@ -93,7 +93,7 @@ router.post("/findshokaigraph", (req, res) => {
 
 // ----------------------------------------------------------------------
 /**
- * 初期表示データ取得用関数（イベント取得）
+ * 初期表示データ取得用関数（イベントリスト取得）
  * グラフの要素は、社員と受領コインと使用コイン
  * @req {*} req
  * @res {*} res
@@ -130,8 +130,9 @@ async function findshokaigraph(req, res) {
     account: resdatas[0].from_bc_account,
     bc_addr: req.body.bc_addr
   };
-  bccoin_get = await bccoinget(param);
-  bccoin_use = await bccoinget(param);
+  // 課題：使用コインと受領コインはfunction自体をわけないとダメ？
+  bccoin_get = await bctransactionsget(param);
+  bccoin_use = await bctransactionsget(param);
   shimei = resdatas[0].shimei;
   console.log(bccoin_get);
   console.log(bccoin_use);
@@ -187,14 +188,16 @@ function getgraphcoinList(db, req) {
       "left join t_shain tsha1 on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
       "left join t_shain tsha2 on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
       "where tzoyo.delete_flg = '0'" +
-      "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth";
-    ("and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth");
-    "and tzoyo.zoyo_comment = :event" + " order by :sort_graph";
+      "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth" +
+      "and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth" +
+      "and tzoyo.zoyo_comment = :comevent" +
+      " order by :sort_graph";
     db
       .query(sql, {
         replacements: {
           startmonth: req.body.startmonth,
           endmonth: req.body.endmonth,
+          comevent: req.body.comevent,
           sort_graph: req.body.sort_graph
         },
         type: db.QueryTypes.RAW

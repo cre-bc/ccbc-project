@@ -79,7 +79,7 @@ async function findshojicoindata(req, res) {
   bccoin = await bccoinget(param);
   shimei = resdatas[0].shimei;
 
-  //** 課題：sort_graphはそのまま使える？ */
+  //** webで設定したsort_graphにより所持コインをソート */
   if ((sort_graph = "1")) {
     //所持コインの順にソート（昇順）
     resdatas.sort(function(a, b) {
@@ -94,20 +94,21 @@ async function findshojicoindata(req, res) {
       if (a.bccoin < b.bccoin) return 1;
       return 0;
     });
-    //氏名の順にソート（昇順）
-  } else if ((sort_graph = "3")) {
-    resdatas.sort(function(a, b) {
-      if (a.shimei < b.shimei) return -1;
-      if (a.shimei > b.shimei) return 1;
-      return 0;
-    });
-    //氏名の順にソート（降順）
-  } else {
-    resdatas.sort(function(a, b) {
-      if (a.shimei > b.shimei) return -1;
-      if (a.shimei < b.shimei) return 1;
-      return 0;
-    });
+    // 氏名はSQLのORDERで並び替える
+    //   //氏名の順にソート（昇順）
+    // } else if ((sort_graph = "3")) {
+    //   resdatas.sort(function(a, b) {
+    //     if (a.shimei < b.shimei) return -1;
+    //     if (a.shimei > b.shimei) return 1;
+    //     return 0;
+    //   });
+    //   //氏名の順にソート（降順）
+    // } else {
+    //   resdatas.sort(function(a, b) {
+    //     if (a.shimei > b.shimei) return -1;
+    //     if (a.shimei < b.shimei) return 1;
+    //     return 0;
+    //   });
   }
 
   console.log(bccoin);
@@ -131,21 +132,26 @@ async function findshojicoindata(req, res) {
 function getshojicoinList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
+    if ((req.body.sort_graph = "3")) {
+      req.body.sort_graph = "CAST(shimei_kana AS CHAR) ASC";
+    } else if ((req.body.sort_graph = "4")) {
+      req.body.sort_graph = "CAST(shimei_kana AS CHAR) DESC";
+    }
     var sql =
       "select tsha.t_shain_pk as t_shain_pk,tsha.shimei as shimei,tsha.shimei_kana as shimei_kana,tsha.bc_account as bc_account,tsha.kengen_cd as kengen_cd" +
       "  from t_kiji_category" +
       " where delete_flg = '0'" +
-      // " order by :sort_graph"
-      db
-        .query(sql, {
-          replacements: { sort_graph: req.body.sort_graph },
-          type: db.QueryTypes.RAW
-        })
-        .spread((datas, metadata) => {
-          console.log("DBAccess : getshojicoinList result...");
-          console.log(datas);
-          return resolve(datas);
-        });
+      " order by :sort_graph";
+    db
+      .query(sql, {
+        replacements: { sort_graph: req.body.sort_graph },
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        console.log("DBAccess : getshojicoinList result...");
+        console.log(datas);
+        return resolve(datas);
+      });
   });
 }
 

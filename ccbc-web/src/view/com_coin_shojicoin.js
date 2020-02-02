@@ -65,10 +65,10 @@ import TableCell from "@material-ui/core/TableCell";
 // import FormLabel from '@material-ui/core/FormLabel'
 
 /** 投票照会より流用 */
-import request from 'superagent'
-import { connect } from 'react-redux'
-import List from '@material-ui/core/List'
-import Typography from '@material-ui/core/Typography'
+import request from "superagent";
+import { connect } from "react-redux";
+import List from "@material-ui/core/List";
+import Typography from "@material-ui/core/Typography";
 import {
   ComposedChart,
   Line,
@@ -81,22 +81,22 @@ import {
   Legend
 } from "recharts";
 
-const restdomain = require('../common/constans.js').restdomain
+const restdomain = require("../common/constans.js").restdomain;
 
-//表示させたいデータ群
-const data_event = [
-  { name: "井上　卓", 所持コイン: 2500 },
-  { name: "吉田　裕一", 所持コイン: 1500 },
-  { name: "角谷　貴之", 所持コイン: 1000 },
-  { name: "佐藤　源生", 所持コイン: 750 },
-  { name: "石垣　努", 所持コイン: 500 },
-  { name: "佐々木　唯", 所持コイン: 500 },
-  { name: "山城　博紀", 所持コイン: 100 }
-];
+// //以降モックアップ用データ
+// //表示させたいデータ群
+// const data_event = [
+//   { name: "井上　卓", 所持コイン: 2500 },
+//   { name: "吉田　裕一", 所持コイン: 1500 },
+//   { name: "角谷　貴之", 所持コイン: 1000 },
+//   { name: "佐藤　源生", 所持コイン: 750 },
+//   { name: "石垣　努", 所持コイン: 500 },
+//   { name: "佐々木　唯", 所持コイン: 500 },
+//   { name: "山城　博紀", 所持コイン: 100 }
+// ];
 
 /** 検索部分のリストボックス */
 /** リストボックスに表示されるのはソート条件のみ */
-/** 課題：bccoinはブロックチェーンから取得する。その場合のソートは？ */
 /** 選んだソートにより、restのfindshojicoindataのsortを切り替える */
 const ranges1 = [
   {
@@ -139,14 +139,15 @@ function createData(name, coin) {
   return { id, name, coin };
 }
 
-const rows = [
-  createData("井上　卓", 400),
-  createData("角谷　貴之", 200),
-  createData("石垣　努", 150),
-  createData("吉田　裕一", 120),
-  createData("山城　博紀", 80),
-  createData("佐藤　源生", 50)
-];
+// //以降モックアップ用データ
+// const rows = [
+//   createData("井上　卓", 400),
+//   createData("角谷　貴之", 200),
+//   createData("石垣　努", 150),
+//   createData("吉田　裕一", 120),
+//   createData("山城　博紀", 80),
+//   createData("佐藤　源生", 50)
+// ];
 /**　ここまでがテーブル部分のconst */
 // ----------------------------------------------------------------------
 const drawerWidth = 240;
@@ -405,11 +406,11 @@ class ComShojiCoinForm extends React.Component {
     sort_graph: 0,
     data: []
   };
-
+  // 選んだソートキーの情報を設定する
   handleChange = sort_graph => event => {
     this.setState({ [sort_graph]: event.target.value });
   };
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
@@ -423,32 +424,32 @@ class ComShojiCoinForm extends React.Component {
       this.setState({ shimei: loginInfo["shimei"] });
       this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
-// ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     request
-    .post(restdomain + '/com_coin_shojicoin/findshojicoin')
-    .send(this.state)
-    .end((err, res) => {
-      if (err) {
-        return
-      }
-      var resList = res.body.data
-      var bccoin = String(res.body.bccoin)
-      // 検索結果表示
-      this.setState({ resultList: resList })
-      this.state.bccoin = bccoin
-      this.setState({ bccoin: bccoin })
-      this.setState({ shimei: res.body.shimei })
-      this.setState({ from_bcaccount: res.body.from_bcaccount })
-  
-      for (var i in resList) {
-        var data = resList[i]
-        if (data.kengen_cd === '0') {
-          this.setState({ jimuId: data.id })
+      .post(restdomain + "/com_coin_shojicoin/findshojicoin")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          return;
         }
-      }
-    })
+        var resList = res.body.data;
+        var bccoin = String(res.body.bccoin);
+        // 検索結果表示
+        this.setState({ resultList: resList });
+        this.state.bccoin = bccoin;
+        this.setState({ bccoin: bccoin });
+        this.setState({ shimei: res.body.shimei });
+        this.setState({ from_bcaccount: res.body.from_bcaccount });
+
+        for (var i in resList) {
+          var data = resList[i];
+          if (data.kengen_cd === "0") {
+            this.setState({ jimuId: data.id });
+          }
+        }
+      });
   }
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };

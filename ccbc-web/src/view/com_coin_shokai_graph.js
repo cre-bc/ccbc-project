@@ -58,6 +58,7 @@ import PageviewIcon from "@material-ui/icons/Pageview";
 import Assessment from "@material-ui/icons/Assessment";
 import NavigationIcon from "@material-ui/icons/Navigation";
 
+const restdomain = require("../common/constans.js").restdomain;
 //表示させたいデータ群
 const data_event = [
   { name: "吉田　裕一", 使用コイン: 1500, 受領コイン: 1600 },
@@ -69,27 +70,27 @@ const data_event = [
 /** 検索部分のリストボックス */
 const ranges1 = [
   {
-    value: "ソート１",
+    value: "1",
     label: "使用コイン（昇順）"
   },
   {
-    value: "ソート２",
+    value: "2",
     label: "使用コイン（降順）"
   },
   {
-    value: "ソート３",
+    value: "3",
     label: "受領コイン（昇順）"
   },
   {
-    value: "ソート４",
+    value: "4",
     label: "受領コイン（降順）"
   },
   {
-    value: "ソート５",
+    value: "5",
     label: "氏名（昇順）"
   },
   {
-    value: "ソート６",
+    value: "6",
     label: "氏名（降順）"
   }
 ];
@@ -336,9 +337,14 @@ class ComCoinShokaiGraphForm extends React.Component {
     alertMsg: "",
     tokenId: null,
     msg: null,
-    loadFlg: false
+    loadFlg: false,
     // 以下のデータにconstに積んでいるような取得したデータを設定する
-    // data: [],
+    startmonth: 0,
+    endmonth: 0,
+    selectno: 0,
+    comevent: 0,
+    sort_graph: 0,
+    data: []
   };
 
   /** コンポーネントのマウント時処理 */
@@ -359,12 +365,33 @@ class ComCoinShokaiGraphForm extends React.Component {
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
-  handleChange = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  //ソート順
+  handleChange = sort_graph => event => {
+    this.setState({ [sort_graph]: event.target.value });
   };
-
-  handleChange2 = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  //イベント
+  handleChange2 = comevent => event => {
+    this.setState({ [comevent]: event.target.value });
+  };
+  //日付（開始）
+  handleChange3 = startmonth => event => {
+    this.setState({ [startmonth]: event.target.value });
+  };
+  //日付（終了）
+  handleChange4 = endmonth => event => {
+    this.setState({ [endmonth]: event.target.value });
+  };
+  //検索ボタン押下
+  handleGlaphClick = () => {
+    request
+      .post(restdomain + "/com_coin_shokai_graph/findshokaigraph_event")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.state.resultList = res.body.data;
+        this.setState({ resultList: res.body.data });
+      });
   };
 
   handleDrawerClose = () => {
@@ -517,7 +544,9 @@ class ComCoinShokaiGraphForm extends React.Component {
                   id="date"
                   label="日付（開始）"
                   type="month"
-                  defaultValue="2019-6-23"
+                  // defaultValue="2019-6-23"
+                  value={this.state.weightrange3}
+                  onchange={this.weightChange3}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true
@@ -527,7 +556,9 @@ class ComCoinShokaiGraphForm extends React.Component {
                   id="date"
                   label="日付（終了）"
                   type="month"
-                  defaultValue="2019-6-23"
+                  // defaultValue="2019-6-23"
+                  value={this.state.weightrange4}
+                  onchange={this.weightChange4}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true
@@ -540,14 +571,16 @@ class ComCoinShokaiGraphForm extends React.Component {
                   value={this.state.weightRange2}
                   onChange={this.handleChange2("weightRange2")}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start" />
+                    value: "selectno",
+                    label: "comevent"
+                    // startAdornment: <InputAdornment position="start" />
                   }}
                 >
-                  {ranges2.map(option => (
+                  {/* {ranges2.map(option => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
-                  ))}
+                  ))} */}
                 </TextField>
                 <TextField
                   select
@@ -571,6 +604,7 @@ class ComCoinShokaiGraphForm extends React.Component {
                 variant="raised"
                 aria-label="Delete"
                 className={classes.button}
+                onClick={this.handleGlaphClick}
               >
                 <PageviewIcon
                   className={classNames(classes.leftIcon, classes.iconSmall)}
