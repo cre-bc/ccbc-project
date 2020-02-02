@@ -434,6 +434,9 @@ class PersistentDrawer extends React.Component {
                   <li>
                     <a href="/com_coin_shojicoin">【06】コイン照会所持コイン</a>
                   </li>
+                  <li>
+                    <a href="/article">【xx】記事投稿</a>
+                  </li>
                 </ul>
               </div>
             </Typography>
