@@ -100,13 +100,13 @@ function getArray(array1) {
 
 const columnData = [
   {
-    id: 'date',
+    id: 'notice_dt',
     numeric: false,
     disablePadding: true,
     label: '日付'
   },
   {
-    id: 'tytle',
+    id: 'title',
     numeric: false,
     disablePadding: true,
     label: '件名'
@@ -616,26 +616,34 @@ class ComOshiraseMenteForm extends React.Component {
         )
 
     this.setState({ resultList, order, orderBy })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleClick = (event, id) => {
     const { selected } = this.state
     const selectedIndex = selected.indexOf(id)
     let newSelected = []
-
+    // if (selectedIndex === -1) {
+    //   newSelected = newSelected.concat(selected, id)
+    // } else if (selectedIndex === 0) {
+    //   newSelected = newSelected.concat(selected.slice(1))
+    // } else if (selectedIndex === selected.length - 1) {
+    //   newSelected = newSelected.concat(selected.slice(0, -1))
+    // } else if (selectedIndex > 0) {
+    //   newSelected = newSelected.concat(
+    //     selected.slice(0, selectedIndex),
+    //     selected.slice(selectedIndex + 1)
+    //   )
+    // }
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id)
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1))
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1))
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      )
+      newSelected.unshift(id)
     }
     this.setState({ selected: newSelected })
+
     let check = false
     check = this.state.selected.indexOf(id) !== -1
     if (check == true) {
