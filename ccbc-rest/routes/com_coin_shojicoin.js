@@ -53,15 +53,6 @@ router.post("/findshojicoin", (req, res) => {
 
 // ----------------------------------------------------------------------
 /**
- * 比較関数
- * 数値でソートが動かない場合使用する
- */
-function compareFunc(a, b) {
-  return a < b;
-}
-
-// ----------------------------------------------------------------------
-/**
  * データ取得用関数（グラフ情報取得）
  * グラフの要素は、社員と所持コインのみ
  * @req {*} req
@@ -69,46 +60,41 @@ function compareFunc(a, b) {
  */
 async function findshojicoindata(req, res) {
   var resdatas = [];
-  var bccoin = 0;
-  var shimei = null;
-  resdatas = await getshojicoinList(req);
-  param = {
-    account: resdatas[0].from_bc_account,
-    bc_addr: req.body.bc_addr
-  };
-  bccoin = await bccoinget(param);
-  shimei = resdatas[0].shimei;
+  var resbccoin = [];
+  resdatas = await getshainList(req);
+  resbccoin = await getshojicoinList(req);
 
+  // 社員が一意のリスト（resdata）をループ（所持コインは受領したコインとイコール）
+  for (let i in resdatas) {
+    // 贈与テーブルの情報（resbccoin）の情報をループさせながら紐づける
+    for (let n in resbccoin) {
+      // 受領先の社員を紐づけて、使用コインを取得
+      if (resdatas[i].t_shain_pk === resbccoin[n].zoyo_saki_shain_pk) {
+        param = {
+          transaction: resbccoin[n].transaction_id
+        }; // 受領コインを取得して、合計する
+        sakicoin = await bctransactionsget(param);
+        sakicoin_sum += sakicoin;
+      }
+    }
+    ressakicoin[i] = sakicoin_sum;
+    sakicoin_sum = 0;
+  } //課題：上記のtohyo_shokai_nendoのように上記のループを行うと、下記のソートでつじつまが合わなくなる？（基本情報とコインの情報を一つにまとめたい）
   //** webで設定したsort_graphにより所持コインをソート */
   if ((sort_graph = "1")) {
     //所持コインの順にソート（昇順）
-    resdatas.sort(function(a, b) {
-      if (a.bccoin < b.bccoin) return -1;
-      if (a.bccoin > b.bccoin) return 1;
+    ressakicoin.sort(function(a, b) {
+      if (a.sakicoin < b.sakicoin) return -1;
+      if (a.sakicoin > b.sakicoin) return 1;
       return 0;
     });
   } else if ((sort_graph = "2")) {
     //所持コインの順にソート（降順）
     resdatas.sort(function(a, b) {
-      if (a.bccoin > b.bccoin) return -1;
-      if (a.bccoin < b.bccoin) return 1;
+      if (a.sakicoin > b.sakicoin) return -1;
+      if (a.sakicoin < b.sakicoin) return 1;
       return 0;
     });
-    // 氏名はSQLのORDERで並び替える
-    //   //氏名の順にソート（昇順）
-    // } else if ((sort_graph = "3")) {
-    //   resdatas.sort(function(a, b) {
-    //     if (a.shimei < b.shimei) return -1;
-    //     if (a.shimei > b.shimei) return 1;
-    //     return 0;
-    //   });
-    //   //氏名の順にソート（降順）
-    // } else {
-    //   resdatas.sort(function(a, b) {
-    //     if (a.shimei > b.shimei) return -1;
-    //     if (a.shimei < b.shimei) return 1;
-    //     return 0;
-    //   });
   }
 
   console.log(bccoin);
@@ -123,6 +109,47 @@ async function findshojicoindata(req, res) {
 }
 
 // ----------------------------------------------------------------------
+/**
+ * テーブルよりselect（DBアクセス）
+ * グラフ表示用の情報取得（グラフの基本となる社員情報）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getshainList(db, req) {
+  return new Promise((resolve, reject) => {
+    // SQLとパラメータを指定
+    // ソート順を設定
+    if ((req.body.sort_graph = "5")) {
+      req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) ASC";
+    } else if ((req.body.sort_graph = "6")) {
+      req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) DESC";
+    }
+    var sql =
+      "select" +
+      "tsha.t_shain_pk" +
+      ", tsha.shimei" +
+      ", tsha.shimei_kana" +
+      "from" +
+      "t_shain tsha" +
+      "where tsha.delete_flg = '0'";
+    ("and tsha.t_shain_pk <> '1'");
+    (" order by :sort_graph");
+    db
+      .query(sql, {
+        replacements: {
+          sort_graph: req.body.sort_graph
+        },
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        console.log("DBAccess : getshojicoinList result...");
+        console.log(datas);
+        return resolve(datas);
+      });
+  });
+}
+
+// ----------------------------------------------------------------------
 // 所持コイン一覧は、検索条件なしで、社員とコイン情報のみ取得しグラフに表示
 /**
  * テーブルよりselect（DBアクセス）
@@ -132,25 +159,60 @@ async function findshojicoindata(req, res) {
 function getshojicoinList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
-    if ((req.body.sort_graph = "3")) {
-      req.body.sort_graph = "CAST(shimei_kana AS CHAR) ASC";
-    } else if ((req.body.sort_graph = "4")) {
-      req.body.sort_graph = "CAST(shimei_kana AS CHAR) DESC";
-    }
     var sql =
-      "select tsha.t_shain_pk as t_shain_pk,tsha.shimei as shimei,tsha.shimei_kana as shimei_kana,tsha.bc_account as bc_account,tsha.kengen_cd as kengen_cd" +
-      "  from t_kiji_category" +
-      " where delete_flg = '0'" +
-      " order by :sort_graph";
-    db
-      .query(sql, {
-        replacements: { sort_graph: req.body.sort_graph },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        console.log("DBAccess : getshojicoinList result...");
-        console.log(datas);
-        return resolve(datas);
+      "select" +
+      "tzoyo.zoyo_moto_shain_pk" +
+      ", tsha1.shimei AS shimei_saki" +
+      ", tsha1.shimei_kana AS shimei_kana_saki" +
+      ", tzoyo.zoyo_saki_shain_pk" +
+      ", tsha2.shimei AS shimei_moto" +
+      ", tsha2.shimei_kana AS shimei_kana_moto" +
+      ", tzoyo.zoyo_comment AS event" +
+      ", tzoyo.transaction_id AS transaction_idelect" +
+      ", tsha1.t_shain_pk as t_shain_pk" +
+      ", tsha1.shimei as shimei" +
+      ", tsha1.shimei_kana as shimei_kana" +
+      ", tsha1.bc_account as bc_account" +
+      ", tsha1.kengen_cd as kengen_cd" +
+      "from t_zoyo tzoyo" +
+      "left join t_shain tsha1" +
+      "on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
+      "left join t_shain tsha2" +
+      "on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
+      "where tzoyo.delete_flg = '0';" +
+      db
+        .query(sql, {
+          replacements: { sort_graph: req.body.sort_graph },
+          type: db.QueryTypes.RAW
+        })
+        .spread((datas, metadata) => {
+          console.log("DBAccess : getshojicoinList result...");
+          console.log(datas);
+          return resolve(datas);
+        });
+  });
+}
+
+// ----------------------------------------------------------------------
+/**
+ * 取引情報取得用関数
+ * @param {*} param
+ * 受領コインと使用コインをグラフに出力用
+ */
+
+function bctransactionsget() {
+  return new Promise((resolve, reject) => {
+    request
+      .post(bcdomain + "/get_transactions")
+      .send(param)
+      .end((err, res) => {
+        console.log("★★★");
+        if (err) {
+          console.log("★" + err);
+          return;
+        }
+        console.log("★★★" + res.body.coin);
+        return resolve(res.body.coin);
       });
   });
 }

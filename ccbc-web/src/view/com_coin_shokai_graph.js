@@ -96,20 +96,20 @@ const ranges1 = [
 ];
 const ranges2 = [
   {
-    value: "イベント１",
+    value: "0",
+    label: "すべて"
+  },
+  {
+    value: "1",
+    label: "ＨＡＲＶＥＳＴ"
+  },
+  {
+    value: "2",
     label: "チャット"
   },
   {
-    value: "イベント２",
+    value: "3",
     label: "記事投稿"
-  },
-  {
-    value: "イベント３",
-    label: "ショッピングカート"
-  },
-  {
-    value: "イベント４",
-    label: "HARVEST投票"
   }
 ];
 const drawerWidth = 240;
@@ -391,6 +391,57 @@ class ComCoinShokaiGraphForm extends React.Component {
         // 検索結果表示
         this.state.resultList = res.body.data;
         this.setState({ resultList: res.body.data });
+        this.setState({ resultusecoin: res.body.datamotocoin });
+        this.setState({ resultgetcoin: res.body.datasakicoin });
+
+        // グラフ表示情報設定
+        // 社員情報、使用コイン、受領コインの情報を一つのデータに設定
+        // グラフの座標用に、使用コインと受領コインの最大を取得
+        const data = [];
+        var maxusecoin = 0;
+        var maxgetcoin = 0;
+        for (var i in this.state.resultList) {
+          data.push({
+            name: this.state.resultList[i].shimei,
+            usecoin: Number(this.state.resultusecoin[i].motocoin),
+            getcoin: Number(this.state.resultgetcoin[i].sakicoin)
+          });
+          if (maxusecoin < Number(this.state.resultcoin[i])) {
+            maxusecoin = Number(this.state.resultcoin[i]);
+          }
+          if (maxgetcoin < Number(this.state.resultList[i].presen_cnt)) {
+            maxgetcoin = Number(this.state.resultList[i].presen_cnt);
+          }
+        }
+        this.setState({ data: data });
+
+        var maxusecoingraph = 0;
+        var maxusecoingraphcnt = 0;
+        var maxusecoingraphcntdata = [];
+        if (maxusecoin > 0) {
+          maxusecoingraph = Math.ceil(maxusecoin / 10000) * 10000;
+          maxusecoingraphcnt = maxusecoingraph / 5;
+          for (var i = 0; i <= maxusecoingraph; i += maxusecoingraphcnt) {
+            maxusecoingraphcntdata.push(i);
+          }
+          this.state.maxusecoingraphdata = maxusecoingraphcntdata;
+        }
+        this.setState({ maxusecoingraph: maxusecoingraph });
+        this.setState({ maxusecoingraphcntdata: maxusecoingraphcntdata });
+
+        var maxgetcoingraph = 0;
+        var maxgetcoingraphcnt = 0;
+        var maxgetcoingraphcntdata = [];
+        if (maxgetcoin > 0) {
+          maxgetcoingraph = Math.ceil(maxgetcoin / 10000) * 10000;
+          maxgetcoingraphcnt = maxgetcoingraph / 5;
+          for (var i = 0; i <= maxgetcoingraph; i += maxgetcoingraphcnt) {
+            maxgetcoingraphcntdata.push(i);
+          }
+          this.state.maxgetcoingraphdata = maxgetcoingraphcntdata;
+        }
+        this.setState({ maxgetcoingraph: maxgetcoingraph });
+        this.setState({ maxgetcoingraphcntdata: maxgetcoingraphcntdata });
       });
   };
 
@@ -571,16 +622,16 @@ class ComCoinShokaiGraphForm extends React.Component {
                   value={this.state.weightRange2}
                   onChange={this.handleChange2("weightRange2")}
                   InputProps={{
-                    value: "selectno",
-                    label: "comevent"
-                    // startAdornment: <InputAdornment position="start" />
+                    // value: "selectno",
+                    // label: "comevent"
+                    startAdornment: <InputAdornment position="start" />
                   }}
                 >
-                  {/* {ranges2.map(option => (
+                  {ranges2.map(option => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
-                  ))} */}
+                  ))}
                 </TextField>
                 <TextField
                   select
@@ -617,22 +668,24 @@ class ComCoinShokaiGraphForm extends React.Component {
                   width={1800} //グラフ全体の幅を指定
                   height={650} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
-                  data={data_event} //Array型のデータを指定
-                  // data={this.state.data} //constを使用しないときに切り替える
+                  // data={data_event} //Array型のデータを指定（モック）
+                  data={this.state.data} //constを使用しないときに切り替える
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
                 >
                   <XAxis //X軸に関する設定
                     xAxisId="use"
                     orientation="top"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
-                    domain={[0, 1000]} //軸の表示領域を指定
+                    // domain={[0, 1000]} //軸の表示領域を指定（モック用固定値）
+                    domain={[0, this.state.maxusecoingraph]}
                     stroke="#000000"
                   />
                   <XAxis //X軸に関する設定
                     xAxisId="get"
                     orientation="bottom"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
-                    domain={[0, 1000]} //軸の表示領域を指定
+                    // domain={[0, 1000]} //軸の表示領域を指定（モック用固定値）
+                    domain={[0, this.state.maxgetcoingraph]}
                     stroke="#000000"
                   />
                   <YAxis //Y軸に関する設定
@@ -641,7 +694,6 @@ class ComCoinShokaiGraphForm extends React.Component {
                     stroke="#000000" //軸の色を黒に指定
                   />
                   <Tooltip />{" "}
-                  ////hoverさせた時に具体的な値を表示させるように指定
                   <CartesianGrid //グラフのグリッドを指定
                     stroke="#000000" //グリッド線の色を指定
                     strokeDasharray="3 3" //グリッド線を点線に指定

@@ -434,6 +434,7 @@ class ComShojiCoinForm extends React.Component {
         }
         var resList = res.body.data;
         var bccoin = String(res.body.bccoin);
+
         // 検索結果表示
         this.setState({ resultList: resList });
         this.state.bccoin = bccoin;
