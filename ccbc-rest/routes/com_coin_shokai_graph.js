@@ -69,18 +69,6 @@ function tShainGet(req) {
   });
 }
 
-// イベントの検索条件は固定でリストで持つよう変更
-// // ----------------------------------------------------------------------
-// /**
-//  * API : findshokaigraph_event
-//  * 検索条件イベント用の情報取得
-//  */
-// router.post("/findshokaigraph_event", (req, res) => {
-//   console.log("API : findshokaigraph_event - start");
-//   findshokaigraph_event(req, res);
-//   console.log("API : findshokaigraphs_event - end");
-// });
-
 // ----------------------------------------------------------------------
 /**
  * API : findshokaigraph
@@ -91,28 +79,6 @@ router.post("/findshokaigraph", (req, res) => {
   findshokaigraph(req, res);
   console.log("API : findshokaigraphs - end");
 });
-
-// イベントの検索条件は固定でリストで持つよう変更
-// // ----------------------------------------------------------------------
-// /**
-//  * 初期表示データ取得用関数（イベントリスト取得）
-//  * グラフの要素は、社員と受領コインと使用コイン
-//  * @req {*} req
-//  * @res {*} res
-//  */
-// async function findshokaigraph_event(req, res) {
-//   var resdatas = [];
-//   var event = null;
-//   resdatas = await ccCoinEventget(req);
-//   event = resdatas[0].event;
-//   console.log(resdatas);
-//   console.log(event);
-//   res.json({
-//     status: true,
-//     data: resdatas,
-//     event: event
-//   });
-// }
 
 // ----------------------------------------------------------------------
 /**
@@ -125,8 +91,6 @@ router.post("/findshokaigraph", (req, res) => {
 async function findshokaigraph(req, res) {
   var resdatas = [];
   var resbccoin = [];
-  var ressakicoin = [];
-  var resmotocoin = [];
 
   //社員リストの情報取得
   resdatas = await getgraphshainList(req);
@@ -148,6 +112,7 @@ async function findshokaigraph(req, res) {
         motocoin = await bctransactionsget(param);
         motocoin_sum += motocoin;
       }
+
       // 受領先の社員を紐づけて、使用コインを取得
       if (resdatas[i].t_shain_pk === resbccoin[n].zoyo_saki_shain_pk) {
         param = {
@@ -157,51 +122,52 @@ async function findshokaigraph(req, res) {
         sakicoin_sum += sakicoin;
       }
     }
-    resmotocoin[i] = motocoin_sum;
+    // 社員に紐づく使用コインの合計をセット
+    resdatas[i].motocoin = motocoin_sum;
     motocoin_sum = 0;
-    ressakicoin[i] = sakicoin_sum;
+    // 社員に紐づく受領コインの合計をセット
+    resdatas[i].sakicoin = sakicoin_sum;
     sakicoin_sum = 0;
   }
+  // この時点で、社員リストを基としたresdataには、社員に紐づく使用コイン計（motocoin）と受領コイン計（sakicoin）が紐づいている
 
-  //課題：上記のtohyo_shokai_nendoのように上記のループを行うと、コインのソートができない。（基本情報とコインの情報を一つにまとめたい）
+  //リストボックスでコインのソートが選ばれている場合、並び替え
+  if ((request.body.sort_graph = "1")) {
+    //使用コインの順にソート（昇順）
+    resdatas.sort(function(a, b) {
+      if (a.motocoin < b.motocoin) return -1;
+      if (a.motocoin > b.motocoin) return 1;
+      return 0;
+    });
+  } else if ((request.body.sort_graph = "2")) {
+    //使用コインの順にソート（降順）
+    resdatas.sort(function(a, b) {
+      if (a.motocoin > b.motocoin) return -1;
+      if (a.motocoin < b.motocoin) return 1;
+      return 0;
+    });
+  } else if ((request.body.sort_graph = "3")) {
+    //受領コインの順にソート（昇順）
+    resdatas.sort(function(a, b) {
+      if (a.sakicoin < b.sakicoin) return -1;
+      if (a.sakicoin > b.sakicoin) return 1;
+      return 0;
+    });
+  } else if ((request.body.sort_graph = "4")) {
+    //受領コインの順にソート（降順）
+    resdatas.sort(function(a, b) {
+      if (a.sakicoin > b.sakicoin) return -1;
+      if (a.sakicoin < b.sakicoin) return 1;
+      return 0;
+    });
+  }
 
   console.log(resdatas);
-  console.log(resbccoin);
-  console.log(ressakicoin);
-  console.log(resmotocoin);
   res.json({
     status: true,
-    data: resdatas,
-    datamotocoin: resmotocoin,
-    datasakicoin: ressakicoin
+    data: resdatas
   });
 }
-
-// イベントの検索条件は固定でリストで持つよう変更
-// // ----------------------------------------------------------------------
-// /**
-//  * イベントの検索条件取得用
-//  * @req {*} req
-//  */
-// function ccCoinEventget(req) {
-//   return new Promise((resolve, reject) => {
-//     // SQLとパラメータを指定
-//     var sql =
-//       "select distinct(zoyo_comment) as event" +
-//       "  from t_zoyo" +
-//       " where delete_flg = '0'" +
-//       " order by zoyo_comment";
-//     db
-//       .query(sql, {
-//         type: db.QueryTypes.RAW
-//       })
-//       .spread((datas, metadata) => {
-//         console.log("★★★");
-//         console.log(datas);
-//         return resolve(datas);
-//       });
-//   });
-// }
 
 // ----------------------------------------------------------------------
 /**
@@ -294,8 +260,7 @@ function getgraphcoinList(db, req) {
         replacements: {
           startmonth: req.body.startmonth,
           endmonth: req.body.endmonth,
-          comevent: req.body.comevent,
-          sort_graph: req.body.sort_graph
+          comevent: req.body.comevent
         },
         type: db.QueryTypes.RAW
       })

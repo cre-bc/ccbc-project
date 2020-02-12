@@ -59,14 +59,15 @@ import Assessment from "@material-ui/icons/Assessment";
 import NavigationIcon from "@material-ui/icons/Navigation";
 
 const restdomain = require("../common/constans.js").restdomain;
-//表示させたいデータ群
-const data_event = [
-  { name: "吉田　裕一", 使用コイン: 1500, 受領コイン: 1600 },
-  { name: "角谷　貴之", 使用コイン: 1000, 受領コイン: 1600 },
-  { name: "井上　卓", 使用コイン: 750, 受領コイン: 750 },
-  { name: "石垣　努", 使用コイン: 500, 受領コイン: 1000 },
-  { name: "山城　博紀", 使用コイン: 100, 受領コイン: 600 }
-];
+// //表示させたいデータ群（モック用）
+// const data_event = [
+//   { name: "吉田　裕一", 使用コイン: 1500, 受領コイン: 1600 },
+//   { name: "角谷　貴之", 使用コイン: 1000, 受領コイン: 1600 },
+//   { name: "井上　卓", 使用コイン: 750, 受領コイン: 750 },
+//   { name: "石垣　努", 使用コイン: 500, 受領コイン: 1000 },
+//   { name: "山城　博紀", 使用コイン: 100, 受領コイン: 600 }
+// ];
+
 /** 検索部分のリストボックス */
 const ranges1 = [
   {
@@ -341,9 +342,8 @@ class ComCoinShokaiGraphForm extends React.Component {
     // 以下のデータにconstに積んでいるような取得したデータを設定する
     startmonth: 0,
     endmonth: 0,
-    selectno: 0,
-    comevent: 0,
     sort_graph: 0,
+    comevent: 0,
     data: []
   };
 
@@ -384,15 +384,13 @@ class ComCoinShokaiGraphForm extends React.Component {
   //検索ボタン押下
   handleGlaphClick = () => {
     request
-      .post(restdomain + "/com_coin_shokai_graph/findshokaigraph_event")
+      .post(restdomain + "/com_coin_shokai_graph/findshokaigraph")
       .send(this.state)
       .end((err, res) => {
         if (err) return;
         // 検索結果表示
         this.state.resultList = res.body.data;
         this.setState({ resultList: res.body.data });
-        this.setState({ resultusecoin: res.body.datamotocoin });
-        this.setState({ resultgetcoin: res.body.datasakicoin });
 
         // グラフ表示情報設定
         // 社員情報、使用コイン、受領コインの情報を一つのデータに設定
@@ -403,14 +401,14 @@ class ComCoinShokaiGraphForm extends React.Component {
         for (var i in this.state.resultList) {
           data.push({
             name: this.state.resultList[i].shimei,
-            usecoin: Number(this.state.resultusecoin[i].motocoin),
-            getcoin: Number(this.state.resultgetcoin[i].sakicoin)
+            usecoin: Number(this.state.resultList[i].motocoin),
+            getcoin: Number(this.state.resultList[i].sakicoin)
           });
-          if (maxusecoin < Number(this.state.resultcoin[i])) {
-            maxusecoin = Number(this.state.resultcoin[i]);
+          if (maxusecoin < Number(this.state.resultcoin[i].motocoin)) {
+            maxusecoin = Number(this.state.resultcoin[i].motocoin);
           }
-          if (maxgetcoin < Number(this.state.resultList[i].presen_cnt)) {
-            maxgetcoin = Number(this.state.resultList[i].presen_cnt);
+          if (maxgetcoin < Number(this.state.resultList[i].sakicoin)) {
+            maxgetcoin = Number(this.state.resultList[i].sakicoin);
           }
         }
         this.setState({ data: data });
@@ -622,8 +620,6 @@ class ComCoinShokaiGraphForm extends React.Component {
                   value={this.state.weightRange2}
                   onChange={this.handleChange2("weightRange2")}
                   InputProps={{
-                    // value: "selectno",
-                    // label: "comevent"
                     startAdornment: <InputAdornment position="start" />
                   }}
                 >

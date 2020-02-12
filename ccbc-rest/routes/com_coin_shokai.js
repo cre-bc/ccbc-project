@@ -92,18 +92,6 @@ router.post("/findshokai_torihiki", (req, res) => {
   console.log("API : findshokai_torihiki - end");
 });
 
-// イベントは固定で持つため情報取得は行わない
-// // ----------------------------------------------------------------------
-// /**
-//  * API : findshokai_event
-//  * 検索条件イベント用の情報取得
-//  */
-// router.post('/findshokai_event', (req, res) => {
-//   console.log('API : findshokai_event - start')
-//   findshokai_event(req, res)
-//   console.log('API : findshokai_event - end')
-// })
-
 // ----------------------------------------------------------------------
 /**
  * API : findshokai
@@ -122,16 +110,12 @@ router.post("findshokai", (req, res) => {
  * @res {*} res
  */
 async function findshokai_sosa(req, res) {
-  var resdatas = [];
-  var sosa = null;
-  resdatas = await getshainList(req);
-  sosa = resdatas[0].sosa;
-  console.log(resdatas);
-  console.log(sosa);
+  var ressosadatas = [];
+  ressosadatas = await getshainList(req);
+  console.log(ressosadatas);
   res.json({
     status: true,
-    data: resdatas,
-    sosa: sosa
+    sosadata: ressosadatas
   });
 }
 
@@ -142,57 +126,36 @@ async function findshokai_sosa(req, res) {
  * @res {*} res
  */
 async function findshokai_torihiki(req, res) {
-  var resdatas = [];
-  var torihiki = null;
-  resdatas = await getshainList(req);
-  torihiki = resdatas[0].torihiki;
-  console.log(resdatas);
-  console.log(torihiki);
+  var restorihikidatas = [];
+  restorihikidatas = await getshainList(req);
+  console.log(restorihikidatas);
   res.json({
     status: true,
-    data: resdatas,
-    torihiki: torihiki
+    torihikidata: restorihikidatas
   });
 }
-
-// // ----------------------------------------------------------------------
-// /**
-//  * 初期表示データ取得用関数（イベント取得）
-//  * @req {*} req
-//  * @res {*} res
-//  */
-// async function findshokai_event(req, res) {
-//   var resdatas = [];
-//   var event = null;
-//   resdatas = await ccCoinEventget(req);
-//   event = resdatas[0].event;
-//   console.log(resdatas);
-//   console.log(event);
-//   res.json({
-//     status: true,
-//     data: resdatas,
-//     event: event
-//   });
-// }
 
 // ----------------------------------------------------------------------
 /**
  * データ取得用関数（コイン照会の一覧情報取得）
+ * 照会一覧は社員リストを基とする必要なし
  * @req {*} req
  * @res {*} res
  */
 async function findshokai(req, res) {
   var resbccoin = [];
+  //贈与テーブルより、取引情報取得（使用コイン、受領コイン共通）
   resbccoin = await getshokaiList(req);
-  // 贈与テーブルの情報と、getgraphcoinListでコインを紐づける
 
   // 贈与テーブルの情報（resbccoin）の情報をループさせながら紐づける
   for (let i in resbccoin) {
     param = {
       transaction: resbccoin[i].transaction_id
     };
-    // 使用コインを取得する
+    // コイン情報を取得して配列にセットする
     shokaicoin = await bctransactionsget(param);
+    resbccoin[i].shokaicoin = shokaicoin;
+    shokaicoin = 0;
   }
 
   console.log(resbccoin);
@@ -255,6 +218,19 @@ function getshokaiList(db, req) {
       req.body.comevent = "and tzoyo.nenji_flg = '2'";
     }
 
+    // 取引（0:もらった 1:あげる 2:両方）の検索条件より対象者の条件を設定
+    if ((req.body.tradeinfo = "0")) {
+      req.body.sosaid = sosaid;
+      req.body.torihikiid = torihikiid;
+    } else if ((req.body.tradeinfo = "1")) {
+      req.body.sosaid = torihikiid;
+      req.body.torihikiid = sosaid;
+    } else if ((req.body.tradeinfo = "2")) {
+      req.body.sosaid = sosaid;
+      req.body.torihikiid = torihikiid;
+      req.body.sosaid2 = torihikiid;
+    }
+
     var sql =
       "select" +
       "tzoyo.zoyo_moto_shain_pk" +
@@ -276,20 +252,21 @@ function getshokaiList(db, req) {
       "left join t_shain tsha2" +
       "on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
       "where tzoyo.delete_flg = '0'" +
-      ":sosasha" +
-      ":torihikiaite" +
+      ":sosaid" +
+      ":torihikiid" +
       "and to_char(tzoyo.insert_tm,'yyyymm') >= :startmonth" +
       "and to_char(tzoyo.insert_tm,'yyyymm') <= :endmonth" +
       ":comevent";
     db
       .query(sql, {
         replacements: {
-          sosasha: req.body.sosashapk,
-          torihikiaite: req.body.torihikiaite,
-          startmonth: req.body.startmonth,
-          endmonth: req.body.endmonth,
+          sosaid: req.body.sosaid,
+          sosaid2: req.body.sosaid2,
+          torihikiid: req.body.torihikiid,
+          startdate: req.body.startdate,
+          enddate: req.body.enddate,
           comevent: req.body.comevent,
-          sort_graph: req.body.sort_graph
+          tradeinfo: req.body.tradeinfo
         },
         type: db.QueryTypes.RAW
       })
@@ -320,33 +297,6 @@ function getshokaiList(db, req) {
 //       "where tsha.delete_flg = '0'" +
 //       "and tsha.t_shain_pk <> '1'" +
 //       " order by :sort_graph";
-//     db
-//       .query(sql, {
-//         replacements: { shain_pk: req.body.login_shain_pk },
-//         type: db.QueryTypes.RAW
-//       })
-//       .spread((datas, metadata) => {
-//         console.log("★★★");
-//         console.log(datas);
-//         return resolve(datas);
-//       });
-//   });
-// }
-
-// // ----------------------------------------------------------------------
-// /**
-//  * 取引情報取得用関数(イベント）
-//  * @req {*} req
-//  */
-// function ccCoinEventget(req) {
-//   return new Promise((resolve, reject) => {
-//     // SQLとパラメータを指定
-//     // 検索のリストボックス用に発生しているイベントの情報を取得
-//     var sql =
-//       "select distinct(zoyo_comment)" +
-//       "  from t_zoyo" +
-//       " where delete_flg = '0'" +
-//       " order by zoyo_comment";
 //     db
 //       .query(sql, {
 //         replacements: { shain_pk: req.body.login_shain_pk },

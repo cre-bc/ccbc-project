@@ -106,23 +106,22 @@ const ranges2 = [
   }
 ];
 /** 検索条件：イベント */
-/** ccCoinEventget(req)から取得する */
 const ranges3 = [
   {
-    value: "イベント１",
+    value: "0",
+    label: "すべて"
+  },
+  {
+    value: "1",
+    label: "ＨＡＲＶＥＳＴ"
+  },
+  {
+    value: "2",
     label: "チャット"
   },
   {
-    value: "イベント２",
+    value: "3",
     label: "記事投稿"
-  },
-  {
-    value: "イベント３",
-    label: "ショッピングカート"
-  },
-  {
-    value: "イベント４",
-    label: "HARVEST投票"
   }
 ];
 /** 検索条件：イベント */
@@ -146,15 +145,15 @@ const ranges4 = [
 /** 固定値のため、DB取得無し */
 const ranges5 = [
   {
-    value: "取引種類１",
+    value: "1",
     label: "もらった"
   },
   {
-    value: "取引種類２",
+    value: "2",
     label: "あげる"
   },
   {
-    value: "取引種類３",
+    value: "3",
     label: "両方"
   }
 ];
@@ -441,30 +440,52 @@ class ComCoinShokaiForm extends React.Component {
     alertMsg: "",
     tokenId: null,
     msg: null,
-    loadFlg: false
+    loadFlg: false,
+    // 以下のデータにconstに積んでいるような取得したデータを設定する
+    yearorday: 0,
+    startdate: 0,
+    enddate: 0,
+    comevent: 0,
+    sosadata: [],
+    sosaid: 0,
+    torihikidata: [],
+    torihikiid: 0,
+    tradeinfo: 0,
+    data: []
   };
-
+  // 日付（年）
+  handleChange = yearorday => event => {
+    this.setState({ [yearorday]: event.target.value });
+  };
+  // 操作者
+  handleChange2 = sosaid => event => {
+    this.setState({ [sosaid]: event.target.value });
+  };
+  // 取引相手
+  handleChange3 = torihikiid => event => {
+    this.setState({ [torihikiid]: event.target.value });
+  };
+  //イベント
+  handleChange4 = comevent => event => {
+    this.setState({ [comevent]: event.target.value });
+  };
+  //年度・日付
   handleChange5 = event => {
     this.setState({ selectedValue: event.target.value });
   };
-
-  handleChange = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  //取引
+  handleChange6 = tradeinfo => event => {
+    this.setState({ [tradeinfo]: event.target.value });
   };
 
-  handleChange2 = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  //日付（開始）
+  handleChange7 = startdate => event => {
+    this.setState({ [startdate]: event.target.value });
   };
 
-  handleChange3 = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
-
-  handleChange4 = prop => event => {
-    this.setState({ [prop]: event.target.value });
-  };
-  handleChange6 = prop => event => {
-    this.setState({ [prop]: event.target.value });
+  //日付（終了）
+  handleChange8 = enddate => event => {
+    this.setState({ [enddate]: event.target.value });
   };
 
   handleMouseDownPassword = event => {
@@ -708,7 +729,9 @@ class ComCoinShokaiForm extends React.Component {
                   id="date"
                   label="日付（開始）"
                   type="date"
-                  defaultValue="2019-6-23"
+                  // defaultValue="2019-6-23"
+                  value={this.state.weightrange7}
+                  onchange={this.weightChange7}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true
@@ -718,7 +741,9 @@ class ComCoinShokaiForm extends React.Component {
                   id="date"
                   label="日付（終了）"
                   type="date"
-                  defaultValue="2019-6-23"
+                  // defaultValue="2019-6-23"
+                  value={this.state.weightrange8}
+                  onchange={this.weightChange8}
                   className={classes.textField}
                   InputLabelProps={{
                     shrink: true

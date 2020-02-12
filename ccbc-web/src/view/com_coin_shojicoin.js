@@ -432,22 +432,40 @@ class ComShojiCoinForm extends React.Component {
         if (err) {
           return;
         }
-        var resList = res.body.data;
-        var bccoin = String(res.body.bccoin);
 
         // 検索結果表示
-        this.setState({ resultList: resList });
-        this.state.bccoin = bccoin;
-        this.setState({ bccoin: bccoin });
-        this.setState({ shimei: res.body.shimei });
-        this.setState({ from_bcaccount: res.body.from_bcaccount });
+        this.state.resultList = res.body.data;
+        this.setState({ resultList: res.body.data });
 
-        for (var i in resList) {
-          var data = resList[i];
-          if (data.kengen_cd === "0") {
-            this.setState({ jimuId: data.id });
+        // グラフ表示情報設定
+        // 社員情報、使用コイン、受領コインの情報を一つのデータに設定
+        // グラフの座標用に、使用コインと受領コインの最大を取得
+        const data = [];
+        var maxgetcoin = 0;
+        for (var i in this.state.resultList) {
+          data.push({
+            name: this.state.resultList[i].shimei,
+            getcoin: Number(this.state.resultList[i].sakicoin)
+          });
+          if (maxgetcoin < Number(this.state.resultList[i].sakicoin)) {
+            maxgetcoin = Number(this.state.resultList[i].sakicoin);
           }
         }
+        this.setState({ data: data });
+
+        var maxgetcoingraph = 0;
+        var maxgetcoingraphcnt = 0;
+        var maxgetcoingraphcntdata = [];
+        if (maxgetcoin > 0) {
+          maxgetcoingraph = Math.ceil(maxgetcoin / 10000) * 10000;
+          maxgetcoingraphcnt = maxgetcoingraph / 5;
+          for (var i = 0; i <= maxgetcoingraph; i += maxgetcoingraphcnt) {
+            maxgetcoingraphcntdata.push(i);
+          }
+          this.state.maxgetcoingraphdata = maxgetcoingraphcntdata;
+        }
+        this.setState({ maxgetcoingraph: maxgetcoingraph });
+        this.setState({ maxgetcoingraphcntdata: maxgetcoingraphcntdata });
       });
   }
   // ----------------------------------------------------------------------
@@ -645,7 +663,8 @@ class ComShojiCoinForm extends React.Component {
                     xAxisId="use"
                     orientation="top"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
-                    domain={[0, 1000]} //軸の表示領域を指定
+                    // domain={[0, 1000]} //軸の表示領域を指定（モック用固定値）
+                    domain={[0, this.state.maxgetcoingraph]}
                     stroke="#000000"
                   />
                   <YAxis //Y軸に関する設定

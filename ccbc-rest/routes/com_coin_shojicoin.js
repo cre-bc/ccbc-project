@@ -47,7 +47,7 @@ async function finddata(req, res) {
  */
 router.post("/findshojicoin", (req, res) => {
   console.log("API : findshojicoin - start");
-  findshojicoindata(req, res);
+  findshojicoin(req, res);
   console.log("API : findshojicoin - end");
 });
 
@@ -58,11 +58,15 @@ router.post("/findshojicoin", (req, res) => {
  * @req {*} req
  * @res {*} res
  */
-async function findshojicoindata(req, res) {
+async function findshojicoin(req, res) {
   var resdatas = [];
   var resbccoin = [];
+  //社員リストの情報取得
   resdatas = await getshainList(req);
+  //贈与テーブルより、取引情報取得（所持コイン）
   resbccoin = await getshojicoinList(req);
+
+  // 使用コイン（motocoin）と受領コイン（sakicoin）はgetgraphcoinList（使用コインと受領コインのリスト）をgetgraphshainList（社員リスト）に紐づける
 
   // 社員が一意のリスト（resdata）をループ（所持コインは受領したコインとイコール）
   for (let i in resdatas) {
@@ -77,18 +81,22 @@ async function findshojicoindata(req, res) {
         sakicoin_sum += sakicoin;
       }
     }
-    ressakicoin[i] = sakicoin_sum;
+    // 社員に紐づく受領コインの合計をセット
+    resdatas[i].sakicoin = sakicoin_sum;
     sakicoin_sum = 0;
-  } //課題：上記のtohyo_shokai_nendoのように上記のループを行うと、下記のソートでつじつまが合わなくなる？（基本情報とコインの情報を一つにまとめたい）
-  //** webで設定したsort_graphにより所持コインをソート */
-  if ((sort_graph = "1")) {
+  }
+
+  // この時点で、社員リストを基としたresdataには、社員に紐づく所持コイン（sakicoin）が紐づいている
+
+  //リストボックスでコインのソートが選ばれている場合、並び替え
+  if ((request.body.sort_graph = "1")) {
     //所持コインの順にソート（昇順）
-    ressakicoin.sort(function(a, b) {
+    resdatas.sort(function(a, b) {
       if (a.sakicoin < b.sakicoin) return -1;
       if (a.sakicoin > b.sakicoin) return 1;
       return 0;
     });
-  } else if ((sort_graph = "2")) {
+  } else if ((request.body.sort_graph = "2")) {
     //所持コインの順にソート（降順）
     resdatas.sort(function(a, b) {
       if (a.sakicoin > b.sakicoin) return -1;
@@ -97,14 +105,10 @@ async function findshojicoindata(req, res) {
     });
   }
 
-  console.log(bccoin);
   console.log(resdatas);
-  console.log(shimei);
   res.json({
     status: true,
-    data: resdatas,
-    bccoin: bccoin,
-    shimei: shimei
+    data: resdatas
   });
 }
 
@@ -131,9 +135,9 @@ function getshainList(db, req) {
       ", tsha.shimei_kana" +
       "from" +
       "t_shain tsha" +
-      "where tsha.delete_flg = '0'";
-    ("and tsha.t_shain_pk <> '1'");
-    (" order by :sort_graph");
+      "where tsha.delete_flg = '0'" +
+      "and tsha.t_shain_pk <> '1'" +
+      " order by :sort_graph";
     db
       .query(sql, {
         replacements: {
@@ -217,8 +221,9 @@ function bctransactionsget() {
   });
 }
 
-// ----------------------------------------------------------------------
 // 以降、元からある関数
+
+// ----------------------------------------------------------------------
 /**
  * 社員取得用関数
  * @req {*} req
