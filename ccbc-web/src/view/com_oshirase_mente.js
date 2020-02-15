@@ -82,22 +82,6 @@ function getArray(array1) {
   return array2
 }
 
-// function desc(a, b, orderBy) {
-//   if (b[orderBy] < a[orderBy]) {
-//     return -1
-//   }
-//   if (b[orderBy] > a[orderBy]) {
-//     return 1
-//   }
-//   return 0
-// }
-
-// function getSorting(order, orderBy) {
-//   return order === 'desc'
-//     ? (a, b) => -desc(a, b, orderBy)
-//     : (a, b) => desc(a, b, orderBy)
-// }
-
 const columnData = [
   {
     id: 'notice_dt',
@@ -126,22 +110,14 @@ class EnhancedTableHead extends React.Component {
 
   render() {
     const {
-      // onSelectAllClick,
       order,
       orderBy
-      // numSelected,
-      // rowCount
     } = this.props
 
     return (
       <TableHead>
         <TableRow>
           <TableCell padding="checkbox">
-            {/* <Checkbox
-              indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={numSelected === rowCount}
-              onChange={onSelectAllClick}
-            /> */}
           </TableCell>
           {columnData.map(column => {
             return (
@@ -177,7 +153,6 @@ class EnhancedTableHead extends React.Component {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired
@@ -207,38 +182,6 @@ const toolbarStyles = theme => ({
     flex: '0 0 auto'
   }
 })
-
-// let EnhancedTableToolbar = props => {
-//   const { numSelected, classes } = props
-
-//   return (
-//     <Toolbar
-//       className={classNames(classes.root, {
-//         [classes.highlight]: numSelected > 0
-//       })}
-//     >
-//       <div className={classes.title}>
-//         {numSelected > 0 ? (
-//           <Typography color="inherit" variant="subheading">
-//             {numSelected} 件選択
-//           </Typography>
-//         ) : (
-//             <Typography variant="title" id="tableTitle">
-//               おしらせ一覧
-//           </Typography>
-//           )}
-//       </div>
-//       <div className={classes.spacer} />
-//     </Toolbar>
-//   )
-// }
-
-// EnhancedTableToolbar.propTypes = {
-//   classes: PropTypes.object.isRequired,
-//   numSelected: PropTypes.number.isRequired
-// }
-
-// EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
 
 const drawerWidth = 240
 
@@ -479,8 +422,6 @@ class ComOshiraseMenteForm extends React.Component {
       addFlg: true,
       Target_year: '',
       nendoList: [],
-      // order: 'asc',
-      // orderBy: 'name',
       page: 0,
       rowsPerPage: 5,
       checked: false,
@@ -1126,14 +1067,6 @@ class ComOshiraseMenteForm extends React.Component {
             </div>
             <div>
               {/* 追加ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenAdd}
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-              >
-                追加
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenAdd}
                 // variant="extendedFab"
@@ -1162,11 +1095,7 @@ class ComOshiraseMenteForm extends React.Component {
                     name="notice_dt"
                     label="日付"
                     type="date"
-                    // defaultValue="2019-05-24"
                     fullWidth
-                    // inputRef={input => {
-                    //   this.state.notice_dt = input
-                    // }}
                     onChange={this.handleChange_notice_dt.bind(this)}
                   />
                   <TextField
@@ -1174,11 +1103,7 @@ class ComOshiraseMenteForm extends React.Component {
                     id="title"
                     name="title"
                     label="件名(25文字)"
-                    // defaultValue="財界さっぽろ様の「企業特集」に掲載されました"
                     fullWidth
-                    // inputRef={input => {
-                    //   this.state.title = input
-                    // }}]
                     onChange={this.handleChange_title.bind(this)}
                   />
                   <TextField
@@ -1187,13 +1112,9 @@ class ComOshiraseMenteForm extends React.Component {
                     label="内容(1000文字)"
                     multiline
                     rows="4"
-                    // defaultValue="詳細は下記をご覧ください。"
                     className={classes.textField}
                     margin="normal"
                     fullWidth
-                    // inputRef={input => {
-                    //   this.state.comment = input
-                    // }}
                     onChange={this.handleChange_comment.bind(this)}
                   />
                 </DialogContent>
@@ -1205,7 +1126,6 @@ class ComOshiraseMenteForm extends React.Component {
                   </Button>
                   <Button
                     onClick={this.handleSubmit.bind(this)}
-                    // onClick={this.handleCloseAdd}
                     color="secondary">
                     決定
                   </Button>
@@ -1213,14 +1133,6 @@ class ComOshiraseMenteForm extends React.Component {
               </Dialog>
 
               {/* 編集ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenEdit}
-                variant="outlined"
-                color="primary"
-                className={classes.button}
-              >
-                編集
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenEdit}
                 // variant="extendedFab"
@@ -1240,9 +1152,6 @@ class ComOshiraseMenteForm extends React.Component {
                   おしらせの編集
                 </DialogTitle>
                 <DialogContent>
-                  {/* {this.state.resultList.map((n, id) => {
-                    // const isSelected = this.isSelected(id)
-                    return ( */}
                   <DialogContentText>
                     日付、件名、内容を入力してください。
                   </DialogContentText>
@@ -1275,15 +1184,12 @@ class ComOshiraseMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_comment.bind(this)}
                   />
-                  {/* ) */}
-                  {/* })} */}
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">
                     戻る
                   </Button>
                   <Button
-                    // onClick={this.handleCloseEdit}
                     color="secondary"
                     onClick={this.handleSubmitEdit.bind(this)}
                   >
@@ -1293,14 +1199,6 @@ class ComOshiraseMenteForm extends React.Component {
               </Dialog>
 
               {/* 削除ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenDelete}
-                variant="outlined"
-                className={classes.button}
-              >
-                削除
-              </Button> */}
-
               <Button
                 onClick={this.handleClickOpenDelete}
                 variant="contained"
@@ -1322,7 +1220,6 @@ class ComOshiraseMenteForm extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                    {/* コメント */}
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -1330,7 +1227,6 @@ class ComOshiraseMenteForm extends React.Component {
                     いいえ
                   </Button>
                   <Button
-                    // onClick={this.handleCloseDelete}
                     onClick={this.handleSubmitDelete.bind(this)}
                     color="secondary"
                     autoFocus
