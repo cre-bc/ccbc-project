@@ -99,7 +99,7 @@ app.use("/shain_kensaku", shain_kensakuRouter);
 app.use("/login_group", loginGroupRouter);
 app.use("/com_coin_shokai", com_coin_shokaiRouter);
 app.use("/com_coin_shokai_graph", com_coin_shokai_graphRouter);
-app.use("/com_coin_shokai", com_coin_shojicoinRouter);
+app.use("/com_coin_shojicoin", com_coin_shojicoinRouter);
 
 // ComComCoin
 // TODO : ここにComComCoin用のAPIを追加していく

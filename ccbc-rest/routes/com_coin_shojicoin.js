@@ -51,6 +51,10 @@ router.post("/findshojicoin", (req, res) => {
   console.log("API : findshojicoin - end");
 });
 
+function newFunction(req) {
+  console.log(req);
+}
+
 // ----------------------------------------------------------------------
 /**
  * データ取得用関数（グラフ情報取得）
@@ -61,10 +65,16 @@ router.post("/findshojicoin", (req, res) => {
 async function findshojicoin(req, res) {
   var resdatas = [];
   var resbccoin = [];
+
+  console.log("API : findshojicoin →中身");
+
   //社員リストの情報取得
   resdatas = await getshainList(req);
   //贈与テーブルより、取引情報取得（所持コイン）
   resbccoin = await getshojicoinList(req);
+
+  console.log(resdatas);
+  console.log(resbccoin);
 
   // 使用コイン（motocoin）と受領コイン（sakicoin）はgetgraphcoinList（使用コインと受領コインのリスト）をgetgraphshainList（社員リスト）に紐づける
 
@@ -123,11 +133,15 @@ function getshainList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
     // ソート順を設定
+
+    console.log(req);
+
     if ((req.body.sort_graph = "5")) {
       req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) ASC";
     } else if ((req.body.sort_graph = "6")) {
       req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) DESC";
     }
+
     var sql =
       "select" +
       "tsha.t_shain_pk" +

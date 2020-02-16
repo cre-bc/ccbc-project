@@ -409,6 +409,7 @@ class ComShojiCoinForm extends React.Component {
   // 選んだソートキーの情報を設定する
   handleChange = sort_graph => event => {
     this.setState({ [sort_graph]: event.target.value });
+    this.find();
   };
   // ----------------------------------------------------------------------
   /** コンポーネントのマウント時処理 */
@@ -425,6 +426,11 @@ class ComShojiCoinForm extends React.Component {
       this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
     // ----------------------------------------------------------------------
+    this.find();
+  }
+  // データ取得、グラフ座標軸情報作成
+
+  find = () => {
     request
       .post(restdomain + "/com_coin_shojicoin/findshojicoin")
       .send(this.state)
@@ -467,8 +473,10 @@ class ComShojiCoinForm extends React.Component {
         this.setState({ maxgetcoingraph: maxgetcoingraph });
         this.setState({ maxgetcoingraphcntdata: maxgetcoingraphcntdata });
       });
-  }
+  };
+
   // ----------------------------------------------------------------------
+
   handleDrawerOpen = () => {
     this.setState({ open: true });
   };
@@ -629,7 +637,7 @@ class ComShojiCoinForm extends React.Component {
                 }}
               >
                 {ranges1.map(option => (
-                  <MenuItem key={option.value} value={option.value}>
+                  <MenuItem key={option.label} value={option.value}>
                     {option.label}
                   </MenuItem>
                 ))}
