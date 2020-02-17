@@ -48,45 +48,55 @@ import NativeSelect from '@material-ui/core/NativeSelect'
 import AddIcon from '@material-ui/icons/Add'
 import Icon from '@material-ui/core/Icon'
 import EditIcon from '@material-ui/icons/Edit'
+import moment from 'moment'
+import 'moment/locale/ja'
+import request from 'superagent'
 
-let counter = 0
-function createData(date, name, tytle, calories) {
-  counter += 1
-  return { id: counter, date, name, tytle, calories }
-}
+const restdomain = require('../common/constans.js').restdomain
 
-function desc(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
-    return -1
+function getNendo(val) {
+  var result = '日付文字列が不正です。' //日付不正時のメッセージ
+  try {
+    var y = Number(val.substr(0, 4))
+    var m = Number(val.substr(4, 2))
+    var d = Number(val.substr(6, 2))
+    var dt = new Date(y, m - 1, d)
+    if (dt.getFullYear() == y && dt.getMonth() == m - 1 && dt.getDate() == d) {
+      if (m < 4) {
+        //4月はじまり
+        result = y - 1
+      } else {
+        result = y
+      }
+    }
+    return result
+  } catch (ex) {
+    return result
   }
-  if (b[orderBy] > a[orderBy]) {
-    return 1
-  }
-  return 0
 }
 
-function getSorting(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => -desc(a, b, orderBy)
-    : (a, b) => desc(a, b, orderBy)
+function getArray(array1) {
+  var array2 = array1.filter(function (x, i, self) {
+    return self.indexOf(x) === i
+  })
+  return array2
 }
 
-const rows = [
+const columnData = [
   {
-    id: 'name',
+    id: 'notice_dt',
     numeric: false,
     disablePadding: true,
     label: '日付'
   },
   {
-    id: 'tytle',
+    id: 'title',
     numeric: false,
     disablePadding: true,
     label: '件名'
   },
-  // { id: 'calorie', numeric: true, disablePadding: false, label: '内容' }
   {
-    id: 'calorie',
+    id: 'comment',
     numeric: false,
     disablePadding: true,
     label: '内容'
@@ -100,43 +110,35 @@ class EnhancedTableHead extends React.Component {
 
   render() {
     const {
-      onSelectAllClick,
       order,
-      orderBy,
-      numSelected,
-      rowCount
+      orderBy
     } = this.props
 
     return (
       <TableHead>
         <TableRow>
           <TableCell padding="checkbox">
-            <Checkbox
-              indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={numSelected === rowCount}
-              onChange={onSelectAllClick}
-            />
           </TableCell>
-          {rows.map(row => {
+          {columnData.map(column => {
             return (
               <TableCell
-                key={row.id}
-                numeric={row.numeric}
-                padding={row.disablePadding ? 'dense' : 'none'}
-                sortDirection={orderBy === row.id ? order : false}
+                key={column}
+                numeric={column.numeric}
+                padding={column.disablePadding ? 'dense' : 'none'}
+                sortDirection={orderBy === column.id ? order : false}
                 style={{ fontSize: '120%' }}
               >
                 <Tooltip
                   title="Sort"
-                  placement={row.numeric ? 'bottom-end' : 'bottom-start'}
+                  placement={column.numeric ? 'bottom-end' : 'bottom-start'}
                   enterDelay={300}
                 >
                   <TableSortLabel
-                    active={order === row.id}
+                    active={order === column.id}
                     direction={orderBy}
-                    onClick={this.createSortHandler(row.id)}
+                    onClick={this.createSortHandler(column.id)}
                   >
-                    {row.label}
+                    {column.label}
                   </TableSortLabel>
                 </Tooltip>
               </TableCell>
@@ -151,7 +153,6 @@ class EnhancedTableHead extends React.Component {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired
@@ -164,13 +165,13 @@ const toolbarStyles = theme => ({
   highlight:
     theme.palette.type === 'light'
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark
+      },
   spacer: {
     flex: '1 1 100%'
   },
@@ -181,53 +182,6 @@ const toolbarStyles = theme => ({
     flex: '0 0 auto'
   }
 })
-
-let EnhancedTableToolbar = props => {
-  const { numSelected, classes } = props
-
-  return (
-    <Toolbar
-      className={classNames(classes.root, {
-        [classes.highlight]: numSelected > 0
-      })}
-    >
-      <div className={classes.title}>
-        {numSelected > 0 ? (
-          <Typography color="inherit" variant="subheading">
-            {numSelected} 件選択
-          </Typography>
-        ) : (
-          <Typography variant="title" id="tableTitle">
-            おしらせ一覧
-          </Typography>
-        )}
-      </div>
-      <div className={classes.spacer} />
-      {/* <div className={classes.actions}>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div> */}
-    </Toolbar>
-  )
-}
-
-EnhancedTableToolbar.propTypes = {
-  classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired
-}
-
-EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
 
 const drawerWidth = 240
 
@@ -242,6 +196,11 @@ const styles = theme => ({
   root3: {
     display: 'flex',
     flexWrap: 'wrap'
+  },
+  root4: {
+    ...theme.mixins.gutters(),
+    paddingTop: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit * 2,
   },
   appFrame: {
     zIndex: 1,
@@ -429,81 +388,59 @@ class ComOshiraseMenteForm extends React.Component {
     anchor: 'left',
     order: 'asc',
     orderBy: 'name',
-    selected: [],
-    data: [
-      createData(
-        20190627,
-        '2019/06/27',
-        '2021年度卒業者対象のインターンシップ情報を掲載いたしました',
-        '2021年度卒業者対象のインターンシップ情報を掲載いたしました。詳細は下記をご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190625,
-        '2019/06/25',
-        'SSLサーバー証明書 月額版サービス「wwwあり/なし」両方のhttps表示に対応しました',
-        '各種関連サービスにおきまして提供内容の拡張を行いました。これにより、wwwあり/なし両方のURLでお客様のホームぺージをhttpsで表示することができるようになる証明書がご利用いただけます。'
-      ),
-      createData(
-        20190624,
-        '2019/06/24',
-        'お問い合わせ窓口受付時間変更のお知らせ',
-        '2019年6月24日（月）より、技術内容の問い合わせ窓口の受付時間を変更いたします。'
-      ),
-      createData(
-        20190620,
-        '2019/06/20',
-        'Webサーババージョン2への切替えに関するご案内',
-        'サーババージョン1環境で公開中のホームページ閲覧に関する重要な内容となりますので、内容をご確認いただき是非サーババージョン2環境への切替えをご検討いただきますよう、お願い申し上げます。'
-      ),
-      createData(
-        20190526,
-        '2019/05/26',
-        '事業内容に2018年度の実績を追加しました',
-        '事業内容に2018年度の実績を追加しました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190416,
-        '2019/04/16',
-        '財界さっぽろ様の「企業特集」に掲載されました',
-        '財界さっぽろ様の「企業特集」に掲載されました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/'
-      ),
-      createData(
-        20190101,
-        '2019/01/01',
-        'Windows 10（バージョン 1809　ビルド 17763）の対応について',
-        'Windows 10(バージョン 1809　ビルド 17763)の対応状況について、ご案内させていただきます。'
-      ),
-      createData(
-        20190310,
-        '2019/03/10',
-        'サーバメンテナンスのお知らせ',
-        '下記日程におきまして、メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
-        20190626,
-        '2019/06/26',
-        'メンテナンスのお知らせ',
-        '下記日程におきまして、メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
-        20190610,
-        '2019/06/10',
-        '緊急メンテナンスのお知らせ',
-        '下記日程におきまして、緊急メンテナンス作業を実施致します。これに伴いサービス停止の影響が発生致します。詳細につきましては、下記をご参照ください。ご迷惑をお掛け致しますが、ご了承くださいますようよろしくお願い申し上げます。'
-      ),
-      createData(
-        20190607,
-        '2019/06/07',
-        '管理者機能・ご利用メニュー障害発生のご報告',
-        '下記の時間帯、以下障害が発生しておりました。現在は復旧しております。ご迷惑をお掛けいたしました。深くお詫び申し上げます。	2019年6月6日（木）1時25分～同日2時6分　※24時間表記'
-      )
-    ],
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
+    userid: null,
+    password: null,
+    tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
+    configCoin: 0,
+    submitFlg: true,
+    alertOpen: false,
+    dialogOpen: false,
+    tokenId: null,
+    msg: null,
+    loadFlg: false
+  }
+
+  constructor(props) {
+    super(props)
+    const params = this.props.match
+    this.state = {
+      status: true,
+      loaded: false,
+      mode: params.params.mode,
+      readonly: false,
+      selected: [],
+      resultList: [],
+      resultAllList: [],
+      open: false,
+      anchor: 'left',
+      anchorEl: null,
+      addFlg: true,
+      Target_year: '',
+      nendoList: [],
+      page: 0,
+      rowsPerPage: 5,
+      checked: false,
+      name: [],
+      renban: null,
+      notice_dt: '',
+      title: '',
+      comment: ''
+    }
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
 
     for (var i in loginInfos) {
@@ -515,6 +452,42 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
+      })
+
   }
 
   handleDrawerOpen = () => {
@@ -574,48 +547,270 @@ class ComOshiraseMenteForm extends React.Component {
       order = 'asc'
     }
 
-    this.setState({ order, orderBy })
-  }
+    const resultList =
+      order === 'desc'
+        ? this.state.resultList.sort(
+          (a, b) => (b[orderBy] < a[orderBy] ? -1 : 1)
+        )
+        : this.state.resultList.sort(
+          (a, b) => (a[orderBy] < b[orderBy] ? -1 : 1)
+        )
 
-  handleSelectAllClick = (event, checked) => {
-    if (checked) {
-      this.setState(state => ({ selected: state.data.map(n => n.id) }))
-      return
-    }
+    this.setState({ resultList, order, orderBy })
     this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleClick = (event, id) => {
     const { selected } = this.state
     const selectedIndex = selected.indexOf(id)
     let newSelected = []
-
+    // if (selectedIndex === -1) {
+    //   newSelected = newSelected.concat(selected, id)
+    // } else if (selectedIndex === 0) {
+    //   newSelected = newSelected.concat(selected.slice(1))
+    // } else if (selectedIndex === selected.length - 1) {
+    //   newSelected = newSelected.concat(selected.slice(0, -1))
+    // } else if (selectedIndex > 0) {
+    //   newSelected = newSelected.concat(
+    //     selected.slice(0, selectedIndex),
+    //     selected.slice(selectedIndex + 1)
+    //   )
+    // }
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id)
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1))
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1))
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      )
+      newSelected.unshift(id)
     }
-
     this.setState({ selected: newSelected })
+
+    let check = false
+    check = this.state.selected.indexOf(id) !== -1
+    if (check == true) {
+      this.setState({ renban: null })
+      this.setState({ notice_dt: null })
+      this.setState({ title: null })
+      this.setState({ comment: null })
+    } else {
+      if (this.state.page == 1) id = id + 5
+      if (this.state.page == 2) id = id + 10
+      this.setState({ renban: this.state.resultList[id].renban })
+      this.setState({ notice_dt: this.state.resultList[id].notice_dt })
+      this.setState({ title: this.state.resultList[id].title })
+      this.setState({ comment: this.state.resultList[id].comment })
+    }
   }
 
   handleChangePage = (event, page) => {
     this.setState({ page })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
   }
 
   handleChangeRowsPerPage = event => {
     this.setState({ rowsPerPage: event.target.value })
   }
 
-  handleChange = name => event => {
-    this.setState({ [name]: event.target.value })
+  handleChange = event => {
+    this.setState({ [event.target.name]: event.target.value })
+    this.state.targetYear = Number(event.target.value)
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
+  }
+
+  handleSubmit() {
+    request
+      .post(restdomain + '/com_oshirase_mente/create')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          return
+        }
+        this.setState({ openAdd: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    //var yyyy = new Date().getFullYear()
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
+      })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
+  }
+
+  handleSubmitEdit() {
+    request
+      .post(restdomain + '/com_oshirase_mente/edit')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        this.setState({ openEdit: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
+      })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
+  }
+
+  handleSubmitDelete() {
+    request
+      .post(restdomain + '/com_oshirase_mente/delete')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        this.setState({ openDelete: false })
+      })
+
+    // 現在年の取得。取得した年を初期表示する
+    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+    this.setState({ Target_year: yyyy })
+    this.state.targetYear = yyyy
+
+    request
+      .post(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 検索結果表示
+        this.setState({ resultList: res.body.data })
+      })
+
+    // 年度表示
+    request
+      .get(restdomain + '/com_oshirase_mente/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return
+        // 年度リスト生成
+        var nendoList = []
+        for (var i in res.body.data) {
+          var r = res.body.data[i]
+          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+          var nendo = getNendo(d)
+          nendoList.push(nendo)
+        }
+        if (
+          this.state.resultList.length === 0 ||
+          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+        ) {
+          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+        }
+        // 年度重複削除
+        var nendoList2 = getArray(nendoList)
+        this.state.nendoList = nendoList2
+        this.setState({ nendoList: nendoList2 })
+      })
+    this.setState({ selected: [] })
+    this.setState({ renban: null })
+    this.setState({ notice_dt: null })
+    this.setState({ title: null })
+    this.setState({ comment: null })
+  }
+
+  handleChange_notice_dt(e) {
+    this.setState({ notice_dt: e.target.value })
+  }
+
+  handleChange_title(e) {
+    this.setState({ title: e.target.value })
+  }
+
+  handleChange_comment(e) {
+    this.setState({ comment: e.target.value })
   }
 
   isSelected = id => this.state.selected.indexOf(id) !== -1
@@ -626,15 +821,15 @@ class ComOshiraseMenteForm extends React.Component {
       anchor,
       open,
       open2,
-      data,
       order,
       orderBy,
       selected,
       rowsPerPage,
-      page
+      page,
+      resultList
     } = this.state
     const emptyRows =
-      rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage)
+      rowsPerPage - Math.min(rowsPerPage, resultList.length - page * rowsPerPage)
     const loginLink = props => <Link to="../" {...props} />
 
     const drawer = (
@@ -651,8 +846,8 @@ class ComOshiraseMenteForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -678,8 +873,8 @@ class ComOshiraseMenteForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -758,61 +953,63 @@ class ComOshiraseMenteForm extends React.Component {
             <div className={classes.root3}>
               {/* 年度選択 */}
               <FormControl className={classes.formControl}>
-                {/* <InputLabel htmlFor="age-native-simple" /> */}
-                <InputLabel shrink htmlFor="age-native-simple">
+                <InputLabel shrink htmlFor="Target_year-simple">
                   年度
                 </InputLabel>
                 <Select
                   native
-                  value={this.state.age}
-                  onChange={this.handleChange('age')}
-                  // inputProps={{
-                  //   name: 'age',
-                  //   id: 'age-native-simple'
-                  // }}
-                  input={<Input name="age" id="age-native-label-placeholder" />}
+                  id="Target_year-simple"
+                  value={this.state.Target_year}
+                  onChange={this.handleChange}
+                  inputProps={{
+                    name: 'Target_year',
+                    id: 'Target_year-simple'
+                  }}
                 >
-                  <option value="">2019年</option>
-                  <option value={10}>2018年</option>
-                  <option value={20}>2017年</option>
+                  {this.state.nendoList.map(n => {
+                    return <option value={n}>{n}年</option>
+                  })}
                 </Select>
               </FormControl>
             </div>
             <div>
               {/* 一覧 */}
               <Paper className={classes.root2}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <Typography className={classes.root4} elevation={1} variant="headline" component="h3">
+                  お知らせ一覧
+                </Typography>
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table} aria-labelledby="tableTitle">
                     <EnhancedTableHead
                       numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
-                      onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
-                      rowCount={data.length}
+                      rowCount={this.state.resultList.length}
                     />
                     <TableBody>
-                      {data
-                        .sort(getSorting(order, orderBy))
+                      {this.state.resultList
+                        // .sort(getSorting(order, orderBy))
                         .slice(
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map(n => {
-                          const isSelected = this.isSelected(n.id)
+                        .map((n, id) => {
+                          const isSelected = this.isSelected(id)
                           return (
                             <TableRow
                               hover
-                              onClick={event => this.handleClick(event, n.id)}
+                              onClick={event => this.handleClick(event, id)}
                               role="checkbox"
                               aria-checked={isSelected}
                               tabIndex={-1}
-                              key={n.id}
+                              key={n}
                               selected={isSelected}
                             >
                               <TableCell padding="checkbox">
-                                <Checkbox checked={isSelected} />
+                                <Checkbox
+                                  checked={isSelected}
+                                />
                               </TableCell>
                               <TableCell
                                 component="th"
@@ -820,7 +1017,9 @@ class ComOshiraseMenteForm extends React.Component {
                                 padding="dense"
                                 style={{ width: '10%', fontSize: '120%' }}
                               >
-                                {n.name}
+                                {moment(new Date(n.notice_dt)).format(
+                                  'YYYY/MM/DD'
+                                )}
                               </TableCell>
                               <TableCell
                                 component="th"
@@ -828,7 +1027,7 @@ class ComOshiraseMenteForm extends React.Component {
                                 padding="dense"
                                 style={{ width: '30%', fontSize: '120%' }}
                               >
-                                {n.tytle}
+                                {n.title}
                               </TableCell>
                               <TableCell
                                 // numeric
@@ -837,11 +1036,8 @@ class ComOshiraseMenteForm extends React.Component {
                                 padding="dense"
                                 style={{ width: '60%', fontSize: '120%' }}
                               >
-                                {n.calories}
+                                {n.comment}
                               </TableCell>
-                              {/* <TableCell numeric>{n.fat}</TableCell>
-                              <TableCell numeric>{n.carbs}</TableCell>
-                              <TableCell numeric>{n.protein}</TableCell> */}
                             </TableRow>
                           )
                         })}
@@ -855,7 +1051,7 @@ class ComOshiraseMenteForm extends React.Component {
                 </div>
                 <TablePagination
                   component="div"
-                  count={data.length}
+                  count={resultList.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   backIconButtonProps={{
@@ -871,14 +1067,6 @@ class ComOshiraseMenteForm extends React.Component {
             </div>
             <div>
               {/* 追加ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenAdd}
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-              >
-                追加
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenAdd}
                 // variant="extendedFab"
@@ -903,49 +1091,48 @@ class ComOshiraseMenteForm extends React.Component {
                   <TextField
                     autoFocus
                     margin="dense"
-                    id="name1"
+                    id="notice_dt"
+                    name="notice_dt"
                     label="日付"
                     type="date"
-                    defaultValue="2019-05-24"
                     fullWidth
+                    onChange={this.handleChange_notice_dt.bind(this)}
                   />
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="title"
+                    name="title"
                     label="件名(25文字)"
-                    defaultValue="財界さっぽろ様の「企業特集」に掲載されました"
                     fullWidth
+                    onChange={this.handleChange_title.bind(this)}
                   />
                   <TextField
-                    id="multiline-static"
+                    id="comment"
+                    name="comment"
                     label="内容(1000文字)"
                     multiline
                     rows="4"
-                    defaultValue="詳細は下記をご覧ください。"
                     className={classes.textField}
                     margin="normal"
                     fullWidth
+                    onChange={this.handleChange_comment.bind(this)}
                   />
                 </DialogContent>
                 <DialogActions>
-                  <Button onClick={this.handleCloseAdd} color="primary">
+                  <Button
+                    onClick={this.handleCloseAdd}
+                    color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseAdd} color="secondary">
+                  <Button
+                    onClick={this.handleSubmit.bind(this)}
+                    color="secondary">
                     決定
                   </Button>
                 </DialogActions>
               </Dialog>
 
               {/* 編集ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenEdit}
-                variant="outlined"
-                color="primary"
-                className={classes.button}
-              >
-                編集
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenEdit}
                 // variant="extendedFab"
@@ -974,46 +1161,44 @@ class ComOshiraseMenteForm extends React.Component {
                     id="name2"
                     label="日付"
                     type="date"
-                    defaultValue="2019-05-24"
+                    defaultValue={this.state.notice_dt}
                     fullWidth
+                    onChange={this.handleChange_notice_dt.bind(this)}
                   />
                   <TextField
                     margin="normal"
                     id="tytle2"
                     label="件名(25文字)"
-                    defaultValue="事業内容に2018年度の実績を追加しました"
+                    defaultValue={this.state.title}
                     fullWidth
+                    onChange={this.handleChange_title.bind(this)}
                   />
                   <TextField
                     id="multiline-static2"
                     label="内容(1000文字)"
                     multiline
                     rows="4"
-                    defaultValue="事業内容に2018年度の実績を追加しました。詳細は下記ページをご覧ください。https://www.hokkaido-ima.co.jp/"
+                    defaultValue={this.state.comment}
                     className={classes.textField}
                     margin="normal"
                     fullWidth
+                    onChange={this.handleChange_comment.bind(this)}
                   />
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseEdit} color="secondary">
+                  <Button
+                    color="secondary"
+                    onClick={this.handleSubmitEdit.bind(this)}
+                  >
                     決定
                   </Button>
                 </DialogActions>
               </Dialog>
 
               {/* 削除ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenDelete}
-                variant="outlined"
-                className={classes.button}
-              >
-                削除
-              </Button> */}
-
               <Button
                 onClick={this.handleClickOpenDelete}
                 variant="contained"
@@ -1035,7 +1220,6 @@ class ComOshiraseMenteForm extends React.Component {
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                    {/* コメント */}
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -1043,7 +1227,7 @@ class ComOshiraseMenteForm extends React.Component {
                     いいえ
                   </Button>
                   <Button
-                    onClick={this.handleCloseDelete}
+                    onClick={this.handleSubmitDelete.bind(this)}
                     color="secondary"
                     autoFocus
                   >
