@@ -26,6 +26,8 @@ import Avatar from '@material-ui/core/Avatar'
 
 import Search from '@material-ui/icons/Search'
 import EditIcon from '@material-ui/icons/Edit'
+import NoteAdd from '@material-ui/icons/NoteAdd'
+import Star from '@material-ui/icons/Star'
 
 import Chip from '@material-ui/core/Chip'
 import { Manager, Target, Popper } from 'react-popper'
@@ -326,7 +328,7 @@ const styles = theme => ({
         overflowX: "hidden"
     },
     articleCard: {
-        padding: 50,
+        padding: 40,
         marginBottom: 20,
         marginRight: 10
     },
@@ -582,47 +584,111 @@ class ArticleForm extends React.Component {
 
                         <div className={classes.articleTable}>
                             <div className={classes.articleHeaderTable}>
-                                <span>ライフハック</span>
-                                <Button
-                                    // onClick={this.handleClickOpenEdit}
-                                    variant="raised"
-                                    aria-label="Search"
-                                    className={classes.button}>
-                                    <Search className={classes.extendedIcon} />
-                                    検索
-                                </Button>
-                                <Button
-                                    // onClick={this.handleClickOpenEdit}
-                                    variant="raised"
-                                    aria-label="New"
-                                    className={classes.button}>
-                                    <EditIcon className={classes.extendedIcon} />
-                                    投稿
-                                </Button>
+                                <div style={{ float: "center" }}>
+                                    <span style={{ fontWeight: "bold", fontSize: 24 }}>
+                                        {"イベント情報"}
+                                    </span>
+                                </div>
+                                <div style={{ float: "right" }}>
+                                    <Button
+                                        // onClick={this.handleClickOpenEdit}
+                                        variant="raised"
+                                        aria-label="Search"
+                                        className={classes.button}>
+                                        <Search className={classes.extendedIcon} />
+                                        検索
+                                    </Button>
+                                    <Button
+                                        // onClick={this.handleClickOpenEdit}
+                                        variant="raised"
+                                        aria-label="New"
+                                        className={classes.button}>
+                                        <NoteAdd className={classes.extendedIcon} />
+                                        投稿
+                                    </Button>
+                                </div>
                             </div>
                             <div className={classes.articleCardTable}>
                                 <Card className={classes.articleCard}>
-                                    <div>記事のタイトル</div>
                                     <div>
-                                        a
-                                        <br /><br /><br />
-                                        b
-                                    </div>
-                                </Card>
-                                <Card className={classes.articleCard}>
-                                    <div>記事のタイトル</div>
-                                    <div>
-                                        a
-                                        <br /><br /><br />
-                                        b
-                                    </div>
-                                </Card>
-                                <Card className={classes.articleCard}>
-                                    <div>記事のタイトル</div>
-                                    <div>
-                                        a
-                                        <br /><br /><br />
-                                        b
+                                        {/* Header */}
+                                        <div>
+                                            {/* 投稿日時・顔写真 */}
+                                            <div style={{ float: "left", paddingRight: 50 }}>
+                                                <div style={{ textAlign: "center", paddingBottom: 10 }}>
+                                                    <span style={{ color: "gray", fontSize: 12 }}>
+                                                        {"2020/02/17"}<br />{"10:15"}
+                                                    </span>
+                                                </div>
+                                                <div style={{ align: "center", paddingLeft: 10 }}>
+                                                    <Avatar src={"/images/man1.jpg"} style={{ width: 50 }} />
+                                                </div>
+                                            </div>
+                                            {/* 名前・タイトル・ハッシュタグ */}
+                                            <div style={{ float: "left" }}>
+                                                <div style={{ paddingBottom: 10 }}>
+                                                    <span style={{ fontSize: 20 }}>
+                                                        {"清宮　幸太郎"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span style={{ color: "blue", fontSize: 20, fontWeight: "bold" }}>
+                                                        {"『北海道日本ハムファイターズ開幕応援キャンペーン』のご案内"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span style={{ color: "blue", fontSize: 14, paddingLeft: 10 }}>
+                                                        {"#スポーツ　#野球"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {/* 各種アイコン */}
+                                            <div style={{ float: "right", align: "right" }}>
+                                                <div style={{ float: "left", paddingRight: 10 }}>
+                                                    <EditIcon style={{ fontSize: 40 }} />
+                                                </div>
+                                                <div style={{ float: "left", paddingRight: 10 }}>
+                                                    <div>
+                                                        <img
+                                                            src="/images/good-on.png"
+                                                            width="35"
+                                                            height="35"
+                                                        />
+                                                    </div>
+                                                    <div style={{ marginTop: -10 }}>
+                                                        <span style={{ color: "red", fontSize: 12, marginTop: -30, paddingTop: -10 }}>
+                                                            いいね
+                                                    </span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ float: "left" }}>
+                                                    <Star style={{ fontSize: 40, color: "orange" }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* Detail */}
+                                        <div style={{ paddingTop: 30, clear: "both" }}>
+                                            <span >
+                                                日本ハム株式会社では、北海道限定企画として北海道日本ハムファイターズの今シーズンの活躍に期待を込めて『北海道日本ハムファイターズ開幕応援キャンペーン』を実施中です。<br />
+                                                キャンペーン前半の2月度は、3月26日(木)東北楽天ゴールデンイーグルス戦でのペア観戦チケットと体験イベントを賞品とした『開幕シリーズをみんなで応援しま賞』プレゼント企画。<br />
+                                                又、B賞『食べて応援しま賞』プレゼント企画は、お楽しみグッズやニッポンハム商品詰合わせが当たるグッズプレゼント企画となっており、2月～3月末日までの期間でゆっくりとご応募頂けます。<br />
+                                                期間中にお買い上げいただいたニッポンハムの対象商品（税込）500円分以上を含むお買い上げレシートを応募はがき又は、スマートフォンでご応募ください。<br />
+                                                キャンペーンの詳しい内容は、道内のスーパーマーケットや食料品店などの各店頭でもお知らせいたしております。<br /><br />
+                                                日本ハムの対象商品を食べて、ドシドシご応募ください。<br />
+                                            </span>
+                                        </div>
+                                        {/* Image */}
+                                        <div style={{ paddingTop: 30 }}>
+                                            <img
+                                                src="/images/article_sample.jpg"
+                                                alt="サンプル"
+                                                align="top"
+                                                width="500"
+                                                // height="30"
+                                                height="auto"
+                                                style={{ marginTop: 2 }}
+                                            />
+                                        </div>
                                     </div>
                                 </Card>
                             </div>
