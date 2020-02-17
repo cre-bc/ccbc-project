@@ -9,6 +9,7 @@ import Toolbar from '@material-ui/core/Toolbar'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import MenuItem from '@material-ui/core/MenuItem'
 import Card from '@material-ui/core/Card'
 import Typography from '@material-ui/core/Typography'
@@ -52,6 +53,11 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 const restdomain = require('../common/constans.js').restdomain
 
 const drawerWidth = 240
+
+const CHAR_LEN_TITLE = 30
+const CHAR_LEN_HASHTAG = 10
+const CHAR_LEN_CONTENTS = 1000
+const HASHTAG_UPPER_LIMIT = 3
 
 const styles = theme => ({
     root: {
@@ -363,7 +369,9 @@ class ArticleForm extends React.Component {
         tokenId: null,
         msg: null,
         loadFlg: false,
-
+        openEntryDialog: false,
+        openSearchDialog: false,
+        imageSrc: "",
 
         categoryList: [],
         current_kiji_category_pk: "",
@@ -446,6 +454,26 @@ class ArticleForm extends React.Component {
     }
     /** -- ↑ 共通 ↑　-- */
 
+    openEntry = () => {
+        this.setState({ openEntryDialog: true })
+    }
+    closeEntry = () => {
+        this.setState({ openEntryDialog: false })
+    }
+    imageSelect = () => {
+        this.setState({ imageSrc: "sample" })
+    }
+    imageDelete = () => {
+        this.setState({ imageSrc: "" })
+    }
+
+    openSearch = () => {
+        this.setState({ openSearchDialog: true })
+    }
+    closeSearch = () => {
+        this.setState({ openSearchDialog: false })
+    }
+
     /** ダイアログ終了 */
     handleClose = () => {
         this.setState({ alertOpen: false })
@@ -512,8 +540,10 @@ class ArticleForm extends React.Component {
                                 <Target>
                                     <div ref={node => { this.target1 = node }} >
                                         <Chip
-                                            avatar={<Avatar src={restUrl + `uploads/${this.state.imageFileName}`} />}
-                                            label={this.state.shimei + '　' + this.state.coin}
+                                            // avatar={<Avatar src={restUrl + `uploads/${this.state.imageFileName}`} />}
+                                            avatar={<Avatar src={`/images/man1.jpg`} />}
+                                            // label={this.state.shimei + '　' + this.state.coin}
+                                            label={"清宮幸太郎"}
                                             className={classes.chip}
                                             aria-label="More"
                                             aria-haspopup="true"
@@ -558,48 +588,199 @@ class ArticleForm extends React.Component {
                         })}>
                         <div className={classes.drawerHeader} />
 
+                        <Dialog
+                            open={this.state.openSearchDialog}
+                            onClose={this.closeSearch}
+                            aria-labelledby="form-dialog-title"
+                            fullWidth={true}
+                        // maxWidth="md"
+                        >
+                            <DialogTitle id="form-dialog-title">記事検索</DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    autoFocus
+                                    margin="normal"
+                                    id="searchCondYear"
+                                    name="searchCondYear"
+                                    type="number"
+                                    inputProps={{
+                                        min: 2000,
+                                        max: 2100,
+                                        width: 500
+                                    }}
+                                    label={`投稿年`}
+                                // onChange={this.handleChange_notice_dt.bind(this)}
+                                />
+                                <TextField
+                                    id="searchCondKeyword"
+                                    name="searchCondKeyword"
+                                    margin="normal"
+                                    fullWidth
+                                    label={`検索キーワード（スペース区切りで複数条件可）`}
+                                // onChange={this.handleChange_title.bind(this)}
+                                />
+                                <TextField
+                                    id="searchCondHashtag"
+                                    name="searchCondHashtag"
+                                    margin="normal"
+                                    fullWidth
+                                    label={`タグ（スペース区切りで複数条件可）`}
+                                // onChange={this.handleChange_title.bind(this)}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button
+                                    onClick={this.closeSearch}
+                                    color="primary">
+                                    検索
+                                </Button>
+                                <Button
+                                    onClick={this.closeSearch}
+                                    color="secondary">
+                                    検索条件クリア
+                                </Button>
+                                <Button
+                                    onClick={this.closeSearch}
+                                    color="">
+                                    キャンセル
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
+                        <Dialog
+                            open={this.state.openEntryDialog}
+                            onClose={this.closeEntry}
+                            aria-labelledby="form-dialog-title"
+                            fullWidth={true}
+                            maxWidth="md"
+                        >
+                            <DialogTitle id="form-dialog-title">記事投稿</DialogTitle>
+                            <DialogContent>
+                                <TextField
+                                    autoFocus
+                                    margin="normal"
+                                    id="title"
+                                    name="title"
+                                    label={`タイトル（${CHAR_LEN_TITLE}文字以内）`}
+                                    fullWidth
+                                // onChange={this.handleChange_notice_dt.bind(this)}
+                                />
+                                <TextField
+                                    id="hashtag_str"
+                                    name="hashtag_str"
+                                    margin="normal"
+                                    label={`タグ（1タグ${CHAR_LEN_HASHTAG}文字以内、スペース区切りで${HASHTAG_UPPER_LIMIT}つまで #は不要）`}
+                                    fullWidth
+                                // onChange={this.handleChange_title.bind(this)}
+                                />
+                                <TextField
+                                    id="contents"
+                                    name="contents"
+                                    margin="normal"
+                                    label={`記事（${CHAR_LEN_CONTENTS}文字以内）`}
+                                    multiline
+                                    rows="10"
+                                    // className={classes.textField}
+                                    fullWidth
+                                // onChange={this.handleChange_comment.bind(this)}
+                                />
+                                <Button
+                                    onClick={this.imageSelect}
+                                    color="primary"
+                                    style={{ marginTop: 20 }}>
+                                    画像選択
+                                </Button>
+                                <Button
+                                    onClick={this.imageDelete}
+                                    color="secondary"
+                                    style={{ marginTop: 20 }}>
+                                    画像削除
+                                </Button>
+                                {this.state.imageSrc !== "" && (
+                                    <img
+                                        src="/images/article_sample2.jpg"
+                                        alt="サンプル"
+                                        align="top"
+                                        // width="500"
+                                        // height="30"
+                                        // height="auto"
+                                        style={{ maxWidth: "90%" }}
+                                    />
+                                )}
+                            </DialogContent>
+                            <DialogActions>
+                                <Button
+                                    onClick={this.closeEntry}
+                                    color="primary">
+                                    投稿する
+                                </Button>
+                                <Button
+                                    onClick={this.closeEntry}
+                                    color="">
+                                    キャンセル
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
                         <div className={classes.categoryTable}>
                             <List component="nav" aria-label="mailbox folders">
-                                <ListItem button>
+                                <ListItem button divider>
                                     <ListItemText primary="ライフハック" />
                                 </ListItem>
-                                <Divider />
                                 <ListItem button divider>
                                     <ListItemText primary="おすすめの本" />
+                                    <ListItemSecondaryAction>
+                                        <div style={{ textAlign: "center", borderRadius: "50%", width: 20, height: 20, backgroundColor: "#FF3333", color: "white", fontSize: 12 }}>
+                                            <span >
+                                                {"12"}
+                                            </span>
+                                        </div>
+                                    </ListItemSecondaryAction>
                                 </ListItem>
-                                <ListItem button>
+                                <ListItem button divider style={{ backgroundColor: "lightgray" }}>
                                     <ListItemText primary="イベント情報" />
                                 </ListItem>
-                                <Divider />
-                                <ListItem button>
+                                <ListItem button divider>
                                     <ListItemText primary="美味しいお店" />
                                 </ListItem>
-                                <Divider />
-                                <ListItem button>
+                                <ListItem button divider>
                                     <ListItemText primary="その他" />
+                                    <ListItemSecondaryAction>
+                                        <div style={{ textAlign: "center", borderRadius: "50%", width: 20, height: 20, backgroundColor: "#FF3333", color: "white", fontSize: 12 }}>
+                                            <span >
+                                                {"3"}
+                                            </span>
+                                        </div>
+                                    </ListItemSecondaryAction>
                                 </ListItem>
-                                <Divider />
+                                <ListItem button divider>
+                                    <ListItemText primary="募金先の詳細はこちら" />
+                                </ListItem>
                             </List>
                         </div>
 
                         <div className={classes.articleTable}>
                             <div className={classes.articleHeaderTable}>
+                                <div style={{ float: "left" }}>
+                                    <span>{" "}</span>
+                                </div>
                                 <div style={{ float: "center" }}>
                                     <span style={{ fontWeight: "bold", fontSize: 24 }}>
                                         {"イベント情報"}
                                     </span>
                                 </div>
-                                <div style={{ float: "right" }}>
+                                <div style={{ float: "right", marginTop: -40 }}>
                                     <Button
-                                        // onClick={this.handleClickOpenEdit}
+                                        onClick={this.openSearch}
                                         variant="raised"
                                         aria-label="Search"
                                         className={classes.button}>
                                         <Search className={classes.extendedIcon} />
                                         検索
                                     </Button>
+                                    {"　"}
                                     <Button
-                                        // onClick={this.handleClickOpenEdit}
+                                        onClick={this.openEntry}
                                         variant="raised"
                                         aria-label="New"
                                         className={classes.button}>
@@ -608,6 +789,7 @@ class ArticleForm extends React.Component {
                                     </Button>
                                 </div>
                             </div>
+
                             <div className={classes.articleCardTable}>
                                 <Card className={classes.articleCard}>
                                     <div>
@@ -617,7 +799,7 @@ class ArticleForm extends React.Component {
                                             <div style={{ float: "left", paddingRight: 50 }}>
                                                 <div style={{ textAlign: "center", paddingBottom: 10 }}>
                                                     <span style={{ color: "gray", fontSize: 12 }}>
-                                                        {"2020/02/17"}<br />{"10:15"}
+                                                        {"2020/02/17"}<br />{"15:40"}
                                                     </span>
                                                 </div>
                                                 <div style={{ align: "center", paddingLeft: 10 }}>
@@ -628,7 +810,7 @@ class ArticleForm extends React.Component {
                                             <div style={{ float: "left" }}>
                                                 <div style={{ paddingBottom: 10 }}>
                                                     <span style={{ fontSize: 20 }}>
-                                                        {"清宮　幸太郎"}
+                                                        {"清宮幸太郎"}
                                                     </span>
                                                 </div>
                                                 <div>
@@ -668,7 +850,7 @@ class ArticleForm extends React.Component {
                                         </div>
                                         {/* Detail */}
                                         <div style={{ paddingTop: 30, clear: "both" }}>
-                                            <span >
+                                            <span>
                                                 日本ハム株式会社では、北海道限定企画として北海道日本ハムファイターズの今シーズンの活躍に期待を込めて『北海道日本ハムファイターズ開幕応援キャンペーン』を実施中です。<br />
                                                 キャンペーン前半の2月度は、3月26日(木)東北楽天ゴールデンイーグルス戦でのペア観戦チケットと体験イベントを賞品とした『開幕シリーズをみんなで応援しま賞』プレゼント企画。<br />
                                                 又、B賞『食べて応援しま賞』プレゼント企画は、お楽しみグッズやニッポンハム商品詰合わせが当たるグッズプレゼント企画となっており、2月～3月末日までの期間でゆっくりとご応募頂けます。<br />
@@ -683,10 +865,89 @@ class ArticleForm extends React.Component {
                                                 src="/images/article_sample.jpg"
                                                 alt="サンプル"
                                                 align="top"
-                                                width="500"
+                                                // width="500"
                                                 // height="30"
-                                                height="auto"
-                                                style={{ marginTop: 2 }}
+                                                // height="auto"
+                                                style={{ maxWidth: "90%" }}
+                                            />
+                                        </div>
+                                    </div>
+                                </Card>
+                                <Card className={classes.articleCard}>
+                                    <div>
+                                        {/* Header */}
+                                        <div>
+                                            {/* 投稿日時・顔写真 */}
+                                            <div style={{ float: "left", paddingRight: 50 }}>
+                                                <div style={{ textAlign: "center", paddingBottom: 10 }}>
+                                                    <span style={{ color: "gray", fontSize: 12 }}>
+                                                        {"2020/02/14"}<br />{"9:30"}
+                                                    </span>
+                                                </div>
+                                                <div style={{ align: "center", paddingLeft: 10 }}>
+                                                    <Avatar src={"/images/man1.jpg"} style={{ width: 50 }} />
+                                                </div>
+                                            </div>
+                                            {/* 名前・タイトル・ハッシュタグ */}
+                                            <div style={{ float: "left" }}>
+                                                <div style={{ paddingBottom: 10 }}>
+                                                    <span style={{ fontSize: 20 }}>
+                                                        {"宮西尚生"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span style={{ color: "blue", fontSize: 20, fontWeight: "bold" }}>
+                                                        {"日本ハムファイターズ　春季キャンプのダイジェストグッズを発売！"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span style={{ color: "blue", fontSize: 14, paddingLeft: 10 }}>
+                                                        {"#スポーツ　#野球"}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            {/* 各種アイコン */}
+                                            <div style={{ float: "right", align: "right" }}>
+                                                <div style={{ float: "left", paddingRight: 10 }}>
+                                                    {/* <EditIcon style={{ fontSize: 40 }} /> */}
+                                                </div>
+                                                <div style={{ float: "left", paddingRight: 10, marginTop: 3 }}>
+                                                    <div>
+                                                        <img
+                                                            src="/images/good-off.png"
+                                                            width="35"
+                                                            height="35"
+                                                        />
+                                                    </div>
+                                                    {/* <div style={{ marginTop: -10 }}>
+                                                        <span style={{ color: "red", fontSize: 12, marginTop: -30, paddingTop: -10 }}>
+                                                            いいね
+                                                        </span>
+                                                    </div> */}
+                                                </div>
+                                                <div style={{ float: "left" }}>
+                                                    <Star style={{ fontSize: 40, color: "gray" }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* Detail */}
+                                        <div style={{ paddingTop: 30, clear: "both" }}>
+                                            <span>
+                                                北海道日本ハムファイターズでは、試合での出来事や記録を商品化した”最もホットなグッズ”ダイジェストグッズの受注販売を2020年も行います。<br />
+                                                春季キャンプダイジェストグッズ第1弾は2月1日(土)～2月7日(金)の期間中に撮影した全員集合写真、新人集合写真、ビヤヌエバ選手、バーへイゲン投手、新キャプテン・西川遥輝選手、栗山英樹監督が登場。<br />
+                                                2月20日(木)23:59までオフィシャルオンラインストア、オフィシャルショップでお申し込みいただけます。<br />
+                                            </span>
+                                        </div>
+                                        {/* Image */}
+                                        <div style={{ paddingTop: 30 }}>
+                                            <img
+                                                src="/images/article_sample2.jpg"
+                                                alt="サンプル"
+                                                align="top"
+                                                // width="500"
+                                                // height="30"
+                                                // height="auto"
+                                                style={{ maxWidth: "90%" }}
                                             />
                                         </div>
                                     </div>
