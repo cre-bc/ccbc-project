@@ -133,7 +133,8 @@ function getshainList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
     // ソート順を設定
-
+    console.log("API : getshainList →中身");
+    console.log(req.body.sort_graph);
     console.log(req);
 
     if ((req.body.sort_graph = "5")) {
