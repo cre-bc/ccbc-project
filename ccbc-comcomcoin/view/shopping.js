@@ -1,25 +1,28 @@
-/**
- * ★★★ TODOメモ ★★★
- * ・募金先の選択処理が未実装（どのタイミングで選択させる？？）・・・ this.state.m_bokin_pkに設定すれば更新処理はOK
- * ・スキャナ画面にテストボタンを配置しているので削除する
- */
+import React from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableHighlight
+} from "react-native";
+import { Card, Divider } from "react-native-elements";
+import * as Permissions from "expo-permissions";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
+import AlertDialog from "./components/AlertDialog";
+import ConfirmDialog from "./components/ConfirmDialog";
+import RNPickerSelect from "react-native-picker-select";
+import Spinner from "react-native-loading-spinner-overlay";
 
-import React from 'react'
-import { StyleSheet, Text, View, Image, ScrollView, TouchableHighlight } from "react-native"
-import { Card, Divider } from "react-native-elements"
-import * as Permissions from "expo-permissions"
-import { BarCodeScanner } from "expo-barcode-scanner"
-import BaseComponent from './components/BaseComponent'
-import InAppHeader from "./components/InAppHeader"
-import AlertDialog from './components/AlertDialog'
-import ConfirmDialog from './components/ConfirmDialog'
-
-const restdomain = require('./common/constans.js').restdomain
+const restdomain = require("./common/constans.js").restdomain;
 
 export default class Shopping extends BaseComponent {
   constructor(props) {
-    super(props)
-    this.inputRefs = {}
+    super(props);
+    this.inputRefs = {};
     this.state = {
       mode: "camera",
       hasCameraPermission: null,
@@ -34,14 +37,16 @@ export default class Shopping extends BaseComponent {
       confirmDialogVisible: false,
       confirmDialogMessage: "",
       isScaning: false,
-    }
-    this.props = props
+      isProcessing: false
+    };
+    this.props = props;
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.setState({ isProcessing: true });
     // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
+    await this.getLoginInfo();
 
     // カメラの使用許可
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
@@ -50,75 +55,77 @@ export default class Shopping extends BaseComponent {
     });
 
     // 初期表示情報取得
-    this.findShopping()
-  }
+    this.findShopping();
+
+    this.setState({ isProcessing: false });
+  };
 
   /** 画面初期表示情報取得 */
   findShopping = async () => {
-    await fetch(restdomain + '/shopping/find', {
-      method: 'POST',
+    await fetch(restdomain + "/shopping/find", {
+      method: "POST",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" })
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
           // 結果が取得できない場合は終了
-          if (typeof json.bokinList === 'undefined') {
-            return
+          if (typeof json.bokinList === "undefined") {
+            return;
           }
-          var dataList = json.bokinList
-          var coin = json.coin
+          var dataList = json.bokinList;
+          var coin = json.coin;
 
-          // 募金先リスト設定
-          var bokinList = []
+          // 寄付先リスト設定
+          var bokinList = [];
           for (var i in dataList) {
             bokinList.push({
               label: dataList[i].bokin_nm,
               value: dataList[i].m_bokin_pk,
               key: dataList[i].m_bokin_pk
-            })
+            });
           }
 
           this.setState({
             bokinList: bokinList,
             haveCoin: coin
-          })
+          });
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch(error => console.error(error));
+  };
 
   /** QRコードのスキャン処理 */
   handleBarCodeScanned = async ({ type, data }) => {
-    console.log("barcode type:" + type + " \ndata: " + data)
+    console.log("barcode type:" + type + " \ndata: " + data);
 
-    this.setState({ isScaning: true })
-    this.state.isScaning = true
-    this.state.qrcode = data
+    this.setState({ isScaning: true });
+    this.state.isScaning = true;
+    this.state.qrcode = data;
 
-    await fetch(restdomain + '/shopping/checkQRCode', {
-      method: 'POST',
+    await fetch(restdomain + "/shopping/checkQRCode", {
+      method: "POST",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" })
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
-          this.setState({ isScaning: false })
-          this.state.isScaning = false
+          this.setState({ isScaning: false });
+          this.state.isScaning = false;
 
           // 結果が取得できない場合は終了
-          if (typeof json.status === 'undefined') {
-            return
+          if (typeof json.status === "undefined") {
+            return;
           } else if (json.status === false) {
-            alert("有効なQRコードではありません")
-            this.cancelCamera()
-            return
+            alert("有効なQRコードではありません");
+            this.cancelCamera();
+            return;
           }
 
           // 購入リストに商品マスタのデータを追加
@@ -128,15 +135,15 @@ export default class Shopping extends BaseComponent {
             shohin_nm1: json.shohinInfo.shohin_nm1,
             shohin_nm2: json.shohinInfo.shohin_nm2,
             coin: json.shohinInfo.coin,
-            quantity: 1,
-          }
-          var buyList = this.state.buyList
-          buyList.push(shohinInfo)
+            quantity: 1
+          };
+          var buyList = this.state.buyList;
+          buyList.push(shohinInfo);
 
-          var itemCnt = this.state.itemCnt + 1
+          var itemCnt = this.state.itemCnt + 1;
 
           // 合計コイン数を算出
-          var totalCoin = this.calcTotalCoin(buyList)
+          var totalCoin = this.calcTotalCoin(buyList);
 
           // ショッピングカートに戻る
           this.setState({
@@ -144,108 +151,172 @@ export default class Shopping extends BaseComponent {
             totalCoin: totalCoin,
             itemCnt: itemCnt,
             mode: "cart"
-          })
+          });
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch(error => console.error(error));
+  };
 
   /** 合計コイン数を算出 */
   calcTotalCoin(buyList) {
-    var totalCoin = 0
+    var totalCoin = 0;
     for (var i = 0; i < buyList.length; i++) {
-      totalCoin += buyList[i].coin
+      totalCoin += buyList[i].coin;
     }
-    return totalCoin
+    return totalCoin;
   }
 
   cancelCamera() {
     // ショッピングカートに戻る
     this.setState({
       mode: "cart"
-    })
+    });
   }
 
   moveCamera() {
     // スキャナを表示
     this.setState({
       mode: "camera"
-    })
+    });
   }
 
   /** 支払ボタン押下 */
   onClickPay = async () => {
-    // 確認ダイアログを表示（YESの場合、pay()を実行）
-    this.setState({
-      confirmDialogVisible: true,
-      confirmDialogMessage: "支払いを確定します。よろしいですか？"
-    })
-  }
+    // 各種入力チェック
+    if (
+      // 所持コイン不足チェック
+      this.state.haveCoin < this.state.totalCoin
+    ) {
+      alertMessage = "コインが不足しています";
+      this.setState({
+        alertDialogVisible: true,
+        alertDialogMessage: alertMessage
+      });
+    } else if (
+      // 寄付先未入力チェック
+      typeof this.state.m_bokin_pk === "undefined" ||
+      this.state.m_bokin_pk === null ||
+      this.state.m_bokin_pk === 0 ||
+      (this.state.m_bokin_pk != null && this.state.m_bokin_pk.length === 0)
+    ) {
+      alertMessage = "寄付先が未入力です";
+      this.setState({
+        alertDialogVisible: true,
+        alertDialogMessage: alertMessage
+      });
+    } else {
+      // 確認ダイアログを表示（YESの場合、pay()を実行）
+      this.setState({
+        confirmDialogVisible: true,
+        confirmDialogMessage: "支払いを確定します。よろしいですか？"
+      });
+    }
+  };
 
   /** 支払更新処理 */
   pay = async () => {
-    this.setState({ confirmDialogVisible: false })
+    this.setState({ isProcessing: true });
+    this.setState({ confirmDialogVisible: false });
 
-    await fetch(restdomain + '/shopping/pay', {
-      method: 'POST',
-      mode: 'cors',
+    await fetch(restdomain + "/shopping/pay", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" })
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
-      .then(function (json) {
-        if (typeof json.status === 'undefined' || json.status === false) {
-          var alertMessage = ""
-          if (typeof json.coin === 'undefined') {
-            alertMessage = "支払処理でエラーが発生しました"
+      .then(
+        function (json) {
+          if (typeof json.status === "undefined" || json.status === false) {
+            var alertMessage = "";
+            if (typeof json.coin === "undefined") {
+              alertMessage = "支払処理でエラーが発生しました";
+            } else {
+              this.setState({ haveCoin: json.coin });
+              alertMessage = "コインが不足しています";
+            }
+            this.setState({
+              alertDialogVisible: true,
+              alertDialogMessage: alertMessage
+            });
           } else {
-            this.setState({ haveCoin: json.coin })
-            alertMessage = "コインが不足しています"
+            // ホーム画面に戻る
+            this.props.navigation.navigate("Home");
+            this.setState({ isProcessing: false });
           }
-          this.setState({
-            alertDialogVisible: true,
-            alertDialogMessage: alertMessage
-          })
-        } else {
-          // ホーム画面に戻る
-          this.props.navigation.navigate('Home')
-        }
-      }.bind(this))
-      .catch((error) => alert(error))
-  }
+        }.bind(this)
+      )
+      .catch(error => alert(error));
+  };
 
   /** 購入リストより１件削除 */
   deleteShohin(i) {
-    var buyList = this.state.buyList
-    buyList.splice(i, 1)
-    var totalCoin = this.calcTotalCoin(buyList)
+    var buyList = this.state.buyList;
+    buyList.splice(i, 1);
+    var totalCoin = this.calcTotalCoin(buyList);
 
     this.setState({
       buyList: buyList,
       itemCnt: this.state.itemCnt - 1,
       totalCoin: totalCoin
-    })
+    });
   }
 
   render() {
-    const { hasCameraPermission } = this.state
+    const { hasCameraPermission } = this.state;
     if (hasCameraPermission === null) {
-      return <Text>カメラにアクセスを許可しますか？</Text>
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 100
+          }}
+        >
+          <Text style={{ fontSize: 22, color: "gray" }}>
+            カメラにアクセスを許可しますか？
+          </Text>
+        </View>
+      );
     }
+
     if (hasCameraPermission === false) {
-      return <Text>カメラにアクセスできません</Text>
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 100
+          }}
+        >
+          <Text style={{ fontSize: 22, color: "gray" }}>
+            カメラにアクセスできません
+          </Text>
+        </View>
+      );
     }
 
     if (this.state.mode == "camera") {
       // --- スキャナモード ---
       return (
         <BarCodeScanner
-          onBarCodeScanned={this.state.isScaning ? undefined : this.handleBarCodeScanned}
+          onBarCodeScanned={
+            this.state.isScaning ? undefined : this.handleBarCodeScanned
+          }
           style={[StyleSheet.absoluteFill, styles.container]}
         >
           <View style={styles.layerTop}>
+            {/* TODO : テスト用にQRコードを読み込んだ状態を再現 */}
+            {/* <Text
+              onPress={() =>
+                this.handleBarCodeScanned({ type: "QR", data: "CCC_0001" })
+              }
+              style={styles.cancel}
+            >
+              テスト
+            </Text> */}
             <Text style={styles.description}>
               ＱＲコードを読み込んでください
             </Text>
@@ -259,30 +330,31 @@ export default class Shopping extends BaseComponent {
             <Text onPress={() => this.cancelCamera()} style={styles.cancel}>
               キャンセル
             </Text>
-            {/* TODO : テスト用にQRコードを読み込んだ状態を再現 */}
-            <Text onPress={() => this.handleBarCodeScanned({ type: "QR", data: "CCC_0001" })} style={styles.cancel}>
-              テスト
-            </Text>
           </View>
         </BarCodeScanner>
-      )
-
+      );
     } else if (this.state.mode == "cart" || this.state.mode == "input") {
       // --- ショッピングカートモード ---
       return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: 'ivory' }}>
+          {/* -- 処理中アニメーション -- */}
+          <Spinner
+            visible={this.state.isProcessing}
+            textContent={"Processing…"}
+            textStyle={styles.spinnerTextStyle}
+          />
           {/* -- 共有ヘッダ -- */}
           <InAppHeader navigate={this.props.navigation.navigate} />
 
           {/* -- 所持コイン、購入合計コイン・個数 -- */}
-          <View style={{ flex: 1, marginTop: 20 }}>
+          <View style={{ flex: 1.2, marginTop: 20 }}>
             <View style={{ marginLeft: 20 }}>
               <View>
                 <View>
                   <View>
                     <Text style={{ fontSize: 22, color: "gray" }}>
                       所持コイン
-                        </Text>
+                    </Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 2 }}>
@@ -291,24 +363,22 @@ export default class Shopping extends BaseComponent {
                       </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
-                      <Text style={{ textAlign: "left", fontSize: 26 }}>
-                        {' '}
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" "}
                         コイン
-                          </Text>
+                      </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
-                      <Text style={{ fontSize: 26 }}>{'　'}</Text>
+                      <Text style={{ fontSize: 26 }}>{"　"}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 26 }}>{'　'}</Text>
+                      <Text style={{ fontSize: 24 }}>{"　"}</Text>
                     </View>
                   </View>
                 </View>
                 <View>
                   <View>
-                    <Text style={{ fontSize: 22, color: "gray" }}>
-                      合計
-                        </Text>
+                    <Text style={{ fontSize: 22, color: "gray" }}>合計</Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 2 }}>
@@ -317,10 +387,10 @@ export default class Shopping extends BaseComponent {
                       </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
-                      <Text style={{ textAlign: "left", fontSize: 26 }}>
-                        {' '}
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" "}
                         コイン
-                          </Text>
+                      </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
                       <Text style={{ textAlign: "right", fontSize: 26 }}>
@@ -328,8 +398,8 @@ export default class Shopping extends BaseComponent {
                       </Text>
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ textAlign: "left", fontSize: 26 }}>
-                        {' '}
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" "}
                         個
                       </Text>
                     </View>
@@ -340,13 +410,13 @@ export default class Shopping extends BaseComponent {
           </View>
 
           {/* -- カート内容 -- */}
-          <View style={{ flex: 3, marginTop: 20 }}>
+          <View style={{ flex: 2.8, marginTop: 20 }}>
             <View style={{ flexDirection: "row" }}>
               <View style={{ marginLeft: 20 }}>
                 <View>
                   <Text style={{ fontSize: 22, color: "gray" }}>
                     カートの内容
-                    </Text>
+                  </Text>
                 </View>
               </View>
             </View>
@@ -355,69 +425,109 @@ export default class Shopping extends BaseComponent {
                 <Card containerStyle={{ padding: 0 }}>
                   {this.state.buyList.map((slist, i) => {
                     return (
-                      <View key={i} style={{ flex: 1, flexDirection: "row" }}>
-
-                        <View style={{ flex: 6 }}>
-                          <Text style={{ fontSize: 26 }}>
-                            {slist.shohin_nm1}
-                          </Text>
-                          <Text style={{ fontSize: 26 }}>
-                            {slist.shohin_nm2}
-                          </Text>
-                          <Text style={{ fontSize: 22 }}>
-                            {slist.coin} コイン
-                          </Text>
-                        </View>
-
-                        <TouchableHighlight onPress={() => this.deleteShohin(i)}>
-                          <View style={{ flex: 1, flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                            <Image
-                              source={require('./../images/icons8-waste-48.png')}
-                            />
+                      <View key={i}>
+                        <View style={{ flex: 1, flexDirection: "row" }}>
+                          <View style={{ flex: 6 }}>
+                            <Text style={{ fontSize: 26 }}>
+                              {slist.shohin_nm1}
+                            </Text>
+                            <Text style={{ fontSize: 26 }}>
+                              {slist.shohin_nm2}
+                            </Text>
+                            <Text style={{ fontSize: 22 }}>
+                              {slist.coin} コイン
+                            </Text>
                           </View>
-                        </TouchableHighlight>
 
-                        <View style={{ marginTop: 0, marginBottom: 0 }}>
-                          <Divider style={{ backgroundColor: "lightgray" }} />
+                          <TouchableHighlight
+                            onPress={() => this.deleteShohin(i)}
+                          >
+                            <View
+                              style={{
+                                flex: 1,
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center"
+                              }}
+                            >
+                              <Image
+                                source={require("./../images/icons8-waste-48.png")}
+                              />
+                            </View>
+                          </TouchableHighlight>
                         </View>
+                        <Divider style={{ backgroundColor: "lightgray" }} />
                       </View>
-                    )
+                    );
                   })}
                 </Card>
               </View>
             </ScrollView>
           </View>
 
+          {/* -- 寄付先 -- */}
+          <View style={{ marginLeft: 20, marginTop: 5 }}>
+            <View>
+              <Text style={{ fontSize: 22, color: "gray" }}>寄付先</Text>
+            </View>
+          </View>
+          <View>
+            <RNPickerSelect
+              placeholder={{
+                label: "【寄付先を選択してください】",
+                value: null
+              }}
+              items={this.state.bokinList}
+              onValueChange={value => {
+                this.setState({
+                  m_bokin_pk: value
+                });
+              }}
+              //onUpArrow={() => {
+              //  this.inputRefs.name.focus()
+              //}}
+              //onDownArrow={() => {
+              //  this.inputRefs.picker2.togglePicker()
+              //}}
+              style={{ ...pickerSelectStyles }}
+              value={this.state.m_bokin_pk}
+              ref={el => {
+                this.inputRefs.picker = el;
+              }}
+            />
+          </View>
+
           {/* -- ボタン -- */}
-          <View style={{ flex: 1, flexDirection: "row", marginTop: 60 }}>
+          <View style={{ flex: 1, flexDirection: "row", marginTop: 20 }}>
             <View style={{ flex: 1 }}>
               <TouchableHighlight onPress={() => this.moveCamera()}>
                 <View style={styles.shopbtnLine}>
                   <View style={{ flex: 1, alignItems: "flex-end" }}>
                     <Image
-                      source={require('./../images/icons8-shopping-cart-24_white.png')}
+                      source={require("./../images/icons8-shopping-cart-24_white.png")}
                     />
                   </View>
                   <View style={styles.shopbtnTitleView}>
                     <Text style={styles.shopbtnTitleText}>
-                      続けて{'\n'}買い物する
+                      続けて{"\n"}買い物する
                     </Text>
                   </View>
                 </View>
               </TouchableHighlight>
             </View>
             <View style={{ flex: 1 }}>
-              <TouchableHighlight onPress={() => this.onClickPay()} disabled={(this.state.itemCnt === 0 ? true : false)}>
+              <TouchableHighlight
+                onPress={() => this.onClickPay()}
+                disabled={this.state.itemCnt === 0 ? true : false}
+              >
                 <View style={styles.paybtnLine}>
                   <View style={{ flex: 1, alignItems: "flex-end" }}>
                     <Image
-                      source={require('./../images/icons8-purse-24_white.png')}
+                      source={require("./../images/icons8-purse-24_white.png")}
                     />
                   </View>
                   <View style={styles.paybtnTitleView}>
-                    <Text style={styles.paybtnTitleText}>
-                      支払いする
-                    </Text>
+                    <Text style={styles.paybtnTitleText}>支払いする</Text>
                   </View>
                 </View>
               </TouchableHighlight>
@@ -429,14 +539,20 @@ export default class Shopping extends BaseComponent {
             modalVisible={this.state.confirmDialogVisible}
             message={this.state.confirmDialogMessage}
             handleYes={this.pay.bind(this)}
-            handleNo={() => { this.setState({ confirmDialogVisible: false }) }}
-            handleClose={() => { this.setState({ confirmDialogVisible: false }) }}
+            handleNo={() => {
+              this.setState({ confirmDialogVisible: false });
+            }}
+            handleClose={() => {
+              this.setState({ confirmDialogVisible: false });
+            }}
           />
           {/* -- メッセージダイアログ -- */}
           <AlertDialog
             modalVisible={this.state.alertDialogVisible}
             message={this.state.alertDialogMessage}
-            handleClose={() => { this.setState({ alertDialogVisible: false }) }}
+            handleClose={() => {
+              this.setState({ alertDialogVisible: false });
+            }}
           />
         </View>
       );
@@ -445,6 +561,32 @@ export default class Shopping extends BaseComponent {
 }
 
 const opacity = "rgba(0, 0, 0, .6)";
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 22,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black"
+  },
+  inputAndroid: {
+    fontSize: 22,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black"
+  }
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

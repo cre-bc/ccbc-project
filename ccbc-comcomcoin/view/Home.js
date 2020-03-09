@@ -75,8 +75,9 @@ export default class Home extends BaseComponent {
           renban: item.renban
         })}
       >
-        <Image style={{ height: 180, width: windowWidth }}
-          resizeMode="contain"
+        <Image style={{ height: windowWidth * 9 / 16, width: windowWidth }}
+          // resizeMode="contain"
+          resizeMode="cover"
           source={{ uri: restdomain + `/uploads/advertise/${item.file_path}` }}
         />
       </TouchableOpacity>
@@ -85,7 +86,7 @@ export default class Home extends BaseComponent {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "ivory" }}>
         {/* -- 処理中アニメーション -- */}
         <Spinner
           visible={this.state.isProcessing}
@@ -93,204 +94,217 @@ export default class Home extends BaseComponent {
           textStyle={styles.spinnerTextStyle}
         />
 
-        <View style={[{ flex: 0.15 }]}>
+        <View style={[{ flex: 0.4 }]}>
           <Text />
         </View>
 
-        {/* -- 広告 -- */}
-        <View style={{ flex: 0.95, flexDirection: 'row' }}>
-          {this.state.adList.length > 0 && (
-            <View style={styles.container}>
-              <Carousel
-                data={this.state.adList}
-                firstItem={0}
-                layout={'default'}
-                renderItem={this.renderItem}
-                onSnapToItem={index => {
-                  this.setState({ activeSlide: index })
-                }}
-                itemWidth={windowWidth}
-                sliderWidth={windowWidth}
-                containerCustomStyle={styles.carousel}
-                slideStyle={{ flex: 1 }}
-                loop={true}
-                autoplay={true}
-              />
-              <View>
-                <Pagination
-                  dotsLength={this.state.adList.length}
-                  activeDotIndex={this.state.activeSlide}
-                  containerStyle={{ paddingVertical: 5 }}
-                  dotStyle={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    marginHorizontal: 8,
-                    backgroundColor: 'rgba(200, 200, 200, 0.92)'
-                  }}
-                  inactiveDotStyle={
-                    {}
-                  }
-                  inactiveDotOpacity={0.4}
-                  inactiveDotScale={0.6}
-                />
-              </View>
+        {/* コンテンツ */}
+        <View style={{ flex: 8, flexDirection: 'row' }}>
+          <ScrollView>
+
+            {/* -- 広告 -- */}
+            <View style={{ flexDirection: 'row' }}>
+              {this.state.adList.length > 0 && (
+                <View style={styles.container}>
+                  <Carousel
+                    data={this.state.adList}
+                    firstItem={0}
+                    layout={'default'}
+                    renderItem={this.renderItem}
+                    onSnapToItem={index => {
+                      this.setState({ activeSlide: index })
+                    }}
+                    itemWidth={windowWidth}
+                    sliderWidth={windowWidth}
+                    containerCustomStyle={styles.carousel}
+                    slideStyle={{ flex: 1 }}
+                    loop={true}
+                    autoplay={true}
+                  />
+                  <View>
+                    <Pagination
+                      dotsLength={this.state.adList.length}
+                      activeDotIndex={this.state.activeSlide}
+                      containerStyle={{ paddingVertical: 5 }}
+                      dotStyle={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        marginHorizontal: 8,
+                        backgroundColor: 'rgba(200, 200, 200, 0.92)'
+                      }}
+                      inactiveDotStyle={
+                        {}
+                      }
+                      inactiveDotOpacity={0.4}
+                      inactiveDotScale={0.6}
+                    />
+                  </View>
+                </View>
+              )}
             </View>
-          )}
-        </View>
 
-        {/* -- お知らせ -- */}
-        <View style={{ flex: 0.1, backgroundColor: 'rgba(255, 136, 0, 0.92)', flexDirection: 'row', alignItems: 'center' }}>
-          <Image resizeMode="contain" source={require('./../images/icons8-post-box-24.png')} />
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-            {' '}お知らせ
-          </Text>
-          <Text style={{ color: 'white', fontSize: 14, position: 'absolute', right: 0 }}
-            onPress={() => this.props.navigation.navigate('HomeInfoList')} >
-            もっと見る>
-          </Text>
-        </View>
-        <View style={[{ flex: 0.3 }]}>
-          {/* お知らせの件数分、繰り返し（最大3件） */}
-          {this.state.infoList.map((item, i) => {
-            return (
-              <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 15, marginTop: 0 }} key={i}>
-                {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
+            {/* -- お知らせ -- */}
+            <View style={styles.section}>
+              <Image resizeMode="contain" source={require('./../images/icons8-post-box-24.png')} />
+              <Text style={styles.sectionText}>
+                {' '}お知らせ
               </Text>
-            )
-          })}
-        </View>
+              <Text style={styles.sectionMoreText}
+                onPress={() => this.props.navigation.navigate('HomeInfoList')} >
+                もっと見る>
+              </Text>
+            </View>
+            <View>
+              {/* お知らせの件数分、繰り返し（最大3件） */}
+              {this.state.infoList.map((item, i) => {
+                return (
+                  <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 18, marginTop: 0, marginBottom: 3 }} key={i}>
+                    {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
+                  </Text>
+                )
+              })}
+              {this.state.infoList.length === 0 && (
+                <Text />
+              )}
+            </View>
 
-        {/* -- 最新の記事 -- */}
-        <View style={{ flex: 0.1, backgroundColor: 'rgba(255, 136, 0, 0.92)', flexDirection: 'row', alignItems: 'center' }}>
-          <Image resizeMode="contain" source={require('./../images/icons8-news-24.png')} />
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-            {' '}最新の記事
-          </Text>
-          <Text style={{ color: 'white', fontSize: 14, position: 'absolute', right: 0 }}
-            onPress={() => this.props.navigation.navigate('HomeArticleList', {
-              mode: "new"
-            })}>
-            もっと見る>
-          </Text>
-        </View>
+            {/* -- 最新の記事 -- */}
+            <View style={styles.section}>
+              <Image resizeMode="contain" source={require('./../images/icons8-news-24.png')} />
+              <Text style={styles.sectionText}>
+                {' '}最新の記事
+              </Text>
+              <Text style={styles.sectionMoreText}
+                onPress={() => this.props.navigation.navigate('HomeArticleList', {
+                  mode: "new"
+                })}>
+                もっと見る>
+              </Text>
+            </View>
 
-        <View style={[{ flex: 0.6, flexDirection: 'row' }]}>
-          {/* 最新の記事の件数分、繰り返し（横スクロール） */}
-          <ScrollView horizontal={true}>
-            {this.state.newArticleList.map((item, i) => {
-              return (
-                <TouchableOpacity key={i}
-                  activeOpacity={1}
-                  onPress={() => this.props.navigation.navigate('ArticleRefer', {
-                    mode: "home",
-                    selectKijiPk: item.t_kiji_pk
-                  })}>
-                  <Card containerStyle={styles.articleCard}>
-                    {/* 画像 */}
-                    <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-                      {(item.file_path !== "" && item.file_path !== null) &&
-                        <Image
-                          source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={styles.articleImage}
-                          resizeMode='contain'
-                        />
-                      }
-                      {/* 画像が未登録の場合はNo-Imageを表示 */}
-                      {(item.file_path === "" || item.file_path === null) &&
-                        <Image
-                          source={require('./../images/icon-noimage.png')}
-                          style={styles.articleImage}
-                        />
-                      }
-                    </View>
-                    {/* タイトル */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 14 }}>
-                      {item.title}
-                    </Text>
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 12 }}>
-                      {/* いいね */}
-                      <Text style={{ color: 'red' }}>
-                        {'♡ '}{item.good_cnt}{'　'}
-                      </Text>
-                      {/* ハッシュタグ */}
-                      <Text style={{ color: 'gray' }}>
-                        {item.hashtag_str}
-                      </Text>
-                    </Text>
-                  </Card>
-                </TouchableOpacity>
-              )
-            })}
-          </ScrollView>
-        </View>
+            <View>
+              {/* 最新の記事の件数分、繰り返し */}
+              {this.state.newArticleList.map((item, i) => {
+                return (
+                  <TouchableOpacity key={i}
+                    activeOpacity={1}
+                    onPress={() => this.props.navigation.navigate('ArticleRefer', {
+                      mode: "home",
+                      selectKijiPk: item.t_kiji_pk
+                    })}>
+                    <Card containerStyle={styles.articleCard}>
+                      <View style={{ flexDirection: 'row' }}>
+                        {/* 画像 */}
+                        <View style={{ flex: 1.5 }}>
+                          {(item.file_path !== "" && item.file_path !== null) &&
+                            <Image
+                              source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
+                              style={styles.articleImage}
+                              // resizeMode='contain'
+                              resizeMode="cover"
+                            />
+                          }
+                          {/* 画像が未登録の場合はNo-Imageを表示 */}
+                          {(item.file_path === "" || item.file_path === null) &&
+                            <Image
+                              source={require('./../images/icon-noimage.png')}
+                              style={styles.articleImage}
+                              resizeMode="cover"
+                            />
+                          }
+                        </View>
+                        <View style={{ flex: 2 }}>
+                          {/* タイトル */}
+                          <Text style={{ fontSize: 18 }}>
+                            {item.title}
+                          </Text>
+                          {/* ハッシュタグ */}
+                          <Text style={{ fontSize: 16, color: 'gray' }}>
+                            {item.hashtag_str}
+                          </Text>
+                          {/* いいね */}
+                          <Text style={{ fontSize: 16, color: 'red' }}>
+                            {'♡ '}{item.good_cnt}{'　'}
+                          </Text>
+                        </View>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
 
-        {/* -- 人気の記事 -- */}
-        <View style={{ flex: 0.1, backgroundColor: 'rgba(255, 136, 0, 0.92)', flexDirection: 'row', alignItems: 'center' }}>
-          <Image resizeMode="contain" source={require('./../images/icons8-thumbs-up-24.png')} />
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
-            {' '}人気の記事
-          </Text>
-          <Text style={{ color: 'white', fontSize: 14, position: 'absolute', right: 0 }}
-            onPress={() => this.props.navigation.navigate('HomeArticleList', {
-              mode: "popular"
-            })}>
-            もっと見る>
-          </Text>
-        </View>
+            {/* -- 人気の記事 -- */}
+            <View style={styles.section}>
+              <Image resizeMode="contain" source={require('./../images/icons8-thumbs-up-24.png')} />
+              <Text style={styles.sectionText}>
+                {' '}人気の記事
+              </Text>
+              <Text style={styles.sectionMoreText}
+                onPress={() => this.props.navigation.navigate('HomeArticleList', {
+                  mode: "popular"
+                })}>
+                もっと見る>
+              </Text>
+            </View>
 
-        <View style={[{ flex: 0.6 }]}>
-          {/* 人気の記事の件数分、繰り返し（横スクロール） */}
-          <ScrollView horizontal={true}>
-            {this.state.popularArticleList.map((item, i) => {
-              return (
-                <TouchableOpacity key={i}
-                  activeOpacity={1}
-                  onPress={() => this.props.navigation.navigate('ArticleRefer', {
-                    mode: "home",
-                    selectKijiPk: item.t_kiji_pk
-                  })}>
-                  <Card containerStyle={styles.articleCard}>
-                    {/* 画像 */}
-                    <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-                      {(item.file_path !== "" && item.file_path !== null) &&
-                        <Image
-                          source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                          style={styles.articleImage}
-                          resizeMode='contain'
-                        />
-                      }
-                      {/* 画像が未登録の場合はNo-Imageを表示 */}
-                      {(item.file_path === "" || item.file_path === null) &&
-                        <Image
-                          source={require('./../images/icon-noimage.png')}
-                          style={styles.articleImage}
-                        />
-                      }
-                    </View>
-                    {/* タイトル */}
-                    <Text ellipsizeMode={"tail"} numberOfLines={2} style={{ fontSize: 14 }}>
-                      {item.title}
-                    </Text>
-                    <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 12 }}>
-                      {/* いいね */}
-                      <Text style={{ color: 'red' }}>
-                        {'♡ '}{item.good_cnt}{'　'}
-                      </Text>
-                      {/* ハッシュタグ */}
-                      <Text style={{ color: 'gray' }}>
-                        {item.hashtag_str}
-                      </Text>
-                    </Text>
-                  </Card>
-                </TouchableOpacity>
-              )
-            })}
+            <View>
+              {/* 人気の記事の件数分、繰り返し */}
+              {this.state.popularArticleList.map((item, i) => {
+                return (
+                  <TouchableOpacity key={i}
+                    activeOpacity={1}
+                    onPress={() => this.props.navigation.navigate('ArticleRefer', {
+                      mode: "home",
+                      selectKijiPk: item.t_kiji_pk
+                    })}>
+                    <Card containerStyle={styles.articleCard}>
+                      <View style={{ flexDirection: 'row' }}>
+                        {/* 画像 */}
+                        <View style={{ flex: 1.5 }}>
+                          {(item.file_path !== "" && item.file_path !== null) &&
+                            <Image
+                              source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
+                              style={styles.articleImage}
+                              // resizeMode='contain'
+                              resizeMode="cover"
+                            />
+                          }
+                          {/* 画像が未登録の場合はNo-Imageを表示 */}
+                          {(item.file_path === "" || item.file_path === null) &&
+                            <Image
+                              source={require('./../images/icon-noimage.png')}
+                              style={styles.articleImage}
+                              resizeMode="cover"
+                            />
+                          }
+                        </View>
+                        <View style={{ flex: 2 }}>
+                          {/* タイトル */}
+                          <Text style={{ fontSize: 18 }}>
+                            {item.title}
+                          </Text>
+                          {/* ハッシュタグ */}
+                          <Text style={{ fontSize: 16, color: 'gray' }}>
+                            {item.hashtag_str}
+                          </Text>
+                          {/* いいね */}
+                          <Text style={{ fontSize: 16, color: 'red' }}>
+                            {'♡ '}{item.good_cnt}{'　'}
+                          </Text>
+                        </View>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
           </ScrollView>
         </View>
 
         {/* -- 各機能アイコン -- */}
-        <View style={[{ flex: 0.35, flexDirection: 'row' }]}>
+        <View style={[{ flex: 1, flexDirection: 'row' }]}>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
             <TouchableOpacity
               activeOpacity={1}
@@ -299,7 +313,7 @@ export default class Home extends BaseComponent {
                 resizeMode="contain"
                 source={require('./../images/icons8-chat-bubble-48.png')}
               />
-              <Text>チャット</Text>
+              <Text style={{ textAlign: "center" }}>チャット</Text>
             </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -312,7 +326,7 @@ export default class Home extends BaseComponent {
                 resizeMode="contain"
                 source={require('./../images/icons8-qr-code-48.png')}
               />
-              <Text>買い物</Text>
+              <Text style={{ textAlign: "center" }}>買い物</Text>
             </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -323,7 +337,7 @@ export default class Home extends BaseComponent {
                 resizeMode="contain"
                 source={require('./../images/icons8-brainstorm-skill-48.png')}
               />
-              <Text>情報ひろば</Text>
+              <Text style={{ textAlign: "center" }}>情報ひろば</Text>
             </TouchableOpacity>
           </View>
           <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -336,7 +350,7 @@ export default class Home extends BaseComponent {
                 resizeMode="contain"
                 source={require('./../images/icons8-star-48.png')}
               />
-              <Text>お気に入り</Text>
+              <Text style={{ textAlign: "center" }}>お気に入り</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -351,26 +365,45 @@ const styles = StyleSheet.create({
   },
   tile: {
     flex: 1,
-    width: Dimensions.get('window').width * 0.85
+    // width: Dimensions.get('window').width * 0.85
   },
   articleCard: {
-    width: 170,
-    height: 120,
-    marginTop: 2,
-    marginBottom: 2,
-    marginLeft: 5,
-    marginRight: 5,
-    paddingBottom: 0,
-    padding: 5
+    marginTop: -1,
+    marginBottom: 0,
+    marginLeft: 0,
+    marginRight: 0,
+    paddingBottom: 5,
+    padding: 5,
+    backgroundColor: "ivory"
   },
   articleImage: {
-    width: 55,
-    height: 55,
+    width: 130,
+    height: 100,
     // minWidth: 55,
     // minHeight: 55
+    borderColor: 'gray',
+    borderWidth: 1,
   },
   spinnerTextStyle: {
     color: '#FFF',
     fontSize: 18
+  },
+  section: {
+    height: 25,
+    backgroundColor: 'rgba(255, 136, 0, 0.92)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 0
+  },
+  sectionText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 18
+  },
+  sectionMoreText: {
+    color: 'white',
+    fontSize: 16,
+    position: 'absolute',
+    right: 0
   }
 })

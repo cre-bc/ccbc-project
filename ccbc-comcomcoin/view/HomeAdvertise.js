@@ -1,10 +1,11 @@
 import React from 'react'
-import { StyleSheet, View, Image, ScrollView } from 'react-native'
+import { StyleSheet, View, Image, ScrollView, Dimensions } from 'react-native'
 import { Text } from 'react-native-elements'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
 const restdomain = require('./common/constans.js').restdomain
+const windowWidth = Dimensions.get('window').width
 
 export default class HomeAdvertise extends BaseComponent {
   constructor(props) {
@@ -64,16 +65,17 @@ export default class HomeAdvertise extends BaseComponent {
               {/* 画像 */}
               <Image resizeMode="contain" flexDirection="row" alignItems="center"
                 source={{ uri: restdomain + `/uploads/advertise/${this.state.file_path}` }}
-                style={{ width: 300, height: 300 }} />
+                resizeMode="cover"
+                style={{ height: windowWidth * 9 / 16, width: windowWidth }} />
             </View>
             <View style={{ marginTop: 10, padding: 10 }}>
               {/* コメント */}
-              <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
+              <Text selectable style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
                 {this.state.comment}
               </Text>
             </View>
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
-            <View style={{ marginBottom: 100 }} />
+            <View style={{ marginBottom: 50 }} />
           </ScrollView>
         </View>
       </View>
@@ -83,6 +85,8 @@ export default class HomeAdvertise extends BaseComponent {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    flex: 1,
+    // backgroundColor: '#F5FCFF'
+    backgroundColor: "ivory"
   }
 })

@@ -1,10 +1,13 @@
 import React from "react";
 import { StyleSheet, View, ScrollView } from "react-native";
-import { ListItem } from "react-native-elements";
+import { ListItem, Avatar } from "react-native-elements";
 import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
+import io from "socket.io-client";
 
 const restdomain = require("./common/constans.js").restdomain;
+const restdomain_ws = require("./common/constans.js").restdomain_ws;
+const socket = io(restdomain_ws, { secure: true, transports: ["websocket"] });
 
 export default class ChatSelectForm extends BaseComponent {
   constructor(props) {
@@ -23,6 +26,9 @@ export default class ChatSelectForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    if (!socket.disconnected) {
+      socket.disconnect();
+    }
     this.props.navigation.addListener("willFocus", () => this.onWillFocus());
   };
 
@@ -50,11 +56,11 @@ export default class ChatSelectForm extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -93,8 +99,8 @@ export default class ChatSelectForm extends BaseComponent {
                   key={n.t_shain_pk}
                   roundAvatar
                   title={n.shimei}
-                  titleStyle={{ fontSize: 18 }}
-                  avatar={{ uri: restdomain + `/uploads/${n.image_file_nm}` }}
+                  titleStyle={{ fontSize: 20 }}
+                  avatar={<Avatar rounded medium source={{ uri: restdomain + `/uploads/${n.image_file_nm}` }} />}
                   onPress={e =>
                     this.onPressChatMsgButton(
                       e,
@@ -111,8 +117,8 @@ export default class ChatSelectForm extends BaseComponent {
                   key={n.t_shain_pk}
                   roundAvatar
                   title={n.shimei}
-                  titleStyle={{ fontSize: 18 }}
-                  avatar={{ uri: restdomain + `/uploads/${n.image_file_nm}` }}
+                  titleStyle={{ fontSize: 20 }}
+                  avatar={<Avatar rounded medium source={{ uri: restdomain + `/uploads/${n.image_file_nm}` }} />}
                   badge={{
                     value: n.new_info_cnt,
                     textStyle: { color: "#FFFFFF" },
@@ -138,6 +144,7 @@ export default class ChatSelectForm extends BaseComponent {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F5FCFF"
+    flex: 1,
+    backgroundColor: "ivory"
   }
 });

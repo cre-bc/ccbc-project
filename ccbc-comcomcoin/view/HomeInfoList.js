@@ -60,9 +60,10 @@ export default class HomeInfoList extends BaseComponent {
                 return (
                   <ListItem
                     key={i}
-                    titleStyle={{ fontSize: 16, marginLeft: 0 }}
+                    titleStyle={{ fontSize: 18, marginLeft: 0 }}
                     title={item.title}
-                    subtitleStyle={{ fontSize: 14, marginLeft: 0 }}
+                    titleNumberOfLines={2}
+                    subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
                     subtitle={moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
                     onPress={() => this.props.navigation.navigate('HomeInformation', {
                       renban: item.renban
@@ -81,6 +82,7 @@ export default class HomeInfoList extends BaseComponent {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    flex: 1,
+    backgroundColor: 'ivory'
   }
 })

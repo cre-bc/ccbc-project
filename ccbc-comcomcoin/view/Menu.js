@@ -16,19 +16,19 @@ export default class MenuPh2 extends Component {
   async componentWillMount() {
     let groupInfo = {
       saveFlg: "1",
-      group_id: "CCCtest",
-      db_name: "crecoin",
-      bc_addr: "0x3250089B97CD64855F24B0ccE163dFE786d89B6d"
+      group_id: "Cre-demo001",
+      db_name: "harvest-demo",
+      bc_addr: "0x001b2987b25d0111fb1f351178fa0e1ac642a930"
     }
     let loginInfo = {
-      userid: "kadoya",
+      userid: "ishii",
       password: "pass",
-      tShainPk: 23,
+      tShainPk: 3,
       imageFileName: "man1.jpg",
-      shimei: "札幌　太郎",
-      kengenCd: "1",
+      shimei: "石井大翔",
+      kengenCd: "2",
       tokenId: "*****",
-      bcAccount: "0xee6c10a136f71d1fec50464a12d16fd0d7921847"
+      bcAccount: "0x81efd009ee6a48a05669536b976439918b595b97"
     }
     try {
       // alert(JSON.stringify(loginInfo))

@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native'
+import { StyleSheet, Text, View, TouchableHighlight, ScrollView } from 'react-native'
 import { Icon } from 'react-native-elements'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
@@ -58,38 +58,42 @@ export default class ArticleSelect extends BaseComponent {
 
   render() {
     return (
-      <View>
+      <View style={{ flex: 1, backgroundColor: "ivory" }}>
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
         {/* -- 記事カテゴリ（繰り返し） -- */}
         <View style={{ marginTop: 20 }} />
-        {this.state.categoryList.map((item, i) => {
-          return (
-            <TouchableHighlight onPress={() => this.onPressCategory(item)} key={i}>
-              <View style={styles.articleLine}>
-                <View style={styles.articleTitleView}>
-                  <Text style={styles.articleTitleText}>{"　　" + item.category_nm}</Text>
+        <ScrollView>
+          {this.state.categoryList.map((item, i) => {
+            const btnMargin = (item.spe_category_flg === "0" ? 0 : 20)
+            const btnColor = (item.spe_category_flg === "0" ? "#AA0000" : "#00AA00")
+            return (
+              <TouchableHighlight onPress={() => this.onPressCategory(item)} key={i} style={{ marginTop: btnMargin }}>
+                <View style={[styles.articleLine, { backgroundColor: btnColor }]}>
+                  <View style={styles.articleTitleView}>
+                    <Text style={styles.articleTitleText}>{"　　" + item.category_nm}</Text>
+                  </View>
+                  {/* 未読マーク */}
+                  <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                    {(() => {
+                      if (item.midoku_cnt > 0) {
+                        return (
+                          <View style={styles.nonReadMark}>
+                            <Text style={styles.nonReadMarkStr}>{'   ' + item.midoku_cnt + '   '}</Text>
+                          </View>
+                        )
+                      }
+                    })()}
+                  </View>
+                  <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
+                    <Icon name="chevron-right" type="font-awesome" color="white" />
+                  </View>
                 </View>
-                {/* 未読マーク */}
-                <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                  {(() => {
-                    if (item.midoku_cnt > 0) {
-                      return (
-                        <View style={styles.nonReadMark}>
-                          <Text style={styles.nonReadMarkStr}>{'   ' + item.midoku_cnt + '   '}</Text>
-                        </View>
-                      )
-                    }
-                  })()}
-                </View>
-                <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
-                  <Icon name="chevron-right" type="font-awesome" color="white" />
-                </View>
-              </View>
-            </TouchableHighlight>
-          )
-        })}
+              </TouchableHighlight>
+            )
+          })}
+        </ScrollView>
       </View>
     )
   }
@@ -102,7 +106,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: '#AA0000',
+    // backgroundColor: '#AA0000',
     flexDirection: 'row'
   },
   articleTitleView: {

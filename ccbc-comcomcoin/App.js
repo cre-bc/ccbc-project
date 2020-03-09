@@ -44,8 +44,9 @@ var HomeNavigator = createStackNavigator(
     Shopping: { screen: ShoppingForm },
   },
   {
-    // initialRouteName: 'Menu',
-    initialRouteName: 'LoginGroup',
+    initialRouteName: 'Menu',
+    // initialRouteName: 'Home',
+    // initialRouteName: 'LoginGroup',
     defaultNavigationOptions: () => ({
       header: null
     })

@@ -79,9 +79,10 @@ export default class HomeArticleList extends BaseComponent {
                 return (
                   <ListItem
                     key={i}
-                    titleStyle={{ fontSize: 16, marginLeft: 0 }}
+                    titleStyle={{ fontSize: 18, marginLeft: 0 }}
                     title={item.title}
-                    subtitleStyle={{ fontSize: 14, marginLeft: 0 }}
+                    titleNumberOfLines={2}
+                    subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
                     subtitle={item.hashtag_str}
                     roundAvatar
                     // avatar={item.avatar}
@@ -108,7 +109,8 @@ export default class HomeArticleList extends BaseComponent {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    flex: 1,
+    backgroundColor: 'ivory'
   },
   header: {},
   menu_item: {

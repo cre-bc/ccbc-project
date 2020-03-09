@@ -262,7 +262,7 @@ function selectKijiCategory(db, req) {
   return new Promise((resolve, reject) => {
     // 記事カテゴリテーブルの情報と、記事の未読件数（記事既読テーブルに登録されているIDより新しいIDの件数）を一緒に取得
     var sql =
-      "select cat.t_kiji_category_pk, cat.category_nm, count(kij.t_kiji_pk) AS midoku_cnt" +
+      "select cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg, count(kij.t_kiji_pk) AS midoku_cnt" +
       " from t_kiji_category cat" +
       " left join t_kiji_kidoku kid" +
       " on cat.t_kiji_category_pk = kid.t_kiji_category_pk" +
@@ -272,8 +272,8 @@ function selectKijiCategory(db, req) {
       " and kij.delete_flg = '0'" +
       " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, -1)" +
       " where cat.delete_flg = '0'" +
-      " group by cat.t_kiji_category_pk, cat.category_nm" +
-      " order by cat.t_kiji_category_pk"
+      " group by cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg" +
+      " order by cat.sort_num, cat.t_kiji_category_pk"
     db.query(sql, {
       replacements: { shain_pk: req.body.loginShainPk },
       type: db.QueryTypes.RAW

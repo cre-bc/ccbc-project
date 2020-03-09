@@ -296,7 +296,7 @@ export default class ArticleRefer extends BaseComponent {
 
   render() {
     return (
-      <View>
+      <View style={{ flex: 1, backgroundColor: "ivory" }}>
         {/* -- 処理中アニメーション -- */}
         <Spinner
           visible={this.state.isProcessing}
@@ -377,7 +377,7 @@ export default class ArticleRefer extends BaseComponent {
                     <View style={{ flexDirection: 'row' }}>
                       {/* 投稿者名 */}
                       <View style={{ flex: 4 }}>
-                        <Text style={{ fontSize: 20, color: 'black' }}>
+                        <Text style={{ fontSize: 18, color: 'black' }}>
                           {"　"}{item.shain_nm}
                         </Text>
                       </View>
@@ -455,15 +455,15 @@ export default class ArticleRefer extends BaseComponent {
                   {(item.file_path !== "" && item.file_path !== null) &&
                     <Image
                       source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                      style={{ width: 300, height: 300 }}
-                      resizeMode='contain' />
+                      style={{ width: 300, height: 300 * 3 / 4 }}
+                      resizeMode='cover' />
                   }
                 </View>
               </Card>
             )
           })}
           {/* スクロールが最下部まで表示されないことの暫定対応... */}
-          <View style={{ marginBottom: 120 }} />
+          <View style={{ marginBottom: 50 }} />
         </ScrollView>
 
         {/* -- 検索ダイアログ -- */}

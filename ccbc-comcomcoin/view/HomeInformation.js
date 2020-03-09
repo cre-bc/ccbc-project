@@ -73,15 +73,15 @@ export default class HomeInformation extends BaseComponent {
             </View>
             <View selectable style={{ marginTop: 20, padding: 10 }}>
               {/* タイトル ＆ コメント */}
-              <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+              <Text style={{ fontSize: 22, fontWeight: "bold" }}>
                 {this.state.title}{'\n'}
               </Text>
-              <Text style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
+              <Text style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
                 {this.state.comment}
               </Text>
             </View>
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
-            <View style={{ marginBottom: 100 }} />
+            <View style={{ marginBottom: 50 }} />
           </ScrollView>
         </View>
       </View>
@@ -91,7 +91,9 @@ export default class HomeInformation extends BaseComponent {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    flex: 1,
+    // backgroundColor: '#F5FCFF'
+    backgroundColor: "ivory"
   },
   header: {},
   menu_item: {

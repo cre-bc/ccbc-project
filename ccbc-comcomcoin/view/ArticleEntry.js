@@ -251,7 +251,7 @@ export default class ArticleEntry extends BaseComponent {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "ivory" }}>
         {/* -- 処理中アニメーション -- */}
         <Spinner
           visible={this.state.isProcessing}
@@ -317,8 +317,8 @@ export default class ArticleEntry extends BaseComponent {
                     <View style={{ marginTop: 10 }}>
                       <Image
                         source={{ uri: restdomain + `/uploads/article/${this.state.file_path}` }}
-                        style={{ width: 300, height: 300 }}
-                        resizeMode='contain' />
+                        style={{ width: 300, height: 300 * 3 / 4 }}
+                        resizeMode='cover' />
                     </View>
                   )}
                   {this.state.imageData.uri !== "" && (
@@ -326,12 +326,12 @@ export default class ArticleEntry extends BaseComponent {
                       <Image
                         source={{ uri: this.state.imageData.uri }}
                         style={{
-                          width: 250,
-                          height: 250,
+                          width: 300,
+                          height: 300 * 3 / 4,
                           marginTop: 30,
                           marginBottom: 30
                         }}
-                        resizeMode='contain'
+                        resizeMode='cover'
                       />
                     </View>
                   )}
@@ -443,6 +443,7 @@ const styles = StyleSheet.create({
     color: 'black',
     padding: 5,
     borderColor: 'gray',
+    backgroundColor: 'white',
     borderWidth: 1
   },
   spinnerTextStyle: {
