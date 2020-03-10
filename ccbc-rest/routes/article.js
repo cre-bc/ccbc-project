@@ -163,7 +163,7 @@ async function edit(req, res) {
       await deleteKijiHashtag(db, tx, req)
     }
     if (req.body.hashtag_str !== "") {
-      var hashtag = req.body.hashtag_str.replace("　", " ").split(" ")
+      var hashtag = req.body.hashtag_str.replace("　", " ").replace("　", " ").split(" ")
       var seq = 0
       for (var i in hashtag) {
         if (hashtag[i] !== "") {
