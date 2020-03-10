@@ -449,7 +449,7 @@ export default class ArticleRefer extends BaseComponent {
 
                 {/* 記事内容 */}
                 <View style={{ marginTop: 10, marginBottom: 10 }}>
-                  <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+                  <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9', textDecorationLine: 'underline' }}>
                     <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
                       {item.contents}
                     </Text>

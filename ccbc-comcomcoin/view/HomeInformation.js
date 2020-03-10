@@ -77,7 +77,7 @@ export default class HomeInformation extends BaseComponent {
               <Text style={{ fontSize: 22, fontWeight: "bold" }}>
                 {this.state.title}{'\n'}
               </Text>
-              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9', textDecorationLine: 'underline' }}>
                 <Text style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
                   {this.state.comment}
                 </Text>

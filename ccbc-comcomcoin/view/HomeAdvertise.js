@@ -71,7 +71,7 @@ export default class HomeAdvertise extends BaseComponent {
             </View>
             <View style={{ marginTop: 10, padding: 10 }}>
               {/* コメント */}
-              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9', textDecorationLine: 'underline' }}>
                 <Text selectable style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
                   {this.state.comment}
                 </Text>
