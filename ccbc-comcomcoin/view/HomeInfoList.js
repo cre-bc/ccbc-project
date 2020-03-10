@@ -1,6 +1,6 @@
 import React from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
-import { Card, ListItem } from 'react-native-elements'
+import { StyleSheet, View, ScrollView, Text } from 'react-native'
+import { Divider, ListItem } from 'react-native-elements'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -54,23 +54,27 @@ export default class HomeInfoList extends BaseComponent {
 
         {/* -- お知らせ -- */}
         <View style={{ height: "90%" }}>
+          <View style={{ alignItems: 'center', marginTop: 10 }}>
+            <Text style={{ fontSize: 22 }}>
+              {"お知らせ"}
+            </Text>
+          </View>
           <ScrollView>
-            <Card containerStyle={{ padding: 0 }}>
-              {this.state.inforList.map((item, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    titleStyle={{ fontSize: 18, marginLeft: 0 }}
-                    title={item.title}
-                    titleNumberOfLines={2}
-                    subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
-                    subtitle={moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
-                    onPress={() => this.props.navigation.navigate('HomeInformation', {
-                      renban: item.renban
-                    })} />
-                )
-              })}
-            </Card>
+            <Divider style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }} />
+            {this.state.inforList.map((item, i) => {
+              return (
+                <ListItem
+                  key={i}
+                  titleStyle={{ fontSize: 18, marginLeft: 0 }}
+                  title={item.title}
+                  titleNumberOfLines={2}
+                  subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
+                  subtitle={moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
+                  onPress={() => this.props.navigation.navigate('HomeInformation', {
+                    renban: item.renban
+                  })} />
+              )
+            })}
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 80 }} />
           </ScrollView>

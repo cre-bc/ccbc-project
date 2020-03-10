@@ -1,5 +1,5 @@
 import React from 'react'
-import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, KeyboardAvoidingView } from 'react-native'
+import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, KeyboardAvoidingView, Dimensions } from 'react-native'
 import { Icon } from 'react-native-elements'
 import * as ImagePicker from 'expo-image-picker'
 import * as Permissions from 'expo-permissions'
@@ -16,6 +16,9 @@ const CHAR_LEN_TITLE = 30
 const CHAR_LEN_HASHTAG = 10
 const CHAR_LEN_CONTENTS = 1000
 const HASHTAG_UPPER_LIMIT = 3
+
+const windowWidth = Dimensions.get('window').width
+const articleImageWidth = windowWidth * 0.8
 
 export default class ArticleEntry extends BaseComponent {
   constructor(props) {
@@ -231,8 +234,9 @@ export default class ArticleEntry extends BaseComponent {
   onClickPickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true
-      // aspect: [1, 1]
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.2
     })
     let data = {}
     if (!result.cancelled) {
@@ -317,7 +321,7 @@ export default class ArticleEntry extends BaseComponent {
                     <View style={{ marginTop: 10 }}>
                       <Image
                         source={{ uri: restdomain + `/uploads/article/${this.state.file_path}` }}
-                        style={{ width: 300, height: 300 * 3 / 4 }}
+                        style={{ width: articleImageWidth, height: articleImageWidth * 3 / 4 }}
                         resizeMode='cover' />
                     </View>
                   )}
@@ -326,8 +330,8 @@ export default class ArticleEntry extends BaseComponent {
                       <Image
                         source={{ uri: this.state.imageData.uri }}
                         style={{
-                          width: 300,
-                          height: 300 * 3 / 4,
+                          width: articleImageWidth,
+                          height: articleImageWidth * 3 / 4,
                           marginTop: 30,
                           marginBottom: 30
                         }}

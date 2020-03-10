@@ -1,11 +1,14 @@
 import React from 'react'
-import { StyleSheet, Text, View, Image, ScrollView, Modal, TextInput, TouchableOpacity, RefreshControl } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, Modal, TextInput, TouchableOpacity, RefreshControl, Dimensions } from 'react-native'
 import { Icon, Avatar, Card } from 'react-native-elements'
 import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
+
+const windowWidth = Dimensions.get('window').width
+const articleImageWidth = windowWidth * 0.8
 
 const restdomain = require('./common/constans.js').restdomain
 const goodImageOn = require("./../images/good-on.png")
@@ -451,11 +454,11 @@ export default class ArticleRefer extends BaseComponent {
                 </View>
 
                 {/* 画像 */}
-                <View style={{ marginTop: 10, marginBottom: 10 }}>
+                <View style={{ marginTop: 10, marginBottom: 10, alignItems: "center" }}>
                   {(item.file_path !== "" && item.file_path !== null) &&
                     <Image
                       source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
-                      style={{ width: 300, height: 300 * 3 / 4 }}
+                      style={{ width: articleImageWidth, height: articleImageWidth * 3 / 4 }}
                       resizeMode='cover' />
                   }
                 </View>

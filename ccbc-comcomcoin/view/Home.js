@@ -9,6 +9,7 @@ import BaseComponent from './components/BaseComponent'
 
 const restdomain = require('./common/constans.js').restdomain
 const windowWidth = Dimensions.get('window').width
+const articleImageWidth = windowWidth * 1.4 / 3.5
 
 export default class Home extends BaseComponent {
   constructor(props) {
@@ -98,7 +99,7 @@ export default class Home extends BaseComponent {
           <Text />
         </View>
 
-        {/* コンテンツ */}
+        {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: 'row' }}>
           <ScrollView>
 
@@ -377,8 +378,8 @@ const styles = StyleSheet.create({
     backgroundColor: "ivory"
   },
   articleImage: {
-    width: 130,
-    height: 100,
+    width: articleImageWidth,
+    height: articleImageWidth * 3 / 4,
     // minWidth: 55,
     // minHeight: 55
     borderColor: 'gray',

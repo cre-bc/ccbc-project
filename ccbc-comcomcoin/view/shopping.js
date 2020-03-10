@@ -358,7 +358,7 @@ export default class Shopping extends BaseComponent {
                   </View>
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 2 }}>
-                      <Text style={{ textAlign: "right", fontSize: 26 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.haveCoin).toLocaleString()}
                       </Text>
                     </View>
@@ -369,7 +369,7 @@ export default class Shopping extends BaseComponent {
                       </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
-                      <Text style={{ fontSize: 26 }}>{"　"}</Text>
+                      <Text style={{ fontSize: 24 }}>{"　"}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 24 }}>{"　"}</Text>
@@ -382,7 +382,7 @@ export default class Shopping extends BaseComponent {
                   </View>
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 2 }}>
-                      <Text style={{ textAlign: "right", fontSize: 26 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.totalCoin).toLocaleString()}
                       </Text>
                     </View>
@@ -393,7 +393,7 @@ export default class Shopping extends BaseComponent {
                       </Text>
                     </View>
                     <View style={{ flex: 1.2 }}>
-                      <Text style={{ textAlign: "right", fontSize: 26 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.itemCnt).toLocaleString()}
                       </Text>
                     </View>

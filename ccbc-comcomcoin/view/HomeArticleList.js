@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
-import { Card, ListItem } from 'react-native-elements'
+import { Divider, ListItem } from 'react-native-elements'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
@@ -74,30 +74,29 @@ export default class HomeArticleList extends BaseComponent {
             </Text>
           </View>
           <ScrollView>
-            <Card containerStyle={{ padding: 0 }}>
-              {this.state.articleList.map((item, i) => {
-                return (
-                  <ListItem
-                    key={i}
-                    titleStyle={{ fontSize: 18, marginLeft: 0 }}
-                    title={item.title}
-                    titleNumberOfLines={2}
-                    subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
-                    subtitle={item.hashtag_str}
-                    roundAvatar
-                    // avatar={item.avatar}
-                    badge={{
-                      value: "♡ " + item.good_cnt,
-                      textStyle: { fontSize: 10 }
-                    }}
-                    onPress={() => this.props.navigation.navigate('ArticleRefer', {
-                      mode: "home",
-                      selectKijiPk: item.t_kiji_pk
-                    })}
-                  />
-                )
-              })}
-            </Card>
+            <Divider style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }} />
+            {this.state.articleList.map((item, i) => {
+              return (
+                <ListItem
+                  key={i}
+                  titleStyle={{ fontSize: 18, marginLeft: 0 }}
+                  title={item.title}
+                  titleNumberOfLines={2}
+                  subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
+                  subtitle={item.hashtag_str}
+                  roundAvatar
+                  // avatar={item.avatar}
+                  badge={{
+                    value: "♡ " + item.good_cnt,
+                    textStyle: { fontSize: 10 }
+                  }}
+                  onPress={() => this.props.navigation.navigate('ArticleRefer', {
+                    mode: "home",
+                    selectKijiPk: item.t_kiji_pk
+                  })}
+                />
+              )
+            })}
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 80 }} />
           </ScrollView>
