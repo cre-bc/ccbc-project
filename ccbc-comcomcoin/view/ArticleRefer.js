@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, Text, View, Image, ScrollView, Modal, TextInput, TouchableOpacity, RefreshControl, Dimensions } from 'react-native'
 import { Icon, Avatar, Card } from 'react-native-elements'
+import Hyperlink from 'react-native-hyperlink'
 import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
@@ -448,9 +449,11 @@ export default class ArticleRefer extends BaseComponent {
 
                 {/* 記事内容 */}
                 <View style={{ marginTop: 10, marginBottom: 10 }}>
-                  <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
-                    {item.contents}
-                  </Text>
+                  <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+                    <Text selectable style={{ fontSize: 16, lineHeight: 16 * 1.5 }}>
+                      {item.contents}
+                    </Text>
+                  </Hyperlink>
                 </View>
 
                 {/* 画像 */}

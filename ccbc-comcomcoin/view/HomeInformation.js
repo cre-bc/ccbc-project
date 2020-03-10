@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import { Text } from 'react-native-elements'
+import Hyperlink from 'react-native-hyperlink'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
@@ -76,9 +77,11 @@ export default class HomeInformation extends BaseComponent {
               <Text style={{ fontSize: 22, fontWeight: "bold" }}>
                 {this.state.title}{'\n'}
               </Text>
-              <Text style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
-                {this.state.comment}
-              </Text>
+              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+                <Text style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
+                  {this.state.comment}
+                </Text>
+              </Hyperlink>
             </View>
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 50 }} />

@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, View, Image, ScrollView, Dimensions } from 'react-native'
 import { Text } from 'react-native-elements'
+import Hyperlink from 'react-native-hyperlink'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
@@ -70,9 +71,11 @@ export default class HomeAdvertise extends BaseComponent {
             </View>
             <View style={{ marginTop: 10, padding: 10 }}>
               {/* コメント */}
-              <Text selectable style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
-                {this.state.comment}
-              </Text>
+              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9' }}>
+                <Text selectable style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
+                  {this.state.comment}
+                </Text>
+              </Hyperlink>
             </View>
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 50 }} />
