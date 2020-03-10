@@ -95,7 +95,7 @@ export default class Home extends BaseComponent {
           textStyle={styles.spinnerTextStyle}
         />
 
-        <View style={[{ flex: 0.4 }]}>
+        <View style={[{ flex: 0.32 }]}>
           <Text />
         </View>
 
