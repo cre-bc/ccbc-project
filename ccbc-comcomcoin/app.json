@@ -2,16 +2,22 @@
   "expo": {
     "name": "ComComCoin",
     "icon": "./images/app-icon.png",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "slug": "comcomcoin",
     "sdkVersion": "35.0.0",
     "ios": {
-      "bundleIdentifier": "com.creativeconsultant.comcomcoin"
+      "bundleIdentifier": "com.creativeconsultant.comcomcoin",
+      "infoPlist": {
+        "NSCameraUsageDescription": "QRコードをスキャンするためにカメラを使用します",
+        "NSPhotoLibraryUsageDescription": "記事に画像をアップロードするためにフォトライブラリを使用します"
+      }
     },
     "android": {
-      "versionCode": 5,
+      "versionCode": 6,
       "package": "com.creativeconsultant.comcomcoin",
-      "permissions": []
+      "permissions": [
+        "CAMERA"
+      ]
     },
     "platforms": [
       "android",
