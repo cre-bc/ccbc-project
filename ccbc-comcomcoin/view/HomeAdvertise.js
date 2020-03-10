@@ -61,7 +61,7 @@ export default class HomeAdvertise extends BaseComponent {
 
         {/* -- 広告 -- */}
         <View style={{ height: "90%" }}>
-          <ScrollView>
+          <ScrollView maximumZoomScale={2}>
             <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               {/* 画像 */}
               <Image resizeMode="contain" flexDirection="row" alignItems="center"

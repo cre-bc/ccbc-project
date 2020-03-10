@@ -101,7 +101,7 @@ export default class Home extends BaseComponent {
 
         {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: 'row' }}>
-          <ScrollView>
+          <ScrollView maximumZoomScale={2}>
 
             {/* -- 広告 -- */}
             <View style={{ flexDirection: 'row' }}>

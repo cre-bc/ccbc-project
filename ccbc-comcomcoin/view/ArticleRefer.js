@@ -347,6 +347,7 @@ export default class ArticleRefer extends BaseComponent {
         </View>
 
         <ScrollView
+          maximumZoomScale={2}
           onMomentumScrollEnd={this.reachScrollBottom.bind(this)}
           refreshControl={
             <RefreshControl

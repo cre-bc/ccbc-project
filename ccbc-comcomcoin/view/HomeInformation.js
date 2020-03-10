@@ -65,7 +65,7 @@ export default class HomeInformation extends BaseComponent {
 
         {/* -- お知らせ -- */}
         <View style={{ height: "90%" }}>
-          <ScrollView>
+          <ScrollView maximumZoomScale={2}>
             <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
               {/* お知らせ日 */}
               <Text style={{ fontSize: 22, fontWeight: "bold" }}>
