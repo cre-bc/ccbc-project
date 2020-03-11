@@ -26,14 +26,14 @@ export default class Home extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.setState({ isProcessing: true })
+
     this.props.navigation.addListener(
       'willFocus', () => this.onWillFocus())
   }
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
-    this.setState({ isProcessing: true })
-
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
@@ -95,7 +95,7 @@ export default class Home extends BaseComponent {
           textStyle={styles.spinnerTextStyle}
         />
 
-        <View style={[{ flex: 0.28 }]}>
+        <View style={[{ flex: 0.30 }]}>
           <Text />
         </View>
 
@@ -121,26 +121,26 @@ export default class Home extends BaseComponent {
                     slideStyle={{ flex: 1 }}
                     loop={true}
                     autoplay={true}
+                    lockScrollWhileSnapping={true}
                   />
-                  <View>
-                    <Pagination
-                      dotsLength={this.state.adList.length}
-                      activeDotIndex={this.state.activeSlide}
-                      containerStyle={{ paddingVertical: 5 }}
-                      dotStyle={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        marginHorizontal: 8,
-                        backgroundColor: 'rgba(200, 200, 200, 0.92)'
-                      }}
-                      inactiveDotStyle={
-                        {}
-                      }
-                      inactiveDotOpacity={0.4}
-                      inactiveDotScale={0.6}
-                    />
-                  </View>
+                  <Pagination
+                    dotsLength={this.state.adList.length}
+                    activeDotIndex={this.state.activeSlide}
+                    containerStyle={{ paddingVertical: 5 }}
+                    dotStyle={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      marginHorizontal: 8,
+                      backgroundColor: 'rgba(200, 200, 200, 0.92)'
+                    }}
+                    inactiveDotStyle={
+                      {}
+                    }
+                    inactiveDotOpacity={0.4}
+                    inactiveDotScale={0.6}
+                  />
+                  {/* <Text>{this.state.activeSlide}</Text> */}
                 </View>
               )}
             </View>

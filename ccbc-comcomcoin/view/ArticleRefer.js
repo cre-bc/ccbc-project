@@ -42,6 +42,9 @@ export default class ArticleRefer extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    // 初期表示時のisProcessingはcomponentWillMountでのみ行う（iOSの場合にisProcessingが解除されない問題のため）
+    this.setState({ isProcessing: true })
+
     this.props.navigation.addListener(
       'willFocus', () => this.onWillFocus())
   }
@@ -72,8 +75,6 @@ export default class ArticleRefer extends BaseComponent {
   }
 
   readArticle = async (isFirst) => {
-    this.setState({ isProcessing: true })
-
     // 記事API.記事リスト取得処理の呼び出し
     await fetch(restdomain + '/article/findArticle', {
       method: 'POST',
@@ -319,7 +320,7 @@ export default class ArticleRefer extends BaseComponent {
             {(() => {
               if (this.state.mode === "article") {
                 return (
-                  <Icon name="search" type="font-awesome" color="white"
+                  <Icon name="search" type="font-awesome" color="white" size={30}
                     onPress={() => this.onClickSearchArticleBtn()} />
                 )
               }
@@ -338,7 +339,7 @@ export default class ArticleRefer extends BaseComponent {
             {(() => {
               if (this.state.mode === "article") {
                 return (
-                  <Icon name="edit" type="font-awesome" color="white"
+                  <Icon name="edit" type="font-awesome" color="white" size={30}
                     onPress={() => this.onClickNewArticleBtn()}
                   />
                 )
@@ -486,19 +487,19 @@ export default class ArticleRefer extends BaseComponent {
             <View style={{ flexDirection: 'row' }}>
               {/* 検索アイコン */}
               <View style={{ marginLeft: 10 }}>
-                <Icon name="search" type="font-awesome" color="black"
+                <Icon name="search" type="font-awesome" color="black" size={30}
                   onPress={() => this.onClickDlgSearchBtn()} />
               </View>
 
               {/* 検索クリアアイコン */}
               <View style={{ flex: 1, alignItems: 'flex-start', marginLeft: 10 }}>
-                <Icon name="search-minus" type="font-awesome" color="black"
+                <Icon name="search-minus" type="font-awesome" color="black" size={30}
                   onPress={() => this.onClickDlgClearBtn()} />
               </View>
 
               {/* 閉じるアイコン */}
               <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
-                <Icon name="times-circle" type="font-awesome" color="black"
+                <Icon name="times-circle" type="font-awesome" color="black" size={30}
                   onPress={() => { this.setState({ searchDialogVisible: false }) }}
                 />
               </View>

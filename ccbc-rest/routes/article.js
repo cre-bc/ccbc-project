@@ -12,7 +12,8 @@ const jimuShainPk = require('./common/constans.js').jimuShainPk
 var multer = require('multer')
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/article')
+    // forever起動時にuploadが正常に動作しないため、暫定対応
+    cb(null, '/home/BLOCKCHAIN/ccbc-rest/public/uploads/article')
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname)

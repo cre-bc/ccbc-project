@@ -352,7 +352,7 @@ export default class ArticleEntry extends BaseComponent {
                     </View>
                     {/* 画像削除アイコン */}
                     <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
-                      <Icon name="times-circle" type="font-awesome" color="black"
+                      <Icon name="times-circle" type="font-awesome" color="black" size={30}
                         onPress={() => { this.setState({ imageData: { uri: "" }, file_path: "" }) }}
                       />
                     </View>
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     // marginLeft: 10,
     // marginRight: 10,
     width: 100,
-    backgroundColor: 'lightblue',
+    backgroundColor: '#FFB300',
     // flexDirection: 'row'
   },
   selectButtonTitleView: {
