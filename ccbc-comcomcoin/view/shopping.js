@@ -16,6 +16,7 @@ import AlertDialog from "./components/AlertDialog";
 import ConfirmDialog from "./components/ConfirmDialog";
 import RNPickerSelect from "react-native-picker-select";
 import Spinner from "react-native-loading-spinner-overlay";
+import * as Speech from 'expo-speech';
 
 const restdomain = require("./common/constans.js").restdomain;
 
@@ -34,6 +35,7 @@ export default class Shopping extends BaseComponent {
       m_bokin_pk: 0,
       alertDialogVisible: false,
       alertDialogMessage: "",
+      finDialogVisible: false,
       confirmDialogVisible: false,
       confirmDialogMessage: "",
       isScaning: false,
@@ -242,9 +244,14 @@ export default class Shopping extends BaseComponent {
               alertDialogMessage: alertMessage
             });
           } else {
-            // ホーム画面に戻る
-            this.props.navigation.navigate("Home");
-            this.setState({ isProcessing: false });
+            // 支払い完了ダイアログを表示し、閉じるとホーム画面に戻る
+            this.setState({
+              isProcessing: false,
+              finDialogVisible: true
+            });
+            Speech.speak("com com coin", {
+              language: "en"
+            });
           }
         }.bind(this)
       )
@@ -552,6 +559,13 @@ export default class Shopping extends BaseComponent {
             message={this.state.alertDialogMessage}
             handleClose={() => {
               this.setState({ alertDialogVisible: false });
+            }}
+          />
+          <AlertDialog
+            modalVisible={this.state.finDialogVisible}
+            message={"支払いが完了しました"}
+            handleClose={() => {
+              this.props.navigation.navigate("Home");
             }}
           />
         </View>

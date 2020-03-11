@@ -108,7 +108,8 @@ export default class ArticleRefer extends BaseComponent {
             }
             this.setState({
               articleList: data,
-              readLastKijiPk: readLastKijiPk
+              readLastKijiPk: readLastKijiPk,
+              isProcessing: false
             })
           }
         }.bind(this)

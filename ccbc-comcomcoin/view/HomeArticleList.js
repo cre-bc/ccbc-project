@@ -1,6 +1,8 @@
 import React from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
 import { Divider, ListItem } from 'react-native-elements'
+import moment from 'moment'
+import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
@@ -83,7 +85,7 @@ export default class HomeArticleList extends BaseComponent {
                   title={item.title}
                   titleNumberOfLines={2}
                   subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
-                  subtitle={item.hashtag_str}
+                  subtitle={moment(new Date(item.post_dt)).format('YYYY/MM/DD') + "　" + item.hashtag_str}
                   roundAvatar
                   // avatar={item.avatar}
                   badge={{

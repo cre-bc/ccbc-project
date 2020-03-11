@@ -1,5 +1,5 @@
 import React from 'react'
-import { Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
 import Spinner from 'react-native-loading-spinner-overlay'
@@ -9,7 +9,7 @@ import BaseComponent from './components/BaseComponent'
 
 const restdomain = require('./common/constans.js').restdomain
 const windowWidth = Dimensions.get('window').width
-const articleImageWidth = windowWidth * 1.4 / 3.5
+const articleImageWidth = windowWidth * 0.9 / 3.0
 
 export default class Home extends BaseComponent {
   constructor(props) {
@@ -95,7 +95,7 @@ export default class Home extends BaseComponent {
           textStyle={styles.spinnerTextStyle}
         />
 
-        <View style={[{ flex: 0.32 }]}>
+        <View style={[{ flex: 0.28 }]}>
           <Text />
         </View>
 
@@ -159,10 +159,21 @@ export default class Home extends BaseComponent {
             <View>
               {/* お知らせの件数分、繰り返し（最大3件） */}
               {this.state.infoList.map((item, i) => {
+                let font = ""
+                if (Platform.OS === "ios") {
+                  font = "Courier"
+                }
                 return (
-                  <Text ellipsizeMode={"tail"} numberOfLines={1} style={{ fontSize: 18, marginTop: 0, marginBottom: 3 }} key={i}>
-                    {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}{item.title}
-                  </Text>
+                  <View style={{ flex: 1, flexDirection: 'row', marginTop: 0, marginBottom: 3 }} key={i}>
+                    <Text ellipsizeMode={"tail"} numberOfLines={1}>
+                      <Text style={{ fontSize: 18, fontFamily: font }}>
+                        {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}
+                      </Text>
+                      <Text style={{ fontSize: 18 }}>
+                        {item.title}
+                      </Text>
+                    </Text>
+                  </View>
                 )
               })}
               {this.state.infoList.length === 0 && (
@@ -197,7 +208,7 @@ export default class Home extends BaseComponent {
                     <Card containerStyle={styles.articleCard}>
                       <View style={{ flexDirection: 'row' }}>
                         {/* 画像 */}
-                        <View style={{ flex: 1.5 }}>
+                        <View style={{ flex: 1 }}>
                           {(item.file_path !== "" && item.file_path !== null) &&
                             <Image
                               source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
@@ -226,7 +237,11 @@ export default class Home extends BaseComponent {
                           </Text>
                           {/* いいね */}
                           <Text style={{ fontSize: 16, color: 'red' }}>
-                            {'♡ '}{item.good_cnt}{'　'}
+                            {'♡ '}{item.good_cnt}
+                          </Text>
+                          {/* 投稿日 */}
+                          <Text style={{ fontSize: 14, color: 'gray' }}>
+                            {moment(new Date(item.post_dt)).format('YYYY/MM/DD')}
                           </Text>
                         </View>
                       </View>
@@ -263,7 +278,7 @@ export default class Home extends BaseComponent {
                     <Card containerStyle={styles.articleCard}>
                       <View style={{ flexDirection: 'row' }}>
                         {/* 画像 */}
-                        <View style={{ flex: 1.5 }}>
+                        <View style={{ flex: 1 }}>
                           {(item.file_path !== "" && item.file_path !== null) &&
                             <Image
                               source={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
@@ -292,7 +307,11 @@ export default class Home extends BaseComponent {
                           </Text>
                           {/* いいね */}
                           <Text style={{ fontSize: 16, color: 'red' }}>
-                            {'♡ '}{item.good_cnt}{'　'}
+                            {'♡ '}{item.good_cnt}
+                          </Text>
+                          {/* 投稿日 */}
+                          <Text style={{ fontSize: 14, color: 'gray' }}>
+                            {moment(new Date(item.post_dt)).format('YYYY/MM/DD')}
                           </Text>
                         </View>
                       </View>

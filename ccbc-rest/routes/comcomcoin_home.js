@@ -442,7 +442,7 @@ function getHomeKiji(db, req, isNew) {
   return new Promise((resolve, reject) => {
     // 最新の3件を取得
     var sql =
-      "select kij.t_kiji_pk, kij.title, kij.file_path," +
+      "select kij.t_kiji_pk, kij.title, kij.file_path, kij.post_dt, " +
       " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
       " coalesce(goo.cnt, 0) as good_cnt" +
       " from t_kiji kij" +
@@ -546,7 +546,7 @@ function getOshirase(db, req) {
 function getKijiList(db, req, mode) {
   return new Promise((resolve, reject) => {
     var sql =
-      "select kij.t_kiji_pk, kij.title, kij.file_path," +
+      "select kij.t_kiji_pk, kij.title, kij.file_path, kij.post_dt, " +
       " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
       " coalesce(goo.cnt, 0) as good_cnt" +
       " from t_kiji kij" +
