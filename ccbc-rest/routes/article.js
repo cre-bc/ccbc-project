@@ -128,12 +128,11 @@ async function findArticleList(req, res) {
     })
       .then(result => {
         // コミットしたらこっち
-        console.log('正常')
+        console.log('findArticleList : 正常')
       })
       .catch(e => {
         // ロールバックしたらこっち
-        console.log('異常')
-        console.log(e)
+        console.log('findArticleList : 異常', e)
         res.json({ status: false })
       })
   }
@@ -194,13 +193,12 @@ async function edit(req, res) {
   })
     .then(result => {
       // コミットしたらこっち
-      console.log('正常')
+      console.log('edit : 正常')
       res.json({ status: true })
     })
     .catch(e => {
       // ロールバックしたらこっち
-      console.log('異常')
-      console.log(e)
+      console.log('edit : 異常', e)
       res.json({ status: false })
     })
 }
@@ -218,13 +216,12 @@ async function good(req, res) {
   })
     .then(result => {
       // コミットしたらこっち
-      console.log('正常')
+      console.log('good : 正常')
       res.json({ status: true })
     })
     .catch(e => {
       // ロールバックしたらこっち
-      console.log('異常')
-      console.log(e)
+      console.log('good : 異常', e)
       res.json({ status: false })
     })
 }
@@ -242,13 +239,12 @@ async function favorite(req, res) {
   })
     .then(result => {
       // コミットしたらこっち
-      console.log('正常')
+      console.log('favorite : 正常')
       res.json({ status: true })
     })
     .catch(e => {
       // ロールバックしたらこっち
-      console.log('異常')
-      console.log(e)
+      console.log('favorite : 異常', e)
       res.json({ status: false })
     })
 }
