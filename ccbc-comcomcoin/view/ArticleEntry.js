@@ -215,6 +215,7 @@ export default class ArticleEntry extends BaseComponent {
         return response.json()
       })
       .then(function (json) {
+        this.setState({ isProcessing: false })
         if (!json.status) {
           alert("投稿処理でエラーが発生しました")
         } else {

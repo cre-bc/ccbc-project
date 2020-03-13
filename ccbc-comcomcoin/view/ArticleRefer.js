@@ -89,6 +89,7 @@ export default class ArticleRefer extends BaseComponent {
         function (json) {
           if (typeof json.data === 'undefined') {
             // 結果が取得できない場合は終了
+            this.setState({ isProcessing: false })
           } else {
             // 取得したデータをStateに格納
             if (this.state.mode === "home") {
