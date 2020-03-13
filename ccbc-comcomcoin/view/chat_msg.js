@@ -42,6 +42,10 @@ export default class ChatMsgForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+    
     this.setState({ isProcessing: true });
     this.props.navigation.addListener("willFocus", () => this.onWillFocus());
     // チャットメッセージの受信（websocket）

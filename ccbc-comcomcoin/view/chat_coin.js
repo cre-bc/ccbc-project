@@ -51,6 +51,10 @@ export default class ChatCoinForm extends BaseComponent {
   }
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
     this.setState({ isProcessing: true });
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
@@ -201,7 +205,8 @@ export default class ChatCoinForm extends BaseComponent {
             if (alertMessage !== "") {
               this.setState({
                 alertDialogVisible: true,
-                alertDialogMessage: alertMessage
+                alertDialogMessage: alertMessage,
+                isProcessing: false
               });
               return;
             }
