@@ -167,10 +167,10 @@ export default class Home extends BaseComponent {
                   <View style={{ flex: 1, flexDirection: 'row', marginTop: 0, marginBottom: 3 }} key={i}>
                     <Text ellipsizeMode={"tail"} numberOfLines={1}>
                       <Text style={{ fontSize: 18, fontFamily: font }}>
-                        {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}{'  '}
+                        {moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
                       </Text>
                       <Text style={{ fontSize: 18 }}>
-                        {item.title}
+                        {'  '}{item.title}
                       </Text>
                     </Text>
                   </View>
