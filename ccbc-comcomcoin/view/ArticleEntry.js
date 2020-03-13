@@ -144,7 +144,10 @@ export default class ArticleEntry extends BaseComponent {
 
   /** 記事更新処理 */
   entry = async () => {
-    this.setState({ isProcessing: true })
+    // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
+    if (this.state.t_kiji_pk === "") {
+      this.setState({ isProcessing: true })
+    }
     this.setState({ confirmDialogVisible: false })
 
     if (this.state.imageData.uri !== "") {
@@ -202,7 +205,10 @@ export default class ArticleEntry extends BaseComponent {
 
   /** データ更新処理 */
   edit = async (fileName) => {
-    this.setState({ isProcessing: true })
+    // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
+    if (this.state.t_kiji_pk === "") {
+      this.setState({ isProcessing: true })
+    }
     this.state.file_path = fileName
 
     await fetch(restdomain + '/article/edit', {
