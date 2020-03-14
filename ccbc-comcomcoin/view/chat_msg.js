@@ -5,9 +5,10 @@ import {
   Image,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   Platform
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
+import { GiftedChat, Composer } from "react-native-gifted-chat";
 import io from "socket.io-client";
 import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
@@ -45,13 +46,13 @@ export default class ChatMsgForm extends BaseComponent {
     if (!socket.connected) {
       socket.connect();
     }
-    
+
     this.setState({ isProcessing: true });
     this.props.navigation.addListener("willFocus", () => this.onWillFocus());
     // チャットメッセージの受信（websocket）
     socket.on(
       "comcomcoin_chat",
-      function(message) {
+      function (message) {
         this.getChatMessage(message);
       }.bind(this)
     );
@@ -102,11 +103,11 @@ export default class ChatMsgForm extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -163,12 +164,12 @@ export default class ChatMsgForm extends BaseComponent {
       headers: new Headers({ "Content-type": "application/json" })
     })
       .then(
-        function(response) {
+        function (response) {
           return response.json();
         }.bind(this)
       )
       .then(
-        function(json) {
+        function (json) {
           if (json.status) {
             this.setState(previousState => ({
               messages: GiftedChat.append(previousState.messages, messages)
@@ -194,11 +195,11 @@ export default class ChatMsgForm extends BaseComponent {
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           if (json.status) {
             var chat = JSON.parse(message);
             var user = {
@@ -216,6 +217,17 @@ export default class ChatMsgForm extends BaseComponent {
       )
       .catch(error => console.error(error));
   };
+
+  renderComposer = props => {
+    return (
+      <View style={{ flexDirection: 'row' }}>
+        <Composer {...props} />
+        <TouchableOpacity>
+          <Text>送信</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   render() {
     return (
@@ -252,6 +264,8 @@ export default class ChatMsgForm extends BaseComponent {
           timeFormat={"HH:mm"}
           messages={this.state.messages} //stateで管理しているメッセージ
           onSend={messages => this.onSend(messages)} //送信ボタン押した時の動作
+          placeholder={"メッセージを入力"}
+          minComposerHeight={50}
           user={{
             _id: 1
           }}
