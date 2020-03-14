@@ -31,6 +31,7 @@ export default class ChatMsgForm extends BaseComponent {
       loginShainPk: 0,
       imageFileName: null,
       shimei: null,
+      expoPushToken: null,
       kengenCd: null,
       text: "",
       fromShainPk: 0,
@@ -89,6 +90,8 @@ export default class ChatMsgForm extends BaseComponent {
     this.state.shimei = this.props.navigation.getParam("shimei");
     // チャット相手イメージファイル
     this.state.imageFileName = this.props.navigation.getParam("image_file_nm");
+    // チャット相手先EXPOプッシュトークン
+    this.state.expoPushToken = this.props.navigation.getParam("expo_push_token");
 
     // 初期表示情報取得
     this.setState({ chatUser: this.state.shimei });
@@ -182,6 +185,15 @@ export default class ChatMsgForm extends BaseComponent {
               createdAt: new Date()
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
+            // プッシュ通知
+            if (this.state.expoPushToken !== "" && this.state.expoPushToken !== null) {
+              fetch("https://exp.host/--/api/v2/push/send", {
+                method: "POST",
+                body: JSON.stringify([{ to: this.state.expoPushToken, body: this.state.message }]),
+                "badge": 1,
+                headers: new Headers({ "Content-type": "application/json" })
+              });
+            }
           }
         }.bind(this)
       )

@@ -74,12 +74,13 @@ export default class ChatSelectForm extends BaseComponent {
   };
 
   /** チャットユーザー選択 */
-  onPressChatMsgButton = (e, t_shain_Pk, shimei, image_file_nm) => {
+  onPressChatMsgButton = (e, t_shain_Pk, shimei, image_file_nm, expo_push_token) => {
     // 画面遷移
     this.props.navigation.navigate("ChatMsg", {
       fromShainPk: t_shain_Pk,
       shimei: shimei,
-      image_file_nm: image_file_nm
+      image_file_nm: image_file_nm,
+      expo_push_token: expo_push_token
     });
   };
 
@@ -106,7 +107,8 @@ export default class ChatSelectForm extends BaseComponent {
                       e,
                       `${n.t_shain_pk}`,
                       `${n.shimei}`,
-                      `${n.image_file_nm}`
+                      `${n.image_file_nm}`,
+                      `${n.expo_push_token}`
                     )
                   }
                 />

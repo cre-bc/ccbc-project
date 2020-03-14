@@ -125,12 +125,12 @@ function bcrequest(req, datas) {
  */
 function tokenUpdate(tx, req, token) {
   return new Promise((resolve, reject) => {
-    var sql = 'update t_shain set token = ?' + 'where user_id = ?'
+    var sql = 'update t_shain set token = ?, expo_push_token = ?' + 'where user_id = ?'
 
     db
       .query(sql, {
         transaction: tx,
-        replacements: [token, req.body.id]
+        replacements: [token, req.body.expo_push_token, req.body.id]
       })
       .spread((datas, metadata) => {
         console.log(datas)

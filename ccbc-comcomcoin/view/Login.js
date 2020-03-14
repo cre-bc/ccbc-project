@@ -8,6 +8,8 @@ import {
   Image
 } from 'react-native'
 import { Button, FormLabel, FormInput, Card } from 'react-native-elements'
+import * as Permissions from 'expo-permissions'
+import { Notifications } from 'expo'
 
 const restdomain = require('./common/constans.js').restdomain
 
@@ -25,7 +27,8 @@ export default class Login extends Component {
       saveFlg: false,
       group_id: '',
       db_name: '',
-      bc_addr: ''
+      bc_addr: '',
+      expo_push_token: ''
     }
   }
 
@@ -39,6 +42,19 @@ export default class Login extends Component {
     this.setState({ group_id: groupInfo['group_id'] })
     this.setState({ db_name: groupInfo['db_name'] })
     this.setState({ bc_addr: groupInfo['bc_addr'] })
+
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    );
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+    if (finalStatus === 'granted') {
+      let token = await Notifications.getExpoPushTokenAsync();
+      this.setState({ expo_push_token: token })
+    }
   }
 
   getGroupInfo = async () => {
