@@ -26,16 +26,11 @@ export default class ChatMsgForm extends BaseComponent {
     this.state = {
       comment: {},
       resultList: [],
-      userid: null,
-      password: null,
-      loginShainPk: 0,
-      imageFileName: null,
-      shimei: null,
-      expoPushToken: null,
-      kengenCd: null,
       text: "",
       fromShainPk: 0,
       chatUser: null,
+      fromImageFileName: null,
+      fromExpoPushToken: null,
       messages: [],
       message: [],
       isProcessing: false
@@ -87,15 +82,13 @@ export default class ChatMsgForm extends BaseComponent {
     // チャット相手
     this.state.fromShainPk = this.props.navigation.getParam("fromShainPk");
     // チャット相手氏名
-    this.state.shimei = this.props.navigation.getParam("shimei");
+    this.state.chatUser = this.props.navigation.getParam("fromShimei");
     // チャット相手イメージファイル
-    this.state.imageFileName = this.props.navigation.getParam("image_file_nm");
+    this.state.fromImageFileName = this.props.navigation.getParam("fromImageFileNm");
     // チャット相手先EXPOプッシュトークン
-    this.state.expoPushToken = this.props.navigation.getParam("expo_push_token");
+    this.state.fromExpoPushToken = this.props.navigation.getParam("fromExpoPushToken");
 
     // 初期表示情報取得
-    this.setState({ chatUser: this.state.shimei });
-
     this.findChat();
   };
 
@@ -136,8 +129,8 @@ export default class ChatMsgForm extends BaseComponent {
               createdAt: dataList[i].post_dttm,
               user: {
                 _id: chatNo,
-                name: this.state.shimei,
-                avatar: restdomain + `/uploads/${this.state.imageFileName}`
+                name: this.state.chatUser,
+                avatar: restdomain + `/uploads/${this.state.fromImageFileName}`
               }
             });
           }
@@ -152,8 +145,9 @@ export default class ChatMsgForm extends BaseComponent {
     // 画面遷移（コイン送付画面）
     this.props.navigation.navigate("ChatCoin", {
       fromShainPk: this.state.fromShainPk,
-      shimei: this.state.chatUser,
-      image_file_nm: this.state.imageFileName
+      fromShimei: this.state.chatUser,
+      fromImageFileNm: this.state.fromImageFileName,
+      fromExpoPushToken: this.state.fromExpoPushToken
     });
   }
 
@@ -186,10 +180,16 @@ export default class ChatMsgForm extends BaseComponent {
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
             // プッシュ通知
-            if (this.state.expoPushToken !== "" && this.state.expoPushToken !== null) {
+            if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
               fetch("https://exp.host/--/api/v2/push/send", {
                 method: "POST",
-                body: JSON.stringify([{ to: this.state.expoPushToken, body: this.state.message }]),
+                body: JSON.stringify([
+                  {
+                    to: this.state.fromExpoPushToken,
+                    title: this.state.shimei,
+                    body: this.state.message,
+                    data: { title: this.state.shimei, message: this.state.message }
+                  }]),
                 "badge": 1,
                 headers: new Headers({ "Content-type": "application/json" })
               });
@@ -216,8 +216,8 @@ export default class ChatMsgForm extends BaseComponent {
             var chat = JSON.parse(message);
             var user = {
               _id: 2,
-              name: this.state.shimei,
-              avatar: restdomain + `/uploads/${this.state.imageFileName}`
+              name: this.state.chatUser,
+              avatar: restdomain + `/uploads/${this.state.fromImageFileName}`
             };
             chat.user = user;
             var messages = [chat];

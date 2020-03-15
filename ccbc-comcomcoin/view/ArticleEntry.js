@@ -112,7 +112,7 @@ export default class ArticleEntry extends BaseComponent {
     if (this.state.title.length > CHAR_LEN_TITLE) {
       alertMessage += "タイトルの文字数が超過しています" + "（" + this.state.title.length + "文字）\n\n"
     }
-    var hashes = this.state.hashtag_str.replace("　", " ").split(" ")
+    var hashes = this.state.hashtag_str.replace("　", " ").replace("　", " ").split(" ")
     if (hashes.length > HASHTAG_UPPER_LIMIT) {
       alertMessage += "タグの数は" + HASHTAG_UPPER_LIMIT + "つまでです\n\n"
     } else {

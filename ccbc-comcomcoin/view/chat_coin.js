@@ -29,13 +29,10 @@ export default class ChatCoinForm extends BaseComponent {
     this.state = {
       comment: "",
       resultList: [],
-      userid: null,
-      password: null,
-      loginShainPk: 0,
-      imageFileName: null,
-      shimei: null,
-      kengenCd: null,
       fromShainPk: 0,
+      fromShimei: null,
+      fromImageFileName: null,
+      fromExpoPushToken: null,
       coinList: [],
       target_manager: "",
       bccoin: 0,
@@ -72,9 +69,11 @@ export default class ChatCoinForm extends BaseComponent {
     // チャット相手
     this.state.fromShainPk = this.props.navigation.getParam("fromShainPk");
     // チャット相手氏名
-    this.state.shimei = this.props.navigation.getParam("shimei");
+    this.state.fromShimei = this.props.navigation.getParam("fromShimei");
     // チャット相手イメージファイル
-    this.state.imageFileName = this.props.navigation.getParam("image_file_nm");
+    this.state.fromImageFileNm = this.props.navigation.getParam("fromImageFileNm");
+    // チャット相手先EXPOプッシュトークン
+    this.state.fromExpoPushToken = this.props.navigation.getParam("fromExpoPushToken");
     // 送付コインリスト
     this.setState({
       coinList: [
@@ -220,10 +219,27 @@ export default class ChatCoinForm extends BaseComponent {
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
 
+            // プッシュ通知
+            if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
+              fetch("https://exp.host/--/api/v2/push/send", {
+                method: "POST",
+                body: JSON.stringify([
+                  {
+                    to: this.state.fromExpoPushToken,
+                    title: this.state.shimei,
+                    body: this.state.comment,
+                    data: { title: this.state.shimei, message: this.state.comment }
+                  }]),
+                "badge": 1,
+                headers: new Headers({ "Content-type": "application/json" })
+              });
+            }
+
             this.props.navigation.navigate("ChatMsg", {
               t_shain_Pk: this.state.fromShainPk,
-              shimei: this.state.shimei,
-              image_file_nm: this.state.imageFileName
+              fromShimei: this.state.fromShimei,
+              fromImageFileNm: this.state.fromImageFileNm,
+              fromExpoPushToken: this.state.fromExpoPushToken
             });
             this.setState({ isProcessing: false });
           }
@@ -249,7 +265,7 @@ export default class ChatCoinForm extends BaseComponent {
           <View style={{ flex: 1, alignItems: "flex-start" }} />
           {/* チャット相手 */}
           <View style={{ alignItems: "center" }}>
-            <Text style={styles.screenTitleText}>{this.state.shimei}</Text>
+            <Text style={styles.screenTitleText}>{this.state.fromShimei}</Text>
           </View>
           {/* 空項目 */}
           <View style={{ flex: 1, alignItems: "flex-end" }} />
@@ -304,7 +320,7 @@ export default class ChatCoinForm extends BaseComponent {
                     rounded
                     medium
                     source={{
-                      uri: restdomain + `/uploads/${this.state.imageFileName}`
+                      uri: restdomain + `/uploads/${this.state.fromImageFileNm}`
                     }}
                   />
                   <Text
@@ -314,7 +330,7 @@ export default class ChatCoinForm extends BaseComponent {
                       marginTop: 20
                     }}
                   >
-                    {this.state.shimei}
+                    {this.state.fromShimei}
                   </Text>
                 </View>
               </View>

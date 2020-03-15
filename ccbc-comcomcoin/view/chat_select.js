@@ -13,13 +13,7 @@ export default class ChatSelectForm extends BaseComponent {
   constructor(props) {
     super();
     this.state = {
-      resultList: [],
-      userid: null,
-      password: null,
-      loginShainPk: 0,
-      imageFileName: null,
-      shimei: null,
-      kengenCd: null
+      resultList: []
     };
     this.props = props;
   }
@@ -78,9 +72,9 @@ export default class ChatSelectForm extends BaseComponent {
     // 画面遷移
     this.props.navigation.navigate("ChatMsg", {
       fromShainPk: t_shain_Pk,
-      shimei: shimei,
-      image_file_nm: image_file_nm,
-      expo_push_token: expo_push_token
+      fromShimei: shimei,
+      fromImageFileNm: image_file_nm,
+      fromExpoPushToken: expo_push_token
     });
   };
 
