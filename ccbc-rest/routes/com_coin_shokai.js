@@ -145,7 +145,7 @@ async function findshokai_torihiki(req, res) {
 async function findshokai(req, res) {
   var resbccoin = [];
   //贈与テーブルより、取引情報取得（使用コイン、受領コイン共通）
-  resbccoin = await getshokaiList(req);
+  resbccoin = await getshokaiList(db, req);
 
   // 贈与テーブルの情報（resbccoin）の情報をループさせながら紐づける
   for (let i in resbccoin) {

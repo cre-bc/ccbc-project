@@ -69,9 +69,9 @@ async function findshojicoin(req, res) {
   console.log("API : findshojicoin →中身");
 
   //社員リストの情報取得
-  resdatas = await getshainList(req);
+  resdatas = await getshainList(db, req);
   //贈与テーブルより、取引情報取得（所持コイン）
-  resbccoin = await getshojicoinList(req);
+  resbccoin = await getshojicoinList(db, req);
 
   console.log(resdatas);
   console.log(resbccoin);

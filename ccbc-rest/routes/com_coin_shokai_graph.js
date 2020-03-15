@@ -93,9 +93,9 @@ async function findshokaigraph(req, res) {
   var resbccoin = [];
 
   //社員リストの情報取得
-  resdatas = await getgraphshainList(req);
+  resdatas = await getgraphshainList(db, req);
   //贈与テーブルより、取引情報取得（使用コイン、受領コイン共通）
-  resbccoin = await getgraphcoinList(req);
+  resbccoin = await getgraphcoinList(db, req);
 
   // 使用コイン（motocoin）と受領コイン（sakicoin）はgetgraphcoinList（使用コインと受領コインのリスト）をgetgraphshainList（社員リスト）に紐づける
 
