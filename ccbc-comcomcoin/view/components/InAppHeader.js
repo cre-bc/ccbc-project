@@ -11,6 +11,7 @@ class InAppHeader extends Component {
 	// ログアウトボタン押下
 	onPressLogoutButton = () => {
 		AsyncStorage.removeItem('groupInfo')
+		AsyncStorage.removeItem('loginInfo')
 		this.props.navigate('LoginGroup')
 	}
 

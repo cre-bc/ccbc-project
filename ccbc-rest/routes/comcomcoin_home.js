@@ -13,34 +13,6 @@ router.post('/findHome', (req, res) => {
   console.log('API : findHome - start')
   findHomeInfo(req, res)
 
-  // const resdatas = { adList: [], infoList: [], newArticleList: [], popularArticleList: [] }
-  // resdatas.adList = [
-  //   { renban: 1, file_path: 'kokoku_1.jpg' },
-  //   { renban: 2, file_path: 'kokoku_2.jpg' },
-  //   { renban: 3, file_path: 'kokoku_3.jpg' },
-  //   { renban: 4, file_path: 'kokoku_4.jpg' },
-  //   { renban: 5, file_path: 'CONSADOLE.png' },
-  // ]
-  // resdatas.infoList = [
-  //   { notice_dt: "2019/04/12", title: "北海道新聞にHARVESTの記事が掲載されました。" },
-  //   { notice_dt: "2019/03/15", title: "HARVESTに関するプレスリリースしました。" },
-  //   { notice_dt: "2019/03/15", title: "HARVESTに関するプレスリリースしました。" },
-  // ]
-  // resdatas.newArticleList = [
-  //   { t_kiji_pk: 1, title: "マラソン大会へのお誘い", hashtag_str: "#スポーツ　#マラソン　", file_path: "test001.png", good_cnt: 12 },
-  //   { t_kiji_pk: 2, title: "ビアガーデン開催", hashtag_str: "#飲み会　#お店　", file_path: "", good_cnt: 0 },
-  //   { t_kiji_pk: 3, title: "ビアガーデン開催", hashtag_str: "#飲み会　#お店　", file_path: "", good_cnt: 0 },
-  // ]
-  // resdatas.popularArticleList = [
-  //   { t_kiji_pk: 1, title: "マラソン大会へのお誘い", hashtag_str: "#スポーツ　#マラソン　", file_path: "test001.png", good_cnt: 12 },
-  //   { t_kiji_pk: 2, title: "ビアガーデン開催", hashtag_str: "#飲み会　#お店　", file_path: "", good_cnt: 0 },
-  //   { t_kiji_pk: 3, title: "ビアガーデン開催", hashtag_str: "#飲み会　#お店　", file_path: "", good_cnt: 0 },
-  // ]
-  // res.json({
-  //   status: true,
-  //   data: resdatas
-  // })
-
   console.log('API : findHome - end')
 })
 
@@ -51,27 +23,6 @@ router.post('/findHome', (req, res) => {
 router.post('/findHomeAdvertise', (req, res) => {
   console.log('API : findHomeAdvertise - start')
   findHomeAdvertise(req, res)
-
-  // const resdatas = {
-  //   file_path: "CONSADOLE.png",
-  //   comment: "サッカーＪ１　コンサドーレ札幌の観戦案内です。\n" +
-  //     "■8月10日（土）14:00キックオフ　vs 浦和レッズ\n" +
-  //     "■8月24日（土）13:00キックオフ　vs FC東京\n" +
-  //     "場所はいずれも札幌ドーム。\n" +
-  //     "チケットは「浦和レッズ戦　7枚」「FC東京戦　7枚」です。\n\n" +
-  //     "観戦を希望される方は、三上まで連絡ください。\n" +
-  //     "※締め切りは、6月19日（水）17時。\n" +
-  //     "\n" +
-  //     "※締め切りは上記の通りですが、チケットの数に限りがあることと、観戦当日までの段取りの調整を鑑み、早めの連絡をお願いいたします。\n" +
-  //     "\n\n" +
-  //     "ご存知の通り、今年度から弊社はコンサドーレ札幌のサポートシップ・パートナーとなりました。\n\n" +
-  //     "5月4日のヴィッセル神戸戦を観戦したメンバーから好評をいただき、サッカーを知らない人でも楽しめたようです。\n\n" +
-  //     "みなさん、北海道のプロスポーツを応援し、北海道を元気にしましょう！\n"
-  // }
-  // res.json({
-  //   status: true,
-  //   data: resdatas
-  // })
 
   console.log('API : findHomeAdvertise - end')
 })
@@ -84,83 +35,6 @@ router.post('/findHomeInfoList', (req, res) => {
   console.log('API : findHomeInfoList - start')
   findHomeInfoList(req, res)
 
-  // const resdatas = [
-  //   {
-  //     renban: 1,
-  //     title: '北海道新聞にHARVESTの記事が掲載されました。',
-  //     notice_dt: '2019/04/12'
-  //   },
-  //   {
-  //     renban: 2,
-  //     title: 'HARVESTに関するプレスリリースしました。',
-  //     notice_dt: '2019/03/15'
-  //   },
-  //   {
-  //     renban: 3,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 4,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 5,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 6,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 7,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 8,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 9,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 10,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 11,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 12,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 13,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   },
-  //   {
-  //     renban: 14,
-  //     title: '財界さっぽろ様の企業特集に掲載されました。',
-  //     notice_dt: '2018/09/15'
-  //   }
-  // ]
-  // res.json({
-  //   status: true,
-  //   data: resdatas
-  // })
-
   console.log('API : findHomeInfoList - end')
 })
 
@@ -172,21 +46,6 @@ router.post('/findHomeInformation', (req, res) => {
   console.log('API : findHomeInformation - start')
   findHomeInformation(req, res)
 
-  // const resdatas = {
-  //   title: "HARVESTに関するプレスリリースしました。",
-  //   comment: "アプリケーション・ソフトウェア開発を行う株式会社クリエイティブ・コンサルタント（本社：北海道札幌市、代表取締役：斉藤雅之）は3月22日、ブロックチェーン技術を活用した企業向け社内仮想通貨（以下、企業コイン）サービス「HARVEST」と「ComComCoin」を発表しました。\n\n" +
-  //     "▼お問い合わせ先\n" +
-  //     "株式会社クリエイティブ・コンサルタント\n\n" +
-  //     "〒060-0031　札幌市中央区北１条東２丁目５番地３　塚本ビル北１館２階\n" +
-  //     "TEL 011-210-7130\n" +
-  //     "E-Mail：press@hokkaido-ima.co.jp（担当者：坂本 義和）",
-  //   notice_dt: new Date()
-  // }
-  // res.json({
-  //   status: true,
-  //   data: resdatas
-  // })
-
   console.log('API : findHomeInformation - end')
 })
 
@@ -197,85 +56,6 @@ router.post('/findHomeInformation', (req, res) => {
 router.post('/findHomeArticleList', (req, res) => {
   console.log('API : findHomeArticleList - start')
   findHomeArticleList(req, res)
-
-  // const resdatas = [
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: 'リーダーコンピテンシー開催案内',
-  //     hashtag_str: '#研修, #案内',
-  //     cnt: 11
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '夏キャンプのお知らせ',
-  //     hashtag_str: '#アウトドア, #案内',
-  //     cnt: 9
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '第三回マラソン大会開催案内',
-  //     hashtag_str: '#スポーツ',
-  //     cnt: 7
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '7月の北海道の天気',
-  //     hashtag_str: '#天気',
-  //     cnt: 6
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '6月おすすめの本',
-  //     hashtag_str: '#本',
-  //     cnt: 5
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '今日の献立',
-  //     hashtag_str: '#料理',
-  //     cnt: 3
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '今日のプログラミング講座',
-  //     hashtag_str: '#プログラミング',
-  //     cnt: 1
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '6/16の天気',
-  //     hashtag_str: '#天気',
-  //     cnt: 1
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: 'ブロックチェーン勉強会について',
-  //     hashtag_str: '#研修',
-  //     cnt: 1
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '石垣の一言',
-  //     hashtag_str: '#その他',
-  //     cnt: 0
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '今日のポエム from Nakayama',
-  //     hashtag_str: '#その他',
-  //     cnt: 0
-  //   },
-  //   {
-  //     t_kiji_pk: 1,
-  //     title: '江別の謎',
-  //     hashtag_str: '#その他',
-  //     cnt: 0
-  //   }
-  // ]
-  // res.json({
-  //   status: true,
-  //   data: resdatas
-  // })
 
   console.log('API : findHomeArticleList - end')
 })
@@ -289,7 +69,7 @@ router.post('/findHomeArticleList', (req, res) => {
 async function findHomeInfo(req, res) {
   db = db2.sequelizeDB(req)
 
-  const resdatas = { adList: [], infoList: [], newArticleList: [], popularArticleList: [] }
+  const resdatas = { adList: [], infoList: [], newArticleList: [], popularArticleList: [], chatCnt: 0, articleCnt: 0 }
 
   // 広告の取得
   resdatas.adList = await getHomeKokoku(db, req)
@@ -299,6 +79,14 @@ async function findHomeInfo(req, res) {
   resdatas.newArticleList = await getHomeKiji(db, req, true)
   // 人気記事の取得
   resdatas.popularArticleList = await getHomeKiji(db, req, false)
+  // チャットの未読件数の取得
+  var resChat = await getChatMidoku(db, req)
+  resdatas.chatCnt = resChat[0].chat_cnt
+  console.log("chatCnt:", resdatas.chatCnt)
+  // 記事の未読件数の取得
+  var resArticle = await getArticleMidoku(db, req)
+  resdatas.articleCnt = resArticle[0].article_cnt
+  console.log("articleCnt:", resdatas.articleCnt)
 
   res.json({
     status: true,
@@ -401,7 +189,7 @@ function getHomeKokoku(db, req) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getHomeKokoku result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -426,7 +214,7 @@ function getHomeOshirase(db, req) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getHomeOshirase result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -461,7 +249,60 @@ function getHomeKiji(db, req, isNew) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getHomeKiji result...')
-        console.log(datas)
+        // console.log(datas)
+        return resolve(datas)
+      })
+  })
+}
+
+/**
+ * ホーム画面に表示するチャット未読件数を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getChatMidoku(db, req) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select count(*)  as chat_cnt" +
+      " from t_chat cha" +
+      " left join t_chat_kidoku kid on cha.to_shain_pk = kid.t_shain_pk and cha.from_shain_pk = kid.from_shain_pk" +
+      " where cha.delete_flg = '0'" +
+      " and cha.to_shain_pk = :t_shain_pk" +
+      " and cha.t_chat_pk > coalesce(kid.t_chat_pk, 0)"
+
+    db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW
+    })
+      .spread((datas, metadata) => {
+        console.log('DBAccess : getChatMidoku result...')
+        // console.log(datas)
+        return resolve(datas)
+      })
+  })
+}
+
+/**
+ * ホーム画面に表示する記事未読件数を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getArticleMidoku(db, req) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select count(*)  as article_cnt" +
+      " from t_kiji kij" +
+      " left join t_kiji_kidoku kid on kij.t_kiji_category_pk = kid.t_kiji_category_pk and kid.t_shain_pk = :t_shain_pk" +
+      " where kij.delete_flg = '0'" +
+      " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, 0)"
+
+    db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW
+    })
+      .spread((datas, metadata) => {
+        console.log('DBAccess : getArticleMidoku result...')
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -484,7 +325,7 @@ function getKokoku(db, req) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getKokoku result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -507,7 +348,7 @@ function getOshiraseList(db, req) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getOshiraseList result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -531,7 +372,7 @@ function getOshirase(db, req) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getOshirase result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })
@@ -578,7 +419,7 @@ function getKijiList(db, req, mode) {
     })
       .spread((datas, metadata) => {
         console.log('DBAccess : getKijiList result...')
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })

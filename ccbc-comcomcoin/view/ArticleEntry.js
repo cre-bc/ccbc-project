@@ -47,6 +47,8 @@ export default class ArticleEntry extends BaseComponent {
       alertDialogVisible: false,
       alertDialogMessage: "",
       isProcessing: false,
+      finDialogVisible: false,
+      getCoin: 0,
     }
   }
 
@@ -79,7 +81,8 @@ export default class ArticleEntry extends BaseComponent {
       // 新規投稿時
       this.setState({
         t_kiji_category_pk: paramCategory.t_kiji_category_pk,
-        t_shain_pk: this.state.login_shain_pk
+        t_shain_pk: this.state.login_shain_pk,
+        getCoin: paramCategory.get_coin
       })
     }
     this.setState({
@@ -225,11 +228,16 @@ export default class ArticleEntry extends BaseComponent {
         if (!json.status) {
           alert("投稿処理でエラーが発生しました")
         } else {
-          // 記事照会画面に戻る
-          this.props.navigation.navigate('ArticleRefer', {
-            mode: this.state.mode,
-            selectCategory: this.state.selectCategory
-          })
+          if (this.state.t_kiji_pk === "") {
+            // 新規投稿の場合は、コイン獲得のメッセージを表示してから記事照会画面に戻る
+            this.setState({ finDialogVisible: true })
+          } else {
+            // 記事照会画面に戻る
+            this.props.navigation.navigate('ArticleRefer', {
+              mode: this.state.mode,
+              selectCategory: this.state.selectCategory
+            })
+          }
         }
       }.bind(this))
       .catch((error) => alert(error))
@@ -396,6 +404,17 @@ export default class ArticleEntry extends BaseComponent {
           modalVisible={this.state.alertDialogVisible}
           message={this.state.alertDialogMessage}
           handleClose={() => { this.setState({ alertDialogVisible: false }) }}
+        />
+        <AlertDialog
+          modalVisible={this.state.finDialogVisible}
+          message={this.state.getCoin + "コインを獲得しました"}
+          handleClose={() => {
+            // 記事照会画面に戻る
+            this.props.navigation.navigate('ArticleRefer', {
+              mode: this.state.mode,
+              selectCategory: this.state.selectCategory
+            })
+          }}
         />
       </View>
     )

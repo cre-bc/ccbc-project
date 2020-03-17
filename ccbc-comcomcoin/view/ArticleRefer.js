@@ -26,6 +26,7 @@ export default class ArticleRefer extends BaseComponent {
         t_kiji_category_pk: null,
         category_nm: ""
       },
+      speCategoryFlg: false,
       articleList: [],
       t_kiji_pk: "",
       favorite_flg: "0",
@@ -68,6 +69,9 @@ export default class ArticleRefer extends BaseComponent {
       const selectCategory = this.props.navigation.getParam("selectCategory")
       this.state.selectCategory = selectCategory
       this.state.current_kiji_category_pk = selectCategory.t_kiji_category_pk
+      if (selectCategory.spe_category_flg === "1") {
+        this.setState({ speCategoryFlg: true })
+      }
     }
 
     // 記事リスト取得
@@ -338,7 +342,7 @@ export default class ArticleRefer extends BaseComponent {
           {/* 新規投稿アイコン */}
           <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
             {(() => {
-              if (this.state.mode === "article") {
+              if (this.state.mode === "article" && !this.state.speCategoryFlg) {
                 return (
                   <Icon name="edit" type="font-awesome" color="white" size={30}
                     onPress={() => this.onClickNewArticleBtn()}

@@ -125,7 +125,7 @@ function bcrequest(req, datas) {
  */
 function tokenUpdate(tx, req, token) {
   return new Promise((resolve, reject) => {
-    var sql = 'update t_shain set token = ?, expo_push_token = ?' + 'where user_id = ?'
+    var sql = 'update t_shain set token = ?, expo_push_token = ? ' + 'where user_id = ?'
 
     db
       .query(sql, {

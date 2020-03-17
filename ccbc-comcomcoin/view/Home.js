@@ -1,11 +1,13 @@
 import React from 'react'
-import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, AsyncStorage } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
+import IconBadge from 'react-native-icon-badge'
 import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
+import ConfirmDialog from './components/ConfirmDialog'
 
 const restdomain = require('./common/constans.js').restdomain
 const windowWidth = Dimensions.get('window').width
@@ -20,7 +22,11 @@ export default class Home extends BaseComponent {
       adList: [],
       infoList: [],
       newArticleList: [],
-      popularArticleList: []
+      popularArticleList: [],
+      confirmDialogVisible: false,
+      confirmDialogMessage: "",
+      chatCnt: 0,
+      articleCnt: 0,
     }
   }
 
@@ -58,7 +64,9 @@ export default class Home extends BaseComponent {
               adList: json.data.adList,
               infoList: json.data.infoList,
               newArticleList: json.data.newArticleList,
-              popularArticleList: json.data.popularArticleList
+              popularArticleList: json.data.popularArticleList,
+              chatCnt: json.data.chatCnt,
+              articleCnt: json.data.articleCnt
             })
           }
         }.bind(this)
@@ -66,6 +74,13 @@ export default class Home extends BaseComponent {
       .catch(error => console.error(error))
 
     this.setState({ isProcessing: false })
+  }
+
+  logout = () => {
+    this.setState({ confirmDialogVisible: false })
+    AsyncStorage.removeItem('loginInfo')
+    AsyncStorage.removeItem('groupInfo')
+    this.props.navigation.navigate('LoginGroup')
   }
 
   renderItem = ({ item, index }) => (
@@ -325,55 +340,98 @@ export default class Home extends BaseComponent {
 
         {/* -- 各機能アイコン -- */}
         <View style={[{ flex: 1, flexDirection: 'row' }]}>
-          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => this.props.navigation.navigate('ChatSelect')}>
-              <Image
-                resizeMode="contain"
-                source={require('./../images/icons8-chat-bubble-48.png')}
-              />
-              <Text style={{ textAlign: "center" }}>チャット</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => this.props.navigation.navigate('Shopping', {
-                mode: "favorite"
-              })}>
-              <Image
-                resizeMode="contain"
-                source={require('./../images/icons8-qr-code-48.png')}
-              />
-              <Text style={{ textAlign: "center" }}>買い物</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => this.props.navigation.navigate('ArticleSelect')}>
-              <Image
-                resizeMode="contain"
-                source={require('./../images/icons8-brainstorm-skill-48.png')}
-              />
-              <Text style={{ textAlign: "center" }}>情報ひろば</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity
-              activeOpacity={1}
-              onPress={() => this.props.navigation.navigate('HomeArticleList', {
-                mode: "favorite"
-              })}>
-              <Image
-                resizeMode="contain"
-                source={require('./../images/icons8-star-48.png')}
-              />
-              <Text style={{ textAlign: "center" }}>お気に入り</Text>
-            </TouchableOpacity>
-          </View>
+          <ScrollView horizontal={true}>
+            {/* チャット */}
+            <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, width: windowWidth / 4 }}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => this.props.navigation.navigate('ChatSelect')}>
+                <IconBadge MainElement={
+                  <Image
+                    resizeMode="contain"
+                    source={require('./../images/icons8-chat-bubble-48.png')}
+                  />
+                }
+                  IconBadgeStyle={styles.iconBadgeStyle}
+                  Hidden={this.state.chatCnt == 0}
+                />
+                <Text style={{ textAlign: "center" }}> チャット </Text>
+              </TouchableOpacity>
+            </View>
+            {/* 買い物 */}
+            <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, width: windowWidth / 4 }}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => this.props.navigation.navigate('Shopping', {
+                  mode: "favorite"
+                })}>
+                <Image
+                  resizeMode="contain"
+                  source={require('./../images/icons8-qr-code-48.png')}
+                />
+                <Text style={{ textAlign: "center" }}> 買い物 </Text>
+              </TouchableOpacity>
+            </View>
+            {/* 情報ひろば */}
+            <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, width: windowWidth / 4 }}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => this.props.navigation.navigate('ArticleSelect')}>
+                <IconBadge MainElement={
+                  <Image
+                    resizeMode="contain"
+                    source={require('./../images/icons8-brainstorm-skill-48.png')}
+                  />
+                }
+                  IconBadgeStyle={styles.iconBadgeStyle}
+                  Hidden={this.state.articleCnt == 0}
+                />
+                <Text style={{ textAlign: "center" }}>情報ひろば</Text>
+              </TouchableOpacity>
+            </View>
+            {/* お気に入り */}
+            <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, width: windowWidth / 4 }}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => this.props.navigation.navigate('HomeArticleList', {
+                  mode: "favorite"
+                })}>
+                <Image
+                  resizeMode="contain"
+                  source={require('./../images/icons8-star-48.png')}
+                />
+                <Text style={{ textAlign: "center" }}>お気に入り</Text>
+              </TouchableOpacity>
+            </View>
+            {/* ログアウト */}
+            <View style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, width: windowWidth / 4 }}>
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() =>
+                  this.setState({
+                    confirmDialogVisible: true,
+                    confirmDialogMessage: "ログアウトしてもよろしいですか？",
+                  })
+
+                }>
+                <Image
+                  resizeMode="contain"
+                  source={require('./../images/icons8-logout-48.png')}
+                />
+                <Text style={{ textAlign: "center" }}>ログアウト</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
+
+        {/* -- 確認ダイアログ（ログアウト） -- */}
+        <ConfirmDialog
+          modalVisible={this.state.confirmDialogVisible}
+          message={this.state.confirmDialogMessage}
+          handleYes={this.logout.bind(this)}
+          handleNo={() => { this.setState({ confirmDialogVisible: false }) }}
+          handleClose={() => { this.setState({ confirmDialogVisible: false }) }}
+        />
       </View >
     )
   }
@@ -425,5 +483,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     position: 'absolute',
     right: 0
+  },
+  iconBadgeStyle: {
+    width: 10,
+    height: 10,
+    backgroundColor: 'red',
+    borderRadius: 50,
+    minWidth: 10,
+    right: 5
   }
 })

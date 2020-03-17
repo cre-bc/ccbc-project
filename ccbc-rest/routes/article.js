@@ -22,7 +22,7 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage })
 
 const READ_COUNT = 10
-const GET_COIN = 10
+// const GET_COIN = 10
 
 /**
  * API : findCategory
@@ -641,7 +641,7 @@ function bcrequest(req) {
       from_account: [jimuAccount],
       to_account: [req.body.bcAccount],
       password: [jimuPassword],
-      coin: [GET_COIN],
+      coin: [req.body.getCoin],
       bc_addr: req.body.bc_addr
     }
     console.log('bcrequest.param:', param)
