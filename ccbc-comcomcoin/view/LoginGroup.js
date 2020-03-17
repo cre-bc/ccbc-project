@@ -36,7 +36,6 @@ export default class LoginGroupForm extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    // this.removeLoginInfo()
   }
 
   getGroupInfo = async () => {
@@ -63,14 +62,13 @@ export default class LoginGroupForm extends Component {
     }
   }
 
-  // removeLoginInfo = async () => {
-  //   try {
-  //     await AsyncStorage.removeItem('loginInfo')
-  //     //await AsyncStorage.removeItem('groupInfo')
-  //   } catch (error) {
-  //     return
-  //   }
-  // }
+  removeChatInfo = async () => {
+    try {
+      await AsyncStorage.removeItem('chatInfo')
+    } catch (error) {
+      return
+    }
+  }
 
   setGroupInfo = async groupInfo => {
     try {
@@ -84,25 +82,24 @@ export default class LoginGroupForm extends Component {
   onPressButton = async () => {
     var groupInfo = await this.getGroupInfo()
     var loginInfo = await this.getLoginInfo()
+    var chatInfo = await this.getChatInfo()
+    await this.removeChatInfo()
     if (groupInfo == null) {
       this.openModal()
     } else if (groupInfo != null && loginInfo == null) {
       this.props.navigation.navigate('Login')
-    } else {
+    } else if (loginInfo != null && chatInfo != null) {
       // バックグラウンドでチャットのプッシュ通知を受信した場合、直接チャット画面に遷移する
-      var chatInfo = await this.getChatInfo()
-      if (chatInfo != null) {
-        alert(JSON.stringify(chatInfo))
-        this.props.navigation.navigate("ChatMsg", {
-          fromShainPk: chatInfo.fromShainPk,
-          fromShimei: chatInfo.fromShimei,
-          fromImageFileNm: chatInfo.fromImageFileNm,
-          fromExpoPushToken: chatInfo.fromExpoPushToken
-        })
-        await AsyncStorage.removeItem('chatInfo')
-      } else {
-        this.props.navigation.navigate('Home')
-      }
+      // this.props.navigation.navigate('Home')
+      this.props.navigation.navigate("ChatMsg", {
+        fromShainPk: chatInfo.fromShainPk,
+        fromShimei: chatInfo.fromShimei,
+        fromImageFileNm: chatInfo.fromImageFileNm,
+        fromExpoPushToken: chatInfo.fromExpoPushToken
+      })
+    } else if (loginInfo != null) {
+      // ログイン情報が保持されている場合は、ホーム画面に遷移する
+      this.props.navigation.navigate('Home')
     }
   }
 

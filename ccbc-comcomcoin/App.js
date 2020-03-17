@@ -31,68 +31,60 @@ import ArticleEntryForm from './view/ArticleEntry'
 import ShoppingForm from './view/shopping'
 
 /******* Navigator *******/
-
-var HomeNavigator = createStackNavigator(
-  {
-    Menu: { screen: MenuForm },
-    LoginGroup: { screen: LoginGroupForm },
-    Login: { screen: LoginForm },
-    Home: { screen: HomeForm },
-    HomeAdvertise: { screen: HomeAdvertiseForm },
-    HomeInfoList: { screen: HomeInfoListForm },
-    HomeInformation: { screen: HomeInformationForm },
-    HomeArticleList: { screen: HomeArticleListForm },
-    ChatSelect: { screen: ChatSelectForm },
-    ChatMsg: { screen: ChatMsgForm },
-    ChatCoin: { screen: ChatCoinForm },
-    ArticleSelect: { screen: ArticleSelectForm },
-    ArticleRefer: { screen: ArticleReferForm },
-    ArticleEntry: { screen: ArticleEntryForm },
-    Shopping: { screen: ShoppingForm },
-  },
-  {
-    // initialRouteName: 'Menu',
-    // initialRouteName: 'Home',
-    initialRouteName: 'LoginGroup',
-    defaultNavigationOptions: () => ({
-      header: null
-    })
-  }
-)
-
-const AppContainer = createAppContainer(HomeNavigator)
-
-/**************/
+export const createRootNavigator = (load) => {
+  var HomeNavigator = createStackNavigator(
+    {
+      Menu: { screen: MenuForm },
+      LoginGroup: { screen: LoginGroupForm },
+      Login: { screen: LoginForm },
+      Home: { screen: HomeForm },
+      HomeAdvertise: { screen: HomeAdvertiseForm },
+      HomeInfoList: { screen: HomeInfoListForm },
+      HomeInformation: { screen: HomeInformationForm },
+      HomeArticleList: { screen: HomeArticleListForm },
+      ChatSelect: { screen: ChatSelectForm },
+      ChatMsg: { screen: ChatMsgForm },
+      ChatCoin: { screen: ChatCoinForm },
+      ArticleSelect: { screen: ArticleSelectForm },
+      ArticleRefer: { screen: ArticleReferForm },
+      ArticleEntry: { screen: ArticleEntryForm },
+      Shopping: { screen: ShoppingForm },
+    },
+    {
+      initialRouteName: load,
+      defaultNavigationOptions: () => ({
+        header: null
+      })
+    }
+  )
+  return createAppContainer(HomeNavigator)
+}
 
 export default class App extends Component {
   constructor(props) {
     super(props)
 
     // プッシュ通知をタップしてアプリを起動すると、「props.notification」に情報が入ってくる
-    // if (props.notification) {
-    //   // alert(JSON.stringify(props.notification))
-    //   // チャット情報を保持し、スタート画面から直接チャット画面に遷移できるようにする
-    //   let chatInfo = {
-    //     fromShainPk: props.notification.fromShainPk,
-    //     fromShimei: props.notification.fromShimei,
-    //     fromImageFileNm: props.notification.fromImageFileNm,
-    //     fromExpoPushToken: props.notification.fromExpoPushToken
-    //   }
-    //   this.setChatInfo(JSON.stringify(chatInfo))
-    //   // alert(JSON.stringify(chatInfo))
-    // }
+    if (props.notification) {
+      // alert(JSON.stringify(props.notification))
+      let notification = JSON.parse(props.notification)
+      // チャット情報を保持し、スタート画面から直接チャット画面に遷移できるようにする
+      let chatInfo = {
+        fromShainPk: notification.fromShainPk,
+        fromShimei: notification.fromShimei,
+        fromImageFileNm: notification.fromImageFileNm,
+        fromExpoPushToken: notification.fromExpoPushToken
+      }
+      this.setChatInfo(JSON.stringify(chatInfo))
+      // alert(JSON.stringify(chatInfo))
+    }
   }
 
   state = {
-    saveFlg: false
+    load: "LoginGroup"
   }
 
   async componentWillMount() {
-    var groupInfo = await this.getGroupInfo()
-    if (groupInfo != null) {
-      this.setState({ saveFlg: groupInfo['saveFlg'] })
-    }
-
     // Push通知のトークンを取得
     const { status: existingStatus } = await Permissions.getAsync(
       Permissions.NOTIFICATIONS
@@ -107,13 +99,20 @@ export default class App extends Component {
       await AsyncStorage.setItem('expo_push_token', token)
     }
 
-    // Push通知のリスナー登録
-    this._notificationSubscription = Notifications.addListener(this.handleNotification)
-    Notifications.getBadgeNumberAsync().then(badgeNumber => {
-      if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(badgeNumber - 1)
-      }
-    })
+    // // Push通知のリスナー登録
+    // this._notificationSubscription = Notifications.addListener(this.handleNotification)
+    // Notifications.getBadgeNumberAsync().then(badgeNumber => {
+    //   if (badgeNumber !== 0) {
+    //     Notifications.setBadgeNumberAsync(badgeNumber - 1)
+    //   }
+    // })
+
+    // // グループ情報、ログイン情報が
+    // var groupInfo = await this.getGroupInfo()
+    // var loginInfo = await this.getLoginInfo()
+    // if (groupInfo != null && loginInfo != null) {
+    //   this.setState({ load: "Home" })
+    // }
   }
 
   getGroupInfo = async () => {
@@ -132,45 +131,45 @@ export default class App extends Component {
     }
   }
 
-  handleNotification = async (notification) => {
-    // if (notification.origin === 'selected') {
-    //   //バックグラウンドで通知
-    // } else if (notification.origin === 'received') {
-    //   //フォアグラウンドで通知
-    // }
+  // handleNotification = async (notification) => {
+  //   // if (notification.origin === 'selected') {
+  //   //   //バックグラウンドで通知
+  //   // } else if (notification.origin === 'received') {
+  //   //   //フォアグラウンドで通知
+  //   // }
 
-    // if (notification.origin === 'selected') {
-    //   // バックグラウンドでプッシュ通知をタップした時
-    //   // const isMove = ("fromShainPk" in notification.data ? true : false)
-    //   if (!isNaN(notification.data.fromShainPk)) {
-    //     var loginInfo = await this.getLoginInfo()
-    //     if (loginInfo != null) {
-    //       // alert(JSON.stringify(notification.data))
-    //       // ログイン済みであれば、チャット情報を保持し、スタート画面から直接チャット画面に遷移できるようにする
-    //       let chatInfo = {
-    //         fromShainPk: notification.data.fromShainPk,
-    //         fromShimei: notification.data.fromShimei,
-    //         fromImageFileNm: notification.data.fromImageFileNm,
-    //         fromExpoPushToken: notification.data.fromExpoPushToken
-    //       }
-    //       this.setChatInfo(JSON.stringify(chatInfo))
-    //     }
-    //   }
-    // }
+  //   // if (notification.origin === 'selected') {
+  //   //   // バックグラウンドでプッシュ通知をタップした時
+  //   //   // const isMove = ("fromShainPk" in notification.data ? true : false)
+  //   //   if (!isNaN(notification.data.fromShainPk)) {
+  //   //     var loginInfo = await this.getLoginInfo()
+  //   //     if (loginInfo != null) {
+  //   //       // alert(JSON.stringify(notification.data))
+  //   //       // ログイン済みであれば、チャット情報を保持し、スタート画面から直接チャット画面に遷移できるようにする
+  //   //       let chatInfo = {
+  //   //         fromShainPk: notification.data.fromShainPk,
+  //   //         fromShimei: notification.data.fromShimei,
+  //   //         fromImageFileNm: notification.data.fromImageFileNm,
+  //   //         fromExpoPushToken: notification.data.fromExpoPushToken
+  //   //       }
+  //   //       this.setChatInfo(JSON.stringify(chatInfo))
+  //   //     }
+  //   //   }
+  //   // }
 
-    // if (notification.origin === 'received' && Platform.OS === 'ios') {
-    //   // iOSはアプリ起動中にPushを受信した場合、表示されないため、自分で再通知する必要がある
-    //   const local = ("local" in notification.data ? true : false)
-    //   if (!local) {
-    //     const localnotification = {
-    //       title: notification.data.title,
-    //       body: notification.data.message,
-    //       data: { "local": "true" }
-    //     }
-    //     Notifications.scheduleLocalNotificationAsync(localnotification)
-    //   }
-    // }
-  }
+  //   // if (notification.origin === 'received' && Platform.OS === 'ios') {
+  //   //   // iOSはアプリ起動中にPushを受信した場合、表示されないため、自分で再通知する必要がある
+  //   //   const local = ("local" in notification.data ? true : false)
+  //   //   if (!local) {
+  //   //     const localnotification = {
+  //   //       title: notification.data.title,
+  //   //       body: notification.data.message,
+  //   //       data: { "local": "true" }
+  //   //     }
+  //   //     Notifications.scheduleLocalNotificationAsync(localnotification)
+  //   //   }
+  //   // }
+  // }
 
   setChatInfo = async (chatInfo) => {
     try {
@@ -182,6 +181,7 @@ export default class App extends Component {
   }
 
   render() {
+    const AppContainer = createRootNavigator(this.state.load)
     return (
       <AppContainer
         ref={nav => {
