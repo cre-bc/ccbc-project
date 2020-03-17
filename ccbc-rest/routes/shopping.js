@@ -333,7 +333,7 @@ function insertZoyo(db, tx, req, transactionId) {
         zoyo_saki_shain_pk: jimuShainPk,
         transaction_id: transactionId,
         zoyo_comment: "買い物",
-        nenji_flg: "3",
+        nenji_flg: "4",
         insert_user_id: req.body.loginShainPk
       }
     })
