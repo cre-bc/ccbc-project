@@ -49,7 +49,10 @@ export default class ChatMsgForm extends BaseComponent {
     socket.on(
       "comcomcoin_chat",
       function (message) {
-        this.getChatMessage(message);
+        // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
+        if (Number(JSON.parse(message).to_shain_pk) === Number(this.state.fromShainPk)) {
+          this.getChatMessage(message);
+        }
       }.bind(this)
     );
     this.setState({ isProcessing: false });
@@ -174,6 +177,7 @@ export default class ChatMsgForm extends BaseComponent {
             // チャットメッセージの送信
             const message = {
               room_id: this.state.fromShainPk,
+              to_shain_pk: this.state.loginShainPk,
               _id: messages[0]._id,
               text: this.state.message,
               createdAt: new Date()

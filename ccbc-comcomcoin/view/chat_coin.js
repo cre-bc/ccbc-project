@@ -213,6 +213,7 @@ export default class ChatCoinForm extends BaseComponent {
             // チャットメッセージの送信
             const message = {
               room_id: this.state.fromShainPk,
+              to_shain_pk: this.state.loginShainPk,
               _id: json.t_chat_pk,
               text: this.state.comment,
               createdAt: new Date()
