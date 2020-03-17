@@ -93,7 +93,7 @@ export default class Home extends BaseComponent {
       >
         <Image style={{ height: windowWidth * 9 / 16, width: windowWidth }}
           // resizeMode="contain"
-          resizeMode="cover"
+          // resizeMode="cover"
           source={{ uri: restdomain + `/uploads/advertise/${item.file_path}` }}
         />
       </TouchableOpacity>
