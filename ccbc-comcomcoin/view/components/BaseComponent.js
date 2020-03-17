@@ -22,5 +22,7 @@ export default class BaseComponent extends Component {
 		this.state.kengenCd = loginInfo['kengenCd']
 		this.state.tokenId = loginInfo['tokenId']
 		this.state.bcAccount = loginInfo['bcAccount']
+
+		this.state.expo_push_token = await AsyncStorage.getItem('expo_push_token')
 	}
 }

@@ -229,7 +229,14 @@ export default class ChatCoinForm extends BaseComponent {
                     to: this.state.fromExpoPushToken,
                     title: this.state.shimei,
                     body: this.state.comment,
-                    data: { title: this.state.shimei, message: this.state.comment }
+                    data: {
+                      title: this.state.shimei,
+                      message: this.state.comment,
+                      fromShainPk: this.state.loginShainPk,
+                      fromShimei: this.state.shimei,
+                      fromImageFileNm: this.state.imageFileName,
+                      fromExpoPushToken: this.state.expo_push_token
+                    }
                   }]),
                 "badge": 1,
                 headers: new Headers({ "Content-type": "application/json" })

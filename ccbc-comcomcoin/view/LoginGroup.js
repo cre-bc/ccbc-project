@@ -55,6 +55,14 @@ export default class LoginGroupForm extends Component {
     }
   }
 
+  getChatInfo = async () => {
+    try {
+      return JSON.parse(await AsyncStorage.getItem('chatInfo'))
+    } catch (error) {
+      return
+    }
+  }
+
   // removeLoginInfo = async () => {
   //   try {
   //     await AsyncStorage.removeItem('loginInfo')
@@ -81,7 +89,20 @@ export default class LoginGroupForm extends Component {
     } else if (groupInfo != null && loginInfo == null) {
       this.props.navigation.navigate('Login')
     } else {
-      this.props.navigation.navigate('Home')
+      // バックグラウンドでチャットのプッシュ通知を受信した場合、直接チャット画面に遷移する
+      var chatInfo = await this.getChatInfo()
+      if (chatInfo != null) {
+        alert(JSON.stringify(chatInfo))
+        this.props.navigation.navigate("ChatMsg", {
+          fromShainPk: chatInfo.fromShainPk,
+          fromShimei: chatInfo.fromShimei,
+          fromImageFileNm: chatInfo.fromImageFileNm,
+          fromExpoPushToken: chatInfo.fromExpoPushToken
+        })
+        await AsyncStorage.removeItem('chatInfo')
+      } else {
+        this.props.navigation.navigate('Home')
+      }
     }
   }
 

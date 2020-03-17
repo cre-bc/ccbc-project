@@ -6,6 +6,7 @@ import {
   Text,
   TouchableHighlight,
   TouchableOpacity,
+  AppState,
   Platform
 } from "react-native";
 import { GiftedChat, Composer } from "react-native-gifted-chat";
@@ -42,7 +43,7 @@ export default class ChatMsgForm extends BaseComponent {
     if (!socket.connected) {
       socket.connect();
     }
-
+    AppState.addEventListener('change', this.handleAppStateChange);
     this.setState({ isProcessing: true });
     this.props.navigation.addListener("willFocus", () => this.onWillFocus());
     // チャットメッセージの受信（websocket）
@@ -192,7 +193,14 @@ export default class ChatMsgForm extends BaseComponent {
                     to: this.state.fromExpoPushToken,
                     title: this.state.shimei,
                     body: this.state.message,
-                    data: { title: this.state.shimei, message: this.state.message }
+                    data: {
+                      title: this.state.shimei,
+                      message: this.state.message,
+                      fromShainPk: this.state.loginShainPk,
+                      fromShimei: this.state.shimei,
+                      fromImageFileNm: this.state.imageFileName,
+                      fromExpoPushToken: this.state.expo_push_token
+                    }
                   }]),
                 "badge": 1,
                 headers: new Headers({ "Content-type": "application/json" })
@@ -234,15 +242,9 @@ export default class ChatMsgForm extends BaseComponent {
       .catch(error => console.error(error));
   };
 
-  renderComposer = props => {
-    return (
-      <View style={{ flexDirection: 'row' }}>
-        <Composer {...props} />
-        <TouchableOpacity>
-          <Text>送信</Text>
-        </TouchableOpacity>
-      </View>
-    );
+  handleAppStateChange = (nextAppState) => {
+    // アプリのForeground・Backgroundが変わったら、チャット内容を再読み込みする
+    this.findChat();
   }
 
   render() {
