@@ -364,19 +364,15 @@ export default class Shopping extends BaseComponent {
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
-                    <View style={{ flex: 2 }}>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.haveCoin).toLocaleString()}
                       </Text>
                     </View>
-                    <View style={{ flex: 1.2 }}>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "left", fontSize: 24 }}>
-                        {" "}
-                        コイン
+                        {" コイン"}
                       </Text>
-                    </View>
-                    <View style={{ flex: 1.2 }}>
-                      <Text style={{ fontSize: 24 }}>{"　"}</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 24 }}>{"　"}</Text>
@@ -388,26 +384,24 @@ export default class Shopping extends BaseComponent {
                     <Text style={{ fontSize: 22, color: "gray" }}>合計</Text>
                   </View>
                   <View style={{ flexDirection: "row" }}>
-                    <View style={{ flex: 2 }}>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.totalCoin).toLocaleString()}
                       </Text>
                     </View>
-                    <View style={{ flex: 1.2 }}>
+                    <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "left", fontSize: 24 }}>
-                        {" "}
-                        コイン
+                        {" コイン"}
                       </Text>
                     </View>
-                    <View style={{ flex: 1.2 }}>
+                    <View style={{ flex: 0.5 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
                         {Number(this.state.itemCnt).toLocaleString()}
                       </Text>
                     </View>
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 0.5 }}>
                       <Text style={{ textAlign: "left", fontSize: 24 }}>
-                        {" "}
-                        個
+                        {" 個"}
                       </Text>
                     </View>
                   </View>
