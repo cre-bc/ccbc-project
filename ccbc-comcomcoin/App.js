@@ -82,6 +82,7 @@ export default class App extends Component {
 
   state = {
     load: "LoginGroup"
+    // load: "Menu"
   }
 
   async componentWillMount() {

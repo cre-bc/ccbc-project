@@ -89,7 +89,7 @@ export default class HomeArticleList extends BaseComponent {
                   roundAvatar
                   // avatar={item.avatar}
                   badge={{
-                    value: "♡ " + item.good_cnt,
+                    value: "☺︎ " + item.good_cnt,
                     textStyle: { fontSize: 10 }
                   }}
                   onPress={() => this.props.navigation.navigate('ArticleRefer', {

@@ -239,10 +239,11 @@ function getHomeKiji(db, req, isNew) {
       " and kij.post_dt >= current_timestamp + '-1 months'"
     if (isNew) {
       sql += " order by kij.post_dt desc, kij.post_tm desc"
+      sql += " limit 5"
     } else {
       sql += " order by coalesce(goo.cnt, 0) desc, kij.post_dt desc, kij.post_tm desc"
+      sql += " limit 3"
     }
-    sql += " limit 3"
 
     db.query(sql, {
       type: db.QueryTypes.RAW

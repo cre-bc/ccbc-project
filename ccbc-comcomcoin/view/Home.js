@@ -251,9 +251,15 @@ export default class Home extends BaseComponent {
                             {item.hashtag_str}
                           </Text>
                           {/* いいね */}
-                          <Text style={{ fontSize: 16, color: 'red' }}>
-                            {'♡ '}{item.good_cnt}
-                          </Text>
+                          <View style={{ flexDirection: 'row' }}>
+                            <Image
+                              source={require("./../images/good-top.png")}
+                              style={{ width: 15, height: 15, marginTop: 2, marginBottom: 2 }}
+                            />
+                            <Text style={{ fontSize: 16, color: 'red' }}>
+                              {" "}{item.good_cnt}
+                            </Text>
+                          </View>
                           {/* 投稿日 */}
                           <Text style={{ fontSize: 14, color: 'gray' }}>
                             {moment(new Date(item.post_dt)).format('YYYY/MM/DD')}
@@ -321,9 +327,15 @@ export default class Home extends BaseComponent {
                             {item.hashtag_str}
                           </Text>
                           {/* いいね */}
-                          <Text style={{ fontSize: 16, color: 'red' }}>
-                            {'♡ '}{item.good_cnt}
-                          </Text>
+                          <View style={{ flexDirection: 'row' }}>
+                            <Image
+                              source={require("./../images/good-top.png")}
+                              style={{ width: 15, height: 15, marginTop: 2, marginBottom: 2 }}
+                            />
+                            <Text style={{ fontSize: 16, color: 'red' }}>
+                              {" "}{item.good_cnt}
+                            </Text>
+                          </View>
                           {/* 投稿日 */}
                           <Text style={{ fontSize: 14, color: 'gray' }}>
                             {moment(new Date(item.post_dt)).format('YYYY/MM/DD')}
