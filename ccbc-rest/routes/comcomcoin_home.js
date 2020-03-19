@@ -82,11 +82,11 @@ async function findHomeInfo(req, res) {
   // チャットの未読件数の取得
   var resChat = await getChatMidoku(db, req)
   resdatas.chatCnt = resChat[0].chat_cnt
-  console.log("chatCnt:", resdatas.chatCnt)
+  // console.log("chatCnt:", resdatas.chatCnt)
   // 記事の未読件数の取得
   var resArticle = await getArticleMidoku(db, req)
   resdatas.articleCnt = resArticle[0].article_cnt
-  console.log("articleCnt:", resdatas.articleCnt)
+  // console.log("articleCnt:", resdatas.articleCnt)
 
   res.json({
     status: true,

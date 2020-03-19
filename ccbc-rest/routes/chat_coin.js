@@ -18,7 +18,7 @@ router.post("/find", (req, res) => {
  * チャットコイン_DB登録
  */
 router.post("/create", (req, res) => {
-  console.log("◆◆◆");
+  // console.log("◆◆◆");
   coinSend(req, res);
 });
 
@@ -54,18 +54,18 @@ async function coinSend(req, res) {
         countShussekisha = tohyoCoin[0].countshussekisha;
         countPresen = tohyoCoin[0].countpresen;
 
-        console.log(haifuCoin);
-        console.log(configCoin);
-        console.log(presenterPk);
-        console.log(countShussekisha);
-        console.log(countPresen);
+        // console.log(haifuCoin);
+        // console.log(configCoin);
+        // console.log(presenterPk);
+        // console.log(countShussekisha);
+        // console.log(countPresen);
 
         // 投票一人当たりのコイン数
         configCoin = configCoin * 50;
-        console.log(configCoin);
+        // console.log(configCoin);
         // 部会での配布コイン数
         tohyoCoin = configCoin * countPresen;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
 
         //発表者の場合、1人分のコイン数を差し引く
         if (presenterPk != null) {
@@ -96,7 +96,7 @@ async function coinSend(req, res) {
     .transaction(async function (tx) {
       // チャットテーブルinsert
       var t_chat_pk = await insertChat(tx, req);
-      console.log(req.body.fromShainPk);
+      // console.log(req.body.fromShainPk);
       //      // チャット既読テーブル更新
       //      await updateChatKidoku(
       //        tx,
@@ -190,7 +190,7 @@ async function findData(req, res) {
     senkyoPk = tSenkyo[0].tsenkyopk;
     // 未投票情報の取得
     miTohyosha = await miTohohyoshaGet(req, senkyoPk);
-    console.log(miTohyosha);
+    // console.log(miTohyosha);
     // 未投票の場合
     if (miTohyosha.length === 0) {
       // 投票コイン取得
@@ -202,18 +202,18 @@ async function findData(req, res) {
         countShussekisha = tohyoCoin[0].countshussekisha;
         countPresen = tohyoCoin[0].countpresen;
 
-        console.log(haifuCoin);
-        console.log(configCoin);
-        console.log(presenterPk);
-        console.log(countShussekisha);
-        console.log(countPresen);
+        // console.log(haifuCoin);
+        // console.log(configCoin);
+        // console.log(presenterPk);
+        // console.log(countShussekisha);
+        // console.log(countPresen);
 
         // 投票一人当たりのコイン数
         configCoin = configCoin * 50;
-        console.log(configCoin);
+        // console.log(configCoin);
         // 部会での配布コイン数
         tohyoCoin = configCoin * countPresen;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
 
         //発表者の場合、1人分のコイン数を差し引く
         if (presenterPk != null) {
@@ -334,10 +334,10 @@ async function tohyoCoinGet(req, tsenkyopk) {
         type: db.QueryTypes.RAW
       })
       .spread(async (datas, metadata) => {
-        console.log("----------");
-        console.log(datas);
-        console.log("----------");
-        console.log("★★★【End】tohyoCoinGet★★★");
+        // console.log("----------");
+        // console.log(datas);
+        // console.log("----------");
+        // console.log("★★★【End】tohyoCoinGet★★★");
         return resolve(datas);
       });
   });
@@ -583,7 +583,7 @@ function insertChat(tx, req) {
         ]
       })
       .spread((datas, metadata) => {
-        console.log(datas);
+        // console.log(datas);
         return resolve(datas[0].t_chat_pk);
       });
     console.log("★ end insertChat");
@@ -621,7 +621,7 @@ function insertZoyo(tx, req, transactionId) {
         }
       })
       .spread((datas, metadata) => {
-        console.log(datas);
+        // console.log(datas);
         return resolve(datas);
       });
   });

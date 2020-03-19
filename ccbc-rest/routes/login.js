@@ -7,11 +7,11 @@ var db2 = require('./common/sequelize_helper.js')
 const bcdomain = require('./common/constans.js').bcdomain
 
 router.post('/find', (req, res) => {
-  console.log('----------')
-  console.log('id:' + req.body.id)
-  console.log('db_name:' + req.body.db_name)
-  console.log('saveFlg:' + req.body.saveFlg)
-  console.log('----------')
+  // console.log('----------')
+  // console.log('id:' + req.body.id)
+  // console.log('db_name:' + req.body.db_name)
+  // console.log('saveFlg:' + req.body.saveFlg)
+  // console.log('----------')
 
   var sql =
     "select t_shain_pk, user_id, shimei, image_file_nm, kengen_cd, bc_account from t_shain where delete_flg = '0' and user_id = :mypk"
@@ -27,9 +27,9 @@ router.post('/find', (req, res) => {
       type: db.QueryTypes.RAW
     })
     .spread(async (datas, metadata) => {
-      console.log('----------')
-      console.log(datas)
-      console.log('----------')
+      // console.log('----------')
+      // console.log(datas)
+      // console.log('----------')
 
       // ユーザ情報が取得できない場合は終了
       if (datas == '') {
@@ -37,18 +37,18 @@ router.post('/find', (req, res) => {
         return
       }
 
-      console.log('----------')
-      console.log(datas[0].user_id)
-      console.log(datas[0].shimei)
-      console.log(datas[0].image_file_nm)
-      console.log(datas[0].bc_account)
-      console.log('----------')
+      // console.log('----------')
+      // console.log(datas[0].user_id)
+      // console.log(datas[0].shimei)
+      // console.log(datas[0].image_file_nm)
+      // console.log(datas[0].bc_account)
+      // console.log('----------')
 
       var result = await bcrequest(req, datas)
 
-      console.log('----------')
-      console.log('result:' + result)
-      console.log('----------')
+      // console.log('----------')
+      // console.log('result:' + result)
+      // console.log('----------')
 
       if (result == true) {
         // res.json({ status: true, data: datas })
@@ -64,11 +64,11 @@ router.post('/find', (req, res) => {
         for (var i = 0; i < l; i++) {
           r += c[Math.floor(Math.random() * cl)]
         }
-        console.log('----------')
-        console.log('トークン:' + r)
-        console.log('----------')
+        // console.log('----------')
+        // console.log('トークン:' + r)
+        // console.log('----------')
         db
-          .transaction(async function(tx) {
+          .transaction(async function (tx) {
             await tokenUpdate(tx, req, r)
             res.json({ status: true, data: datas, token: r })
           })
@@ -103,15 +103,12 @@ function bcrequest(req, datas) {
       .post(bcdomain + '/bc-api/login')
       .send(param)
       .end((err, res) => {
-        console.log('◆３')
-        console.log('★★★')
-
         if (err) {
           console.log('★' + err)
           return
         }
         // 検索結果表示
-        console.log('★★★res:' + res)
+        console.log('bcrequest:' + res)
         return resolve(res.body.result)
       })
   })
@@ -133,7 +130,7 @@ function tokenUpdate(tx, req, token) {
         replacements: [token, req.body.expo_push_token, req.body.id]
       })
       .spread((datas, metadata) => {
-        console.log(datas)
+        // console.log(datas)
         return resolve(datas)
       })
   })

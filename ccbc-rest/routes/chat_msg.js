@@ -27,7 +27,7 @@ router.post("/kidoku_update", (req, res) => {
  * チャット_DB登録
  */
 router.post("/create", (req, res) => {
-  console.log("◆◆◆");
+  // console.log("◆◆◆");
   // var resultList = req.body.resultList
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
@@ -38,7 +38,7 @@ router.post("/create", (req, res) => {
     .transaction(async function (tx) {
       // チャットテーブルinsert
       var t_chat_pk = await insertChat(tx, req);
-      console.log(t_chat_pk);
+      // console.log("t_chat_pk:", t_chat_pk);
       // チャット既読テーブル更新
       // await updateChatKidoku(
       //   req,
@@ -47,7 +47,7 @@ router.post("/create", (req, res) => {
       //   req.body.fromShainPk
       // )
       res.json({ status: true });
-      console.log(res.json);
+      // console.log("res.json:", res.json);
     })
     .then(result => {
       // プッシュ通知
@@ -106,12 +106,12 @@ async function findData(req, res) {
 
   // 最大チャットPKを取得
   chatPk = await chatPkGet(req);
-  console.log(chatPk);
-  console.log(fromShainPk);
-  console.log(toShainPk);
+  // console.log(chatPk);
+  // console.log(fromShainPk);
+  // console.log(toShainPk);
 
   var maxChatPk = chatPk[0].max;
-  console.log(maxChatPk);
+  // console.log(maxChatPk);
 
   //チャットが存在する場合
   if (maxChatPk != null) {
@@ -135,7 +135,7 @@ async function findData(req, res) {
     }
   }
 
-  console.log(resultData);
+  // console.log(resultData);
 
   res.json({ status: true, data: resultData, kidokuData: resultKidokuData });
 }
@@ -331,7 +331,7 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
         replacements: [toShainPk, fromShainPk, 0, userid, null, null]
       })
       .spread((datas, metadata) => {
-        console.log(datas);
+        // console.log(datas);
         return resolve(datas);
       });
   });
@@ -368,7 +368,7 @@ function insertChat(tx, req) {
         ]
       })
       .spread((datas, metadata) => {
-        console.log(datas);
+        // console.log(datas);
         return resolve(datas[0].t_chat_pk);
       });
   });

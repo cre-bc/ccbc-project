@@ -60,7 +60,7 @@ async function find(req, res) {
   // 募金先マスタの取得
   const resdatas = await selectBokin(db, req);
 
-  console.log(resdatas);
+  // console.log(resdatas);
 
   // BCコイン数を取得
   const param = {
@@ -88,18 +88,18 @@ async function find(req, res) {
         countShussekisha = tohyoCoin[0].countshussekisha;
         countPresen = tohyoCoin[0].countpresen;
 
-        console.log(haifuCoin);
-        console.log(configCoin);
-        console.log(presenterPk);
-        console.log(countShussekisha);
-        console.log(countPresen);
+        // console.log(haifuCoin);
+        // console.log(configCoin);
+        // console.log(presenterPk);
+        // console.log(countShussekisha);
+        // console.log(countPresen);
 
         // 投票一人当たりのコイン数
         configCoin = configCoin * 50;
-        console.log(configCoin);
+        // console.log(configCoin);
         // 部会での配布コイン数
         tohyoCoin = configCoin * countPresen;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
 
         //発表者の場合、1人分のコイン数を差し引く
         if (presenterPk != null) {
@@ -107,7 +107,7 @@ async function find(req, res) {
         }
         // 現在のコインから投票用コイン数を差し引く
         availableCoin = availableCoin - tohyoCoin;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
       }
     }
   }
@@ -207,18 +207,18 @@ async function pay(req, res) {
         countShussekisha = tohyoCoin[0].countshussekisha;
         countPresen = tohyoCoin[0].countpresen;
 
-        console.log(haifuCoin);
-        console.log(configCoin);
-        console.log(presenterPk);
-        console.log(countShussekisha);
-        console.log(countPresen);
+        // console.log(haifuCoin);
+        // console.log(configCoin);
+        // console.log(presenterPk);
+        // console.log(countShussekisha);
+        // console.log(countPresen);
 
         // 投票一人当たりのコイン数
         configCoin = configCoin * 50;
         console.log(configCoin);
         // 部会での配布コイン数
         tohyoCoin = configCoin * countPresen;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
 
         //発表者の場合、1人分のコイン数を差し引く
         if (presenterPk != null) {
@@ -226,7 +226,7 @@ async function pay(req, res) {
         }
         // 現在のコインから投票用コイン数を差し引く
         availableCoin = availableCoin - tohyoCoin;
-        console.log(tohyoCoin);
+        // console.log(tohyoCoin);
       }
     }
   }
@@ -241,11 +241,11 @@ async function pay(req, res) {
   }
 
   db
-    .transaction(async function(tx) {
+    .transaction(async function (tx) {
       // 支払テーブルの追加
       var ret = await insertShiharai(db, tx, req, totalCoin);
       var shiharaiPk = ret[0].t_shiharai_pk;
-      console.log("shiharaiPk:", shiharaiPk);
+      // console.log("shiharaiPk:", shiharaiPk);
 
       // 支払明細テーブルの追加
       var seq = 0;
@@ -407,9 +407,9 @@ async function tohyoCoinGet(req, tsenkyopk) {
         type: db.QueryTypes.RAW
       })
       .spread(async (datas, metadata) => {
-        console.log("----------");
-        console.log(datas);
-        console.log("----------");
+        // console.log("----------");
+        // console.log(datas);
+        // console.log("----------");
         console.log("★★★【End】tohyoCoinGet★★★");
         return resolve(datas);
       });

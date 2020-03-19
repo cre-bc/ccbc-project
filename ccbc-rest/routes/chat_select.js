@@ -6,7 +6,6 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 
 router.post("/find", (req, res) => {
-  console.log("OK");
   console.log(req.params);
   findData(req, res);
 });
@@ -24,7 +23,7 @@ async function findData(req, res) {
 
   // チャットユーザーを取得
   resultData = await chatUserGet(req);
-  console.log(resultData);
+  // console.log(resultData);
   res.json({ status: true, data: resultData });
 }
 
