@@ -35,7 +35,7 @@ router.post("/create", (req, res) => {
     db = require("./common/sequelize_helper.js").sequelize;
   }
   db
-    .transaction(async function(tx) {
+    .transaction(async function (tx) {
       // チャットテーブルinsert
       var t_chat_pk = await insertChat(tx, req);
       console.log(t_chat_pk);
@@ -50,6 +50,30 @@ router.post("/create", (req, res) => {
       console.log(res.json);
     })
     .then(result => {
+      // プッシュ通知
+      if (req.body.fromExpoPushToken !== "" && req.body.fromExpoPushToken !== null) {
+        request
+          .post("https://exp.host/--/api/v2/push/send")
+          .send([
+            {
+              to: req.body.fromExpoPushToken,
+              title: req.body.shimei,
+              body: req.body.message,
+              data: {
+                title: req.body.shimei,
+                message: req.body.message,
+                fromShainPk: req.body.loginShainPk,
+                fromShimei: req.body.shimei,
+                fromImageFileNm: req.body.imageFileName,
+                fromExpoPushToken: req.body.expo_push_token
+              }
+            }])
+          .end((err, res) => {
+            if (err) {
+              console.log("chat_msg:", "Push send error:", err)
+            }
+          });
+      }
       // コミットしたらこっち
       console.log("正常");
     })

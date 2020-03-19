@@ -220,28 +220,28 @@ export default class ChatCoinForm extends BaseComponent {
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
 
-            // プッシュ通知
-            if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
-              fetch("https://exp.host/--/api/v2/push/send", {
-                method: "POST",
-                body: JSON.stringify([
-                  {
-                    to: this.state.fromExpoPushToken,
-                    title: this.state.shimei,
-                    body: this.state.comment,
-                    data: {
-                      title: this.state.shimei,
-                      message: this.state.comment,
-                      fromShainPk: this.state.loginShainPk,
-                      fromShimei: this.state.shimei,
-                      fromImageFileNm: this.state.imageFileName,
-                      fromExpoPushToken: this.state.expo_push_token
-                    }
-                  }]),
-                "badge": 1,
-                headers: new Headers({ "Content-type": "application/json" })
-              });
-            }
+            // // プッシュ通知
+            // if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
+            //   fetch("https://exp.host/--/api/v2/push/send", {
+            //     method: "POST",
+            //     body: JSON.stringify([
+            //       {
+            //         to: this.state.fromExpoPushToken,
+            //         title: this.state.shimei,
+            //         body: this.state.comment,
+            //         data: {
+            //           title: this.state.shimei,
+            //           message: this.state.comment,
+            //           fromShainPk: this.state.loginShainPk,
+            //           fromShimei: this.state.shimei,
+            //           fromImageFileNm: this.state.imageFileName,
+            //           fromExpoPushToken: this.state.expo_push_token
+            //         }
+            //       }]),
+            //     "badge": 1,
+            //     headers: new Headers({ "Content-type": "application/json" })
+            //   });
+            // }
 
             this.props.navigation.navigate("ChatMsg", {
               t_shain_Pk: this.state.fromShainPk,

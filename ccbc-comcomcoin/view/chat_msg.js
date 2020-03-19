@@ -184,28 +184,29 @@ export default class ChatMsgForm extends BaseComponent {
               createdAt: new Date()
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
-            // プッシュ通知
-            if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
-              fetch("https://exp.host/--/api/v2/push/send", {
-                method: "POST",
-                body: JSON.stringify([
-                  {
-                    to: this.state.fromExpoPushToken,
-                    title: this.state.shimei,
-                    body: this.state.message,
-                    data: {
-                      title: this.state.shimei,
-                      message: this.state.message,
-                      fromShainPk: this.state.loginShainPk,
-                      fromShimei: this.state.shimei,
-                      fromImageFileNm: this.state.imageFileName,
-                      fromExpoPushToken: this.state.expo_push_token
-                    }
-                  }]),
-                "badge": 1,
-                headers: new Headers({ "Content-type": "application/json" })
-              });
-            }
+
+            // // プッシュ通知
+            // if (this.state.fromExpoPushToken !== "" && this.state.fromExpoPushToken !== null) {
+            //   fetch("https://exp.host/--/api/v2/push/send", {
+            //     method: "POST",
+            //     body: JSON.stringify([
+            //       {
+            //         to: this.state.fromExpoPushToken,
+            //         title: this.state.shimei,
+            //         body: this.state.message,
+            //         data: {
+            //           title: this.state.shimei,
+            //           message: this.state.message,
+            //           fromShainPk: this.state.loginShainPk,
+            //           fromShimei: this.state.shimei,
+            //           fromImageFileNm: this.state.imageFileName,
+            //           fromExpoPushToken: this.state.expo_push_token
+            //         }
+            //       }]),
+            //     "badge": 1,
+            //     headers: new Headers({ "Content-type": "application/json" })
+            //   });
+            // }
           }
         }.bind(this)
       )

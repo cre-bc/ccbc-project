@@ -93,18 +93,18 @@ async function coinSend(req, res) {
     db = require("./common/sequelize_helper.js").sequelize;
   }
   db
-    .transaction(async function(tx) {
+    .transaction(async function (tx) {
       // チャットテーブルinsert
       var t_chat_pk = await insertChat(tx, req);
       console.log(req.body.fromShainPk);
-//      // チャット既読テーブル更新
-//      await updateChatKidoku(
-//        tx,
-//        req,
-//        t_chat_pk,
-//        req.body.loginShainPk,
-//        req.body.fromShainPk
-//      );
+      //      // チャット既読テーブル更新
+      //      await updateChatKidoku(
+      //        tx,
+      //        req,
+      //        t_chat_pk,
+      //        req.body.loginShainPk,
+      //        req.body.fromShainPk
+      //      );
 
       // var t_coin_ido_pk = await tCoinIdoInsert(tx, req);
       var bc_account = await toBcAccountGet(req);
@@ -117,6 +117,30 @@ async function coinSend(req, res) {
       res.json({ status: true, t_chat_pk: t_chat_pk });
     })
     .then(result => {
+      // プッシュ通知
+      if (req.body.fromExpoPushToken !== "" && req.body.fromExpoPushToken !== null) {
+        request
+          .post("https://exp.host/--/api/v2/push/send")
+          .send([
+            {
+              to: req.body.fromExpoPushToken,
+              title: req.body.shimei,
+              body: req.body.comment,
+              data: {
+                title: req.body.shimei,
+                message: req.body.comment,
+                fromShainPk: req.body.loginShainPk,
+                fromShimei: req.body.shimei,
+                fromImageFileNm: req.body.imageFileName,
+                fromExpoPushToken: req.body.expo_push_token
+              }
+            }])
+          .end((err, res) => {
+            if (err) {
+              console.log("chat_coin:", "Push send error:", err)
+            }
+          });
+      }
       // コミットしたらこっち
       console.log("正常");
     })
