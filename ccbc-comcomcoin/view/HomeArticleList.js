@@ -78,19 +78,24 @@ export default class HomeArticleList extends BaseComponent {
           <ScrollView>
             <Divider style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }} />
             {this.state.articleList.map((item, i) => {
+              var avatar = ((item.file_path === "" || item.file_path === null) ? require('./../images/icon-noimage.png') : { uri: restdomain + `/uploads/article/${item.file_path}` })
               return (
                 <ListItem
                   key={i}
-                  titleStyle={{ fontSize: 18, marginLeft: 0 }}
+                  titleStyle={{ fontSize: 18, marginLeft: 20 }}
                   title={item.title}
                   titleNumberOfLines={2}
-                  subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
+                  subtitleStyle={{ fontSize: 16, marginLeft: 20 }}
                   subtitle={moment(new Date(item.post_dt)).format('YYYY/MM/DD') + "　" + item.hashtag_str}
-                  roundAvatar
-                  // avatar={item.avatar}
+                  // roundAvatar
+                  // avatar={{ uri: restdomain + `/uploads/article/${item.file_path}` }}
+                  // avatar={require('./../images/icon-noimage.png')}
+                  avatar={avatar}
+                  avatarContainerStyle={{ padding: 5, marginLeft: 5 }}
+                  avatarStyle={{ width: 60, height: 60 * 3 / 4 }}
                   badge={{
                     value: "☺︎ " + item.good_cnt,
-                    textStyle: { fontSize: 10 }
+                    textStyle: { fontSize: 12 }
                   }}
                   onPress={() => this.props.navigation.navigate('ArticleRefer', {
                     mode: "home",
