@@ -9,6 +9,7 @@ import 'moment/locale/ja'
 import BaseComponent from './components/BaseComponent'
 import ConfirmDialog from './components/ConfirmDialog'
 
+// const socket = require("./components/ChatSocket.js").socket
 const restdomain = require('./common/constans.js').restdomain
 const windowWidth = Dimensions.get('window').width
 const articleImageWidth = windowWidth * 0.9 / 3.0
@@ -33,6 +34,21 @@ export default class Home extends BaseComponent {
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
     this.setState({ isProcessing: true })
+
+    // // チャット用のWebsocket接続
+    // if (!socket.connected) {
+    //   socket.connect()
+    //   // チャットルーム（自分の社員PK）に接続
+    //   socket.emit("join", this.state.loginShainPk)
+    //   // チャットメッセージの受信（websocket）
+    //   socket.on(
+    //     "comcomcoin_chat",
+    //     function (message) {
+    //       alert(JSON.stringify(message))
+    //       this.onWillFocus()
+    //     }.bind(this)
+    //   )
+    // }
 
     this.props.navigation.addListener(
       'willFocus', () => this.onWillFocus())

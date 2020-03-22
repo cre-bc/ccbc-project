@@ -15,6 +15,7 @@ import {
   Card,
   CheckBox
 } from 'react-native-elements'
+import { Notifications } from 'expo'
 
 const restdomain = require('./common/constans.js').restdomain
 
@@ -36,6 +37,13 @@ export default class LoginGroupForm extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
+    // Push通知のリスナー登録
+    Notifications.addListener(this.handleNotification)
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(badgeNumber - 1)
+      }
+    })
   }
 
   getGroupInfo = async () => {
@@ -82,24 +90,45 @@ export default class LoginGroupForm extends Component {
   onPressButton = async () => {
     var groupInfo = await this.getGroupInfo()
     var loginInfo = await this.getLoginInfo()
-    var chatInfo = await this.getChatInfo()
-    await this.removeChatInfo()
+    // var chatInfo = await this.getChatInfo()
+    // await this.removeChatInfo()
     if (groupInfo == null) {
       this.openModal()
     } else if (groupInfo != null && loginInfo == null) {
       this.props.navigation.navigate('Login')
-    } else if (loginInfo != null && chatInfo != null) {
-      // バックグラウンドでチャットのプッシュ通知を受信した場合、直接チャット画面に遷移する
-      // this.props.navigation.navigate('Home')
-      this.props.navigation.navigate("ChatMsg", {
-        fromShainPk: chatInfo.fromShainPk,
-        fromShimei: chatInfo.fromShimei,
-        fromImageFileNm: chatInfo.fromImageFileNm,
-        fromExpoPushToken: chatInfo.fromExpoPushToken
-      })
+      // } else if (loginInfo != null && chatInfo != null) {
+      //   // バックグラウンドでチャットのプッシュ通知を受信した場合、直接チャット画面に遷移する
+      //   // this.props.navigation.navigate('Home')
+      //   this.props.navigation.navigate("ChatMsg", {
+      //     fromShainPk: chatInfo.fromShainPk,
+      //     fromShimei: chatInfo.fromShimei,
+      //     fromImageFileNm: chatInfo.fromImageFileNm,
+      //     fromExpoPushToken: chatInfo.fromExpoPushToken
+      //   })
     } else if (loginInfo != null) {
       // ログイン情報が保持されている場合は、ホーム画面に遷移する
       this.props.navigation.navigate('Home')
+    }
+  }
+
+  handleNotification = async (notification) => {
+    var loginInfo = await this.getLoginInfo()
+    if (loginInfo == null) {
+      return
+    }
+
+    if (notification.origin == 'selected') {
+      // バックグラウンドでプッシュ通知をタップした時
+      if (notification.data) {
+        // alert(JSON.stringify(notification))
+        // チャット画面に遷移
+        this.props.navigation.navigate("ChatMsg", {
+          fromShainPk: notification.data.fromShainPk,
+          fromShimei: notification.data.fromShimei,
+          fromImageFileNm: notification.data.fromImageFileNm,
+          fromExpoPushToken: notification.data.fromExpoPushToken
+        })
+      }
     }
   }
 
