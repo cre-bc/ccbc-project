@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
 import { AsyncStorage, View, Image } from 'react-native';
 import { Header, Icon } from 'react-native-elements'
+import ConfirmDialog from './ConfirmDialog'
 
 class InAppHeader extends Component {
+	constructor(props) {
+		super(props)
+		this.state = {
+			confirmLogoutDialogVisible: false
+		}
+	}
+
 	// Homeボタン押下
 	onPressHomeButton = () => {
 		this.props.navigate('Home')
@@ -10,6 +18,7 @@ class InAppHeader extends Component {
 
 	// ログアウトボタン押下
 	onPressLogoutButton = () => {
+		this.setState({ confirmLogoutDialogVisible: false })
 		AsyncStorage.removeItem('groupInfo')
 		AsyncStorage.removeItem('loginInfo')
 		this.props.navigate('LoginGroup')
@@ -51,11 +60,20 @@ class InAppHeader extends Component {
 								name={'sign-out'}
 								type={'font-awesome'}
 								color="#fff"
-								onPress={() => this.onPressLogoutButton()}
+								onPress={() => this.setState({ confirmLogoutDialogVisible: true })}
 							/>
 						</View>
 					}
 					backgroundColor="#ff5622"
+				/>
+
+				{/* -- 確認ダイアログ -- */}
+				<ConfirmDialog
+					modalVisible={this.state.confirmLogoutDialogVisible}
+					message={"ログアウトします。よろしいですか？"}
+					handleYes={this.onPressLogoutButton.bind(this)}
+					handleNo={() => { this.setState({ confirmLogoutDialogVisible: false }) }}
+					handleClose={() => { this.setState({ confirmLogoutDialogVisible: false }) }}
 				/>
 			</View>
 		)
