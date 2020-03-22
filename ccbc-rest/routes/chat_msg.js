@@ -52,25 +52,27 @@ router.post("/create", (req, res) => {
     .then(result => {
       // プッシュ通知
       if (req.body.fromExpoPushToken !== "" && req.body.fromExpoPushToken !== null) {
+        const pushData = [
+          {
+            to: req.body.fromExpoPushToken,
+            title: req.body.shimei,
+            body: req.body.message,
+            data: {
+              title: req.body.shimei,
+              message: req.body.message,
+              fromShainPk: req.body.loginShainPk,
+              fromShimei: req.body.shimei,
+              fromImageFileNm: req.body.imageFileName,
+              fromExpoPushToken: req.body.expo_push_token
+            }
+          }]
         request
           .post("https://exp.host/--/api/v2/push/send")
-          .send([
-            {
-              to: req.body.fromExpoPushToken,
-              title: req.body.shimei,
-              body: req.body.message,
-              data: {
-                title: req.body.shimei,
-                message: req.body.message,
-                fromShainPk: req.body.loginShainPk,
-                fromShimei: req.body.shimei,
-                fromImageFileNm: req.body.imageFileName,
-                fromExpoPushToken: req.body.expo_push_token
-              }
-            }])
+          .send(pushData)
           .end((err, res) => {
             if (err) {
               console.log("chat_msg:", "Push send error:", err)
+              console.log("chat_msg:", "Push send data:", pushData)
             }
           });
       }
