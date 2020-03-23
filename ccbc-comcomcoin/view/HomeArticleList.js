@@ -92,7 +92,7 @@ export default class HomeArticleList extends BaseComponent {
                   // avatar={require('./../images/icon-noimage.png')}
                   avatar={avatar}
                   avatarContainerStyle={{ padding: 5, marginLeft: 5 }}
-                  avatarStyle={{ width: 60, height: 60 * 3 / 4 }}
+                  avatarStyle={{ width: 60, height: 60 * 3 / 4, borderColor: 'gray', borderWidth: 1 }}
                   badge={{
                     value: "☺︎ " + item.good_cnt,
                     textStyle: { fontSize: 12 }
