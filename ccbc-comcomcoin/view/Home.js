@@ -38,37 +38,37 @@ export default class Home extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
-    this.setState({ isProcessing: true })
+    // チャットメッセージの受信（websocket）
+    socket.off("comcomcoin_chat")
+    socket.on("comcomcoin_chat",
+      async function (message) {
+        // チャットを受信した際に、ホーム画面を再表示する
+        await this.findHomeData()
+      }.bind(this)
+    )
 
     // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
     this.props.navigation.addListener("willFocus", () => this.onWillFocus())
-  }
 
-  /** コンポーネントのアンマウント時処理 */
-  componentWillUnmount = async () => {
-    if (!socket.disconnected) {
-      // websocket切断
-      socket.disconnect()
-    }
+    // 画面遷移時処理（後処理）
+    this.props.navigation.addListener("willBlur", () => this.onwillBlur())
   }
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
+    this.setState({ isProcessing: true })
+
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
-    // チャットを受信した際に、ホーム画面を再表示する
-    if (!socket.connected) {
-      // websocket接続
-      socket.connect()
+    // websocket切断
+    if (socket.connected) {
+      socket.close()
+      socket.disconnect()
     }
 
-    // チャットメッセージの受信（websocket）
-    socket.on("comcomcoin_chat",
-      async function (message) {
-        await this.findHomeData()
-      }.bind(this)
-    )
+    // websocket接続
+    socket.connect()
 
     // チャットルーム（自分の社員PK）に接続
     socket.emit("join", this.state.loginShainPk)
@@ -77,6 +77,15 @@ export default class Home extends BaseComponent {
     this.findHomeData()
 
     this.setState({ isProcessing: false })
+  }
+
+  /** 画面遷移時処理（後処理） */
+  onwillBlur = async () => {
+    if (!socket.disconnected) {
+      // websocket切断
+      socket.close()
+      socket.disconnect()
+    }
   }
 
   /** 初期表示情報取得処理 */
@@ -245,9 +254,6 @@ export default class Home extends BaseComponent {
                   </View>
                 )
               })}
-              {this.state.infoList.length === 0 && (
-                <Text />
-              )}
             </View>
 
             {/* -- 最新の記事 -- */}

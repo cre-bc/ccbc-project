@@ -20,16 +20,20 @@ export default class ChatSelectForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    // チャットメッセージの受信（websocket）
+    socket.off("comcomcoin_chat")
+    socket.on("comcomcoin_chat",
+      async function (message) {
+        // チャットを受信した際に、一覧を再表示する
+        await this.findChatUser()
+      }.bind(this)
+    )
+
     // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
     this.props.navigation.addListener("willFocus", () => this.onWillFocus())
-  }
 
-  /** コンポーネントのアンマウント時処理 */
-  componentWillUnmount = async () => {
-    if (!socket.disconnected) {
-      // websocket切断
-      socket.disconnect()
-    }
+    // 画面遷移時処理（後処理）
+    this.props.navigation.addListener("willBlur", () => this.onwillBlur())
   }
 
   /** 画面遷移時処理 */
@@ -37,24 +41,29 @@ export default class ChatSelectForm extends BaseComponent {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
-    // チャットを受信した際に、一覧を再表示する
-    if (!socket.connected) {
-      // websocket接続
-      socket.connect()
+    // websocket切断
+    if (socket.connected) {
+      socket.close()
+      socket.disconnect()
     }
 
-    // チャットメッセージの受信（websocket）
-    socket.on("comcomcoin_chat",
-      async function (message) {
-        await this.findChatUser()
-      }.bind(this)
-    )
+    // websocket接続
+    socket.connect()
 
     // チャットルーム（自分の社員PK）に接続
     socket.emit("join", this.state.loginShainPk)
 
     // 初期表示情報取得
     this.findChatUser()
+  }
+
+  /** 画面遷移時処理（後処理） */
+  onwillBlur = async () => {
+    if (!socket.disconnected) {
+      // websocket切断
+      socket.close()
+      socket.disconnect()
+    }
   }
 
   /** 画面初期表示情報取得 */

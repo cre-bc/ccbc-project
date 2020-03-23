@@ -41,15 +41,28 @@ export default class ChatCoinForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus())
+
+    // 画面遷移時処理（後処理）
+    this.props.navigation.addListener("willBlur", () => this.onwillBlur())
+  }
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
     this.setState({ isProcessing: true })
 
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
-    if (!socket.connected) {
-      // websocket接続
-      socket.connect()
+    // websocket切断
+    if (socket.connected) {
+      socket.close()
+      socket.disconnect()
     }
+
+    // websocket接続
+    socket.connect()
 
     // 前画面情報取得
     // チャット相手
@@ -75,10 +88,11 @@ export default class ChatCoinForm extends BaseComponent {
     this.setState({ isProcessing: false })
   }
 
-  /** コンポーネントのアンマウント時処理 */
-  componentWillUnmount = async () => {
+  /** 画面遷移時処理（後処理） */
+  onwillBlur = async () => {
     if (!socket.disconnected) {
       // websocket切断
+      socket.close()
       socket.disconnect()
     }
   }

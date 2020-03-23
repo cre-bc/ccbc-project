@@ -31,43 +31,9 @@ export default class ChatMsgForm extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
-    this.setState({ isProcessing: true })
-
-    if (!socket.connected) {
-      socket.connect()
-    }
-
-    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
-    this.props.navigation.addListener("willFocus", () => this.onWillFocus())
-
-    // アプリがバックグラウンド→フォアグラウンドになった場合に再表示するようベントを関連付け
-    AppState.addEventListener('change', this.handleAppStateChange)
-
-    this.setState({ isProcessing: false })
-  }
-
-  /** コンポーネントのアンマウント時処理 */
-  componentWillUnmount = async () => {
-    if (!socket.disconnected) {
-      // websocket切断
-      socket.disconnect()
-    }
-    AppState.removeEventListener('change', this.handleAppStateChange)
-  }
-
-  /** 画面遷移時処理 */
-  onWillFocus = async () => {
-    // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
-
-    if (!socket.connected) {
-      // websocket接続
-      socket.connect()
-    }
-
     // チャットメッセージの受信（websocket）
-    socket.on(
-      "comcomcoin_chat",
+    socket.off("comcomcoin_chat")
+    socket.on("comcomcoin_chat",
       function (message) {
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
         if (Number(JSON.parse(message).to_shain_pk) === Number(this.state.fromShainPk)) {
@@ -75,6 +41,37 @@ export default class ChatMsgForm extends BaseComponent {
         }
       }.bind(this)
     )
+
+    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus())
+
+    // 画面遷移時処理（後処理）
+    this.props.navigation.addListener("willBlur", () => this.onwillBlur())
+
+    // アプリがバックグラウンド→フォアグラウンドになった場合に再表示するようベントを関連付け
+    AppState.addEventListener("change", this.handleAppStateChange)
+  }
+
+  /** コンポーネントのアンマウント時処理 */
+  componentWillUnmount = async () => {
+    AppState.removeEventListener("change", this.handleAppStateChange)
+  }
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
+    this.setState({ isProcessing: true })
+
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
+
+    // websocket切断
+    if (socket.connected) {
+      socket.close()
+      socket.disconnect()
+    }
+
+    // websocket接続
+    socket.connect()
 
     // チャットルーム（自分の社員PK）に接続
     socket.emit("join", this.state.loginShainPk)
@@ -91,6 +88,17 @@ export default class ChatMsgForm extends BaseComponent {
 
     // 初期表示情報取得
     this.findChat()
+
+    this.setState({ isProcessing: false })
+  }
+
+  /** 画面遷移時処理（後処理） */
+  onwillBlur = async () => {
+    if (!socket.disconnected) {
+      // websocket切断
+      socket.close()
+      socket.disconnect()
+    }
   }
 
   /** 画面初期表示情報取得 */

@@ -1,8 +1,10 @@
 import React from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
 import { Divider, ListItem } from 'react-native-elements'
+import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
+
 import BaseComponent from './components/BaseComponent'
 import InAppHeader from './components/InAppHeader'
 
@@ -12,13 +14,17 @@ export default class HomeArticleList extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
+      isProcessing: false,
       mode: "",
       screenTitle: "",
       articleList: []
     }
   }
+
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    this.setState({ isProcessing: true })
+
     this.props.navigation.addListener(
       'willFocus', () => this.onWillFocus())
   }
@@ -49,22 +55,29 @@ export default class HomeArticleList extends BaseComponent {
       })
       .then(
         function (json) {
-          // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
-            return
+            // 結果が取得できない場合は終了
+          } else {
+            // 取得したデータをStateに格納
+            this.setState({ articleList: json.data })
           }
-          // 取得したデータをStateに格納
-          this.setState({
-            articleList: json.data
-          })
         }.bind(this)
       )
       .catch(error => console.error(error))
+
+    this.setState({ isProcessing: false })
   }
 
   render() {
     return (
       <View style={styles.container}>
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={'Processing…'}
+          textStyle={styles.spinnerTextStyle}
+        />
+
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
@@ -92,7 +105,7 @@ export default class HomeArticleList extends BaseComponent {
                   // avatar={require('./../images/icon-noimage.png')}
                   avatar={avatar}
                   avatarContainerStyle={{ padding: 5, marginLeft: 5 }}
-                  avatarStyle={{ width: 60, height: 60 * 3 / 4, borderColor: 'gray', borderWidth: 1 }}
+                  avatarStyle={{ width: 60, height: 60 * 3 / 4 }}
                   badge={{
                     value: "☺︎ " + item.good_cnt,
                     textStyle: { fontSize: 12 }
@@ -135,5 +148,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     marginLeft: 10
-  }
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
+    fontSize: 18
+  },
 })
