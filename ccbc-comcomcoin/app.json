@@ -23,6 +23,9 @@
       "android",
       "ios"
     ],
+    "notification": {
+      "iosDisplayInForeground": true
+    },
     "description": ""
   }
 }

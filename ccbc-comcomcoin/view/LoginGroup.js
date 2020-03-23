@@ -6,7 +6,8 @@ import {
   ImageBackground,
   AsyncStorage,
   Image,
-  Modal
+  Modal,
+  Platform
 } from 'react-native'
 import {
   Button,
@@ -117,7 +118,7 @@ export default class LoginGroupForm extends Component {
       return
     }
 
-    if (notification.origin == 'selected') {
+    if (notification.origin == 'selected' || Platform.OS === 'ios') {
       // バックグラウンドでプッシュ通知をタップした時
       if (notification.data) {
         // alert(JSON.stringify(notification))
