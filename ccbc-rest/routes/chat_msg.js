@@ -57,6 +57,8 @@ router.post("/create", (req, res) => {
             to: req.body.fromExpoPushToken,
             title: req.body.shimei,
             body: req.body.message,
+            sound: "default",
+            badge: 1,
             data: {
               title: req.body.shimei,
               message: req.body.message,

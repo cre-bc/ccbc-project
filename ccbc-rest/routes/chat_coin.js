@@ -124,6 +124,8 @@ async function coinSend(req, res) {
             to: req.body.fromExpoPushToken,
             title: req.body.shimei,
             body: req.body.comment,
+            sound: "default",
+            badge: 1,
             data: {
               title: req.body.shimei,
               message: req.body.comment,
