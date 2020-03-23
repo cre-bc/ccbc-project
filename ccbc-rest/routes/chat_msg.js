@@ -9,8 +9,8 @@ var db2 = require("./common/sequelize_helper.js");
  * チャット_初期表示
  */
 router.post("/find", (req, res) => {
-  console.log("OK");
-  console.log(req.params);
+  // console.log("OK");
+  // console.log(req.params);
   findData(req, res);
 });
 
@@ -18,8 +18,8 @@ router.post("/find", (req, res) => {
  * チャット_既読更新
  */
 router.post("/kidoku_update", (req, res) => {
-  console.log("OK");
-  console.log(req.params);
+  // console.log("OK");
+  // console.log(req.params);
   updateKidoku(req, res);
 });
 

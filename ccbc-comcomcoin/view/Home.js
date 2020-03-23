@@ -1,16 +1,20 @@
 import React from 'react'
-import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, AsyncStorage } from 'react-native'
+import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
 import IconBadge from 'react-native-icon-badge'
 import Spinner from 'react-native-loading-spinner-overlay'
 import moment from 'moment'
 import 'moment/locale/ja'
+import io from "socket.io-client"
+
 import BaseComponent from './components/BaseComponent'
 import ConfirmDialog from './components/ConfirmDialog'
 
-// const socket = require("./components/ChatSocket.js").socket
 const restdomain = require('./common/constans.js').restdomain
+const restdomain_ws = require("./common/constans.js").restdomain_ws
+const socket = io(restdomain_ws, { secure: true, transports: ["websocket"] })
+
 const windowWidth = Dimensions.get('window').width
 const articleImageWidth = windowWidth * 0.9 / 3.0
 
@@ -19,6 +23,7 @@ export default class Home extends BaseComponent {
     super(props)
     this.state = {
       isProcessing: false,
+      refreshing: false,
       activeSlide: 0,
       adList: [],
       infoList: [],
@@ -35,23 +40,16 @@ export default class Home extends BaseComponent {
   componentWillMount = async () => {
     this.setState({ isProcessing: true })
 
-    // // チャット用のWebsocket接続
-    // if (!socket.connected) {
-    //   socket.connect()
-    //   // チャットルーム（自分の社員PK）に接続
-    //   socket.emit("join", this.state.loginShainPk)
-    //   // チャットメッセージの受信（websocket）
-    //   socket.on(
-    //     "comcomcoin_chat",
-    //     function (message) {
-    //       alert(JSON.stringify(message))
-    //       this.onWillFocus()
-    //     }.bind(this)
-    //   )
-    // }
+    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus())
+  }
 
-    this.props.navigation.addListener(
-      'willFocus', () => this.onWillFocus())
+  /** コンポーネントのアンマウント時処理 */
+  componentWillUnmount = async () => {
+    if (!socket.disconnected) {
+      // websocket切断
+      socket.disconnect()
+    }
   }
 
   /** 画面遷移時処理 */
@@ -59,6 +57,30 @@ export default class Home extends BaseComponent {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
+    // チャットを受信した際に、ホーム画面を再表示する
+    if (!socket.connected) {
+      // websocket接続
+      socket.connect()
+    }
+
+    // チャットメッセージの受信（websocket）
+    socket.on("comcomcoin_chat",
+      async function (message) {
+        await this.findHomeData()
+      }.bind(this)
+    )
+
+    // チャットルーム（自分の社員PK）に接続
+    socket.emit("join", this.state.loginShainPk)
+
+    // 初期表示情報取得
+    this.findHomeData()
+
+    this.setState({ isProcessing: false })
+  }
+
+  /** 初期表示情報取得処理 */
+  findHomeData = async () => {
     // ホームAPI.ComComCoinホーム情報取得処理の呼び出し
     await fetch(restdomain + '/comcomcoin_home/findHome', {
       method: 'POST',
@@ -88,10 +110,9 @@ export default class Home extends BaseComponent {
         }.bind(this)
       )
       .catch(error => console.error(error))
-
-    this.setState({ isProcessing: false })
   }
 
+  /** ログアウト処理 */
   logout = () => {
     this.setState({ confirmDialogVisible: false })
     AsyncStorage.removeItem('loginInfo')
@@ -99,6 +120,7 @@ export default class Home extends BaseComponent {
     this.props.navigation.navigate('LoginGroup')
   }
 
+  /** 広告画像のrenderItem */
   renderItem = ({ item, index }) => (
     <View style={styles.tile}>
       <TouchableOpacity
@@ -116,6 +138,16 @@ export default class Home extends BaseComponent {
     </View>
   )
 
+  /** スクロールのリフレッシュ（ページを引っ張った操作） */
+  onRefresh = async () => {
+    this.setState({ refreshing: true })
+
+    // ホーム画面情報取得（再表示）
+    await this.findHomeData()
+
+    this.setState({ refreshing: false })
+  }
+
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "ivory" }}>
@@ -132,7 +164,13 @@ export default class Home extends BaseComponent {
 
         {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: 'row' }}>
-          <ScrollView maximumZoomScale={2}>
+          <ScrollView
+            maximumZoomScale={2}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this.onRefresh} />
+            }>
 
             {/* -- 広告 -- */}
             <View style={{ flexDirection: 'row' }}>
