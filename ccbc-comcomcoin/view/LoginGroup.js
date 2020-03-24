@@ -40,9 +40,11 @@ export default class LoginGroupForm extends Component {
   async componentWillMount() {
     // Push通知のリスナー登録
     Notifications.addListener(this.handleNotification)
+
+    // アプリの未読件数をクリア
     Notifications.getBadgeNumberAsync().then(badgeNumber => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(badgeNumber - 1)
+        Notifications.setBadgeNumberAsync(0)
       }
     })
   }
@@ -113,6 +115,14 @@ export default class LoginGroupForm extends Component {
   }
 
   handleNotification = async (notification) => {
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
+
+    // ログインしていない場合は何もしない
     var loginInfo = await this.getLoginInfo()
     if (loginInfo == null) {
       return

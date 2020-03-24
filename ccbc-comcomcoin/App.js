@@ -102,6 +102,26 @@ export default class App extends Component {
       let token = await Notifications.getExpoPushTokenAsync()
       await AsyncStorage.setItem('expo_push_token', token)
     }
+
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
+
+    // アプリがバックグラウンド→フォアグラウンドになった場合に未読件数を消すイベントを関連付け
+    AppState.addEventListener("change", this.handleAppStateChange)
+  }
+
+  /** バックグラウンド→フォアグラウンドの切り替え */
+  handleAppStateChange = (nextAppState) => {
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
   }
 
   getGroupInfo = async () => {
