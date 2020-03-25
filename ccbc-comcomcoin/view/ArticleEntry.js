@@ -336,8 +336,8 @@ export default class ArticleEntry extends BaseComponent {
                     <View style={{ marginTop: 10 }}>
                       <Image
                         source={{ uri: restdomain + `/uploads/article/${this.state.file_path}` }}
-                        style={{ width: articleImageWidth, height: articleImageWidth * 3 / 4 }}
-                        resizeMode='cover' />
+                        style={{ width: articleImageWidth, height: articleImageWidth }}
+                        resizeMode='contain' />
                     </View>
                   )}
                   {this.state.imageData.uri !== "" && (
@@ -346,11 +346,11 @@ export default class ArticleEntry extends BaseComponent {
                         source={{ uri: this.state.imageData.uri }}
                         style={{
                           width: articleImageWidth,
-                          height: articleImageWidth * 3 / 4,
+                          height: articleImageWidth,
                           marginTop: 30,
                           marginBottom: 30
                         }}
-                        resizeMode='cover'
+                        resizeMode='contain'
                       />
                     </View>
                   )}
