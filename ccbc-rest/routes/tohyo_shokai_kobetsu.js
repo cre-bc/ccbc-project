@@ -139,7 +139,7 @@ async function tTohyoJohoGet(req, paramTPresenterPk) {
     console.log(paramTPresenterPk)
     var sumCoin = 0
     var sql =
-      "select t3.t_tohyo_pk, t3.transaction_id from t_tohyo t3 where t_presenter_pk = :presenterPk and delete_flg = '0'"
+      "select t3.t_tohyo_pk, t3.transaction_id, t3.hyoka1 + t3.hyoka2 + t3.hyoka3 + t3.hyoka4 + t3.hyoka5 as hyoka from t_tohyo t3 where t_presenter_pk = :presenterPk and delete_flg = '0'"
     if (req.body.db_name != null && req.body.db_name != '') {
       db = db2.sequelize3(req.body.db_name)
     } else {
@@ -155,8 +155,12 @@ async function tTohyoJohoGet(req, paramTPresenterPk) {
         var result = await bcrequest(req, datas)
         for (var i in result.body.trans) {
           console.log('◆◆◆' + result.body.trans[i].coin)
-          sumCoin += result.body.trans[i].coin
-        }
+          if (result.body.trans[i].coin > 0) {
+            sumCoin += result.body.trans[i].coin
+          } else {
+            sumCoin += datas[i].hyoka
+          }
+	}
 
         console.log('----------')
         console.log('sumCoin:' + sumCoin)

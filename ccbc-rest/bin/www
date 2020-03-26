@@ -19,16 +19,16 @@ app.set('port', port)
  * Create HTTP server.
  */
 // HTTPサーバー起動
-var server = http.createServer(app)
+// var server = http.createServer(app)
 
 // HTTPSサーバー起動
-// var fs = require('fs')
-// var https = require('https')
-// var options = {
-//   key: fs.readFileSync('/etc/letsencrypt/live/cre-harvest.tk/privkey.pem'),
-//   cert: fs.readFileSync('/etc/letsencrypt/live/cre-harvest.tk/fullchain.pem')
-// }
-// var server = https.createServer(options, app)
+var fs = require('fs')
+var https = require('https')
+var options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/hokkaido-ima.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/hokkaido-ima.com/fullchain.pem')
+}
+var server = https.createServer(options, app)
 
 /**
  * Listen on provided port, on all network interfaces.
