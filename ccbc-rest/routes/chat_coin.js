@@ -564,8 +564,8 @@ function insertChat(tx, req) {
   return new Promise((resolve, reject) => {
     console.log("★ start insertChat");
     var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
-      "VALUES (?, ?, ?, current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?) RETURNING t_chat_pk";
+      "insert into t_chat (from_shain_pk, to_shain_pk, comment_crypt, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
+      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?) RETURNING t_chat_pk";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {

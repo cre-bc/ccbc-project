@@ -198,10 +198,8 @@ async function updateKidoku(req, res) {
 async function chatMsgGet(req) {
   return new Promise((resolve, reject) => {
     console.log("★ start chatMsgGet★");
-    // var sql =
-    //   'select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, c.comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk, k.t_chat_pk as kidoku_pk from t_chat c left join t_chat_kidoku k on c.from_shain_pk = k.from_shain_pk and c.to_shain_pk = k.t_shain_pk where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) order by post_dt + post_tm desc'
     var sql =
-      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, c.comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk from t_chat c where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) order by post_dt + post_tm desc";
+      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment_crypt, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk from t_chat c where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) order by post_dt + post_tm desc";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
@@ -349,8 +347,8 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
 function insertChat(tx, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
-      "VALUES (?, ?, ?, current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?) RETURNING t_chat_pk";
+      "insert into t_chat (from_shain_pk, to_shain_pk, comment_crypt, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
+      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?) RETURNING t_chat_pk";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Notifications } from 'expo'
 import { Platform, Dimensions, StyleSheet, View, Text, Image, ScrollView, TouchableOpacity, AsyncStorage, RefreshControl } from 'react-native'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
 import { Card } from 'react-native-elements'
@@ -60,6 +61,13 @@ export default class Home extends BaseComponent {
 
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
 
     // websocket切断
     if (socket.connected) {

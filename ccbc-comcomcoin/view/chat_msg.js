@@ -1,9 +1,11 @@
 import React, { Component } from "react"
+import { Notifications } from 'expo'
 import { StyleSheet, View, Image, Text, TouchableHighlight, AppState, Platform } from "react-native"
 import { GiftedChat } from "react-native-gifted-chat"
 import io from "socket.io-client"
 import KeyboardSpacer from "react-native-keyboard-spacer"
 import Spinner from "react-native-loading-spinner-overlay"
+
 
 import BaseComponent from "./components/BaseComponent"
 import InAppHeader from "./components/InAppHeader"
@@ -63,6 +65,13 @@ export default class ChatMsgForm extends BaseComponent {
 
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
 
     // websocket切断
     if (socket.connected) {
