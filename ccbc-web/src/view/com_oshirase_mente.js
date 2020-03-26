@@ -899,7 +899,7 @@ class ComOshiraseMenteForm extends React.Component {
                           src={restUrl + `uploads/${this.state.imageFileName}`}
                         />
                       }
-                      label={this.state.shimei + '　' + this.state.coin}
+                      label={this.state.shimei}
                       className={classes.chip}
                       aria-label="More"
                       aria-haspopup="true"

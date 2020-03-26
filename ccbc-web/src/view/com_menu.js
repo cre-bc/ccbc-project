@@ -214,7 +214,7 @@ const images2 = [
     url: '/images/com_oshirase_mente2.png',
     title: 'お知らせメンテンス',
     width: '50%',
-    path: '/coin_shokai'
+    path: '/com_oshirase_mente'
   }
 ]
 
@@ -321,7 +321,7 @@ class ComMenuForm extends React.Component {
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="所持コイン一覧" />
           </ListItem>
-          <ListItem button component={Link} to="/coin_shokai">
+          <ListItem button component={Link} to="/com_oshirase_mente">
             <img src="/images/com_oshirase_mente2.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="お知らせメンテナンス" />
@@ -382,7 +382,7 @@ class ComMenuForm extends React.Component {
                           src={restUrl + `uploads/${this.state.imageFileName}`}
                         />
                       }
-                      label={this.state.shimei + '　' + this.state.coin}
+                      label={this.state.shimei}
                       className={classes.chip}
                       aria-label="More"
                       aria-haspopup="true"

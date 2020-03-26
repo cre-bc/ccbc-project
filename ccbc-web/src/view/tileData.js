@@ -14,10 +14,11 @@ import { Link } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography'
 
 export const systemName = 'Harvest'
-export const restUrl = 'http://localhost:3001/'
+// export const restUrl = 'http://localhost:3001/'
 // export const restUrl = 'http://118.27.23.20:3001/'
 // export const restUrl = 'https://creharvest.tk:3001/'
 // export const restUrl = 'https://cre-harvest.tk:3001/'
+export const restUrl = 'https://creharvest.ml:3001/'
 
 export const images = [
   {
@@ -125,7 +126,7 @@ export const titleItems2 = (
   </div>
 )
 
-export var kanriListItems = function() {
+export var kanriListItems = function () {
   var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
   if (loginInfos !== null) {
     var loginInfo = loginInfos[0]
