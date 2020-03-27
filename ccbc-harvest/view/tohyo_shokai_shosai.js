@@ -243,7 +243,7 @@ export default class TohyoShokaiShosai extends Component {
           </Card>
           {this.state.resultList.map((n, i) => {
             return (
-              <Card>
+              <Card key={i}>
                 <View style={styles.targe_com_item}>
                   <View style={styles.target_avatar_com_view}>
                     <Avatar

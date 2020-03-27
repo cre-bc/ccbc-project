@@ -90,11 +90,11 @@ export default class TohyoShokai extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -182,9 +182,9 @@ export default class TohyoShokai extends Component {
           {this.state.senkyoNm}
         </Text>
         <ScrollView>
-          {this.state.resultList.map(n => {
+          {this.state.resultList.map((n, i) => {
             return (
-              <Card>
+              <Card key={i}>
                 <TouchableOpacity
                   onPress={e =>
                     this.onPressTarget(
