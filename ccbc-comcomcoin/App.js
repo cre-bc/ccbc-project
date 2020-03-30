@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
-import {
-  AsyncStorage,
-  Alert,
-  Platform
-} from 'react-native'
+import { AsyncStorage, AppState } from 'react-native'
 import { createStackNavigator, createAppContainer } from 'react-navigation'
 import * as Permissions from 'expo-permissions'
 import { Notifications } from 'expo'
