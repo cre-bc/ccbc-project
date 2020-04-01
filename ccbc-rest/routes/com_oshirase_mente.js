@@ -104,7 +104,6 @@ router.post('/create', (req, res) => {
       db.query(sql, {
         type: db.QueryTypes.RAW
       }).spread(async (datas, metadata) => {
-        var pushDatas = []
         for (var i in datas) {
           const pushData = {
             to: datas[i].expo_push_token,
@@ -113,17 +112,16 @@ router.post('/create', (req, res) => {
             sound: "default",
             badge: 1,
           }
-          pushDatas.push(pushData)
+          request
+            .post("https://exp.host/--/api/v2/push/send")
+            .send(pushData)
+            .end((err, res) => {
+              if (err) {
+                console.log("com_oshirase_mente:", "Push send error:", err)
+                console.log("com_oshirase_mente:", "Push send data:", pushData)
+              }
+            })
         }
-        request
-          .post("https://exp.host/--/api/v2/push/send")
-          .send(pushDatas)
-          .end((err, res) => {
-            if (err) {
-              console.log("com_oshirase_mente:", "Push send error:", err)
-              console.log("com_oshirase_mente:", "Push send data:", pushDatas)
-            }
-          })
       })
     })
     .catch(e => {
