@@ -83,11 +83,11 @@ class TextFields extends React.Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        async function(json) {
+        async function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -280,11 +280,11 @@ class TextFields extends React.Component {
                 <td colspan="2">
                   <br />
                   <br />
-                  <Typography component="p" align="right">
+                  {/* <Typography component="p" align="right">
                     <a href="/sample">
                       ※画面モックサンプルメニューへ遷移（実装用）
                     </a>
-                  </Typography>
+                  </Typography> */}
                   <Typography component="p" align="right">
                     ※ID、パスワード紛失時は管理者に連絡してください
                   </Typography>

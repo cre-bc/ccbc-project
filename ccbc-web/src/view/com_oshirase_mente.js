@@ -851,7 +851,7 @@ class ComOshiraseMenteForm extends React.Component {
           </IconButton>
         </div>
         <Divider />
-        {kanriListItems()}
+        {/* {kanriListItems()} */}
       </Drawer>
     )
 

@@ -274,8 +274,8 @@ class AppSelectForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -312,14 +312,14 @@ class AppSelectForm extends React.Component {
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
           >
             <Toolbar disableGutters={!open}>
-              <IconButton
+              {/* <IconButton
                 color="inherit"
                 aria-label="open drawer"
                 onClick={this.handleDrawerOpen}
                 className={classNames(classes.menuButton, open && classes.hide)}
               >
                 <MenuIcon />
-              </IconButton>
+              </IconButton> */}
               <div
                 style={{
                   zIndex: 1,
@@ -389,7 +389,7 @@ class AppSelectForm extends React.Component {
               </Manager>
             </Toolbar>
           </AppBar>
-          {before}
+          {/* {before} */}
           <main
             className={classNames(
               classes.content,
@@ -449,6 +449,7 @@ class AppSelectForm extends React.Component {
                     }}
                     component={Link}
                     to={image.path}
+                    disabled={this.state.kengenCd != '1'}
                   >
                     <span
                       className={classes.imageSrc}
@@ -472,7 +473,7 @@ class AppSelectForm extends React.Component {
               </div>
             </Typography>
           </main>
-          {after}
+          {/* {after} */}
         </div>
       </div>
     )
