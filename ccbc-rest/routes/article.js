@@ -412,7 +412,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
         contents: req.body.contents,
         hashtag: req.body.hashtag,
         file_path: req.body.file_path,
-        user_id: req.body.loginShainPk
+        user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {
@@ -471,7 +471,7 @@ function insertZoyo(db, tx, req, transactionId) {
         transaction_id: transactionId,
         zoyo_comment: "記事投稿",
         nenji_flg: "2",
-        insert_user_id: req.body.loginShainPk
+        insert_user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {
@@ -524,7 +524,7 @@ function insertKijiHashtag(db, tx, req, kijiPk, tKijiHashtag) {
         seq_no: tKijiHashtag.seq_no,
         t_kiji_category_pk: tKijiHashtag.t_kiji_category_pk,
         hashtag: tKijiHashtag.hashtag,
-        user_id: req.body.loginShainPk
+        user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {
@@ -557,7 +557,7 @@ function insertOrUpdateGood(db, tx, req) {
       replacements: {
         t_kiji_pk: req.body.t_kiji_pk,
         t_shain_pk: req.body.loginShainPk,
-        user_id: req.body.loginShainPk
+        user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {
@@ -590,7 +590,7 @@ function insertOrUpdateFavorite(db, tx, req) {
       replacements: {
         t_kiji_pk: req.body.t_kiji_pk,
         t_shain_pk: req.body.loginShainPk,
-        user_id: req.body.loginShainPk
+        user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {
@@ -622,7 +622,7 @@ function insertOrUpdateKijiKidoku(db, tx, req, kijiPk, kijiCategoryPk) {
         t_shain_pk: req.body.loginShainPk,
         t_kiji_category_pk: kijiCategoryPk,
         t_kiji_pk: kijiPk,
-        user_id: req.body.loginShainPk
+        user_id: req.body.userid
       }
     })
       .spread((datas, metadata) => {

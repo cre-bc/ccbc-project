@@ -1,3 +1,4 @@
+const request = require("superagent")
 const express = require('express')
 const router = express.Router()
 const async = require('async')
@@ -97,6 +98,31 @@ router.post('/create', (req, res) => {
     .then(result => {
       // コミットしたらこっち
       console.log('正常')
+
+      // プッシュ通知先の取得
+      const sql = "select expo_push_token from t_shain where expo_push_token is not null and delete_flg = '0'"
+      db.query(sql, {
+        type: db.QueryTypes.RAW
+      }).spread(async (datas, metadata) => {
+        for (var i in datas) {
+          const pushData = {
+            to: datas[i].expo_push_token,
+            title: "ComComCoinからのお知らせです",
+            body: req.body.title,
+            sound: "default",
+            badge: 1,
+          }
+          request
+            .post("https://exp.host/--/api/v2/push/send")
+            .send(pushData)
+            .end((err, res) => {
+              if (err) {
+                console.log("com_oshirase_mente:", "Push send error:", err)
+                console.log("com_oshirase_mente:", "Push send data:", pushData)
+              }
+            })
+        }
+      })
     })
     .catch(e => {
       // ロールバックしたらこっち

@@ -477,7 +477,7 @@ function insertShiharai(db, tx, req, totalCoin) {
           t_shain_pk: req.body.loginShainPk,
           total_coin: totalCoin,
           m_bokin_pk: req.body.m_bokin_pk,
-          insert_user_id: req.body.loginShainPk
+          insert_user_id: req.body.userid
         }
       })
       .spread((datas, metadata) => {
@@ -509,7 +509,7 @@ function insertShiharaiMeisai(db, tx, req, shiharaiPk, tShiharaiMeisai) {
           m_shohin_pk: tShiharaiMeisai.m_shohin_pk,
           quantity: tShiharaiMeisai.quantity,
           coin: tShiharaiMeisai.coin,
-          user_id: req.body.loginShainPk
+          user_id: req.body.userid
         }
       })
       .spread((datas, metadata) => {
@@ -541,7 +541,7 @@ function insertZoyo(db, tx, req, transactionId) {
           transaction_id: transactionId,
           zoyo_comment: "買い物",
           nenji_flg: "4",
-          insert_user_id: req.body.loginShainPk
+          insert_user_id: req.body.userid
         }
       })
       .spread((datas, metadata) => {

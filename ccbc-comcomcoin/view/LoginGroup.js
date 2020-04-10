@@ -130,7 +130,7 @@ export default class LoginGroupForm extends Component {
 
     if (notification.origin == 'selected' || Platform.OS === 'ios') {
       // バックグラウンドでプッシュ通知をタップした時
-      if (notification.data) {
+      if (notification.data && "fromShainPk" in notification.data) {
         // alert(JSON.stringify(notification))
         // チャット画面に遷移
         this.props.navigation.navigate("ChatMsg", {

@@ -111,7 +111,11 @@ async function coinSend(req, res) {
       var transaction_id = await bcrequest(req, bc_account[0].bc_account);
 
       // 贈与テーブルの追加
-      await insertZoyo(tx, req, transaction_id);
+      var ret = await insertZoyo(tx, req, transaction_id);
+      const zoyoPk = ret[0].t_zoyo_pk
+
+      // チャットテーブルの更新
+      await updateChatAfterZoyo(tx, req, t_chat_pk, zoyoPk)
 
       // await tCoinIdoUpdate(tx, transaction_id, req, t_coin_ido_pk);
       res.json({ status: true, t_chat_pk: t_chat_pk });
@@ -621,12 +625,45 @@ function insertZoyo(tx, req, transactionId) {
           transaction_id: transactionId,
           zoyo_comment: req.body.comment,
           nenji_flg: "3",
-          insert_user_id: req.body.loginShainPk
+          insert_user_id: req.body.userid
         }
       })
       .spread((datas, metadata) => {
         // console.log(datas);
         return resolve(datas);
+      });
+  });
+}
+
+/**
+ * t_chatテーブルのupdate用関数
+ * @param {*} tx
+ * @param {*} req
+ * @param {*} t_chat_pk
+ * @param {*} zoyoPk
+ */
+function updateChatAfterZoyo(tx, req, t_chat_pk, zoyoPk) {
+  return new Promise((resolve, reject) => {
+    console.log("★ start insertChat");
+    var sql =
+      "update t_chat set t_coin_ido_pk = ? " +
+      "where t_chat_pk = ?";
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
+    } else {
+      db = require("./common/sequelize_helper.js").sequelize;
+    }
+
+    db
+      .query(sql, {
+        transaction: tx,
+        replacements: [
+          zoyoPk,
+          t_chat_pk
+        ]
+      })
+      .spread((datas, metadata) => {
+        return resolve(datas)
       });
   });
 }

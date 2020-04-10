@@ -193,13 +193,15 @@ const images1 = [
     url: '/images/com_coin_shokai.png',
     title: 'コイン照会',
     width: '50%',
-    path: '/tohyo_toroku'
+    path: '/',
+    disabled: true,
   },
   {
     url: '/images/com_kiji.png',
     title: '記事投稿',
     width: '50%',
-    path: '/tohyo_ichiran'
+    path: '/',
+    disabled: true,
   }
 ]
 
@@ -208,13 +210,15 @@ const images2 = [
     url: '/images/com_coin_ichiran.png',
     title: '所持コイン一覧',
     width: '50%',
-    path: '/coin_zoyo'
+    path: '/',
+    disabled: true,
   },
   {
     url: '/images/com_oshirase_mente2.png',
     title: 'お知らせメンテンス',
     width: '50%',
-    path: '/com_oshirase_mente'
+    path: '/com_oshirase_mente',
+    disabled: false,
   }
 ]
 
@@ -223,13 +227,15 @@ const images3 = [
     url: '/images/com_kokoku_mente2.png',
     title: '広告メンテナンス',
     width: '50%',
-    path: '/coin_zoyo'
+    path: '/',
+    disabled: true,
   },
   {
     url: '/images/com_shohin_mente4.png',
     title: '商品メンテナンス',
     width: '50%',
-    path: '/tohyo_ichiran'
+    path: '/',
+    disabled: true,
   }
 ]
 
@@ -300,23 +306,23 @@ class ComMenuForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
         <div>
-          <ListItem button component={Link} to="/tohyo_toroku">
+          <ListItem button component={Link} to="/" disabled={true}>
             <img src="/images/com_coin_shokai.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
             <ListItemText primary="コイン照会" />
           </ListItem>
-          <ListItem button component={Link} to="/coin_shokai">
+          <ListItem button component={Link} to="/" disabled={true}>
             <img src="/images/com_kiji.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="記事投稿" />
           </ListItem>
-          <ListItem button component={Link} to="/coin_shokai">
+          <ListItem button component={Link} to="/" disabled={true}>
             <img src="/images/com_coin_ichiran.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="所持コイン一覧" />
@@ -326,12 +332,12 @@ class ComMenuForm extends React.Component {
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="お知らせメンテナンス" />
           </ListItem>
-          <ListItem button component={Link} to="/coin_zoyo">
+          <ListItem button component={Link} to="/" disabled={true}>
             <img src="/images/com_kokoku_mente2.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_kokoku_mente.png" /> */}
             <ListItemText primary="広告メンテナンス" />
           </ListItem>
-          <ListItem button component={Link} to="/tohyo_ichiran">
+          <ListItem button component={Link} to="/" disabled={true}>
             <img src="/images/com_shohin_mente4.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_shohin_mente3.png" /> */}
             <ListItemText primary="商品メンテナンス" />
@@ -446,6 +452,7 @@ class ComMenuForm extends React.Component {
                     }}
                     component={Link}
                     to={image.path}
+                    disabled={image.disabled}
                   >
                     <span
                       className={classes.imageSrc}
@@ -482,6 +489,7 @@ class ComMenuForm extends React.Component {
                     }}
                     component={Link}
                     to={image.path}
+                    disabled={image.disabled}
                   >
                     <span
                       className={classes.imageSrc}
@@ -518,6 +526,7 @@ class ComMenuForm extends React.Component {
                     }}
                     component={Link}
                     to={image.path}
+                    disabled={image.disabled}
                   >
                     <span
                       className={classes.imageSrc}

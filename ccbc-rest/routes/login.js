@@ -122,12 +122,22 @@ function bcrequest(req, datas) {
  */
 function tokenUpdate(tx, req, token) {
   return new Promise((resolve, reject) => {
-    var sql = 'update t_shain set token = ?, expo_push_token = ? ' + 'where user_id = ?'
+    var sql = ""
+    var param = []
+    if (req.body.expo_push_token != null && req.body.expo_push_token != "") {
+      // ComComCoinからのログイン
+      sql = 'update t_shain set expo_push_token = ? where user_id = ?'
+      param = [req.body.expo_push_token, req.body.id]
+    } else {
+      // WebかHARVESTからのログイン
+      sql = 'update t_shain set token = ? where user_id = ?'
+      param = [token, req.body.id]
+    }
 
     db
       .query(sql, {
         transaction: tx,
-        replacements: [token, req.body.expo_push_token, req.body.id]
+        replacements: param
       })
       .spread((datas, metadata) => {
         // console.log(datas)
