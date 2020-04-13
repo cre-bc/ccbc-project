@@ -197,7 +197,7 @@ export default class Home extends BaseComponent {
                     data={this.state.adList}
                     firstItem={0}
                     layout={'default'}
-                    renderItem={this.renderItem}
+                    renderItem={this.renderItem.bind(this)}
                     onSnapToItem={index => {
                       this.setState({ activeSlide: index })
                     }}
