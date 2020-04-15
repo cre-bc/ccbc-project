@@ -18,13 +18,7 @@ import CoinShokaiForm from "./view/coin_shokai";
 import CoinZoyoForm from "./view/coin_zoyo";
 import CommentShokaiForm from "./view/comment_shokai";
 import TohyoIchiranForm from "./view/tohyo_ichiran";
-
-import MenuPh2Form from "./view/menu_ph2";
 import LoginGroupForm from "./view/login_group";
-import ChatForm from "./view/chat_slack";
-import ChatSelectForm from "./view/chat_select";
-import ChatMsgForm from "./view/chat_msg";
-import ChatCoinForm from "./view/chat_coin";
 
 /******* Navigator *******/
 
@@ -43,12 +37,7 @@ var HomeNavigator = createStackNavigator(
     CoinShokai: { screen: CoinShokaiForm },
     CoinZoyo: { screen: CoinZoyoForm },
     CommentShokai: { screen: CommentShokaiForm },
-    MenuPh2: { screen: MenuPh2Form },
     LoginGroup: { screen: LoginGroupForm },
-    Chat: { screen: ChatForm },
-    ChatSelect: { screen: ChatSelectForm },
-    ChatMsg: { screen: ChatMsgForm },
-    ChatCoin: { screen: ChatCoinForm }
   },
   {
     initialRouteName: "LoginGroup",
