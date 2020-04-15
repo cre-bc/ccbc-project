@@ -28,7 +28,7 @@ class InAppHeader extends Component {
 		return (
 			<View>
 				<Header
-					outerContainerStyles={{ height: 80 }}
+					outerContainerStyles={{ height: 50 }}
 					leftComponent={
 						<View>
 							<Icon

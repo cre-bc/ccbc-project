@@ -175,10 +175,6 @@ export default class Home extends BaseComponent {
           textStyle={styles.spinnerTextStyle}
         />
 
-        <View style={[{ flex: 0.30 }]}>
-          <Text />
-        </View>
-
         {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: 'row' }}>
           <ScrollView
