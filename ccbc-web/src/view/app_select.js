@@ -449,7 +449,7 @@ class AppSelectForm extends React.Component {
                     }}
                     component={Link}
                     to={image.path}
-                    disabled={this.state.kengenCd != '1'}
+                    // disabled={this.state.kengenCd != '1'}
                   >
                     <span
                       className={classes.imageSrc}

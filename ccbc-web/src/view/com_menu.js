@@ -200,8 +200,8 @@ const images1 = [
     url: '/images/com_kiji.png',
     title: '記事投稿',
     width: '50%',
-    path: '/',
-    disabled: true,
+    path: '/article',
+    disabled: false,
   }
 ]
 
@@ -317,7 +317,7 @@ class ComMenuForm extends React.Component {
             {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
             <ListItemText primary="コイン照会" />
           </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/article">
             <img src="/images/com_kiji.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="記事投稿" />

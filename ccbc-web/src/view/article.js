@@ -25,6 +25,9 @@ import { Link } from 'react-router-dom'
 import { kanriListItems, systemName, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 
+import ReactCrop from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css';
+
 import Search from '@material-ui/icons/Search'
 import EditIcon from '@material-ui/icons/Edit'
 import NoteAdd from '@material-ui/icons/NoteAdd'
@@ -58,6 +61,8 @@ const CHAR_LEN_TITLE = 30
 const CHAR_LEN_HASHTAG = 10
 const CHAR_LEN_CONTENTS = 1000
 const HASHTAG_UPPER_LIMIT = 3
+
+const IMAGE_MAX_WIDTH = 250
 
 const styles = theme => ({
     root: {
@@ -338,6 +343,11 @@ const styles = theme => ({
         marginBottom: 20,
         marginRight: 10
     },
+    inputFileBtnHide: {
+        opacity: 0,
+        appearance: "none",
+        position: "absolute"
+    }
 })
 
 class ArticleForm extends React.Component {
@@ -372,7 +382,12 @@ class ArticleForm extends React.Component {
         openEntryDialog: false,
         openSearchDialog: false,
         imageSrc: "",
-
+        src: null,
+        crop: {
+            unit: '%',
+            width: 100,
+            aspect: 4 / 3,
+        },
         categoryList: [],
         current_kiji_category_pk: "",
 
@@ -380,6 +395,8 @@ class ArticleForm extends React.Component {
 
     constructor(props) {
         super(props)
+
+        this.onImageSelected = this.onImageSelected.bind(this)
     }
 
     /** コンポーネントのマウント時処理 */
@@ -460,11 +477,106 @@ class ArticleForm extends React.Component {
     closeEntry = () => {
         this.setState({ openEntryDialog: false })
     }
-    imageSelect = () => {
-        this.setState({ imageSrc: "sample" })
+    onImageSelected = (e) => {
+        const file = e.target.files[0]
+        let reader = new FileReader()
+
+        reader.readAsDataURL(file)
+        reader.onload = (e) => {
+            let img = new Image()
+            img.onload = () => {
+                let width = img.width
+                let height = img.height
+                if (width > IMAGE_MAX_WIDTH) {
+                    height = Math.round(height * IMAGE_MAX_WIDTH / width)
+                    width = IMAGE_MAX_WIDTH
+                }
+                let canvas = document.createElement('canvas')
+                canvas.width = width
+                canvas.height = height
+                let ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0, width, height)
+                ctx.canvas.toBlob((blob) => {
+                    const imageFile = new File([blob], file.name, {
+                        type: file.type,
+                        lastModified: Date.now()
+                    })
+                    // this.smallImages.push(imageFile)
+                    console.log("imageFile: ", imageFile)
+                    this.setState({ imageSrc: canvas.toDataURL('image/*') })
+                }, file.type, 1)
+            }
+            img.src = e.target.result
+        }
     }
     imageDelete = () => {
         this.setState({ imageSrc: "" })
+    }
+
+
+    onSelectFile = (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const reader = new FileReader()
+            reader.addEventListener('load', () =>
+                this.setState({ src: reader.result })
+            )
+            reader.readAsDataURL(e.target.files[0])
+        }
+    }
+    // If you setState the crop in here you should return false.
+    onImageLoaded = (image) => {
+        this.imageRef = image
+    }
+    onCropComplete = (crop) => {
+        this.makeClientCrop(crop)
+    }
+    onCropChange = (crop, percentCrop) => {
+        // You could also use percentCrop:
+        // this.setState({ crop: percentCrop });
+        this.setState({ crop })
+    }
+    async makeClientCrop(crop) {
+        if (this.imageRef && crop.width && crop.height) {
+            const croppedImageUrl = await this.getCroppedImg(
+                this.imageRef,
+                crop,
+                'newFile.png'
+            )
+            this.setState({ imageSrc: croppedImageUrl })
+        }
+    }
+    getCroppedImg(image, crop, fileName) {
+        const canvas = document.createElement('canvas')
+        const scaleX = image.naturalWidth / image.width
+        const scaleY = image.naturalHeight / image.height
+        canvas.width = crop.width;
+        canvas.height = crop.height;
+        const ctx = canvas.getContext('2d');
+
+        ctx.drawImage(
+            image,
+            crop.x * scaleX,
+            crop.y * scaleY,
+            crop.width * scaleX,
+            crop.height * scaleY,
+            0,
+            0,
+            crop.width,
+            crop.height
+        )
+        return new Promise((resolve, reject) => {
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    //reject(new Error('Canvas is empty'))
+                    console.error('Canvas is empty')
+                    return;
+                }
+                blob.name = fileName;
+                window.URL.revokeObjectURL(this.fileUrl)
+                this.fileUrl = window.URL.createObjectURL(blob)
+                resolve(this.fileUrl)
+            }, 'image/*')
+        })
     }
 
     openSearch = () => {
@@ -685,10 +797,16 @@ class ArticleForm extends React.Component {
                                 // onChange={this.handleChange_comment.bind(this)}
                                 />
                                 <Button
-                                    onClick={this.imageSelect}
+                                    // onClick={this.imageSelect}
                                     color="primary"
                                     style={{ marginTop: 20 }}>
                                     画像選択
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className={classes.inputFileBtnHide}
+                                        onChange={this.onSelectFile}
+                                    />
                                 </Button>
                                 <Button
                                     onClick={this.imageDelete}
@@ -696,17 +814,29 @@ class ArticleForm extends React.Component {
                                     style={{ marginTop: 20 }}>
                                     画像削除
                                 </Button>
-                                {this.state.imageSrc !== "" && (
-                                    <img
-                                        src="/images/article_sample2.jpg"
-                                        alt="サンプル"
-                                        align="top"
-                                        // width="500"
-                                        // height="30"
-                                        // height="auto"
-                                        style={{ maxWidth: "90%" }}
-                                    />
-                                )}
+                                <div style={{ verticalAlign: "top" }}>
+                                    <br />
+                                    <div style={{ width: 350, float: "left", padding: 10 }}>
+                                        {this.state.imageSrc && (
+                                            <img
+                                                style={{ maxWidth: '90%', border: "solid", borderColor: "lightgray", width: 300 }}
+                                                src={this.state.imageSrc} />
+                                        )}
+                                    </div>
+                                    <div style={{ width: 350, float: "left", padding: 10 }}>
+                                        {this.state.src && (
+                                            <ReactCrop
+                                                src={this.state.src}
+                                                crop={this.state.crop}
+                                                style={{ maxWidth: 300 }}
+                                                ruleOfThirds
+                                                onImageLoaded={this.onImageLoaded}
+                                                onComplete={this.onCropComplete}
+                                                onChange={this.onCropChange}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
                             </DialogContent>
                             <DialogActions>
                                 <Button
