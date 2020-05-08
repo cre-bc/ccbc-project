@@ -24,6 +24,9 @@ import Send from '@material-ui/icons/Send'
 import { Link } from 'react-router-dom'
 import { kanriListItems, systemName, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
+import Linkify from 'react-linkify'
+import moment from 'moment'
+import 'moment/locale/ja'
 
 import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css';
@@ -390,7 +393,13 @@ class ArticleForm extends React.Component {
         },
         categoryList: [],
         current_kiji_category_pk: "",
-
+        searchCondKijiPk: "",
+        searchCondYear: "",
+        searchCondKeyword: "",
+        searchCondHashtag: "",
+        readLastKijiPk: "",
+        currentCategory: null,
+        articleList: [],
     }
 
     constructor(props) {
@@ -406,8 +415,8 @@ class ArticleForm extends React.Component {
             var loginInfo = loginInfos[i]
             this.setState({ userid: loginInfo['userid'] })
             this.setState({ password: loginInfo['password'] })
-            this.setState({ tShainPk: loginInfo['tShainPk'] })
-            this.state.tShainPk = Number(loginInfo['tShainPk'])
+            this.setState({ loginShainPk: loginInfo['tShainPk'] })
+            this.state.loginShainPk = Number(loginInfo['tShainPk'])
             this.setState({ imageFileName: loginInfo['imageFileName'] })
             this.setState({ shimei: loginInfo['shimei'] })
             this.setState({ kengenCd: loginInfo['kengenCd'] })
@@ -417,29 +426,18 @@ class ArticleForm extends React.Component {
             }
         }
 
-        // request
-        //     .post(restdomain + '/coin_zoyo/find')
-        //     .send(this.state)
-        //     .end((err, res) => {
-        //         if (err) {
-        //             return
-        //         }
-        //         var resList = res.body.data
-        //         var bccoin = String(res.body.bccoin)
-        //         // 検索結果表示
-        //         this.setState({ resultList: resList })
-        //         this.state.bccoin = bccoin
-        //         this.setState({ bccoin: bccoin })
-        //         this.setState({ shimei: res.body.shimei })
-        //         this.setState({ from_bcaccount: res.body.from_bcaccount })
-
-        //         for (var i in resList) {
-        //             var data = resList[i]
-        //             if (data.kengen_cd === '0') {
-        //                 this.setState({ jimuId: data.id })
-        //             }
-        //         }
-        //     })
+        request
+            .post(restdomain + '/article/findCategory')
+            .send(this.state)
+            .end((err, res) => {
+                console.log("Error:", err)
+                if (err) {
+                    return
+                }
+                var resList = res.body.data
+                console.log(resList)
+                this.setState({ categoryList: resList })
+            })
     }
 
     /** 入力コントロール */
@@ -512,7 +510,6 @@ class ArticleForm extends React.Component {
     imageDelete = () => {
         this.setState({ imageSrc: "" })
     }
-
 
     onSelectFile = (e) => {
         if (e.target.files && e.target.files.length > 0) {
@@ -592,6 +589,40 @@ class ArticleForm extends React.Component {
         this.setState({ dialogOpen: false })
     }
 
+    handleCategory = category => () => {
+        this.setState({
+            current_kiji_category_pk: category.t_kiji_category_pk,
+            currentCategory: category
+        })
+        this.state.current_kiji_category_pk = category.t_kiji_category_pk
+
+        request
+            .post(restdomain + '/article/findArticle')
+            .send(this.state)
+            .end((err, res) => {
+                console.log("Error:", err)
+                if (err) {
+                    return
+                }
+                var resList = res.body.data
+                console.log(resList)
+                this.setState({ articleList: resList })
+
+                request
+                    .post(restdomain + '/article/findCategory')
+                    .send(this.state)
+                    .end((err, res) => {
+                        console.log("Error:", err)
+                        if (err) {
+                            return
+                        }
+                        var resList = res.body.data
+                        console.log(resList)
+                        this.setState({ categoryList: resList })
+                    })
+            })
+    }
+
     render() {
         const { classes, theme } = this.props
         const { anchor, open, open2 } = this.state
@@ -652,10 +683,8 @@ class ArticleForm extends React.Component {
                                 <Target>
                                     <div ref={node => { this.target1 = node }} >
                                         <Chip
-                                            // avatar={<Avatar src={restUrl + `uploads/${this.state.imageFileName}`} />}
-                                            avatar={<Avatar src={`/images/man1.jpg`} />}
-                                            // label={this.state.shimei + '　' + this.state.coin}
-                                            label={"清宮幸太郎"}
+                                            avatar={<Avatar src={restUrl + `uploads/${this.state.imageFileName}`} />}
+                                            label={this.state.shimei}
                                             className={classes.chip}
                                             aria-label="More"
                                             aria-haspopup="true"
@@ -854,38 +883,20 @@ class ArticleForm extends React.Component {
 
                         <div className={classes.categoryTable}>
                             <List component="nav" aria-label="mailbox folders">
-                                <ListItem button divider>
-                                    <ListItemText primary="ライフハック" />
-                                </ListItem>
-                                <ListItem button divider>
-                                    <ListItemText primary="おすすめの本" />
-                                    <ListItemSecondaryAction>
-                                        <div style={{ textAlign: "center", borderRadius: "50%", width: 20, height: 20, backgroundColor: "#FF3333", color: "white", fontSize: 12 }}>
-                                            <span >
-                                                {"12"}
-                                            </span>
-                                        </div>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                                <ListItem button divider style={{ backgroundColor: "lightgray" }}>
-                                    <ListItemText primary="イベント情報" />
-                                </ListItem>
-                                <ListItem button divider>
-                                    <ListItemText primary="美味しいお店" />
-                                </ListItem>
-                                <ListItem button divider>
-                                    <ListItemText primary="その他" />
-                                    <ListItemSecondaryAction>
-                                        <div style={{ textAlign: "center", borderRadius: "50%", width: 20, height: 20, backgroundColor: "#FF3333", color: "white", fontSize: 12 }}>
-                                            <span >
-                                                {"3"}
-                                            </span>
-                                        </div>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                                <ListItem button divider>
-                                    <ListItemText primary="募金先の詳細はこちら" />
-                                </ListItem>
+                                {this.state.categoryList.map(item => (
+                                    <ListItem button divider onClick={this.handleCategory(item)}>
+                                        <ListItemText primary={item.category_nm} />
+                                        <ListItemSecondaryAction>
+                                            {item.midoku_cnt !== "0" &&
+                                                <div style={{ textAlign: "center", borderRadius: "50%", width: 20, height: 20, backgroundColor: "#FF3333", color: "white", fontSize: 12 }}>
+                                                    <span >
+                                                        {item.midoku_cnt}
+                                                    </span>
+                                                </div>
+                                            }
+                                        </ListItemSecondaryAction>
+                                    </ListItem>
+                                ))}
                             </List>
                         </div>
 
@@ -894,194 +905,128 @@ class ArticleForm extends React.Component {
                                 <div style={{ float: "left" }}>
                                     <span>{" "}</span>
                                 </div>
-                                <div style={{ float: "center" }}>
-                                    <span style={{ fontWeight: "bold", fontSize: 24 }}>
-                                        {"イベント情報"}
-                                    </span>
-                                </div>
-                                <div style={{ float: "right", marginTop: -40 }}>
-                                    <Button
-                                        onClick={this.openSearch}
-                                        variant="raised"
-                                        aria-label="Search"
-                                        className={classes.button}>
-                                        <Search className={classes.extendedIcon} />
-                                        検索
-                                    </Button>
-                                    {"　"}
-                                    <Button
-                                        onClick={this.openEntry}
-                                        variant="raised"
-                                        aria-label="New"
-                                        className={classes.button}>
-                                        <NoteAdd className={classes.extendedIcon} />
-                                        投稿
-                                    </Button>
-                                </div>
+                                {this.state.currentCategory !== null && (
+                                    <div>
+                                        <div style={{ float: "center" }}>
+                                            <span style={{ fontWeight: "bold", fontSize: 24 }}>
+                                                {this.state.currentCategory.category_nm}
+                                            </span>
+                                        </div>
+                                        <div style={{ float: "right", marginTop: -40 }}>
+                                            <Button
+                                                onClick={this.openSearch}
+                                                variant="raised"
+                                                aria-label="Search"
+                                                className={classes.button}>
+                                                <Search className={classes.extendedIcon} />
+                                                検索
+                                            </Button>
+                                            {"　"}
+                                            <Button
+                                                onClick={this.openEntry}
+                                                variant="raised"
+                                                aria-label="New"
+                                                className={classes.button}>
+                                                <NoteAdd className={classes.extendedIcon} />
+                                                投稿
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                                {this.state.currentCategory === null && (
+                                    <div style={{ float: "center" }}>
+                                        <span style={{ fontWeight: "bold", fontSize: 24 }}>
+                                            {"記事のカテゴリを選択してください"}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className={classes.articleCardTable}>
-                                <Card className={classes.articleCard}>
-                                    <div>
-                                        {/* Header */}
+                                {this.state.articleList.map(item => (
+                                    <Card className={classes.articleCard}>
                                         <div>
-                                            {/* 投稿日時・顔写真 */}
-                                            <div style={{ float: "left", paddingRight: 50 }}>
-                                                <div style={{ textAlign: "center", paddingBottom: 10 }}>
-                                                    <span style={{ color: "gray", fontSize: 12 }}>
-                                                        {"2020/02/17"}<br />{"15:40"}
-                                                    </span>
-                                                </div>
-                                                <div style={{ align: "center", paddingLeft: 10 }}>
-                                                    <Avatar src={"/images/man1.jpg"} style={{ width: 50 }} />
-                                                </div>
-                                            </div>
-                                            {/* 名前・タイトル・ハッシュタグ */}
-                                            <div style={{ float: "left" }}>
-                                                <div style={{ paddingBottom: 10 }}>
-                                                    <span style={{ fontSize: 20 }}>
-                                                        {"清宮幸太郎"}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span style={{ color: "blue", fontSize: 20, fontWeight: "bold" }}>
-                                                        {"『北海道日本ハムファイターズ開幕応援キャンペーン』のご案内"}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span style={{ color: "blue", fontSize: 14, paddingLeft: 10 }}>
-                                                        {"#スポーツ　#野球"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            {/* 各種アイコン */}
-                                            <div style={{ float: "right", align: "right" }}>
-                                                <div style={{ float: "left", paddingRight: 10 }}>
-                                                    <EditIcon style={{ fontSize: 40 }} />
-                                                </div>
-                                                <div style={{ float: "left", paddingRight: 10 }}>
-                                                    <div>
-                                                        <img
-                                                            src="/images/good-on.png"
-                                                            width="35"
-                                                            height="35"
-                                                        />
-                                                    </div>
-                                                    <div style={{ marginTop: -10 }}>
-                                                        <span style={{ color: "red", fontSize: 12, marginTop: -30, paddingTop: -10 }}>
-                                                            いいね
-                                                    </span>
-                                                    </div>
-                                                </div>
-                                                <div style={{ float: "left" }}>
-                                                    <Star style={{ fontSize: 40, color: "orange" }} />
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* Detail */}
-                                        <div style={{ paddingTop: 30, clear: "both" }}>
-                                            <span>
-                                                日本ハム株式会社では、北海道限定企画として北海道日本ハムファイターズの今シーズンの活躍に期待を込めて『北海道日本ハムファイターズ開幕応援キャンペーン』を実施中です。<br />
-                                                キャンペーン前半の2月度は、3月26日(木)東北楽天ゴールデンイーグルス戦でのペア観戦チケットと体験イベントを賞品とした『開幕シリーズをみんなで応援しま賞』プレゼント企画。<br />
-                                                又、B賞『食べて応援しま賞』プレゼント企画は、お楽しみグッズやニッポンハム商品詰合わせが当たるグッズプレゼント企画となっており、2月～3月末日までの期間でゆっくりとご応募頂けます。<br />
-                                                期間中にお買い上げいただいたニッポンハムの対象商品（税込）500円分以上を含むお買い上げレシートを応募はがき又は、スマートフォンでご応募ください。<br />
-                                                キャンペーンの詳しい内容は、道内のスーパーマーケットや食料品店などの各店頭でもお知らせいたしております。<br /><br />
-                                                日本ハムの対象商品を食べて、ドシドシご応募ください。<br />
-                                            </span>
-                                        </div>
-                                        {/* Image */}
-                                        <div style={{ paddingTop: 30 }}>
-                                            <img
-                                                src="/images/article_sample.jpg"
-                                                alt="サンプル"
-                                                align="top"
-                                                // width="500"
-                                                // height="30"
-                                                // height="auto"
-                                                style={{ maxWidth: "90%" }}
-                                            />
-                                        </div>
-                                    </div>
-                                </Card>
-                                <Card className={classes.articleCard}>
-                                    <div>
-                                        {/* Header */}
-                                        <div>
-                                            {/* 投稿日時・顔写真 */}
-                                            <div style={{ float: "left", paddingRight: 50 }}>
-                                                <div style={{ textAlign: "center", paddingBottom: 10 }}>
-                                                    <span style={{ color: "gray", fontSize: 12 }}>
-                                                        {"2020/02/14"}<br />{"9:30"}
-                                                    </span>
-                                                </div>
-                                                <div style={{ align: "center", paddingLeft: 10 }}>
-                                                    <Avatar src={"/images/man1.jpg"} style={{ width: 50 }} />
-                                                </div>
-                                            </div>
-                                            {/* 名前・タイトル・ハッシュタグ */}
-                                            <div style={{ float: "left" }}>
-                                                <div style={{ paddingBottom: 10 }}>
-                                                    <span style={{ fontSize: 20 }}>
-                                                        {"宮西尚生"}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span style={{ color: "blue", fontSize: 20, fontWeight: "bold" }}>
-                                                        {"日本ハムファイターズ　春季キャンプのダイジェストグッズを発売！"}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <span style={{ color: "blue", fontSize: 14, paddingLeft: 10 }}>
-                                                        {"#スポーツ　#野球"}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            {/* 各種アイコン */}
-                                            <div style={{ float: "right", align: "right" }}>
-                                                <div style={{ float: "left", paddingRight: 10 }}>
-                                                    {/* <EditIcon style={{ fontSize: 40 }} /> */}
-                                                </div>
-                                                <div style={{ float: "left", paddingRight: 10, marginTop: 3 }}>
-                                                    <div>
-                                                        <img
-                                                            src="/images/good-off.png"
-                                                            width="35"
-                                                            height="35"
-                                                        />
-                                                    </div>
-                                                    {/* <div style={{ marginTop: -10 }}>
-                                                        <span style={{ color: "red", fontSize: 12, marginTop: -30, paddingTop: -10 }}>
-                                                            いいね
+                                            {/* Header */}
+                                            <div>
+                                                {/* 投稿日時・顔写真 */}
+                                                <div style={{ float: "left", paddingRight: 50 }}>
+                                                    <div style={{ textAlign: "center", paddingBottom: 10 }}>
+                                                        <span style={{ color: "gray", fontSize: 12 }}>
+                                                            {moment(new Date(item.post_dt)).format('YYYY/MM/DD')}
+                                                            <br />
+                                                            {moment(item.post_tm, 'HH:mm:ss').format('H:mm')}
                                                         </span>
-                                                    </div> */}
+                                                    </div>
+                                                    <div style={{ align: "center", paddingLeft: 10 }}>
+                                                        <Avatar
+                                                            src={restdomain + `/uploads/${item.shain_image_path}`}
+                                                            style={{ width: 50, height: 50 }} />
+                                                    </div>
                                                 </div>
+                                                {/* 名前・タイトル・ハッシュタグ */}
                                                 <div style={{ float: "left" }}>
-                                                    <Star style={{ fontSize: 40, color: "gray" }} />
+                                                    <div style={{ paddingBottom: 10 }}>
+                                                        <span style={{ fontSize: 20 }}>
+                                                            {item.shain_nm}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span style={{ color: "blue", fontSize: 20, fontWeight: "bold" }}>
+                                                            {item.title}
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span style={{ color: "blue", fontSize: 14, paddingLeft: 10 }}>
+                                                            {item.hashtag_str}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                {/* 各種アイコン */}
+                                                <div style={{ float: "right", align: "right" }}>
+                                                    <div style={{ float: "left", paddingRight: 10 }}>
+                                                        <EditIcon style={{ fontSize: 40 }} />
+                                                    </div>
+                                                    <div style={{ float: "left", paddingRight: 10 }}>
+                                                        <div>
+                                                            <img
+                                                                src="/images/good-on.png"
+                                                                width="35"
+                                                                height="35"
+                                                            />
+                                                        </div>
+                                                        <div style={{ marginTop: -10 }}>
+                                                            <span style={{ color: "red", fontSize: 12, marginTop: -30, paddingTop: -10 }}>
+                                                                いいね
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div style={{ float: "left" }}>
+                                                        <Star style={{ fontSize: 40, color: "orange" }} />
+                                                    </div>
                                                 </div>
                                             </div>
+                                            {/* Detail */}
+                                            <div style={{ paddingTop: 30, clear: "both" }}>
+                                                <span style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                                                    <Linkify properties={{ target: '_blank' }}>
+                                                        {item.contents}
+                                                    </Linkify>
+                                                </span>
+                                            </div>
+                                            {/* Image */}
+                                            <div style={{ paddingTop: 30 }}>
+                                                <img
+                                                    src={restdomain + `/uploads/article/${item.file_path}`}
+                                                    align="top"
+                                                    width="auto"
+                                                    // height="30"
+                                                    height="300"
+                                                    style={{ maxWidth: "90%" }}
+                                                />
+                                            </div>
                                         </div>
-                                        {/* Detail */}
-                                        <div style={{ paddingTop: 30, clear: "both" }}>
-                                            <span>
-                                                北海道日本ハムファイターズでは、試合での出来事や記録を商品化した”最もホットなグッズ”ダイジェストグッズの受注販売を2020年も行います。<br />
-                                                春季キャンプダイジェストグッズ第1弾は2月1日(土)～2月7日(金)の期間中に撮影した全員集合写真、新人集合写真、ビヤヌエバ選手、バーへイゲン投手、新キャプテン・西川遥輝選手、栗山英樹監督が登場。<br />
-                                                2月20日(木)23:59までオフィシャルオンラインストア、オフィシャルショップでお申し込みいただけます。<br />
-                                            </span>
-                                        </div>
-                                        {/* Image */}
-                                        <div style={{ paddingTop: 30 }}>
-                                            <img
-                                                src="/images/article_sample2.jpg"
-                                                alt="サンプル"
-                                                align="top"
-                                                // width="500"
-                                                // height="30"
-                                                // height="auto"
-                                                style={{ maxWidth: "90%" }}
-                                            />
-                                        </div>
-                                    </div>
-                                </Card>
+                                    </Card>
+                                ))}
                             </div>
                         </div>
                     </main>
