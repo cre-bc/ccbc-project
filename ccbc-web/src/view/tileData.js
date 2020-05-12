@@ -19,7 +19,8 @@ export const systemName = 'Harvest'
 // export const restUrl = 'https://creharvest.tk:3001/'
 // export const restUrl = 'https://cre-harvest.tk:3001/'
 // export const restUrl = 'https://creharvest.ml:3001/'
-export const restUrl = 'https://hokkaido-ima.com:3001/'
+const restdomain = require('../common/constans.js').restdomain
+export const restUrl = restdomain + '/'
 
 export const images = [
   {
