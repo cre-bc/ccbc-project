@@ -12,7 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import { Link } from 'react-router-dom'
-import { kanriListItems, restUrl, titleItems2 } from './tileData'
+import { comKanriListItems, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 import Chip from '@material-ui/core/Chip'
 import { Manager, Target, Popper } from 'react-popper'
@@ -633,172 +633,220 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ comment: null })
   }
 
-  handleSubmit() {
-    request
-      .post(restdomain + '/com_oshirase_mente/create')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) {
-          return
-        }
-        this.setState({ openAdd: false })
+  handleSubmit = async () => {
+    await fetch(restdomain + '/com_oshirase_mente/create', {
+      // request
+      //   .post(restdomain + '/com_oshirase_mente/create')
+      // .send(this.state)
+      // .end((err, res) => {
+      //   if (err) {
+      //     return
+      //   }
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(function (response) {
+        return response.json()
       })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === 'undefined') {
+            return
+          }
+          this.setState({ openAdd: false })
+          // 現在年の取得。取得した年を初期表示する
+          var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+          //var yyyy = new Date().getFullYear()
+          this.setState({ Target_year: yyyy })
+          this.state.targetYear = yyyy
 
-    // 現在年の取得。取得した年を初期表示する
-    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
-    //var yyyy = new Date().getFullYear()
-    this.setState({ Target_year: yyyy })
-    this.state.targetYear = yyyy
+          request
+            .post(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 検索結果表示
+              this.setState({ resultList: res.body.data })
+            })
 
-    request
-      .post(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 検索結果表示
-        this.setState({ resultList: res.body.data })
-      })
-
-    // 年度表示
-    request
-      .get(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 年度リスト生成
-        var nendoList = []
-        for (var i in res.body.data) {
-          var r = res.body.data[i]
-          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
-          var nendo = getNendo(d)
-          nendoList.push(nendo)
-        }
-        if (
-          this.state.resultList.length === 0 ||
-          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
-        ) {
-          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
-        }
-        // 年度重複削除
-        var nendoList2 = getArray(nendoList)
-        this.state.nendoList = nendoList2
-        this.setState({ nendoList: nendoList2 })
-      })
-    this.setState({ selected: [] })
-    this.setState({ renban: null })
-    this.setState({ notice_dt: null })
-    this.setState({ title: null })
-    this.setState({ comment: null })
+          // 年度表示
+          request
+            .get(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 年度リスト生成
+              var nendoList = []
+              for (var i in res.body.data) {
+                var r = res.body.data[i]
+                var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+                var nendo = getNendo(d)
+                nendoList.push(nendo)
+              }
+              if (
+                this.state.resultList.length === 0 ||
+                getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+              ) {
+                nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+              }
+              // 年度重複削除
+              var nendoList2 = getArray(nendoList)
+              this.state.nendoList = nendoList2
+              this.setState({ nendoList: nendoList2 })
+            })
+          this.setState({ selected: [] })
+          this.setState({ renban: null })
+          this.setState({ notice_dt: null })
+          this.setState({ title: null })
+          this.setState({ comment: null })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
 
-  handleSubmitEdit() {
-    request
-      .post(restdomain + '/com_oshirase_mente/edit')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        this.setState({ openEdit: false })
+  handleSubmitEdit = async () => {
+    await fetch(restdomain + '/com_oshirase_mente/edit', {
+      // request
+      //   .post(restdomain + '/com_oshirase_mente/edit')
+      //   .send(this.state)
+      //   .end((err, res) => {
+      //     if (err) return
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(function (response) {
+        return response.json()
       })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === 'undefined') {
+            return
+          }
+          this.setState({ openEdit: false })
+          // 現在年の取得。取得した年を初期表示する
+          var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+          this.setState({ Target_year: yyyy })
+          this.state.targetYear = yyyy
 
-    // 現在年の取得。取得した年を初期表示する
-    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
-    this.setState({ Target_year: yyyy })
-    this.state.targetYear = yyyy
+          request
+            .post(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 検索結果表示
+              this.setState({ resultList: res.body.data })
+            })
 
-    request
-      .post(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 検索結果表示
-        this.setState({ resultList: res.body.data })
-      })
-
-    // 年度表示
-    request
-      .get(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 年度リスト生成
-        var nendoList = []
-        for (var i in res.body.data) {
-          var r = res.body.data[i]
-          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
-          var nendo = getNendo(d)
-          nendoList.push(nendo)
-        }
-        if (
-          this.state.resultList.length === 0 ||
-          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
-        ) {
-          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
-        }
-        // 年度重複削除
-        var nendoList2 = getArray(nendoList)
-        this.state.nendoList = nendoList2
-        this.setState({ nendoList: nendoList2 })
-      })
-    this.setState({ selected: [] })
-    this.setState({ renban: null })
-    this.setState({ notice_dt: null })
-    this.setState({ title: null })
-    this.setState({ comment: null })
+          // 年度表示
+          request
+            .get(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 年度リスト生成
+              var nendoList = []
+              for (var i in res.body.data) {
+                var r = res.body.data[i]
+                var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+                var nendo = getNendo(d)
+                nendoList.push(nendo)
+              }
+              if (
+                this.state.resultList.length === 0 ||
+                getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+              ) {
+                nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+              }
+              // 年度重複削除
+              var nendoList2 = getArray(nendoList)
+              this.state.nendoList = nendoList2
+              this.setState({ nendoList: nendoList2 })
+            })
+          this.setState({ selected: [] })
+          this.setState({ renban: null })
+          this.setState({ notice_dt: null })
+          this.setState({ title: null })
+          this.setState({ comment: null })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
 
-  handleSubmitDelete() {
-    request
-      .post(restdomain + '/com_oshirase_mente/delete')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        this.setState({ openDelete: false })
+  handleSubmitDelete = async () => {
+    await fetch(restdomain + '/com_oshirase_mente/delete', {
+      // request
+      //   .post(restdomain + '/com_oshirase_mente/delete')
+      //   .send(this.state)
+      //   .end((err, res) => {
+      //     if (err) return
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(function (response) {
+        return response.json()
       })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === 'undefined') {
+            return
+          }
+          this.setState({ openDelete: false })
+          // 現在年の取得。取得した年を初期表示する
+          var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
+          this.setState({ Target_year: yyyy })
+          this.state.targetYear = yyyy
 
-    // 現在年の取得。取得した年を初期表示する
-    var yyyy = getNendo(moment(new Date()).format('YYYYMMDD'))
-    this.setState({ Target_year: yyyy })
-    this.state.targetYear = yyyy
+          request
+            .post(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 検索結果表示
+              this.setState({ resultList: res.body.data })
+            })
 
-    request
-      .post(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 検索結果表示
-        this.setState({ resultList: res.body.data })
-      })
-
-    // 年度表示
-    request
-      .get(restdomain + '/com_oshirase_mente/find')
-      .send(this.state)
-      .end((err, res) => {
-        if (err) return
-        // 年度リスト生成
-        var nendoList = []
-        for (var i in res.body.data) {
-          var r = res.body.data[i]
-          var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
-          var nendo = getNendo(d)
-          nendoList.push(nendo)
-        }
-        if (
-          this.state.resultList.length === 0 ||
-          getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
-        ) {
-          nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
-        }
-        // 年度重複削除
-        var nendoList2 = getArray(nendoList)
-        this.state.nendoList = nendoList2
-        this.setState({ nendoList: nendoList2 })
-      })
-    this.setState({ selected: [] })
-    this.setState({ renban: null })
-    this.setState({ notice_dt: null })
-    this.setState({ title: null })
-    this.setState({ comment: null })
+          // 年度表示
+          request
+            .get(restdomain + '/com_oshirase_mente/find')
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return
+              // 年度リスト生成
+              var nendoList = []
+              for (var i in res.body.data) {
+                var r = res.body.data[i]
+                var d = moment(new Date(r.notice_dt)).format('YYYYMMDD')
+                var nendo = getNendo(d)
+                nendoList.push(nendo)
+              }
+              if (
+                this.state.resultList.length === 0 ||
+                getNendo(moment(new Date()).format('YYYYMMDD')) != yyyy
+              ) {
+                nendoList.push(getNendo(moment(new Date()).format('YYYYMMDD')))
+              }
+              // 年度重複削除
+              var nendoList2 = getArray(nendoList)
+              this.state.nendoList = nendoList2
+              this.setState({ nendoList: nendoList2 })
+            })
+          this.setState({ selected: [] })
+          this.setState({ renban: null })
+          this.setState({ notice_dt: null })
+          this.setState({ title: null })
+          this.setState({ comment: null })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
 
   handleChange_notice_dt(e) {
@@ -851,7 +899,7 @@ class ComOshiraseMenteForm extends React.Component {
           </IconButton>
         </div>
         <Divider />
-        {/* {kanriListItems()} */}
+        {comKanriListItems()}
       </Drawer>
     )
 
@@ -1034,7 +1082,7 @@ class ComOshiraseMenteForm extends React.Component {
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '60%', fontSize: '120%' }}
+                                style={{ width: '60%', fontSize: '120%', whiteSpace: 'pre-wrap' }}
                               >
                                 {n.comment}
                               </TableCell>

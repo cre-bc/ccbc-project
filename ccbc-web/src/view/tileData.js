@@ -186,6 +186,64 @@ export var kanriListItems = function () {
   }
 }
 
+export var comKanriListItems = function () {
+  var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+  if (loginInfos !== null) {
+    var loginInfo = loginInfos[0]
+    if (loginInfo.kengenCd === '0' || loginInfo.kengenCd === '1') {
+      return (
+        <div>
+          <ListItem button component={Link} to="/" disabled={true}>
+            <img src="/images/com_coin_shokai.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
+            <ListItemText primary="コイン照会（準備中）" />
+          </ListItem>
+          <ListItem button component={Link} to="/article">
+            <img src="/images/com_kiji.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="記事投稿" />
+          </ListItem>
+          <ListItem button component={Link} to="/" disabled={true}>
+            <img src="/images/com_coin_ichiran.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="所持コイン一覧（準備中）" />
+          </ListItem>
+          <ListItem button component={Link} to="/com_oshirase_mente">
+            <img src="/images/com_oshirase_mente2.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="お知らせメンテナンス" />
+          </ListItem>
+          <ListItem button component={Link} to="/" disabled={true}>
+            <img src="/images/com_kokoku_mente2.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_kokoku_mente.png" /> */}
+            <ListItemText primary="広告メンテナンス（準備中）" />
+          </ListItem>
+          <ListItem button component={Link} to="/" disabled={true}>
+            <img src="/images/com_shohin_mente4.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_shohin_mente3.png" /> */}
+            <ListItemText primary="商品メンテナンス（準備中）" />
+          </ListItem>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <ListItem button component={Link} to="/" disabled={true}>
+            <img src="/images/com_coin_shokai.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
+            <ListItemText primary="コイン照会（準備中）" />
+          </ListItem>
+          <ListItem button component={Link} to="/article">
+            <img src="/images/com_kiji.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="記事投稿" />
+          </ListItem>
+        </div>
+      )
+    }
+  }
+}
+
 export const ippanListItems = (
   <div>
     <ListItem button component={Link} to="/tohyo_toroku">

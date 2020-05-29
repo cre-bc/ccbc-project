@@ -20,7 +20,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import Button from '@material-ui/core/Button'
 import { Link } from 'react-router-dom'
-import { kanriListItems, systemName, restUrl, titleItems2 } from './tileData'
+import { comKanriListItems, systemName, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 import Linkify from 'react-linkify'
 import moment from 'moment'
@@ -584,7 +584,7 @@ class ArticleForm extends React.Component {
           </IconButton>
         </div>
         <Divider />
-        <List>{kanriListItems()}</List>
+        <List>{comKanriListItems()}</List>
       </Drawer>
     )
 

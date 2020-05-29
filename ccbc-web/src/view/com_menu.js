@@ -17,7 +17,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import { Link } from 'react-router-dom'
 import ButtonBase from '@material-ui/core/ButtonBase'
-import { kanriListItems, systemName, restUrl, titleItems2 } from './tileData'
+import { comKanriListItems, systemName, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 import Chip from '@material-ui/core/Chip'
 import { Manager, Target, Popper } from 'react-popper'
@@ -191,7 +191,7 @@ const styles = theme => ({
 const images1 = [
   {
     url: '/images/com_coin_shokai.png',
-    title: 'コイン照会',
+    title: 'コイン照会（準備中）',
     width: '50%',
     path: '/',
     disabled: true,
@@ -205,39 +205,9 @@ const images1 = [
   }
 ]
 
-const images2 = [
-  {
-    url: '/images/com_coin_ichiran.png',
-    title: '所持コイン一覧',
-    width: '50%',
-    path: '/',
-    disabled: true,
-  },
-  {
-    url: '/images/com_oshirase_mente2.png',
-    title: 'お知らせメンテンス',
-    width: '50%',
-    path: '/com_oshirase_mente',
-    disabled: false,
-  }
-]
-
-const images3 = [
-  {
-    url: '/images/com_kokoku_mente2.png',
-    title: '広告メンテナンス',
-    width: '50%',
-    path: '/',
-    disabled: true,
-  },
-  {
-    url: '/images/com_shohin_mente4.png',
-    title: '商品メンテナンス',
-    width: '50%',
-    path: '/',
-    disabled: true,
-  }
-]
+// 管理者のみ表示するメニューのため、コンポーネントのマウント時処理で判定
+var images2 = []
+var images3 = []
 
 class ComMenuForm extends React.Component {
   state = {
@@ -248,6 +218,9 @@ class ComMenuForm extends React.Component {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
+    images2 = []
+    images3 = []
+
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
 
     for (var i in loginInfos) {
@@ -259,6 +232,42 @@ class ComMenuForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
       this.setState({ coin: loginInfo['coin'] })
+    }
+
+    // 管理者のみ表示
+    if (loginInfo.kengenCd === '0' || loginInfo.kengenCd === '1') {
+      images2 = [
+        {
+          url: '/images/com_coin_ichiran.png',
+          title: '所持コイン一覧（準備中）',
+          width: '50%',
+          path: '/',
+          disabled: true,
+        },
+        {
+          url: '/images/com_oshirase_mente2.png',
+          title: 'お知らせメンテンス',
+          width: '50%',
+          path: '/com_oshirase_mente',
+          disabled: false,
+        }
+      ]
+      images3 = [
+        {
+          url: '/images/com_kokoku_mente2.png',
+          title: '広告メンテナンス（準備中）',
+          width: '50%',
+          path: '/',
+          disabled: true,
+        },
+        {
+          url: '/images/com_shohin_mente4.png',
+          title: '商品メンテナンス（準備中）',
+          width: '50%',
+          path: '/',
+          disabled: true,
+        }
+      ]
     }
   }
 
@@ -311,38 +320,7 @@ class ComMenuForm extends React.Component {
           </IconButton>
         </div>
         <Divider />
-        <div>
-          <ListItem button component={Link} to="/" disabled={true}>
-            <img src="/images/com_coin_shokai.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
-            <ListItemText primary="コイン照会" />
-          </ListItem>
-          <ListItem button component={Link} to="/article">
-            <img src="/images/com_kiji.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
-            <ListItemText primary="記事投稿" />
-          </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
-            <img src="/images/com_coin_ichiran.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
-            <ListItemText primary="所持コイン一覧" />
-          </ListItem>
-          <ListItem button component={Link} to="/com_oshirase_mente">
-            <img src="/images/com_oshirase_mente2.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
-            <ListItemText primary="お知らせメンテナンス" />
-          </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
-            <img src="/images/com_kokoku_mente2.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_kokoku_mente.png" /> */}
-            <ListItemText primary="広告メンテナンス" />
-          </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
-            <img src="/images/com_shohin_mente4.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_shohin_mente3.png" /> */}
-            <ListItemText primary="商品メンテナンス" />
-          </ListItem>
-        </div>
+        {comKanriListItems()}
       </Drawer>
     )
 
