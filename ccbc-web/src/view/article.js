@@ -113,6 +113,7 @@ class ArticleForm extends React.Component {
     alertDialogVisible: false,
     alertDialogMessage: "",
     alertDialogTitle: "",
+    loadFlg: false,
 
     // 検索条件制御
     openSearchDialog: false,
@@ -240,7 +241,8 @@ class ArticleForm extends React.Component {
   }
 
   handleDeleteImage = () => {
-    this.setState({ srcImageUrl: "", file_path: "" })
+    this.setState({ srcImageUrl: null, srcImageEdit: null, file_path: "" })
+    this.imageRef = null
   }
 
   /** 画像選択 */
@@ -253,6 +255,7 @@ class ArticleForm extends React.Component {
       reader.readAsDataURL(e.target.files[0])
       this.setState({ selectFile: e.target.files[0] })
       console.log(e.target.files[0])
+      e.target.value = ""
     }
   }
 
@@ -317,32 +320,35 @@ class ArticleForm extends React.Component {
     // 入力チェック
     var alertMessage = ""
     if (this.state.title == "") {
-      alertMessage += "タイトルを入力してください\n\n"
+      alertMessage += "タイトルを入力してください\n"
     }
     if (this.state.contents == "") {
-      alertMessage += "記事の内容を入力してください\n\n"
+      alertMessage += "記事の内容を入力してください\n"
     }
-    if (this.state.title.length > CHAR_LEN_TITLE) {
-      alertMessage += "タイトルの文字数が超過しています" + "（" + this.state.title.length + "文字）\n\n"
+    let lenTitle = this.strLength(this.state.title)
+    if (lenTitle > CHAR_LEN_TITLE) {
+      alertMessage += "タイトルの文字数が超過しています" + "（" + lenTitle + "文字）\n"
     }
     var hashes = this.state.hashtag_str.replace("　", " ").replace("　", " ").split(" ")
     if (hashes.length > HASHTAG_UPPER_LIMIT) {
-      alertMessage += "タグの数は" + HASHTAG_UPPER_LIMIT + "つまでです\n\n"
+      alertMessage += "タグの数は" + HASHTAG_UPPER_LIMIT + "つまでです\n"
     } else {
       for (var i = 0; i < hashes.length; i++) {
-        if (hashes[i].length > CHAR_LEN_HASHTAG) {
-          alertMessage += "タグの文字数が超過しています" + "（" + hashes[i].length + "文字）\n\n"
+        let lenHashes = this.strLength(hashes[i])
+        if (lenHashes > CHAR_LEN_HASHTAG) {
+          alertMessage += "タグの文字数が超過しています" + "（" + lenHashes + "文字）\n"
         }
       }
     }
-    if (this.state.contents.length > CHAR_LEN_CONTENTS) {
-      alertMessage += "記事の文字数が超過しています" + "（" + this.state.contents.length + "文字）\n\n"
+    let lenContents = this.strLength(this.state.contents)
+    if (lenContents > CHAR_LEN_CONTENTS) {
+      alertMessage += "記事の文字数が超過しています" + "（" + lenContents + "文字）\n"
     }
     if (alertMessage !== "") {
       this.setState({
         alertDialogVisible: true,
         alertDialogMessage: alertMessage,
-        alertDialogTitle: "警告メッセージ"
+        alertDialogTitle: "エラーメッセージ"
       })
       return
     }
@@ -356,6 +362,7 @@ class ArticleForm extends React.Component {
 
   /** 記事更新処理 */
   entry = async () => {
+    this.setState({ loadFlg: true })
     this.setState({ confirmDialogVisible: false })
 
     if (this.state.srcImageUrl) {
@@ -374,6 +381,7 @@ class ArticleForm extends React.Component {
           if (err) {
             console.log("Error:", err)
             alert("画像ファイルのアップロードに失敗しました")
+            this.setState({ loadFlg: false })
             return
           }
           if (res.status) {
@@ -381,6 +389,7 @@ class ArticleForm extends React.Component {
             this.edit(fileName)
           } else {
             alert("画像ファイルのアップロードに失敗しました")
+            this.setState({ loadFlg: false })
           }
         })
     } else {
@@ -391,10 +400,6 @@ class ArticleForm extends React.Component {
 
   /** データ更新処理 */
   edit = async (fileName) => {
-    // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
-    if (this.state.t_kiji_pk === "") {
-      this.setState({ isProcessing: true })
-    }
     this.state.file_path = fileName
 
     request
@@ -404,10 +409,9 @@ class ArticleForm extends React.Component {
         if (err) {
           console.log("Error:", err)
           alert("投稿処理でエラーが発生しました")
+          this.setState({ loadFlg: false })
           return
         }
-        this.setState({ openEntryDialog: false })
-
         if (this.state.t_kiji_pk === "") {
           // 新規投稿の場合は、コイン獲得のメッセージを表示してから記事照会画面に戻る
           this.setState({
@@ -419,6 +423,8 @@ class ArticleForm extends React.Component {
 
         // 記事リスト取得
         this.readArticle()
+        this.setState({ openEntryDialog: false })
+        this.setState({ loadFlg: false })
       })
   }
 
@@ -560,6 +566,29 @@ class ArticleForm extends React.Component {
       })
   }
 
+  strLength = (str) => {
+    var length = 0
+    for (var i = 0; i <= str.length; i++) {
+      var ch = str.charCodeAt(i)
+      if ((ch < 0xdc00) || (0xdfff < ch)) {
+        length++
+      }
+    }
+    return (length)
+  }
+
+  nl2br = (text) => {
+    var regex = /(\n)/g
+    return text.split(regex).map(function (line) {
+      if (line.match(regex)) {
+        return React.createElement('br')
+      }
+      else {
+        return line
+      }
+    })
+  }
+
   render() {
     const { classes, theme } = this.props
     const { anchor, open, open2 } = this.state
@@ -692,28 +721,30 @@ class ArticleForm extends React.Component {
                   <span>{" "}</span>
                 </div>
                 {this.state.currentCategory !== null && (
-                  <div>
+                  <div style={{ verticalAlign: "middle" }}>
                     <div style={{ float: "center" }}>
                       <span style={{ fontWeight: "bold", fontSize: 24 }}>
                         {this.state.currentCategory.category_nm}
                       </span>
                     </div>
-                    <div style={{ float: "right", marginTop: -40 }}>
+                    <div style={{ float: "right" }}>
                       <Button
                         onClick={this.handleOpenSearch}
                         variant="raised"
-                        aria-label="Search"
-                        className={classes.button}>
+                        color="default"
+                        // size="large"
+                        className={classes.button2}>
                         <Search className={classes.extendedIcon} />
-                          検索
+                        検索
                       </Button>
-                      {"　"}
+                      {"　 "}
                       {!this.state.speCategoryFlg && (
                         <Button
                           onClick={this.handleOpenEntry}
                           variant="raised"
-                          aria-label="New"
-                          className={classes.button}>
+                          color="default"
+                          // size="large"
+                          className={classes.button2}>
                           <NoteAdd className={classes.extendedIcon} />
                           投稿
                         </Button>
@@ -990,11 +1021,13 @@ class ArticleForm extends React.Component {
               <DialogActions>
                 <Button
                   onClick={this.handleEntry}
+                  disabled={this.state.loadFlg}
                   color="primary">
                   投稿する
                 </Button>
                 <Button
                   onClick={this.handleCloseEntry}
+                  disabled={this.state.loadFlg}
                   color="">
                   キャンセル
                 </Button>
@@ -1013,7 +1046,7 @@ class ArticleForm extends React.Component {
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
-                  {this.state.alertDialogMessage}
+                  {this.nl2br(this.state.alertDialogMessage)}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -1336,7 +1369,7 @@ const styles = theme => ({
   articleCardTable: {
     width: "98%",
     marginLeft: 50,
-    overflowY: "scroll",
+    // overflowY: "scroll",
     overflowX: "hidden"
   },
   articleCard: {
