@@ -32,7 +32,7 @@ const com_coin_shojicoinRouter = require("./routes/com_coin_shojicoin");
 
 // TODO : ここにComComCoin用のAPIを追加していく
 const articleRouter = require("./routes/article");
-
+const com_shohin_menteRouter = require("./routes/com_shohin_mente");
 const sampleRouter = require("./routes/sample");
 
 const helmet = require("helmet");
@@ -104,7 +104,7 @@ app.use("/com_coin_shojicoin", com_coin_shojicoinRouter);
 // ComComCoin
 // TODO : ここにComComCoin用のAPIを追加していく
 app.use("/article", articleRouter);
-
+app.use("/com_shohin_mente", com_shohin_menteRouter);
 // sample
 app.use("/sample", sampleRouter);
 
