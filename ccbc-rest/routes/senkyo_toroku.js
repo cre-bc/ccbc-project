@@ -185,9 +185,11 @@ router.post('/create', (req, res) => {
               t_senkyo_pk,
               resultdata
             )
-            await tZoyoInsert(tx, resdatas, req, resultdata)
-            var transaction_id = await bcrequest(req, resultdata, i)
-            await dbupdate(tx, transaction_id)
+            // 投票のコインの流れを修正（旧：事務局→出席者→発表者、新：事務局→発表者）
+            // ※選挙登録時の事務局→出席者のコイン異動は行わない
+            // await tZoyoInsert(tx, resdatas, req, resultdata)
+            // var transaction_id = await bcrequest(req, resultdata, i)
+            // await dbupdate(tx, transaction_id)
           }
         }
         for (var x in selected2) {

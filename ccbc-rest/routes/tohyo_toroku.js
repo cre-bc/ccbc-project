@@ -5,6 +5,9 @@ const async = require('async')
 var db = require('./common/sequelize_helper.js').sequelize
 var db2 = require('./common/sequelize_helper.js')
 const bcdomain = require('./common/constans.js').bcdomain
+const jimuAccount = require('./common/constans.js').jimuAccount
+const jimuPassword = require('./common/constans.js').jimuPassword
+const jimuShainPk = require('./common/constans.js').jimuShainPk
 
 /**
  * 投票登録_DB読み込み（初期表示時）
@@ -76,7 +79,7 @@ router.post('/create', (req, res) => {
   db
     .transaction(async function(tx) {
       var resdatas = []
-      var haifu_coin = resultList[0].config_coin * 50 * resultList.length
+      // var haifu_coin = resultList[0].config_coin * 50 * resultList.length
       for (var i in resultList) {
         var resdata = resultList[i]
         console.log('◆１')
@@ -88,7 +91,7 @@ router.post('/create', (req, res) => {
             req.body.activeStep5[i] +
             5) *
           resultList[0].config_coin
-        haifu_coin -= sum_coin
+        // haifu_coin -= sum_coin
 
         var t_tohyo_pk = await insertTohyo(tx, resdatas, resdata, req, i)
         var transaction_id = await bcrequest(
@@ -100,7 +103,7 @@ router.post('/create', (req, res) => {
         await updateTohyo(tx, t_tohyo_pk, transaction_id, req)
         await insertZoyo(
           tx,
-          resdata.from_t_shain_pk,
+          jimuShainPk,
           resdata.to_t_shain_pk,
           resdata.senkyo_nm,
           req.body.userid,
@@ -109,26 +112,28 @@ router.post('/create', (req, res) => {
         )
       }
 
-      console.log('★事務局返却コイン：' + haifu_coin)
-      if (haifu_coin > 0) {
-        // コイン返却
-        var datas = await selectKanrisha(tx, req)
-        var transaction_id = await bcrequest(
-          req,
-          resultList[0].from_account,
-          datas[0].bc_account,
-          haifu_coin
-        )
-        await insertZoyo(
-          tx,
-          resultList[0].from_t_shain_pk,
-          datas[0].t_shain_pk,
-          resultList[0].senkyo_nm,
-          req.body.userid,
-          transaction_id,
-          req
-        )
-      }
+      // 投票のコインの流れを修正（旧：事務局→出席者→発表者、新：事務局→発表者）
+      // ※事務局から直接配布するため、余りコインの返却は発生しない
+      // console.log('★事務局返却コイン：' + haifu_coin)
+      // if (haifu_coin > 0) {
+      //   // コイン返却
+      //   var datas = await selectKanrisha(tx, req)
+      //   var transaction_id = await bcrequest(
+      //     req,
+      //     resultList[0].from_account,
+      //     datas[0].bc_account,
+      //     haifu_coin
+      //   )
+      //   await insertZoyo(
+      //     tx,
+      //     resultList[0].from_t_shain_pk,
+      //     datas[0].t_shain_pk,
+      //     resultList[0].senkyo_nm,
+      //     req.body.userid,
+      //     transaction_id,
+      //     req
+      //   )
+      // }
 
       res.json({ status: true, data: resdatas })
     })
@@ -202,9 +207,9 @@ function insertTohyo(tx, resdatas, resdata, req, i) {
 function bcrequest(req, from, to, sum_coin) {
   return new Promise((resolve, reject) => {
     var param = {
-      from_account: [from],
+      from_account: [jimuAccount],
       to_account: [to],
-      password: [req.body.password],
+      password: [jimuPassword],
       coin: [sum_coin],
       bc_addr: req.body.bc_addr
     }
