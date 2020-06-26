@@ -36,46 +36,46 @@ async function coinSend(req, res) {
 
   bccoin = await bccoinget(param);
 
-  // 現在の選挙情報を取得
-  tSenkyo = await senkyoPkGet(req);
-  // 投票期間中の出席した選挙が存在する場合
-  if (tSenkyo.length != 0) {
-    senkyoPk = tSenkyo[0].tsenkyopk;
-    // 未投票情報の取得
-    miTohyosha = await miTohohyoshaGet(req, senkyoPk);
-    // 未投票の場合
-    if (miTohyosha.length === 0) {
-      // 投票コイン取得
-      tohyoCoin = await tohyoCoinGet(req, senkyoPk);
-      if (tohyoCoin.length != 0) {
-        haifuCoin = tohyoCoin[0].haifu_coin;
-        configCoin = tohyoCoin[0].config_coin;
-        presenterPk = tohyoCoin[0].t_presenter_pk;
-        countShussekisha = tohyoCoin[0].countshussekisha;
-        countPresen = tohyoCoin[0].countpresen;
+  // // 現在の選挙情報を取得
+  // tSenkyo = await senkyoPkGet(req);
+  // // 投票期間中の出席した選挙が存在する場合
+  // if (tSenkyo.length != 0) {
+  //   senkyoPk = tSenkyo[0].tsenkyopk;
+  //   // 未投票情報の取得
+  //   miTohyosha = await miTohohyoshaGet(req, senkyoPk);
+  //   // 未投票の場合
+  //   if (miTohyosha.length === 0) {
+  //     // 投票コイン取得
+  //     tohyoCoin = await tohyoCoinGet(req, senkyoPk);
+  //     if (tohyoCoin.length != 0) {
+  //       haifuCoin = tohyoCoin[0].haifu_coin;
+  //       configCoin = tohyoCoin[0].config_coin;
+  //       presenterPk = tohyoCoin[0].t_presenter_pk;
+  //       countShussekisha = tohyoCoin[0].countshussekisha;
+  //       countPresen = tohyoCoin[0].countpresen;
 
-        // console.log(haifuCoin);
-        // console.log(configCoin);
-        // console.log(presenterPk);
-        // console.log(countShussekisha);
-        // console.log(countPresen);
+  //       // console.log(haifuCoin);
+  //       // console.log(configCoin);
+  //       // console.log(presenterPk);
+  //       // console.log(countShussekisha);
+  //       // console.log(countPresen);
 
-        // 投票一人当たりのコイン数
-        configCoin = configCoin * 50;
-        // console.log(configCoin);
-        // 部会での配布コイン数
-        tohyoCoin = configCoin * countPresen;
-        // console.log(tohyoCoin);
+  //       // 投票一人当たりのコイン数
+  //       configCoin = configCoin * 50;
+  //       // console.log(configCoin);
+  //       // 部会での配布コイン数
+  //       tohyoCoin = configCoin * countPresen;
+  //       // console.log(tohyoCoin);
 
-        //発表者の場合、1人分のコイン数を差し引く
-        if (presenterPk != null) {
-          tohyoCoin = tohyoCoin - configCoin;
-        }
-        // 現在のコインから投票用コイン数を差し引く
-        bccoin = bccoin - tohyoCoin;
-      }
-    }
-  }
+  //       //発表者の場合、1人分のコイン数を差し引く
+  //       if (presenterPk != null) {
+  //         tohyoCoin = tohyoCoin - configCoin;
+  //       }
+  //       // 現在のコインから投票用コイン数を差し引く
+  //       bccoin = bccoin - tohyoCoin;
+  //     }
+  //   }
+  // }
 
   var sofuCoin = req.body.sofuCoin;
   // 合計コイン数が利用可能コイン数を上回る場合、NG
@@ -169,16 +169,16 @@ async function findData(req, res) {
   console.log("★findData★");
   var resdatas = [];
   var bccoin = 0;
-  var tSenkyo = [];
-  var miTohyosha = [];
-  var tohyoCoin = [];
-  var senkyoPk = 0;
-  var haifuCoin = 0;
-  var configCoin = 0;
-  var presenterPk = 0;
-  var countShussekisha = 0;
-  var countPresen = 0;
-  var tohyoCoin = 0;
+  // var tSenkyo = [];
+  // var miTohyosha = [];
+  // var tohyoCoin = [];
+  // var senkyoPk = 0;
+  // var haifuCoin = 0;
+  // var configCoin = 0;
+  // var presenterPk = 0;
+  // var countShussekisha = 0;
+  // var countPresen = 0;
+  // var tohyoCoin = 0;
 
   // BCアカウントを取得
   resdatas = await bcAccountGet(req);
@@ -191,47 +191,47 @@ async function findData(req, res) {
   bccoin = await bccoinget(param);
   console.log("BCコイン：" + bccoin);
 
-  // 現在の選挙情報を取得
-  tSenkyo = await senkyoPkGet(req);
-  // 投票期間中の出席した選挙が存在する場合
-  if (tSenkyo.length != 0) {
-    senkyoPk = tSenkyo[0].tsenkyopk;
-    // 未投票情報の取得
-    miTohyosha = await miTohohyoshaGet(req, senkyoPk);
-    // console.log(miTohyosha);
-    // 未投票の場合
-    if (miTohyosha.length === 0) {
-      // 投票コイン取得
-      tohyoCoin = await tohyoCoinGet(req, senkyoPk);
-      if (tohyoCoin.length != 0) {
-        haifuCoin = tohyoCoin[0].haifu_coin;
-        configCoin = tohyoCoin[0].config_coin;
-        presenterPk = tohyoCoin[0].t_presenter_pk;
-        countShussekisha = tohyoCoin[0].countshussekisha;
-        countPresen = tohyoCoin[0].countpresen;
+  // // 現在の選挙情報を取得
+  // tSenkyo = await senkyoPkGet(req);
+  // // 投票期間中の出席した選挙が存在する場合
+  // if (tSenkyo.length != 0) {
+  //   senkyoPk = tSenkyo[0].tsenkyopk;
+  //   // 未投票情報の取得
+  //   miTohyosha = await miTohohyoshaGet(req, senkyoPk);
+  //   // console.log(miTohyosha);
+  //   // 未投票の場合
+  //   if (miTohyosha.length === 0) {
+  //     // 投票コイン取得
+  //     tohyoCoin = await tohyoCoinGet(req, senkyoPk);
+  //     if (tohyoCoin.length != 0) {
+  //       haifuCoin = tohyoCoin[0].haifu_coin;
+  //       configCoin = tohyoCoin[0].config_coin;
+  //       presenterPk = tohyoCoin[0].t_presenter_pk;
+  //       countShussekisha = tohyoCoin[0].countshussekisha;
+  //       countPresen = tohyoCoin[0].countpresen;
 
-        // console.log(haifuCoin);
-        // console.log(configCoin);
-        // console.log(presenterPk);
-        // console.log(countShussekisha);
-        // console.log(countPresen);
+  //       // console.log(haifuCoin);
+  //       // console.log(configCoin);
+  //       // console.log(presenterPk);
+  //       // console.log(countShussekisha);
+  //       // console.log(countPresen);
 
-        // 投票一人当たりのコイン数
-        configCoin = configCoin * 50;
-        // console.log(configCoin);
-        // 部会での配布コイン数
-        tohyoCoin = configCoin * countPresen;
-        // console.log(tohyoCoin);
+  //       // 投票一人当たりのコイン数
+  //       configCoin = configCoin * 50;
+  //       // console.log(configCoin);
+  //       // 部会での配布コイン数
+  //       tohyoCoin = configCoin * countPresen;
+  //       // console.log(tohyoCoin);
 
-        //発表者の場合、1人分のコイン数を差し引く
-        if (presenterPk != null) {
-          tohyoCoin = tohyoCoin - configCoin;
-        }
-        // 現在のコインから投票用コイン数を差し引く
-        bccoin = bccoin - tohyoCoin;
-      }
-    }
-  }
+  //       //発表者の場合、1人分のコイン数を差し引く
+  //       if (presenterPk != null) {
+  //         tohyoCoin = tohyoCoin - configCoin;
+  //       }
+  //       // 現在のコインから投票用コイン数を差し引く
+  //       bccoin = bccoin - tohyoCoin;
+  //     }
+  //   }
+  // }
   console.log("最終コイン：" + bccoin);
   res.json({
     status: true,
