@@ -80,16 +80,18 @@ import {
   Legend
 } from 'recharts'
 
+const restdomain = require('../common/constans.js').restdomain
+
 //表示させたいデータ群
-const data_event = [
-  { name: '井上　卓', 所持コイン: 2500 },
-  { name: '吉田　裕一', 所持コイン: 1500 },
-  { name: '角谷　貴之', 所持コイン: 1000 },
-  { name: '佐藤　源生', 所持コイン: 750 },
-  { name: '石垣　努', 所持コイン: 500 },
-  { name: '佐々木　唯', 所持コイン: 500 },
-  { name: '山城　博紀', 所持コイン: 100 }
-]
+// const data_event = [
+//   { name: '井上　卓', 所持コイン: 2500 },
+//   { name: '吉田　裕一', 所持コイン: 1500 },
+//   { name: '角谷　貴之', 所持コイン: 1000 },
+//   { name: '佐藤　源生', 所持コイン: 750 },
+//   { name: '石垣　努', 所持コイン: 500 },
+//   { name: '佐々木　唯', 所持コイン: 500 },
+//   { name: '山城　博紀', 所持コイン: 100 }
+// ]
 
 /** 検索部分のリストボックス */
 const ranges1 = [
@@ -364,7 +366,23 @@ class ComShojiCoinForm extends React.Component {
   state = {
     open: false,
     open2: false,
-    anchor: 'left'
+    anchor: 'left',
+    resultList: [],
+    resultcoin: [],
+    dispheight: 0,
+    userid: null,
+    password: null,
+    tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
+    pNendo: null,
+    pNendoStr: null,
+    pNendoEnd: null,
+    data: [],
+    maxCoinGraph: 0,
+    maxCoinGraphData: [0, 1000, 2000, 3000, 4000, 5000],
+    data_event: []
   }
 
   handleChange = prop => event => {
@@ -403,6 +421,57 @@ class ComShojiCoinForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
+
+    request
+      .post(restdomain + '/com_coin_shojicoin/findshojicoin')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          return
+        }
+        var resList = res.body.data
+        var rescoin = res.body.getcoin
+        var head = []
+        if (resList.length === 0) {
+          head.push(false)
+        } else {
+          head.push(true)
+        }
+
+        // 検索結果表示
+        this.setState({ data_event: resList })
+        this.setState({ resultcoin: rescoin })
+        this.setState({ headList: head })
+
+        //グラフ表示情報（氏名、発表数、取得コイン数）設定
+        const data = []
+        var maxCoin = 0
+        for (var i in this.state.resultList) {
+          data.push({
+            name: this.state.resultList[i].shimei,
+            コイン数: Number(this.state.resultcoin[i])
+          })
+          if (maxCoin < Number(this.state.resultcoin[i])) {
+            maxCoin = Number(this.state.resultcoin[i])
+          }
+        }
+        this.setState({ data: data })
+        var maxCoinGraph = 0
+        var maxCoinGraphCnt = 0
+        var maxCoinGraphCntData = []
+        if (maxCoin > 0) {
+          maxCoinGraph = Math.ceil(maxCoin / 10000) * 10000
+          maxCoinGraphCnt = maxCoinGraph / 5
+          for (var i = 0; i <= maxCoinGraph; i += maxCoinGraphCnt) {
+            maxCoinGraphCntData.push(i)
+          }
+          this.state.maxCoinGraphData = maxCoinGraphCntData
+        }
+        this.setState({ maxCoinGraph: maxCoinGraph })
+        this.setState({ maxCoinGraphCntData: maxCoinGraphCntData })
+
+      })
+
   }
 
   handleDrawerOpen = () => {
@@ -449,8 +518,8 @@ class ComShojiCoinForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -476,8 +545,8 @@ class ComShojiCoinForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -583,7 +652,7 @@ class ComShojiCoinForm extends React.Component {
                   width={1280} //グラフ全体の幅を指定
                   height={650} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
-                  data={data_event} //Array型のデータを指定
+                  data={this.state.data} //Array型のデータを指定
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
                 >
                   {/*                   <XAxis //X軸に関する設定

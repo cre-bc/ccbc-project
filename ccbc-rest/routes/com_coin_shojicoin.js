@@ -137,22 +137,23 @@ function getshainList(db, req) {
     console.log(req.body.sort_graph);
     console.log(req);
 
-    if ((req.body.sort_graph = "5")) {
-      req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) ASC";
-    } else if ((req.body.sort_graph = "6")) {
-      req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) DESC";
-    }
+    // if ((req.body.sort_graph = "5")) {
+    //   req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) ASC";
+    // } else if ((req.body.sort_graph = "6")) {
+    //   req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) DESC";
+    // }
 
     var sql =
-      "select" +
+      "select " +
       "tsha.t_shain_pk" +
       ", tsha.shimei" +
-      ", tsha.shimei_kana" +
-      "from" +
-      "t_shain tsha" +
-      "where tsha.delete_flg = '0'" +
-      "and tsha.t_shain_pk <> '1'" +
-      " order by :sort_graph";
+      ", tsha.shimei_kana " +
+      "from " +
+      "t_shain tsha " +
+      "where tsha.delete_flg = '0' " +
+      "and tsha.t_shain_pk <> '1' "
+    // "and tsha.t_shain_pk <> '1' " +
+    // "order by :sort_graph";
     db
       .query(sql, {
         replacements: {
@@ -179,7 +180,7 @@ function getshojicoinList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
     var sql =
-      "select" +
+      "select " +
       "tzoyo.zoyo_moto_shain_pk" +
       ", tsha1.shimei AS shimei_saki" +
       ", tsha1.shimei_kana AS shimei_kana_saki" +
@@ -192,23 +193,23 @@ function getshojicoinList(db, req) {
       ", tsha1.shimei as shimei" +
       ", tsha1.shimei_kana as shimei_kana" +
       ", tsha1.bc_account as bc_account" +
-      ", tsha1.kengen_cd as kengen_cd" +
-      "from t_zoyo tzoyo" +
-      "left join t_shain tsha1" +
-      "on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
-      "left join t_shain tsha2" +
-      "on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk" +
-      "where tzoyo.delete_flg = '0';" +
-      db
-        .query(sql, {
-          replacements: { sort_graph: req.body.sort_graph },
-          type: db.QueryTypes.RAW
-        })
-        .spread((datas, metadata) => {
-          console.log("DBAccess : getshojicoinList result...");
-          console.log(datas);
-          return resolve(datas);
-        });
+      ", tsha1.kengen_cd as kengen_cd " +
+      "from t_zoyo tzoyo " +
+      "left join t_shain tsha1 " +
+      "on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk " +
+      "left join t_shain tsha2 " +
+      "on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk " +
+      "where tzoyo.delete_flg = '0';"
+    db
+      .query(sql, {
+        replacements: { sort_graph: req.body.sort_graph },
+        type: db.QueryTypes.RAW
+      })
+      .spread((datas, metadata) => {
+        console.log("DBAccess : getshojicoinList result...");
+        console.log(datas);
+        return resolve(datas);
+      });
   });
 }
 
@@ -219,10 +220,10 @@ function getshojicoinList(db, req) {
  * 受領コインと使用コインをグラフに出力用
  */
 
-function bctransactionsget() {
+function bctransactionsget(param) {
   return new Promise((resolve, reject) => {
     request
-      .post(bcdomain + "/get_transactions")
+      .post(bcdomain + "/bc-api/get_transactions")
       .send(param)
       .end((err, res) => {
         console.log("★★★");
