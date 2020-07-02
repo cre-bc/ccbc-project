@@ -37,32 +37,6 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 
-//** ボタン部分 */
-import Button from '@material-ui/core/Button'
-import DeleteIcon from '@material-ui/icons/Delete'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
-import KeyboardVoiceICon from '@material-ui/icons/KeyboardVoice'
-import Icon from '@material-ui/core/Icon'
-import SaveIcon from '@material-ui/icons/Save'
-import PageviewIcon from '@material-ui/icons/Pageview'
-import Assessment from '@material-ui/icons/Assessment'
-import NavigationIcon from '@material-ui/icons/Navigation'
-
-//** チェックボックス部分 */
-import green from '@material-ui/core/colors/green'
-import FormGroup from '@material-ui/core/FormGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
-import Favorite from '@material-ui/icons/Favorite'
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder'
-
-//** ラジオボタン部分 */
-import Radio from '@material-ui/core/Radio'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import FormLabel from '@material-ui/core/FormLabel'
-
 /** 投票照会より流用 */
 import request from 'superagent'
 import { connect } from 'react-redux'
@@ -82,33 +56,22 @@ import {
 
 const restdomain = require('../common/constans.js').restdomain
 
-//表示させたいデータ群
-// const data_event = [
-//   { name: '井上　卓', 所持コイン: 2500 },
-//   { name: '吉田　裕一', 所持コイン: 1500 },
-//   { name: '角谷　貴之', 所持コイン: 1000 },
-//   { name: '佐藤　源生', 所持コイン: 750 },
-//   { name: '石垣　努', 所持コイン: 500 },
-//   { name: '佐々木　唯', 所持コイン: 500 },
-//   { name: '山城　博紀', 所持コイン: 100 }
-// ]
-
 /** 検索部分のリストボックス */
 const ranges1 = [
   {
-    value: 'ソート１',
+    value: '1',
     label: '所持コイン（昇順）'
   },
   {
-    value: 'ソート２',
+    value: '2',
     label: '所持コイン（降順）'
   },
   {
-    value: 'ソート３',
+    value: '5',
     label: '氏名（昇順）'
   },
   {
-    value: 'ソート４',
+    value: '6',
     label: '氏名（降順）'
   }
 ]
@@ -125,20 +88,6 @@ const CustomTableCell = withStyles(theme => ({
   }
 }))(TableCell)
 
-let id = 0
-function createData(name, coin) {
-  id += 1
-  return { id, name, coin }
-}
-
-const rows = [
-  createData('井上　卓', 400),
-  createData('角谷　貴之', 200),
-  createData('石垣　努', 150),
-  createData('吉田　裕一', 120),
-  createData('山城　博紀', 80),
-  createData('佐藤　源生', 50)
-]
 /**　ここまでがテーブル部分のconst */
 
 const drawerWidth = 240
@@ -380,25 +329,72 @@ class ComShojiCoinForm extends React.Component {
     pNendoStr: null,
     pNendoEnd: null,
     data: [],
+    weightRange: '',
+    sort_graph: '0',
     maxCoinGraph: 0,
-    maxCoinGraphData: [0, 1000, 2000, 3000, 4000, 5000],
-    data_event: []
+    maxCoinGraphData: [0, 1000, 2000, 3000, 4000, 5000]
   }
 
   handleChange = prop => event => {
     this.setState({ [prop]: event.target.value })
-  }
 
-  handleChange2 = prop => event => {
-    this.setState({ [prop]: event.target.value })
-  }
+    if (event.target.value === '1') {
+      //所持コインの順にソート（昇順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.sakicoin < b.sakicoin) return -1;
+        if (a.sakicoin > b.sakicoin) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '2') {
+      //所持コインの順にソート（降順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.sakicoin > b.sakicoin) return -1;
+        if (a.sakicoin < b.sakicoin) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '5') {
+      //氏名の順にソート（昇順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.shimei_kana < b.shimei_kana) return -1;
+        if (a.shimei_kana > b.shimei_kana) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '6') {
+      //氏名の順にソート（降順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.shimei_kana > b.shimei_kana) return -1;
+        if (a.shimei_kana < b.shimei_kana) return 1;
+        return 0;
+      })
+    }
 
-  handleChange3 = prop => event => {
-    this.setState({ [prop]: event.target.value })
-  }
-
-  handleChange4 = prop => event => {
-    this.setState({ [prop]: event.target.value })
+    this.setState({ resultList: this.state.resultList })
+    //グラフ表示情報（氏名、取得コイン数）設定
+    const data = []
+    var maxCoin = 0
+    for (var i in this.state.resultList) {
+      data.push({
+        name: this.state.resultList[i].shimei,
+        コイン数: Number(this.state.resultList[i].sakicoin)
+      })
+      if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
+        maxCoin = Number(this.state.resultList[i].sakicoin)
+      }
+    }
+    this.setState({ data: data })
+    var maxCoinGraph = 0
+    var maxCoinGraphCnt = 0
+    var maxCoinGraphCntData = []
+    if (maxCoin > 0) {
+      maxCoinGraph = Math.ceil(maxCoin / 10000) * 10000
+      maxCoinGraphCnt = maxCoinGraph / 5
+      for (var i = 0; i <= maxCoinGraph; i += maxCoinGraphCnt) {
+        maxCoinGraphCntData.push(i)
+      }
+      this.state.maxCoinGraphData = maxCoinGraphCntData
+    }
+    this.setState({ maxCoinGraph: maxCoinGraph })
+    this.setState({ maxCoinGraphCntData: maxCoinGraphCntData })
   }
 
   handleMouseDownPassword = event => {
@@ -408,9 +404,11 @@ class ComShojiCoinForm extends React.Component {
   handleClickShowPassword = () => {
     this.setState(state => ({ showPassword: !state.showPassword }))
   }
+
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    this.state.sort_graph = '0'
 
     for (var i in loginInfos) {
       var loginInfo = loginInfos[i]
@@ -430,7 +428,6 @@ class ComShojiCoinForm extends React.Component {
           return
         }
         var resList = res.body.data
-        var rescoin = res.body.getcoin
         var head = []
         if (resList.length === 0) {
           head.push(false)
@@ -439,20 +436,19 @@ class ComShojiCoinForm extends React.Component {
         }
 
         // 検索結果表示
-        this.setState({ data_event: resList })
-        this.setState({ resultcoin: rescoin })
+        this.setState({ resultList: resList })
         this.setState({ headList: head })
 
-        //グラフ表示情報（氏名、発表数、取得コイン数）設定
+        //グラフ表示情報（氏名、取得コイン数）設定
         const data = []
         var maxCoin = 0
         for (var i in this.state.resultList) {
           data.push({
             name: this.state.resultList[i].shimei,
-            コイン数: Number(this.state.resultcoin[i])
+            コイン数: Number(this.state.resultList[i].sakicoin)
           })
-          if (maxCoin < Number(this.state.resultcoin[i])) {
-            maxCoin = Number(this.state.resultcoin[i])
+          if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
+            maxCoin = Number(this.state.resultList[i].sakicoin)
           }
         }
         this.setState({ data: data })
@@ -469,9 +465,7 @@ class ComShojiCoinForm extends React.Component {
         }
         this.setState({ maxCoinGraph: maxCoinGraph })
         this.setState({ maxCoinGraphCntData: maxCoinGraphCntData })
-
       })
-
   }
 
   handleDrawerOpen = () => {
@@ -631,6 +625,7 @@ class ComShojiCoinForm extends React.Component {
                 value={this.state.weightRange}
                 onChange={this.handleChange('weightRange')}
                 InputProps={{
+                  // name: 'weightRange',
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
@@ -683,7 +678,7 @@ class ComShojiCoinForm extends React.Component {
                   <Legend />
                   <Bar
                     xAxisId="use"
-                    dataKey="所持コイン"
+                    dataKey="コイン数"
                     barSize={20}
                     stroke="rgba(34, 80, 162, 0.2)"
                     fillOpacity={1}
