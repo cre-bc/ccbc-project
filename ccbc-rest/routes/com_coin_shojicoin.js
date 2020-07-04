@@ -6,40 +6,6 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
 
-// router.post("/find", (req, res) => {
-//   finddata(req, res);
-//   console.log("end");
-// });
-
-// /**
-//  * 初期表示データ取得用関数
-//  * @req {*} req
-//  * @res {*} res
-//  */
-// async function finddata(req, res) {
-//   var resdatas = [];
-//   var bccoin = 0;
-//   var shimei = null;
-//   resdatas = await tShainGet(req);
-//   param = {
-//     account: resdatas[0].from_bc_account,
-//     bc_addr: req.body.bc_addr
-//   };
-//   bccoin = await bccoinget(param);
-//   shimei = resdatas[0].fromshimei;
-//   bcaccount = resdatas[0].fromshimei;
-//   console.log(bccoin);
-//   console.log(resdatas);
-//   console.log(shimei);
-//   res.json({
-//     status: true,
-//     data: resdatas,
-//     bccoin: bccoin,
-//     shimei: shimei,
-//     from_bcaccount: resdatas[0].from_bc_account
-//   });
-// }
-
 // ----------------------------------------------------------------------
 /**
  * API : findgraphcoin
@@ -73,7 +39,6 @@ async function findshojicoin(req, res) {
   console.log(resdatas);
   console.log(resbccoin);
 
-  // 使用コイン（motocoin）と受領コイン（sakicoin）はgetgraphcoinList（使用コインと受領コインのリスト）をgetgraphshainList（社員リスト）に紐づける
   var trans = []
   var lengthData = []
   for (let i in resdatas) {
@@ -98,31 +63,12 @@ async function findshojicoin(req, res) {
       sakicoin_sum += sakicoin.body.trans[j].coin
     }
     // 社員に紐づく受領コインの合計をセット
-    // getcoin[i] = sakicoin_sum
     resdatas[i].sakicoin = sakicoin_sum
     sakicoin_sum = 0
     index = length
   }
 
-  // この時点で、社員リストを基としたresdataには、社員に紐づく所持コイン（sakicoin）が紐づいている
-
-  //リストボックスでコインのソートが選ばれている場合、並び替え
-  // if ((request.body.sort_graph = "1")) {
-  //   //所持コインの順にソート（昇順）
-  //   resdatas.sort(function (a, b) {
-  //     if (a.sakicoin < b.sakicoin) return -1;
-  //     if (a.sakicoin > b.sakicoin) return 1;
-  //     return 0;
-  //   });
-  // } else if ((request.body.sort_graph = "2")) {
-  //   //所持コインの順にソート（降順）
-  //   resdatas.sort(function (a, b) {
-  //     if (a.sakicoin > b.sakicoin) return -1;
-  //     if (a.sakicoin < b.sakicoin) return 1;
-  //     return 0;
-  //   });
-  // }
-
+  // この時点で、社員リストを基としたresdatasには、社員に紐づく所持コイン（sakicoin）が紐づいている
   console.log(resdatas);
   res.json({
     status: true,
@@ -140,16 +86,8 @@ async function findshojicoin(req, res) {
 function getshainList(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
-    // ソート順を設定
     console.log("API : getshainList →中身");
     console.log(req.body.sort_graph);
-    // console.log(req);
-
-    // if ((req.body.sort_graph = "5")) {
-    //   req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) ASC";
-    // } else if ((req.body.sort_graph = "6")) {
-    //   req.body.sort_graph = "CAST(tsha.shimei_kana AS CHAR) DESC";
-    // }
 
     var sql =
       "select " +
@@ -160,8 +98,6 @@ function getshainList(db, req) {
       "t_shain tsha " +
       "where tsha.delete_flg = '0' " +
       "and tsha.t_shain_pk <> '1' "
-    // "and tsha.t_shain_pk <> '1' " +
-    // "order by :sort_graph";
     db
       .query(sql, {
         replacements: {
@@ -196,7 +132,6 @@ function getshojicoinList(db, req) {
       ", tsha2.shimei AS shimei_moto" +
       ", tsha2.shimei_kana AS shimei_kana_moto" +
       ", tzoyo.zoyo_comment AS event" +
-      // ", tzoyo.transaction_id AS transaction_idelect" +
       ", tzoyo.transaction_id" +
       ", tsha1.t_shain_pk as t_shain_pk" +
       ", tsha1.shimei as shimei" +
@@ -241,7 +176,6 @@ function bctransactionsget(param) {
           return;
         }
         console.log("★★★" + res.body.trans);
-        // return resolve(res.body.coin);
         return resolve(res);
       });
   });

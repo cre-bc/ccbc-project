@@ -67,11 +67,11 @@ const ranges1 = [
     label: '所持コイン（降順）'
   },
   {
-    value: '5',
+    value: '3',
     label: '氏名（昇順）'
   },
   {
-    value: '6',
+    value: '4',
     label: '氏名（降順）'
   }
 ]
@@ -317,22 +317,14 @@ class ComShojiCoinForm extends React.Component {
     open2: false,
     anchor: 'left',
     resultList: [],
-    resultcoin: [],
-    dispheight: 0,
     userid: null,
     password: null,
     tShainPk: 0,
     imageFileName: null,
     shimei: null,
     kengenCd: null,
-    pNendo: null,
-    pNendoStr: null,
-    pNendoEnd: null,
     data: [],
-    weightRange: '',
-    sort_graph: '0',
-    maxCoinGraph: 0,
-    maxCoinGraphData: [0, 1000, 2000, 3000, 4000, 5000]
+    weightRange: ''
   }
 
   handleChange = prop => event => {
@@ -352,14 +344,14 @@ class ComShojiCoinForm extends React.Component {
         if (a.sakicoin < b.sakicoin) return 1;
         return 0;
       })
-    } else if (event.target.value === '5') {
+    } else if (event.target.value === '3') {
       //氏名の順にソート（昇順）
       this.state.resultList.sort(function (a, b) {
         if (a.shimei_kana < b.shimei_kana) return -1;
         if (a.shimei_kana > b.shimei_kana) return 1;
         return 0;
       })
-    } else if (event.target.value === '6') {
+    } else if (event.target.value === '4') {
       //氏名の順にソート（降順）
       this.state.resultList.sort(function (a, b) {
         if (a.shimei_kana > b.shimei_kana) return -1;
@@ -382,19 +374,6 @@ class ComShojiCoinForm extends React.Component {
       }
     }
     this.setState({ data: data })
-    var maxCoinGraph = 0
-    var maxCoinGraphCnt = 0
-    var maxCoinGraphCntData = []
-    if (maxCoin > 0) {
-      maxCoinGraph = Math.ceil(maxCoin / 10000) * 10000
-      maxCoinGraphCnt = maxCoinGraph / 5
-      for (var i = 0; i <= maxCoinGraph; i += maxCoinGraphCnt) {
-        maxCoinGraphCntData.push(i)
-      }
-      this.state.maxCoinGraphData = maxCoinGraphCntData
-    }
-    this.setState({ maxCoinGraph: maxCoinGraph })
-    this.setState({ maxCoinGraphCntData: maxCoinGraphCntData })
   }
 
   handleMouseDownPassword = event => {
@@ -408,7 +387,6 @@ class ComShojiCoinForm extends React.Component {
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
-    this.state.sort_graph = '0'
 
     for (var i in loginInfos) {
       var loginInfo = loginInfos[i]
@@ -452,19 +430,6 @@ class ComShojiCoinForm extends React.Component {
           }
         }
         this.setState({ data: data })
-        var maxCoinGraph = 0
-        var maxCoinGraphCnt = 0
-        var maxCoinGraphCntData = []
-        if (maxCoin > 0) {
-          maxCoinGraph = Math.ceil(maxCoin / 10000) * 10000
-          maxCoinGraphCnt = maxCoinGraph / 5
-          for (var i = 0; i <= maxCoinGraph; i += maxCoinGraphCnt) {
-            maxCoinGraphCntData.push(i)
-          }
-          this.state.maxCoinGraphData = maxCoinGraphCntData
-        }
-        this.setState({ maxCoinGraph: maxCoinGraph })
-        this.setState({ maxCoinGraphCntData: maxCoinGraphCntData })
       })
   }
 
@@ -625,7 +590,6 @@ class ComShojiCoinForm extends React.Component {
                 value={this.state.weightRange}
                 onChange={this.handleChange('weightRange')}
                 InputProps={{
-                  // name: 'weightRange',
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
@@ -650,20 +614,20 @@ class ComShojiCoinForm extends React.Component {
                   data={this.state.data} //Array型のデータを指定
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
                 >
-                  {/*                   <XAxis //X軸に関する設定
+                  <XAxis //X軸に関する設定
                     xAxisId="use"
                     orientation="top"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
                     domain={[0, 5000]} //軸の表示領域を指定
                     stroke="#000000"
-                  /> */}
-                  <XAxis //X軸に関する設定
+                  />
+                  {/* <XAxis //X軸に関する設定
                     xAxisId="use"
                     orientation="bottom"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
                     domain={[0, 5000]} //軸の表示領域を指定
                     stroke="#000000"
-                  />
+                  /> */}
                   <YAxis //Y軸に関する設定
                     type="category" //データタイプをcategoryに変更
                     dataKey="name" //Array型のデータの、Y軸に表示したい値のキーを指定
@@ -684,14 +648,6 @@ class ComShojiCoinForm extends React.Component {
                     fillOpacity={1}
                     fill="#FC6903"
                   />
-                  {/*                   <Bar
-                    xAxisId="get"
-                    dataKey="受領コイン"
-                    barSize={20}
-                    stroke="rgba(34, 80, 162, 0.2)"
-                    fillOpacity={1}
-                    fill="#fccb00"
-                  /> */}
                 </ComposedChart>
               </div>
             </div>
