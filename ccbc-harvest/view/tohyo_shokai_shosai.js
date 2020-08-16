@@ -5,7 +5,8 @@ import {
   ScrollView,
   Text,
   Image,
-  AsyncStorage
+  AsyncStorage,
+  Dimensions
 } from 'react-native'
 import {
   Header,
@@ -17,12 +18,14 @@ import {
 } from 'react-native-elements'
 import { BarChart } from 'react-native-chart-kit'
 
+const width = Dimensions.get("window").width
 const restdomain = require('./common/constans.js').restdomain
 const chartConfig = {
   backgroundGradientFrom: '#FFFFFF',
   backgroundGradientTo: '#FFFFFF',
   color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  decimalPlaces: 0
+  barPercentage: 0.6,
+  // decimalPlaces: 0,
 }
 
 export default class TohyoShokaiShosai extends Component {
@@ -32,7 +35,7 @@ export default class TohyoShokaiShosai extends Component {
       resultList: [],
       tohyo_coin: [],
       sum_data: {
-        labels: [null, null, null, null, null],
+        labels: ['資料', '発表', '表現', '影響', '突破'],
         datasets: [{ data: [0, 0, 0, 0, 0] }]
       },
       saveFlg: false,
@@ -115,11 +118,11 @@ export default class TohyoShokaiShosai extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -152,7 +155,7 @@ export default class TohyoShokaiShosai extends Component {
           this.setState({ sum_breakthrough: sum5 })
           this.setState({
             sum_data: {
-              labels: ['資料', '発表', '表現', '影響', '突破'],
+              labels: this.state.sum_data.labels,
               datasets: [{ data: [sum1, sum2, sum3, sum4, sum5] }]
             }
           })
@@ -234,16 +237,17 @@ export default class TohyoShokaiShosai extends Component {
               <View style={{ flex: 1 }}>
                 <BarChart
                   data={this.state.sum_data}
-                  width={180}
+                  width={(width / 2) - 20}
                   height={180}
                   chartConfig={chartConfig}
+                  fromZero={true}
                 />
               </View>
             </View>
           </Card>
           {this.state.resultList.map((n, i) => {
             return (
-              <Card key={i}>
+              <Card>
                 <View style={styles.targe_com_item}>
                   <View style={styles.target_avatar_com_view}>
                     <Avatar

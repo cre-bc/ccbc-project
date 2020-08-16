@@ -1,199 +1,167 @@
 import React, { Component } from 'react'
-import { StyleSheet, View, Image, AsyncStorage, Text } from 'react-native'
-import { Header, Button, Icon, Avatar } from 'react-native-elements'
+import { AsyncStorage, StyleSheet, View, Image } from 'react-native'
+import { Header, Icon, Text } from 'react-native-elements'
+import InAppHeader from './components/InAppHeader'
 
-export default class Menu extends Component {
+export default class MenuPh2 extends Component {
   state = {
-    open: false,
-    open2: false,
-    anchor: 'left',
-    activeStep1: {},
-    activeStep2: {},
-    activeStep3: {},
-    activeStep4: {},
-    activeStep5: {},
-    completed: {},
-    comment: {},
-    coin: 0,
-    tohyoCoin: 0,
-    headList: [],
-    resultList: [],
-    userid: null,
-    password: null,
-    tShainPk: 0,
-    imageFileName: null,
-    shimei: null,
-    kengenCd: null,
-    configCoin: 0
+    open: false
   }
+
   constructor(props) {
     super(props)
     this.state = {}
   }
-  /** コンポーネントのマウント時処理 */
+
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-  }
-
-  getLoginInfo = async () => {
+    let groupInfo = {
+      saveFlg: "1",
+      group_id: "Cre-demo001",
+      db_name: "harvest-demo",
+      bc_addr: "0x001b2987b25d0111fb1f351178fa0e1ac642a930"
+    }
+    let loginInfo = {
+      userid: "ishii",
+      password: "pass",
+      tShainPk: 3,
+      imageFileName: "man1.jpg",
+      shimei: "石井大翔",
+      kengenCd: "2",
+      tokenId: "*****",
+      bcAccount: "0x81efd009ee6a48a05669536b976439918b595b97"
+    }
     try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
+      // alert(JSON.stringify(loginInfo))
+      await AsyncStorage.setItem('groupInfo', JSON.stringify(groupInfo))
+      await AsyncStorage.setItem('loginInfo', JSON.stringify(loginInfo))
     } catch (error) {
       return
     }
   }
 
   onPressLogoutButton = () => {
-    AsyncStorage.removeItem('groupInfo')
-    this.props.navigation.navigate('LoginGroup')
+    this.props.navigation.navigate('MenuPh2')
   }
   onPressMenuButton = () => {
-    this.props.navigation.navigate('Menu')
+    this.props.navigation.navigate('MenuPh2')
   }
-  onPressTohyoButton = () => {
-    this.props.navigation.navigate('TohyoToroku')
+  onPressChatButton = () => {
+    this.props.navigation.navigate('Chat')
   }
-  onPressTohyoKekkaButton = () => {
-    this.props.navigation.navigate('TohyoIchiran')
+  onPressChatSelectButton = () => {
+    this.props.navigation.navigate('ChatSelect')
   }
-  onPressCoinShokaiButton = () => {
-    this.props.navigation.navigate('CoinShokai')
+  onPressChatMsgButton = () => {
+    this.props.navigation.navigate('ChatMsg')
   }
-  onPressCoinZoyoButton = () => {
-    this.props.navigation.navigate('CoinZoyo')
+  onPressChatCoinButton = () => {
+    this.props.navigation.navigate('ChatCoin')
   }
-  onPressCommentShokaiButton = () => {
-    this.props.navigation.navigate('CommentShokai')
+  onPressKijiButton = () => {
+    this.props.navigation.navigate('ArticleSelect')
+  }
+  onPressShoppingButton = () => {
+    this.props.navigation.navigate('Shopping')
+  }
+  onPressGroupButton = () => {
+    this.props.navigation.navigate('LoginGroup')
+  }
+  onPressLoginButton = () => {
+    this.props.navigation.navigate('Login')
   }
   onPressHomeButton = () => {
     this.props.navigation.navigate('Home')
   }
+  onPressKokokuButton = () => {
+    this.props.navigation.navigate('HomeAdvertise')
+  }
+  onPressOshiraseButton = () => {
+    this.props.navigation.navigate('HomeInfoList')
+  }
+  onPressOshiraseShosaiButton = () => {
+    this.props.navigation.navigate('HomeInformation')
+  }
+  onPressSaishinKijiButton = () => {
+    this.props.navigation.navigate('HomeArticleList', { mode: "new" })
+  }
+  onPressNinkiKijiButton = () => {
+    this.props.navigation.navigate('HomeArticleList', { mode: "popular" })
+  }
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          leftComponent={
-            <Icon
-              name={'home'}
-              type={'font-awesome'}
-              color="#fff"
-              onPress={this.onPressMenuButton}
-            />
-          }
-          centerComponent={
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <View>
-                <Image source={require('./../images/HARVEST3.png')} />
-              </View>
-              {/* <View>
-                <Image
-                  source={require('./../images/cvircy.png')}
-                  style={{
-                    width: 25,
-                    height: 25
-                  }}
-                />
-              </View>
-              <View
-                style={{
-                  marginLeft: 10
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: '#fff',
-                    fontWeight: 'bold',
-                    minWidth: 100
-                  }}
-                >
-                  Harvest
-                </Text>
-              </View> */}
-            </View>
-          }
-          rightComponent={
-            <Icon
-              name={'sign-out'}
-              type={'font-awesome'}
-              color="#fff"
-              onPress={this.onPressLogoutButton}
-            />
-          }
-          style={styles.header}
+        <InAppHeader
+          navigate={this.props.navigation.navigate}
         />
-        <View style={styles.menu_item}>
-          <View style={styles.menu_icon_view}>
-            <Image
-              source={require('./../images/senkyo.png')}
-              style={styles.menu_icon}
-            />
-          </View>
-          <View style={styles.menu_button_view}>
-            <Button
-              title="投票"
-              style={styles.menu_button}
-              onPress={this.onPressTohyoButton}
-            />
-          </View>
+        <View style={{ marginTop: 20, marginLeft: 10 }}>
+          <Text h4 onPress={this.onPressChatButton}>
+            画面モックアップメニュー
+          </Text>
         </View>
-        <View style={styles.menu_item}>
-          <View style={styles.menu_icon_view}>
-            <Image
-              source={require('./../images/tohyo_kekka.png')}
-              style={styles.menu_icon}
-            />
-          </View>
-          <View style={styles.menu_button_view}>
-            <Button
-              title="投票結果"
-              style={styles.menu_button}
-              onPress={this.onPressTohyoKekkaButton}
-            />
-          </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressChatSelectButton}>
+            【チャット機能】チャット選択
+          </Text>
         </View>
-        <View style={styles.menu_item}>
-          <View style={styles.menu_icon_view}>
-            <Image
-              source={require('./../images/coin_shokai.png')}
-              style={styles.menu_icon}
-            />
-          </View>
-          <View style={styles.menu_button_view}>
-            <Button
-              title="コイン照会"
-              style={styles.menu_button}
-              onPress={this.onPressCoinShokaiButton}
-            />
-          </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressChatMsgButton}>
+            【チャット機能】チャット照会
+          </Text>
         </View>
-        <View style={styles.menu_item}>
-          <View style={styles.menu_icon_view}>
-            <Image
-              source={require('./../images/zoyo.png')}
-              style={styles.menu_icon}
-            />
-          </View>
-          <View style={styles.menu_button_view}>
-            <Button
-              title="コイン贈与"
-              style={styles.menu_button}
-              onPress={this.onPressCoinZoyoButton}
-            />
-          </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressChatCoinButton}>
+            【チャット機能】コイン送付
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressKijiButton}>
+            【記事投稿機能】記事投稿
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressShoppingButton}>
+            【支払機能】支払
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressGroupButton}>
+            【ログイン機能】グループ認証
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressLoginButton}>
+            【ログイン機能】ログイン
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressHomeButton}>
+            【ホーム機能】ホーム
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressKokokuButton}>
+            【ホーム機能】広告
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressOshiraseButton}>
+            【ホーム機能】お知らせ
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressOshiraseShosaiButton}>
+            【ホーム機能】お知らせ詳細
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressSaishinKijiButton}>
+            【ホーム機能】最新の記事
+          </Text>
+        </View>
+        <View style={styles.font_view}>
+          <Text style={styles.font} onPress={this.onPressNinkiKijiButton}>
+            【ホーム機能】人気の記事
+          </Text>
         </View>
       </View>
     )
@@ -205,6 +173,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF'
   },
   header: {},
+  font_view: {
+    marginTop: 20,
+    marginLeft: 30
+  },
+  font: {
+    fontSize: 20
+  },
   menu_item: {
     flexDirection: 'row',
     marginTop: 30,

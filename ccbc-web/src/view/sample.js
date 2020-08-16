@@ -359,6 +359,7 @@ class PersistentDrawer extends React.Component {
                   <br />
                   <input type="button" value="反映" onClick={this.update} />
                 </form>
+                <h3>HARVEST画面モックアップ（使用不可）</h3>
                 <h3>画面モックアップサンプル（イテレーション１）</h3>
                 <ul>
                   <li>
@@ -410,6 +411,31 @@ class PersistentDrawer extends React.Component {
                   </li>
                   <li>
                     <a href="/tohyo_shokai_nendo">【03】投票照会（年度）</a>
+                  </li>
+                </ul>
+
+                <h3>ComComCoin画面モックアップ</h3>
+                <ul>
+                  <li>
+                    <a href="/com_coin_shokai">【01】コイン照会</a>
+                  </li>
+                  <li>
+                    <a href="/com_coin_shokai_graph">【02】コイン照会グラフ</a>
+                  </li>
+                  <li>
+                    <a href="/com_shohin_mente">【03】商品メンテナンス</a>
+                  </li>
+                  <li>
+                    <a href="/com_kokoku_mente">【04】広告メンテナンス</a>
+                  </li>
+                  <li>
+                    <a href="/com_oshirase_mente">【05】お知らせメンテナンス</a>
+                  </li>
+                  <li>
+                    <a href="/com_coin_shojicoin">【06】コイン照会所持コイン</a>
+                  </li>
+                  <li>
+                    <a href="/article">【xx】記事投稿</a>
                   </li>
                 </ul>
               </div>

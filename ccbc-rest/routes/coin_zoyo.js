@@ -159,7 +159,7 @@ function tZoyoInsert(tx, resdatas, req) {
           req.body.tShainPk,
           req.body.to_tShainPk,
           req.body.comment,
-          req.body.nenjiFlg,
+          '1',
           '0',
           req.body.userid
         ]

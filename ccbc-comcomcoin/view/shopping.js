@@ -1,89 +1,332 @@
-import React, { Component } from 'react'
+import React from "react";
 import {
   StyleSheet,
   Text,
   View,
   Image,
-  Dimensions,
-  Alert,
-  TextInput
-} from 'react-native'
-import { BarCodeScanner, Permissions } from 'expo'
-import { Button, Icon, Card, Divider } from 'react-native-elements'
+  ScrollView,
+  TouchableHighlight
+} from "react-native";
+import { Card, Divider } from "react-native-elements";
+import * as Permissions from "expo-permissions";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
+import AlertDialog from "./components/AlertDialog";
+import ConfirmDialog from "./components/ConfirmDialog";
+import RNPickerSelect from "react-native-picker-select";
+import Spinner from "react-native-loading-spinner-overlay";
+import * as Speech from 'expo-speech';
 
-const { width } = Dimensions.get('window')
-const qrSize = width * 0.7
-const iconButtonSize = 20
+const restdomain = require("./common/constans.js").restdomain;
 
-export default class Shopping extends Component {
-  state = {
-    mode: 'cart',
-    hasCameraPermission: null,
-    totalCoin: 250,
-    itemCnt: 2
+export default class Shopping extends BaseComponent {
+  constructor(props) {
+    super(props);
+    this.inputRefs = {};
+    this.state = {
+      mode: "camera",
+      hasCameraPermission: null,
+      bokinList: [],
+      buyList: [],
+      haveCoin: 0,
+      totalCoin: 0,
+      itemCnt: 0,
+      m_bokin_pk: 0,
+      alertDialogVisible: false,
+      alertDialogMessage: "",
+      finDialogVisible: false,
+      confirmDialogVisible: false,
+      confirmDialogMessage: "",
+      isScaning: false,
+      isProcessing: false
+    };
+    this.props = props;
   }
 
-  async componentDidMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA)
-    this.setState({
-      hasCameraPermission: status === 'granted'
-    })
-  }
+  /** コンポーネントのマウント時処理 */
+  componentWillMount = async () => {
+    this.setState({ isProcessing: true });
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo();
 
-  handleBarCodeScanned = ({ type, data }) => {
-    Alert.alert('barcode type:' + type + ' \ndata: ' + data)
-    //Alert.alert(data);
+    // カメラの使用許可
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
-      mode: 'cart'
+      hasCameraPermission: status === "granted"
+    });
+
+    // 初期表示情報取得
+    this.findShopping();
+
+    this.setState({ isProcessing: false });
+  };
+
+  /** 画面初期表示情報取得 */
+  findShopping = async () => {
+    await fetch(restdomain + "/shopping/find", {
+      method: "POST",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" })
     })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.bokinList === "undefined") {
+            return;
+          }
+          var dataList = json.bokinList;
+          var coin = json.coin;
+
+          // 寄付先リスト設定
+          var bokinList = [];
+          for (var i in dataList) {
+            bokinList.push({
+              label: dataList[i].bokin_nm,
+              value: dataList[i].m_bokin_pk,
+              key: dataList[i].m_bokin_pk
+            });
+          }
+
+          this.setState({
+            bokinList: bokinList,
+            haveCoin: coin
+          });
+        }.bind(this)
+      )
+      .catch(error => console.error(error));
+  };
+
+  /** QRコードのスキャン処理 */
+  handleBarCodeScanned = async ({ type, data }) => {
+    console.log("barcode type:" + type + " \ndata: " + data);
+
+    this.setState({ isScaning: true });
+    this.state.isScaning = true;
+    this.state.qrcode = data;
+
+    await fetch(restdomain + "/shopping/checkQRCode", {
+      method: "POST",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" })
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          this.setState({ isScaning: false });
+          this.state.isScaning = false;
+
+          // 結果が取得できない場合は終了
+          if (typeof json.status === "undefined") {
+            return;
+          } else if (json.status === false) {
+            alert("有効なQRコードではありません");
+            this.cancelCamera();
+            return;
+          }
+
+          // 購入リストに商品マスタのデータを追加
+          var shohinInfo = {
+            m_shohin_pk: json.shohinInfo.m_shohin_pk,
+            shohin_code: json.shohinInfo.shohin_code,
+            shohin_nm1: json.shohinInfo.shohin_nm1,
+            shohin_nm2: json.shohinInfo.shohin_nm2,
+            coin: json.shohinInfo.coin,
+            quantity: 1
+          };
+          var buyList = this.state.buyList;
+          buyList.push(shohinInfo);
+
+          var itemCnt = this.state.itemCnt + 1;
+
+          // 合計コイン数を算出
+          var totalCoin = this.calcTotalCoin(buyList);
+
+          // ショッピングカートに戻る
+          this.setState({
+            buyList: buyList,
+            totalCoin: totalCoin,
+            itemCnt: itemCnt,
+            mode: "cart"
+          });
+        }.bind(this)
+      )
+      .catch(error => console.error(error));
+  };
+
+  /** 合計コイン数を算出 */
+  calcTotalCoin(buyList) {
+    var totalCoin = 0;
+    for (var i = 0; i < buyList.length; i++) {
+      totalCoin += buyList[i].coin;
+    }
+    return totalCoin;
   }
 
   cancelCamera() {
-    // Alert.alert("読み取り終了しますか？");
+    // ショッピングカートに戻る
     this.setState({
-      mode: 'cart'
-    })
+      mode: "cart"
+    });
   }
 
   moveCamera() {
+    // スキャナを表示
     this.setState({
-      mode: 'camera'
-    })
+      mode: "camera"
+    });
   }
 
-  moveCart() {
-    this.setState({
-      mode: 'cart'
-    })
-  }
+  /** 支払ボタン押下 */
+  onClickPay = async () => {
+    // 各種入力チェック
+    if (
+      // 所持コイン不足チェック
+      this.state.haveCoin < this.state.totalCoin
+    ) {
+      alertMessage = "コインが不足しています";
+      this.setState({
+        alertDialogVisible: true,
+        alertDialogMessage: alertMessage
+      });
+    } else if (
+      // 寄付先未入力チェック
+      typeof this.state.m_bokin_pk === "undefined" ||
+      this.state.m_bokin_pk === null ||
+      this.state.m_bokin_pk === 0 ||
+      (this.state.m_bokin_pk != null && this.state.m_bokin_pk.length === 0)
+    ) {
+      alertMessage = "寄付先が未入力です";
+      this.setState({
+        alertDialogVisible: true,
+        alertDialogMessage: alertMessage
+      });
+    } else {
+      // 確認ダイアログを表示（YESの場合、pay()を実行）
+      this.setState({
+        confirmDialogVisible: true,
+        confirmDialogMessage: "支払いを確定します。よろしいですか？"
+      });
+    }
+  };
 
-  moveInput() {
-    this.setState({
-      mode: 'input'
-    })
-  }
+  /** 支払更新処理 */
+  pay = async () => {
+    this.setState({ isProcessing: true });
+    this.setState({ confirmDialogVisible: false });
 
-  pay() {
-    Alert.alert('支払いを確定します。\nよろしいですか？')
+    await fetch(restdomain + "/shopping/pay", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" })
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          if (typeof json.status === "undefined" || json.status === false) {
+            var alertMessage = "";
+            if (typeof json.coin === "undefined") {
+              alertMessage = "支払処理でエラーが発生しました";
+            } else {
+              this.setState({ haveCoin: json.coin });
+              alertMessage = "コインが不足しています";
+            }
+            this.setState({
+              alertDialogVisible: true,
+              alertDialogMessage: alertMessage
+            });
+          } else {
+            // 支払い完了ダイアログを表示し、閉じるとホーム画面に戻る
+            this.setState({
+              isProcessing: false,
+              finDialogVisible: true
+            });
+            Speech.speak("com com coin", {
+              language: "en"
+            });
+          }
+        }.bind(this)
+      )
+      .catch(error => alert(error));
+  };
+
+  /** 購入リストより１件削除 */
+  deleteShohin(i) {
+    var buyList = this.state.buyList;
+    buyList.splice(i, 1);
+    var totalCoin = this.calcTotalCoin(buyList);
+
+    this.setState({
+      buyList: buyList,
+      itemCnt: this.state.itemCnt - 1,
+      totalCoin: totalCoin
+    });
   }
 
   render() {
-    const { hasCameraPermission } = this.state
+    const { hasCameraPermission } = this.state;
     if (hasCameraPermission === null) {
-      return <Text>カメラにアクセスを許可しますか？</Text>
-    }
-    if (hasCameraPermission === false) {
-      return <Text>カメラにアクセスできません</Text>
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 100
+          }}
+        >
+          <Text style={{ fontSize: 22, color: "gray" }}>
+            カメラにアクセスを許可しますか？
+          </Text>
+        </View>
+      );
     }
 
-    if (this.state.mode == 'camera') {
+    if (hasCameraPermission === false) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 100
+          }}
+        >
+          <Text style={{ fontSize: 22, color: "gray" }}>
+            カメラにアクセスできません
+          </Text>
+        </View>
+      );
+    }
+
+    if (this.state.mode == "camera") {
+      // --- スキャナモード ---
       return (
         <BarCodeScanner
-          onBarCodeRead={this.handleBarCodeScanned}
+          onBarCodeScanned={
+            this.state.isScaning ? undefined : this.handleBarCodeScanned
+          }
           style={[StyleSheet.absoluteFill, styles.container]}
         >
           <View style={styles.layerTop}>
-            <Text style={styles.description}>Scan QR code</Text>
+            {/* TODO : テスト用にQRコードを読み込んだ状態を再現 */}
+            {/* <Text
+              onPress={() =>
+                this.handleBarCodeScanned({ type: "QR", data: "CCC_0001" })
+              }
+              style={styles.cancel}
+            >
+              テスト
+            </Text> */}
+            <Text style={styles.description}>
+              ＱＲコードを読み込んでください
+            </Text>
           </View>
           <View style={styles.layerCenter}>
             <View style={styles.layerLeft} />
@@ -92,188 +335,270 @@ export default class Shopping extends Component {
           </View>
           <View style={styles.layerBottom}>
             <Text onPress={() => this.cancelCamera()} style={styles.cancel}>
-              Cancel
+              キャンセル
             </Text>
           </View>
         </BarCodeScanner>
-      )
-    } else if (this.state.mode == 'cart' || this.state.mode == 'input') {
+      );
+    } else if (this.state.mode == "cart" || this.state.mode == "input") {
+      // --- ショッピングカートモード ---
       return (
-        <View>
-          <View
-            style={[
-              styles.screenTitleView,
-              {
-                flexDirection: 'row'
-              }
-            ]}
-          >
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'flex-start',
-                marginLeft: 10
-              }}
-            >
-              <Icon name="chevron-left" type="font-awesome" color="white" />
-            </View>
-            <View style={{ flex: 7, alignItems: 'center' }}>
-              <Text style={styles.screenTitleText}>ショッピングカート</Text>
-            </View>
-            <View style={{ flex: 1, alignItems: 'flex-end' }} />
-          </View>
-          <View style={{ marginTop: 20 }}>
-            <View style={{ flexDirection: 'row', marginLeft: 20 }}>
+        <View style={{ flex: 1, backgroundColor: 'ivory' }}>
+          {/* -- 処理中アニメーション -- */}
+          <Spinner
+            visible={this.state.isProcessing}
+            textContent={"Processing…"}
+            textStyle={styles.spinnerTextStyle}
+          />
+          {/* -- 共有ヘッダ -- */}
+          <InAppHeader navigate={this.props.navigation.navigate} />
+
+          {/* -- 所持コイン、購入合計コイン・個数 -- */}
+          <View style={{ flex: 1.2, marginTop: 20 }}>
+            <View style={{ marginLeft: 20 }}>
               <View>
                 <View>
                   <View>
-                    <Text style={{ fontSize: 22, color: 'gray' }}>残高</Text>
+                    <Text style={{ fontSize: 22, color: "gray" }}>
+                      所持コイン
+                    </Text>
                   </View>
-                  <View>
-                    <Text style={{ fontSize: 26 }}>1,510 コイン</Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
+                        {Number(this.state.haveCoin).toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" コイン"}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ fontSize: 24 }}>{"　"}</Text>
+                    </View>
                   </View>
                 </View>
                 <View>
                   <View>
-                    <Text style={{ fontSize: 22, color: 'gray' }}>合計</Text>
+                    <Text style={{ fontSize: 22, color: "gray" }}>合計</Text>
                   </View>
-                  <View>
-                    <Text style={{ fontSize: 26 }}>
-                      {this.state.totalCoin} コイン
-                      {'  '}
-                      {this.state.itemCnt}個
-                    </Text>
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
+                        {Number(this.state.totalCoin).toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" コイン"}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 0.5 }}>
+                      <Text style={{ textAlign: "right", fontSize: 24 }}>
+                        {Number(this.state.itemCnt).toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 0.5 }}>
+                      <Text style={{ textAlign: "left", fontSize: 24 }}>
+                        {" 個"}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              <View
-                style={{
-                  marginTop: 5,
-                  flex: 1,
-                  alignItems: 'flex-end',
-                  justifyContent: 'flex-end'
-                }}
-              >
-                <Button
-                  title="支払い"
-                  icon={{ name: 'yen', type: 'font-awesome' }}
-                  onPress={() => this.pay()}
-                  textStyle={{ fontSize: 24 }}
-                  buttonStyle={{
-                    backgroundColor: 'gray',
-                    borderRadius: 10,
-                    width: 130
-                  }}
-                />
               </View>
             </View>
           </View>
-          <Card title="カートの内容">
-            {/* 1行目 */}
-            <View style={{ flexDirection: 'row' }}>
-              <View style={{ flex: 4 }}>
-                <Text style={{ fontSize: 26 }}>ペットボトル（お茶）</Text>
-                <Text style={{ fontSize: 26 }}>100 コイン</Text>
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <Icon name="trash" type="font-awesome" size={iconButtonSize} />
-              </View>
-            </View>
-            <View style={{ marginTop: 10, marginBottom: 10 }}>
-              <Divider style={{ backgroundColor: 'lightgray' }} />
-            </View>
-            {/* 2行目 */}
-            <View style={{ flexDirection: 'row' }}>
-              <View style={{ flex: 4 }}>
-                <Text style={{ fontSize: 26 }}>カップラーメン</Text>
-                <Text style={{ fontSize: 26 }}>150 コイン</Text>
-              </View>
-              <View style={{ flex: 1, alignItems: 'flex-end' }}>
-                <Icon name="trash" type="font-awesome" size={iconButtonSize} />
+
+          {/* -- カート内容 -- */}
+          <View style={{ flex: 2.8, marginTop: 20 }}>
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ marginLeft: 20 }}>
+                <View>
+                  <Text style={{ fontSize: 22, color: "gray" }}>
+                    カートの内容
+                  </Text>
+                </View>
               </View>
             </View>
-          </Card>
-          {(() => {
-            if (this.state.mode == 'cart') {
-              return (
-                <View style={{ marginTop: 80 }}>
-                  <View>
-                    <Button
-                      title="続けて買い物"
-                      icon={{ name: 'shopping-cart', type: 'font-awesome' }}
-                      onPress={() => this.moveCamera()}
-                      textStyle={{ fontSize: 24 }}
-                      buttonStyle={{
-                        backgroundColor: 'gray',
-                        borderRadius: 10
-                      }}
+            <ScrollView>
+              <View>
+                <Card containerStyle={{ padding: 0 }}>
+                  {this.state.buyList.map((slist, i) => {
+                    return (
+                      <View key={i}>
+                        <View style={{ flex: 1, flexDirection: "row" }}>
+                          <View style={{ flex: 6 }}>
+                            <Text style={{ fontSize: 26 }}>
+                              {slist.shohin_nm1}
+                            </Text>
+                            <Text style={{ fontSize: 26 }}>
+                              {slist.shohin_nm2}
+                            </Text>
+                            <Text style={{ fontSize: 22 }}>
+                              {slist.coin} コイン
+                            </Text>
+                          </View>
+
+                          <TouchableHighlight
+                            onPress={() => this.deleteShohin(i)}
+                          >
+                            <View
+                              style={{
+                                flex: 1,
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center"
+                              }}
+                            >
+                              <Image
+                                source={require("./../images/icons8-waste-48.png")}
+                              />
+                            </View>
+                          </TouchableHighlight>
+                        </View>
+                        <Divider style={{ backgroundColor: "lightgray" }} />
+                      </View>
+                    );
+                  })}
+                </Card>
+              </View>
+            </ScrollView>
+          </View>
+
+          {/* -- 寄付先 -- */}
+          <View style={{ marginLeft: 20, marginTop: 5 }}>
+            <View>
+              <Text style={{ fontSize: 22, color: "gray" }}>寄付先</Text>
+            </View>
+          </View>
+          <View>
+            <RNPickerSelect
+              placeholder={{
+                label: "【寄付先を選択してください】",
+                value: null
+              }}
+              items={this.state.bokinList}
+              onValueChange={value => {
+                this.setState({
+                  m_bokin_pk: value
+                });
+              }}
+              //onUpArrow={() => {
+              //  this.inputRefs.name.focus()
+              //}}
+              //onDownArrow={() => {
+              //  this.inputRefs.picker2.togglePicker()
+              //}}
+              style={{ ...pickerSelectStyles }}
+              value={this.state.m_bokin_pk}
+              ref={el => {
+                this.inputRefs.picker = el;
+              }}
+            />
+          </View>
+
+          {/* -- ボタン -- */}
+          <View style={{ flex: 1, flexDirection: "row", marginTop: 20 }}>
+            <View style={{ flex: 1 }}>
+              <TouchableHighlight onPress={() => this.moveCamera()}>
+                <View style={styles.shopbtnLine}>
+                  <View style={{ flex: 1, alignItems: "flex-end" }}>
+                    <Image
+                      source={require("./../images/icons8-shopping-cart-24_white.png")}
                     />
                   </View>
+                  <View style={styles.shopbtnTitleView}>
+                    <Text style={styles.shopbtnTitleText}>
+                      続けて{"\n"}買い物する
+                    </Text>
+                  </View>
                 </View>
-              )
-            } else {
-              return (
-                <Card>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 2 }}>
-                      <Text style={{ fontSize: 16, color: 'gray' }}>
-                        コイン
-                      </Text>
-                      <TextInput value=" 150" />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ fontSize: 16 }}>{'\n'}×</Text>
-                    </View>
-                    <View style={{ flex: 2 }}>
-                      <Text style={{ fontSize: 16, color: 'gray' }}>num</Text>
-                      <TextInput value=" 1" />
-                    </View>
-                    <View style={{ flex: 2, marginLeft: 10 }}>
-                      <Text style={{ fontSize: 16, color: 'gray' }}>total</Text>
-                      <Text style={{ fontSize: 16 }}>150 コイン</Text>
-                    </View>
+              </TouchableHighlight>
+            </View>
+            <View style={{ flex: 1 }}>
+              <TouchableHighlight
+                onPress={() => this.onClickPay()}
+                disabled={this.state.itemCnt === 0 ? true : false}
+              >
+                <View style={styles.paybtnLine}>
+                  <View style={{ flex: 1, alignItems: "flex-end" }}>
+                    <Image
+                      source={require("./../images/icons8-purse-24_white.png")}
+                    />
                   </View>
-                  <View>
-                    <Text style={{ fontSize: 16, color: 'gray' }}>item</Text>
-                    <TextInput value=" カップラーメン" />
+                  <View style={styles.paybtnTitleView}>
+                    <Text style={styles.paybtnTitleText}>支払いする</Text>
                   </View>
-                  <View style={{ flexDirection: 'row' }}>
-                    <View style={{ flex: 1 }}>
-                      <Button
-                        title="add"
-                        onPress={() => this.moveCart()}
-                        buttonStyle={{
-                          width: 120,
-                          borderRadius: 10
-                        }}
-                      />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Button
-                        title="cancel"
-                        onPress={() => this.moveCart()}
-                        buttonStyle={{
-                          width: 120,
-                          borderRadius: 10
-                        }}
-                      />
-                    </View>
-                  </View>
-                </Card>
-              )
-            }
-          })()}
+                </View>
+              </TouchableHighlight>
+            </View>
+          </View>
+
+          {/* -- 確認ダイアログ -- */}
+          <ConfirmDialog
+            modalVisible={this.state.confirmDialogVisible}
+            message={this.state.confirmDialogMessage}
+            handleYes={this.pay.bind(this)}
+            handleNo={() => {
+              this.setState({ confirmDialogVisible: false });
+            }}
+            handleClose={() => {
+              this.setState({ confirmDialogVisible: false });
+            }}
+          />
+          {/* -- メッセージダイアログ -- */}
+          <AlertDialog
+            modalVisible={this.state.alertDialogVisible}
+            message={this.state.alertDialogMessage}
+            handleClose={() => {
+              this.setState({ alertDialogVisible: false });
+            }}
+          />
+          <AlertDialog
+            modalVisible={this.state.finDialogVisible}
+            message={"支払いが完了しました"}
+            handleClose={() => {
+              this.props.navigation.navigate("Home");
+            }}
+          />
         </View>
-      )
+      );
     }
   }
 }
 
-const opacity = 'rgba(0, 0, 0, .6)'
+const opacity = "rgba(0, 0, 0, .6)";
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 22,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black"
+  },
+  inputAndroid: {
+    fontSize: 22,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black"
+  }
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'column'
+    flexDirection: "column"
   },
   layerTop: {
     flex: 1,
@@ -281,7 +606,7 @@ const styles = StyleSheet.create({
   },
   layerCenter: {
     flex: 1,
-    flexDirection: 'row'
+    flexDirection: "row"
   },
   layerLeft: {
     flex: 1,
@@ -300,33 +625,72 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 25,
-    marginTop: '40%',
-    textAlign: 'center',
-    color: 'white'
+    marginTop: "40%",
+    textAlign: "center",
+    color: "white"
   },
   cancel: {
     fontSize: 20,
-    textAlign: 'center',
-    color: 'white',
-    marginTop: '30%'
+    textAlign: "center",
+    color: "white",
+    marginTop: "30%"
   },
   screenTitleView: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 25,
-    backgroundColor: '#ff5622'
+    backgroundColor: "#ff5622"
   },
   screenTitleText: {
     fontSize: 26,
-    color: 'white',
-    padding: 10
+    color: "white",
+    padding: 10,
+    fontWeight: "bold"
   },
   itemLine: {
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
     marginLeft: 0,
     marginRight: 0,
-    backgroundColor: 'cornflowerblue',
-    flexDirection: 'row'
+    backgroundColor: "cornflowerblue",
+    flexDirection: "row"
+  },
+  paybtnLine: {
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 0,
+    marginLeft: 5,
+    marginRight: 5,
+    backgroundColor: "#ff5622",
+    flexDirection: "row",
+    height: 65
+  },
+  paybtnTitleView: {
+    flex: 3,
+    alignItems: "center"
+  },
+  paybtnTitleText: {
+    fontSize: 22,
+    color: "white",
+    padding: 5
+  },
+  shopbtnLine: {
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 0,
+    marginLeft: 5,
+    marginRight: 5,
+    backgroundColor: "#FFB300",
+    flexDirection: "row",
+    height: 65
+  },
+  shopbtnTitleView: {
+    flex: 3,
+    alignItems: "center"
+  },
+  shopbtnTitleText: {
+    fontSize: 22,
+    color: "white",
+    padding: 5
   }
-})
+});

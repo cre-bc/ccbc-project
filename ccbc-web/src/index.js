@@ -54,6 +54,18 @@ import ShainKensakuForm from './view/shain_kensaku'
 import ShainTorokuForm from './view/shain_toroku'
 import CoinZoyoForm from './view/coin_zoyo'
 
+// ComComCoin
+import ComCoinShokaiForm from './view/com_coin_shokai'
+import ComCoinShokaiGraphForm from './view/com_coin_shokai_graph'
+import ComCoinShojicoinForm from './view/com_coin_shojicoin'
+import ComShohinMenteForm from './view/com_shohin_mente'
+import ComKokokuMenteForm from './view/com_kokoku_mente'
+import ComOshiraseMenteForm from './view/com_oshirase_mente'
+import ArtcleForm from './view/article'
+
+import AppSelectForm from './view/app_select'
+import ComMenuForm from './view/com_menu'
+
 const history = createHistory()
 const middleware = routerMiddleware(history)
 
@@ -112,7 +124,24 @@ ReactDOM.render(
             <Route path="/graph" component={GraphForm} />
             <Route path="/db" component={DbForm} />
             <Route path="/image" component={ImageForm} />
+            <Route path="/app_select" component={AppSelectForm} />
             <Route path="/menu" component={MenuForm} />
+            <Route path="/com_menu" component={ComMenuForm} />
+            <Route path="/com_coin_shokai" component={ComCoinShokaiForm} />
+            <Route
+              path="/com_coin_shokai_graph"
+              component={ComCoinShokaiGraphForm}
+            />
+            <Route
+              path="/com_coin_shojicoin"
+              component={ComCoinShojicoinForm}
+            />
+            <Route path="/com_shohin_mente" component={ComShohinMenteForm} />
+            <Route path="/com_kokoku_mente" component={ComKokokuMenteForm} />
+            <Route
+              path="/com_oshirase_mente"
+              component={ComOshiraseMenteForm}
+            />
             <Auth>
               <Switch>
                 <Route path="/senkyo_kanri" component={SenkyoKanriForm} />
@@ -136,6 +165,7 @@ ReactDOM.render(
                 <Route path="/shain_kensaku" component={ShainKensakuForm} />
                 <Route path="/shain_toroku" component={ShainTorokuForm} />
                 <Route path="/coin_zoyo" component={CoinZoyoForm} />
+                <Route path="/article" component={ArtcleForm} />
               </Switch>
             </Auth>
             <FooterForm />

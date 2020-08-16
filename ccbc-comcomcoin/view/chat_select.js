@@ -1,202 +1,169 @@
-import React, { Component } from 'react'
-import {
-  StyleSheet,
-  View,
-  Image,
-  AsyncStorage,
-  Text,
-  ScrollView
-} from 'react-native'
-import {
-  Header,
-  Button,
-  Icon,
-  Avatar,
-  Card,
-  ListItem
-} from 'react-native-elements'
+import React from "react"
+import { Notifications } from 'expo'
+import { StyleSheet, View, ScrollView } from "react-native"
+import { ListItem, Avatar } from "react-native-elements"
+import io from "socket.io-client"
 
-const users = [
-  {
-    name: '安倍　大翔',
-    avatar: require('./../images/man1.jpg'),
-    cnt: 1
-  },
-  {
-    name: '伊藤　俊介',
-    avatar: require('./../images/man2.jpg'),
-    cnt: 9
-  },
-  {
-    name: '牛込　達也',
-    avatar: require('./../images/man3.jpg'),
-    cnt: 0
-  },
-  {
-    name: '江藤　蓮',
-    avatar: require('./../images/man4.jpg'),
-    cnt: 3
-  },
-  {
-    name: '織田　結月',
-    avatar: require('./../images/woman1.jpg'),
-    cnt: 2
-  },
-  {
-    name: '小川　結愛',
-    avatar: require('./../images/woman2.jpg'),
-    cnt: 2
-  },
-  {
-    name: '佐藤　結菜',
-    avatar: require('./../images/woman3.jpg'),
-    cnt: 6
-  },
-  {
-    name: '島崎　杏',
-    avatar: require('./../images/woman4.jpg'),
-    cnt: 2
-  },
-  {
-    name: '須藤　陽翔',
-    avatar: require('./../images/man5.jpg'),
-    cnt: 0
-  },
-  {
-    name: '瀬川　大和',
-    avatar: require('./../images/man6.jpg'),
-    cnt: 0
-  },
-  {
-    name: '曽我　湊',
-    avatar: require('./../images/man7.jpg'),
-    cnt: 1
-  },
-  {
-    name: '西村　新',
-    avatar: require('./../images/man8.jpg'),
-    cnt: 0
-  }
-]
+import BaseComponent from "./components/BaseComponent"
+import InAppHeader from "./components/InAppHeader"
 
-export default class ChatSelectForm extends Component {
-  state = {
-    open: false,
-    open2: false,
-    anchor: 'left',
-    activeStep1: {},
-    activeStep2: {},
-    activeStep3: {},
-    activeStep4: {},
-    activeStep5: {},
-    completed: {},
-    comment: {},
-    coin: 0,
-    tohyoCoin: 0,
-    headList: [],
-    resultList: [],
-    userid: null,
-    password: null,
-    tShainPk: 0,
-    imageFileName: null,
-    shimei: null,
-    kengenCd: null,
-    configCoin: 0
-  }
+const restdomain = require("./common/constans.js").restdomain
+const restdomain_ws = require("./common/constans.js").restdomain_ws
+const socket = io(restdomain_ws, { secure: true, transports: ["websocket"] })
+
+export default class ChatSelectForm extends BaseComponent {
   constructor(props) {
-    super(props)
-    this.state = {}
+    super()
+    this.state = {
+      resultList: []
+    }
   }
-  /** コンポーネントのマウント時処理 */
-  async componentWillMount() {}
 
-  onPressLogoutButton = () => {
-    this.props.navigation.navigate('Login')
+  /** コンポーネントのマウント時処理 */
+  componentWillMount = async () => {
+    // チャットメッセージの受信（websocket）
+    socket.off("comcomcoin_chat")
+    socket.on("comcomcoin_chat",
+      async function (message) {
+        // チャットを受信した際に、一覧を再表示する
+        await this.findChatUser()
+      }.bind(this)
+    )
+
+    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus())
+
+    // 画面遷移時処理（後処理）
+    this.props.navigation.addListener("willBlur", () => this.onwillBlur())
   }
-  onPressMenuButton = () => {
-    this.props.navigation.navigate('Menu')
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
+
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
+
+    // websocket切断
+    if (socket.connected) {
+      socket.close()
+      socket.disconnect()
+    }
+
+    // websocket接続
+    socket.connect()
+
+    // チャットルーム（自分の社員PK）に接続
+    socket.emit("join", this.state.loginShainPk)
+
+    // 初期表示情報取得
+    this.findChatUser()
   }
-  onPressLoginGroupButton = () => {
-    this.props.navigation.navigate('LoginGroup')
+
+  /** 画面遷移時処理（後処理） */
+  onwillBlur = async () => {
+    if (!socket.disconnected) {
+      // websocket切断
+      socket.close()
+      socket.disconnect()
+    }
   }
-  onPressChatButton = () => {
-    this.props.navigation.navigate('Chat')
+
+  /** 画面初期表示情報取得 */
+  findChatUser = async () => {
+    await fetch(restdomain + "/chat_select/find", {
+      method: "POST",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" })
+    })
+      .then(function (response) {
+        return response.json()
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === "undefined") {
+            return
+          }
+          // 検索結果の取得
+          var dataList = json.data
+          this.setState({ resultList: dataList })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
-  onPressChatSelectButton = () => {
-    this.props.navigation.navigate('ChatSelect')
+
+  /** チャットユーザー選択 */
+  onPressChatMsgButton = (e, t_shain_Pk, shimei, image_file_nm, expo_push_token) => {
+    // チャット画面に遷移
+    this.props.navigation.navigate("ChatMsg", {
+      fromShainPk: t_shain_Pk,
+      fromShimei: shimei,
+      fromImageFileNm: image_file_nm,
+      fromExpoPushToken: expo_push_token
+    })
   }
-  onPressChatMsgButton = () => {
-    this.props.navigation.navigate('ChatMsg')
-  }
-  onPressHomeButton = () => {
-    this.props.navigation.navigate('Home')
-  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          leftComponent={
-            <Icon
-              name={'chevron-left'}
-              type={'font-awesome'}
-              color="#fff"
-              onPress={this.onPressMenuButton}
-            />
-          }
-          centerComponent={
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <View>
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: '#FFFFFF',
-                    textAlign: 'center'
-                  }}
-                >
-                  チャット選択
-                </Text>
-              </View>
-            </View>
-          }
-          backgroundColor="#ff5622"
-          // style={styles.header}
-        />
+        {/* -- 共有ヘッダ -- */}
+        <InAppHeader navigate={this.props.navigation.navigate} />
+
         <ScrollView>
-          <Card containerStyle={{ padding: 0 }}>
-            {users.map((u, i) => {
-              if (u.cnt === 0) {
-                return (
-                  <ListItem
-                    key={i}
-                    roundAvatar
-                    title={u.name}
-                    titleStyle={{ fontSize: 20 }}
-                    avatar={u.avatar}
-                  />
-                )
-              } else {
-                return (
-                  <ListItem
-                    key={i}
-                    roundAvatar
-                    title={u.name}
-                    titleStyle={{ fontSize: 20 }}
-                    avatar={u.avatar}
-                    badge={{
-                      value: u.cnt,
-                      textStyle: { color: 'orange' }
-                    }}
-                  />
-                )
-              }
-            })}
-          </Card>
+          {/* -- リスト -- */}
+          {/* 未読が0件の場合はバッジを非表示にする */}
+          {this.state.resultList.map(n => {
+            if (n.new_info_cnt == 0) {
+              return (
+                <ListItem
+                  key={n.t_shain_pk}
+                  roundAvatar
+                  title={n.shimei}
+                  titleStyle={{ fontSize: 20 }}
+                  avatar={<Avatar rounded medium source={{ uri: restdomain + `/uploads/${n.image_file_nm}` }} />}
+                  onPress={e =>
+                    this.onPressChatMsgButton(
+                      e,
+                      `${n.t_shain_pk}`,
+                      `${n.shimei}`,
+                      `${n.image_file_nm}`,
+                      `${n.expo_push_token}`
+                    )
+                  }
+                />
+              )
+            } else {
+              return (
+                <ListItem
+                  key={n.t_shain_pk}
+                  roundAvatar
+                  title={n.shimei}
+                  titleStyle={{ fontSize: 20 }}
+                  avatar={<Avatar rounded medium source={{ uri: restdomain + `/uploads/${n.image_file_nm}` }} />}
+                  badge={{
+                    value: n.new_info_cnt,
+                    textStyle: { color: "#FFFFFF" },
+                    containerStyle: { backgroundColor: "#ff5622" }
+                  }}
+                  onPress={e =>
+                    this.onPressChatMsgButton(
+                      e,
+                      `${n.t_shain_pk}`,
+                      `${n.shimei}`,
+                      `${n.image_file_nm}`,
+                      `${n.expo_push_token}`
+                    )
+                  }
+                />
+              )
+            }
+          })}
         </ScrollView>
       </View>
     )
@@ -205,24 +172,7 @@ export default class ChatSelectForm extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
-  },
-  header: {},
-  menu_item: {
-    flexDirection: 'row',
-    marginTop: 30,
-    marginLeft: 30,
-    marginRight: 30
-  },
-  menu_icon: {
-    width: 50,
-    height: 50
-  },
-  menu_button: {},
-  menu_icon_view: {},
-  menu_button_view: {
     flex: 1,
-    flexDirection: 'column',
-    marginLeft: 10
+    backgroundColor: "ivory"
   }
 })

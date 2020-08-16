@@ -1,108 +1,123 @@
 import React, { Component } from 'react'
-import { View, Text, Button } from 'react-native'
-import { Provider, connect } from 'react-redux' // 5.0.6
-import { createStore, combineReducers } from 'redux' // 3.7.2
-import { createStackNavigator, createAppContainer } from 'react-navigation' // 1.0.0-beta.21
-import { sampleReducer } from './reducers/sampleReducer'
-import { coinShokaiReducer } from './reducers/coin_shokai'
-import HomeForm from './view/Home'
-import NextForm from './view/Next'
-import CarouselForm from './view/carousel'
-import KeyboardForm from './view/Keyboard'
-import LoginForm from './view/login'
-import MenuForm from './view/menu'
-import TohyoTorokuForm from './view/tohyo_toroku'
-import TohyoShokaiForm from './view/tohyo_shokai'
-import TohyoShokaiShosaiForm from './view/tohyo_shokai_shosai'
-import CoinShokaiForm from './view/coin_shokai'
-import CoinZoyoForm from './view/coin_zoyo'
-import CommentShokaiForm from './view/comment_shokai'
-import TohyoIchiranForm from './view/tohyo_ichiran'
+import { AsyncStorage, AppState } from 'react-native'
+import { createStackNavigator, createAppContainer } from 'react-navigation'
+import * as Permissions from 'expo-permissions'
+import { Notifications } from 'expo'
 
-import MenuPh2Form from './view/menu_ph2'
-import LoginGroupForm from './view/login_group'
-import ChatForm from './view/chat_slack'
+// テスト用メニュー画面
+import MenuForm from './view/Menu'
+// ログイン機能
+import LoginGroupForm from './view/LoginGroup'
+import LoginForm from './view/Login'
+// ホーム機能
+import HomeForm from './view/Home'
+import HomeAdvertiseForm from './view/HomeAdvertise'
+import HomeInfoListForm from './view/HomeInfoList'
+import HomeInformationForm from './view/HomeInformation'
+import HomeArticleListForm from './view/HomeArticleList'
+// チャット機能
 import ChatSelectForm from './view/chat_select'
 import ChatMsgForm from './view/chat_msg'
 import ChatCoinForm from './view/chat_coin'
-
-import KijiForm from './view/kiji'
+// 記事機能
+import ArticleSelectForm from './view/ArticleSelect'
+import ArticleReferForm from './view/ArticleRefer'
+import ArticleEntryForm from './view/ArticleEntry'
+// ショッピング機能
 import ShoppingForm from './view/shopping'
-import LoginGroupForm2 from './view/login_group2'
-import LoginForm2 from './view/login2'
-import HomeForm2 from './view/home2'
-import KokokuForm from './view/kokoku'
-import OshiraseForm from './view/oshirase'
-import OshiraseShosaiForm from './view/oshirase2'
-import SaishinKijiForm from './view/saishinKiji'
-import NinkiKijiForm from './view/ninkiKiji'
 
 /******* Navigator *******/
-
-var HomeNavigator = createStackNavigator(
-  {
-    Home: { screen: HomeForm },
-    NextScreen: { screen: NextForm },
-    CarouselScreen: { screen: CarouselForm },
-    KeyboardScreen: { screen: KeyboardForm },
-    Login: { screen: LoginForm },
-    Menu: { screen: MenuForm },
-    TohyoToroku: { screen: TohyoTorokuForm },
-    TohyoIchiran: { screen: TohyoIchiranForm },
-    TohyoShokai: { screen: TohyoShokaiForm },
-    TohyoShokaiShosai: { screen: TohyoShokaiShosaiForm },
-    CoinShokai: { screen: CoinShokaiForm },
-    CoinZoyo: { screen: CoinZoyoForm },
-    CommentShokai: { screen: CommentShokaiForm },
-    MenuPh2: { screen: MenuPh2Form },
-    LoginGroup: { screen: LoginGroupForm },
-    Chat: { screen: ChatForm },
-    ChatSelect: { screen: ChatSelectForm },
-    ChatMsg: { screen: ChatMsgForm },
-    ChatCoin: { screen: ChatCoinForm },
-    Kiji: { screen: KijiForm },
-    Shopping: { screen: ShoppingForm },
-    LoginGroup2: { screen: LoginGroupForm2 },
-    Login2: { screen: LoginForm2 },
-    Home2: { screen: HomeForm2 },
-    Kokoku: { screen: KokokuForm },
-    Oshirase: { screen: OshiraseForm },
-    OshiraseShosai: { screen: OshiraseShosaiForm },
-    SaishinKiji: { screen: SaishinKijiForm },
-    NinkiKiji: { screen: NinkiKijiForm }
-  },
-  {
-    //initialRouteName: 'MenuPh2',
-    initialRouteName: 'LoginGroup2',
-    defaultNavigationOptions: () => ({
-      header: null
-    })
-  }
-)
-
-const AppContainer = createAppContainer(HomeNavigator)
-
-/******* Set up store *******/
-
-const store = createStore(
-  combineReducers({
-    sample: sampleReducer,
-    coinShokai: coinShokaiReducer
-  })
-)
-
-/**************/
+export const createRootNavigator = (load) => {
+  var HomeNavigator = createStackNavigator(
+    {
+      Menu: { screen: MenuForm },
+      LoginGroup: { screen: LoginGroupForm },
+      Login: { screen: LoginForm },
+      Home: { screen: HomeForm },
+      HomeAdvertise: { screen: HomeAdvertiseForm },
+      HomeInfoList: { screen: HomeInfoListForm },
+      HomeInformation: { screen: HomeInformationForm },
+      HomeArticleList: { screen: HomeArticleListForm },
+      ChatSelect: { screen: ChatSelectForm },
+      ChatMsg: { screen: ChatMsgForm },
+      ChatCoin: { screen: ChatCoinForm },
+      ArticleSelect: { screen: ArticleSelectForm },
+      ArticleRefer: { screen: ArticleReferForm },
+      ArticleEntry: { screen: ArticleEntryForm },
+      Shopping: { screen: ShoppingForm },
+    },
+    {
+      initialRouteName: load,
+      defaultNavigationOptions: () => ({
+        header: null
+      })
+    }
+  )
+  return createAppContainer(HomeNavigator)
+}
 
 export default class App extends Component {
+  constructor(props) {
+    super(props)
+
+    // // プッシュ通知をタップしてアプリを起動すると、「props.notification」に情報が入ってくる
+    // if (props.notification) {
+    //   Notifications.dismissNotificationAsync(props.exp.notification.notificationId)
+    //   // alert(props.exp.notification.notificationId + " " + JSON.stringify(props.exp.notification))
+    //   let notification = JSON.parse(props.notification)
+    //   // チャット情報を保持し、スタート画面から直接チャット画面に遷移できるようにする
+    //   if (!isNaN(notification.fromShainPk)) {
+    //     let chatInfo = {
+    //       fromShainPk: notification.fromShainPk,
+    //       fromShimei: notification.fromShimei,
+    //       fromImageFileNm: notification.fromImageFileNm,
+    //       fromExpoPushToken: notification.fromExpoPushToken
+    //     }
+    //     this.setChatInfo(JSON.stringify(chatInfo))
+    //     // alert(JSON.stringify(chatInfo))
+    //   }
+    // }
+  }
+
   state = {
-    saveFlg: false
+    load: "LoginGroup"
+    // load: "Menu"
   }
 
   async componentWillMount() {
-    var groupInfo = await this.getGroupInfo()
-    if (groupInfo != null) {
-      this.setState({ saveFlg: groupInfo['saveFlg'] })
+    // Push通知のトークンを取得
+    const { status: existingStatus } = await Permissions.getAsync(
+      Permissions.NOTIFICATIONS
+    )
+    let finalStatus = existingStatus
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+      finalStatus = status
     }
+    if (finalStatus === 'granted') {
+      let token = await Notifications.getExpoPushTokenAsync()
+      await AsyncStorage.setItem('expo_push_token', token)
+    }
+
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
+
+    // アプリがバックグラウンド→フォアグラウンドになった場合に未読件数を消すイベントを関連付け
+    AppState.addEventListener("change", this.handleAppStateChange)
+  }
+
+  /** バックグラウンド→フォアグラウンドの切り替え */
+  handleAppStateChange = (nextAppState) => {
+    // アプリの未読件数をクリア
+    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+      if (badgeNumber !== 0) {
+        Notifications.setBadgeNumberAsync(0)
+      }
+    })
   }
 
   getGroupInfo = async () => {
@@ -113,15 +128,30 @@ export default class App extends Component {
     }
   }
 
+  getLoginInfo = async () => {
+    try {
+      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
+    } catch (error) {
+      return
+    }
+  }
+
+  setChatInfo = async (chatInfo) => {
+    try {
+      await AsyncStorage.setItem('chatInfo', chatInfo)
+    } catch (error) {
+      return
+    }
+  }
+
   render() {
+    const AppContainer = createRootNavigator(this.state.load)
     return (
-      <Provider store={store}>
-        <AppContainer
-          ref={nav => {
-            this.navigator = nav
-          }}
-        />
-      </Provider>
+      <AppContainer
+        ref={nav => {
+          this.navigator = nav
+        }}
+      />
     )
   }
 }

@@ -160,7 +160,7 @@ async function tTohyoJohoGet(req, paramTPresenterPk) {
           } else {
             sumCoin += datas[i].hyoka
           }
-        }
+	}
 
         console.log('----------')
         console.log('sumCoin:' + sumCoin)

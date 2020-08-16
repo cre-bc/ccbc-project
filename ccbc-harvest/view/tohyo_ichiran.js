@@ -21,8 +21,7 @@ export default class TohyoIchiran extends Component {
       saveFlg: false,
       group_id: '',
       db_name: '',
-      bc_addr: '',
-      resultList: []
+      bc_addr: ''
     }
   }
 
@@ -78,11 +77,11 @@ export default class TohyoIchiran extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function (response) {
+      .then(function(response) {
         return response.json()
       })
       .then(
-        function (json) {
+        function(json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -157,7 +156,6 @@ export default class TohyoIchiran extends Component {
             extraData={this.state.resultList}
             renderItem={({ item }) => (
               <ListItem
-                key={item.t_senkyo_pk}
                 title={item.senkyo_nm}
                 subtitle={
                   moment(new Date(item.tohyo_kaishi_dt))

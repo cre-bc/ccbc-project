@@ -1,3 +1,6 @@
+# Mac
+.DS_Store
+
 # Logs
 logs
 *.log
@@ -59,3 +62,8 @@ typings/
 
 # next.js build output
 .next
+
+# 固有の除外ファイル
+ccbc-comcomcoin/.expo/*
+ccbc-rest/public/uploads/advertise/*
+ccbc-rest/public/uploads/article/*

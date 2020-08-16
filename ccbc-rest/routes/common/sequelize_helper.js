@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 
 exports.sequelize = new Sequelize(
-  process.env.DATABASE_URL_HARVEST,
+  process.env.CCBC_DATABASE_URL_HARVEST,
   {
     dialect: 'postgres',
     operatorsAliases: false,
@@ -10,7 +10,7 @@ exports.sequelize = new Sequelize(
 )
 
 exports.sequelize2 = new Sequelize(
-  process.env.DATABASE_URL_HARVEST_GROUP,
+  process.env.CCBC_DATABASE_URL_HARVEST_GROUP,
   {
     dialect: 'postgres',
     operatorsAliases: false,
@@ -19,14 +19,23 @@ exports.sequelize2 = new Sequelize(
 )
 
 exports.sequelize3 = function(db_name) {
-  console.log('sequelize3')
-  console.log('db_name:' + db_name)
+  console.log('DBInfo:' + process.env.CCBC_DATABASE_URL + db_name)
   return new Sequelize(
-    process.env.DATABASE_URL + '/' + db_name,
+    process.env.CCBC_DATABASE_URL + db_name,
     {
       dialect: 'postgres',
       operatorsAliases: false,
       timezone: '+09:00'
     }
   )
+}
+
+exports.sequelizeDB = function(req) {
+  var db
+  if (req.body.db_name != null && req.body.db_name != '') {
+    db = this.sequelize3(req.body.db_name)
+  } else {
+    db = this.sequelize
+  }
+  return db
 }

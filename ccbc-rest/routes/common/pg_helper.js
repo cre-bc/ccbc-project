@@ -6,7 +6,7 @@
  */
 exports.query = function(sql, values, callback) {
   console.log(sql, values)
-  const databaseURL = process.env.DATABASE_URL
+  const databaseURL = process.env.CCBC_DATABASE_URL_HARVEST
   const pg = require('pg')
   const client = new pg.Client(databaseURL)
   client.connect(err => {

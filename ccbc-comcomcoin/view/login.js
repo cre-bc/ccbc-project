@@ -25,7 +25,8 @@ export default class Login extends Component {
       saveFlg: false,
       group_id: '',
       db_name: '',
-      bc_addr: ''
+      bc_addr: '',
+      expo_push_token: ''
     }
   }
 
@@ -39,6 +40,7 @@ export default class Login extends Component {
     this.setState({ group_id: groupInfo['group_id'] })
     this.setState({ db_name: groupInfo['db_name'] })
     this.setState({ bc_addr: groupInfo['bc_addr'] })
+    this.setState({ expo_push_token: await AsyncStorage.getItem('expo_push_token') })
   }
 
   getGroupInfo = async () => {
@@ -73,11 +75,11 @@ export default class Login extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -89,13 +91,14 @@ export default class Login extends Component {
               password: this.state.passwordInput,
               tShainPk: resList.t_shain_pk,
               imageFileName: resList.image_file_nm,
+              bcAccount: resList.bc_account,
               shimei: resList.shimei,
               kengenCd: resList.kengen_cd,
               tokenId: json.token
             }
             this.setLoginInfo(JSON.stringify(loginInfo))
 
-            this.props.navigation.navigate('Menu')
+            this.props.navigation.navigate('Home')
           } else {
             this.setState({
               msg: 'ユーザ名またはパスワードを確認してください'
@@ -115,7 +118,7 @@ export default class Login extends Component {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={require('./../images/title.jpg')}
+          source={require('./../images/title2.jpg')}
           style={styles.backgroud_image}
         >
           <View
@@ -129,7 +132,14 @@ export default class Login extends Component {
             }}
           >
             <View>
-              <Image source={require('./../images/HARVEST.png')} />
+              <Image
+                style={{
+                  height: 40,
+                  width: 350
+                }}
+                resizeMode="contain"
+                source={require('./../images/ComComCoin_logo.png')}
+              />
             </View>
           </View>
           <Card>
@@ -149,12 +159,17 @@ export default class Login extends Component {
                 title="login"
                 onPress={this.onPressButton}
                 icon={{ name: 'sign-in', type: 'font-awesome' }}
+                buttonStyle={{
+                  borderColor: 'transparent',
+                  borderWidth: 0,
+                  borderRadius: 5
+                }}
               />
               <Text style={{ color: 'red' }}>{this.state.msg}</Text>
             </View>
             <View>
               <Text style={{ textAlign: 'right' }}>
-                　※ID、パスワード紛失時は管理者に連絡してください
+                ※ID、パスワード紛失時は管理者に連絡してください
               </Text>
             </View>
           </Card>
