@@ -55,43 +55,9 @@ import Assessment from '@material-ui/icons/Assessment'
 import NavigationIcon from '@material-ui/icons/Navigation'
 import ListIcon from '@material-ui/icons/List'
 
+const restdomain = require('../common/constans.js').restdomain
+
 /** 検索部分のリストボックス */
-const ranges1 = [
-  {
-    value: '操作者１',
-    label: '井上　卓'
-  },
-  {
-    value: '操作者２',
-    label: '角谷　貴之'
-  },
-  {
-    value: '操作者３',
-    label: '吉田　裕一'
-  },
-  {
-    value: '操作者４',
-    label: '事務局'
-  }
-]
-const ranges2 = [
-  {
-    value: '取引相手１',
-    label: '井上　卓'
-  },
-  {
-    value: '取引相手２',
-    label: '角谷　貴之'
-  },
-  {
-    value: '取引相手３',
-    label: '吉田　裕一'
-  },
-  {
-    value: '取引相手４',
-    label: '事務局'
-  }
-]
 const ranges3 = [
   {
     value: 'イベント１',
@@ -108,20 +74,6 @@ const ranges3 = [
   {
     value: 'イベント４',
     label: 'HARVEST投票'
-  }
-]
-const ranges4 = [
-  {
-    value: '年度１',
-    label: '2019年度'
-  },
-  {
-    value: '年度２',
-    label: '2018年度'
-  },
-  {
-    value: '年度３',
-    label: '2017年度'
   }
 ]
 
@@ -396,30 +348,93 @@ class ComCoinShokaiForm extends React.Component {
   state = {
     open: false,
     open2: false,
-    anchor: 'left'
+    anchor: 'left',
+    year: '',
+    date_start: '',
+    date_end: '',
+    operator: '',
+    trading_partner: '',
+    trading_type: '',
+    event_type: '',
+    selectedValue: '',
+    weightRange: ''
   }
 
-  handleChange5 = event => {
-    this.setState({ selectedValue: event.target.value })
+  constructor(props) {
+    super(props)
+    const params = this.props.match
+    this.state = {
+      nendoList: [],
+      resultList: [],
+      shainList: [],
+      yearList: [],
+      getCoinAllList: [],
+      getCoinList: [],
+      takeCoinAllList: [],
+      takeCoinList: [],
+      allGetCoin: 0,
+      getCoin: 0,
+      allTakeCoin: 0,
+      takeCoin: 0,
+      happyoSu: '',
+      year_info: '',
+      target_manager: '',
+      selectList: [],
+      target_select: 0,
+      jimukyokuList: [],
+      target_jimukyoku: 0,
+      tableData: [],
+      tableHead: [],
+      kengenCd: null,
+      checked: false,
+      userid: null,
+      password: null,
+      tShainPk: 0,
+      imageFileName: null,
+      shimei: null,
+      saveFlg: false,
+      group_id: '',
+      db_name: '',
+      bc_addr: ''
+    }
   }
 
   handleChange = prop => event => {
     this.setState({ [prop]: event.target.value })
+    this.setState({ year: event.target.value })
+  }
+
+  handleChange_date_start = event => {
+    this.setState({ date_start: event.target.value })
+  }
+
+  handleChange_date_end = event => {
+    this.setState({ date_end: event.target.value })
   }
 
   handleChange2 = prop => event => {
     this.setState({ [prop]: event.target.value })
+    this.setState({ operator: event.target.value })
   }
 
   handleChange3 = prop => event => {
     this.setState({ [prop]: event.target.value })
+    this.setState({ trading_partner: event.target.value })
   }
 
   handleChange4 = prop => event => {
     this.setState({ [prop]: event.target.value })
+    this.setState({ trading_type: event.target.value })
   }
+
+  handleChange5 = prop => event => {
+    this.setState({ [prop]: event.target.value })
+    this.setState({ event_type: event.target.value })
+  }
+
   handleChange6 = prop => event => {
     this.setState({ [prop]: event.target.value })
+    this.setState({ selectedValue: event.target.value })
   }
 
   handleMouseDownPassword = event => {
@@ -442,6 +457,69 @@ class ComCoinShokaiForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
+
+    // 初期表示情報取得
+    this.findCoinShokai()
+
+  }
+
+  findCoinShokai = async () => {
+    await fetch(restdomain + '/com_coin_shokai/find', {
+      method: 'POST',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(function (response) {
+        return response.json()
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.getCoinDatas === 'undefined') {
+            return
+          }
+          // 検索結果の取得
+          var resList = json.getCoinDatas
+          var resList2 = json.shainDatas
+          var resList3 = json.nendoDatas
+          var tableData_copy = []
+          for (var i in resList) {
+            tableData_copy.push([
+              resList[i].insert_tm,
+              resList[i].title,
+              resList[i].shimei,
+              resList[i].coin,
+              i
+            ])
+          }
+          this.setState({ tableData: tableData_copy })
+
+          for (var i in resList2) {
+            this.state.shainList.push({
+              label: resList2[i].shimei,
+              value: resList2[i].t_shain_pk
+            })
+          }
+          for (var i in resList3) {
+            this.state.yearList.push({
+              label: resList3[i] + '年',
+              value: resList3[i]
+            })
+          }
+          this.setState({ getCoinAllList: json.getCoinDatasAll })
+          this.setState({ getCoinList: resList })
+          this.setState({ takeCoinAllList: json.takeCoinDatasAll })
+          this.setState({ takeCoinList: json.takeCoinDatas })
+          this.setState({
+            getCoin: '受領コイン計：' + json.getCoinSu
+          })
+          this.setState({
+            takeCoin: '授与コイン計：' + json.takeCoinSu
+          })
+          // this.setState({ happyoSu: json.happyoSu })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
   }
 
   handleDrawerOpen = () => {
@@ -488,8 +566,8 @@ class ComCoinShokaiForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -515,8 +593,8 @@ class ComCoinShokaiForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -606,7 +684,7 @@ class ComCoinShokaiForm extends React.Component {
                 </h>
                 <Radio
                   checked={this.state.selectedValue === 'a'}
-                  onChange={this.handleChange5}
+                  onChange={this.handleChange6}
                   value="a"
                   color="default"
                   name="radio-button-demo"
@@ -626,7 +704,7 @@ class ComCoinShokaiForm extends React.Component {
                 </h>
                 <Radio
                   checked={this.state.selectedValue === 'b'}
-                  onChange={this.handleChange5}
+                  onChange={this.handleChange6}
                   value="b"
                   color="default"
                   name="radio-button-demo"
@@ -652,7 +730,7 @@ class ComCoinShokaiForm extends React.Component {
                     startAdornment: <InputAdornment position="start" />
                   }}
                 >
-                  {ranges4.map(option => (
+                  {this.state.yearList.map(option => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
                     </MenuItem>
@@ -665,6 +743,7 @@ class ComCoinShokaiForm extends React.Component {
                   type="date"
                   defaultValue="2019-6-23"
                   className={classes.textField}
+                  onChange={this.handleChange_date_start}
                   InputLabelProps={{
                     shrink: true
                   }}
@@ -675,6 +754,7 @@ class ComCoinShokaiForm extends React.Component {
                   type="date"
                   defaultValue="2019-6-23"
                   className={classes.textField}
+                  onChange={this.handleChange_date_end}
                   InputLabelProps={{
                     shrink: true
                   }}
@@ -692,7 +772,7 @@ class ComCoinShokaiForm extends React.Component {
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
-                {ranges1.map(option => (
+                {this.state.shainList.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -704,12 +784,12 @@ class ComCoinShokaiForm extends React.Component {
                 label="取引相手"
                 className={classNames(classes.margin, classes.textField)}
                 value={this.state.weightRange3}
-                onChange={this.handleChange3('weightRange3')}
+                onChange={this.handleChange3("weightRange3")}
                 InputProps={{
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
-                {ranges2.map(option => (
+                {this.state.shainList.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
@@ -719,8 +799,8 @@ class ComCoinShokaiForm extends React.Component {
                 select
                 label="取引種類"
                 className={classNames(classes.margin, classes.textField)}
-                value={this.state.weightRange6}
-                onChange={this.handleChange6('weightRange6')}
+                value={this.state.weightRange4}
+                onChange={this.handleChange4('weightRange4')}
                 InputProps={{
                   startAdornment: <InputAdornment position="start" />
                 }}
@@ -736,8 +816,8 @@ class ComCoinShokaiForm extends React.Component {
                   select
                   label="イベント"
                   className={classNames(classes.margin, classes.textField)}
-                  value={this.state.weightRange4}
-                  onChange={this.handleChange4('weightRange4')}
+                  value={this.state.weightRange5}
+                  onChange={this.handleChange5('weightRange5')}
                   InputProps={{
                     startAdornment: <InputAdornment position="start" />
                   }}
