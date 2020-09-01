@@ -1003,12 +1003,12 @@ class ArticleForm extends React.Component {
                         src={this.state.srcImageUrl} />
                     )}
                   </div>
-                  <div style={{ width: 350, float: "left", padding: 10 }}>
+                  <div style={{ float: "left", padding: 10 }}>
                     {this.state.srcImageEdit && (
                       <ReactCrop
                         src={this.state.srcImageEdit}
                         crop={this.state.crop}
-                        style={{ maxWidth: 300 }}
+                        style={{ maxWidth: '90%' }}
                         ruleOfThirds
                         onImageLoaded={this.onImageLoaded}
                         onComplete={this.onCropComplete}
