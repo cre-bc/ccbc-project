@@ -150,18 +150,21 @@ function mshohinInsert(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
       "insert into m_shohin (shohin_code, shohin_nm1, shohin_nm2, coin, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm,seller_shain_pk,shohin_bunrui) " +
-      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, current_timestamp, ?, ?) ";
+      "VALUES (?, ?, ?, ?, ?, ?, current_timestamp, ?, ?, ?, ?) ";
 
     db.query(sql, {
       transaction: tx,
       replacements: [
-        req.body.title,
-        req.body.comment,
-        req.body.notice_dt,
+        req.body.shohin_code,
+        req.body.shohin_nm1,
+        req.body.shohin_nm2,
+        req.body.coin,
         "0",
         req.body.userid,
         null,
         null,
+        req.body.seller_shain,
+        req.body.shohin_bunrui,
       ],
     }).spread((datas, metadata) => {
       console.log("◆◆◆");
@@ -181,17 +184,20 @@ function mshohinInsert(tx, resdatas, req) {
 function mshohinUpdate(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "update m_shohin set shohin_code = ?, shohin_nm1 = ?, shohin_nm2 = ?, coin = ?, shohin_bunrui = ?, seller_shain_pk = ?" +
+      "update m_shohin set shohin_code = ?, shohin_nm1 = ?, shohin_nm2 = ?, coin = ?, shohin_bunrui = ?, seller_shain_pk = ?, " +
       "update_user_id = ?, update_tm = current_timestamp WHERE m_shohin_pk = ?";
 
     db.query(sql, {
       transaction: tx,
       replacements: [
-        req.body.title,
-        req.body.comment,
-        req.body.notice_dt,
+        req.body.shohin_code,
+        req.body.shohin_nm1,
+        req.body.shohin_nm2,
+        req.body.coin,
+        req.body.shohin_bunrui,
+        req.body.seller_shain,
         req.body.userid,
-        req.body.renban,
+        req.body.m_shohin_pk,
       ],
     }).spread((datas, metadata) => {
       console.log("◆◆◆◆");
@@ -210,11 +216,11 @@ function mshohinUpdate(tx, resdatas, req) {
  */
 function mshohinDelete(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
-    var sql = "update m_shohin set delete_flg = '1' WHERE renban = ?";
+    var sql = "update m_shohin set delete_flg = '1' WHERE m_shohin_pk = ?";
 
     db.query(sql, {
       transaction: tx,
-      replacements: [req.body.renban],
+      replacements: [req.body.m_shohin_pk],
     }).spread((datas, metadata) => {
       console.log("◆◆◆◆◆");
       console.log(datas);
