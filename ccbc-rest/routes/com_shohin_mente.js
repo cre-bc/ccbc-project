@@ -35,7 +35,7 @@ const query = (sql, params, res, req) => {
 
 /**
  *
- * 検索結果表示
+ * 検索結果表示（検索条件反映要）
  *
  */
 router.post("/find", (req, res) => {
