@@ -730,6 +730,28 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ seller_shain_pk: null });
   };
 
+  handleChangeShainList = (event) => {
+    // this.setState({ [event.target.name]: event.target.value });
+    // this.state.targetCode = Number(event.target.value);
+    request
+      .post(restdomain + "/com_shohin_mente/find")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.setState({ resultList: res.body.data });
+      });
+    this.setState({ selected: [] });
+    this.setState({ m_shohin_pk: null });
+    this.setState({ shohin_code: null });
+    this.setState({ shohin_bunrui: null });
+    this.setState({ shohin_bunrui_mei: null });
+    this.setState({ shohin_nm1: null });
+    this.setState({ shohin_nm2: null });
+    this.setState({ coin: null });
+    this.setState({ seller_shain_pk: null });
+  };
+
   handleSubmit = async () => {
     await fetch(restdomain + "/com_shohin_mente/create", {
       method: "POST",
@@ -1189,7 +1211,7 @@ class ComShohinMenteForm extends React.Component {
                     <Select
                       native
                       value={this.state.shohin_bunrui}
-                      onChange={this.handleChange}
+                      // onChange={this.handleChange}
                       input={
                         <Input
                           name="shohin_bunrui"
@@ -1198,7 +1220,6 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
-                      <option value={0} />
                       <option value={1}>菓子</option>
                       <option value={2}>飲料</option>
                       <option value={3}>食品</option>
@@ -1236,6 +1257,52 @@ class ComShohinMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_seller_shain.bind(this)}
                   />
+
+                  <FormControl>
+                    {/* <InputLabel shrink htmlFor="age-native-simple">
+                      販売社員ID
+                    </InputLabel> */}
+                    {/* <Select
+                      native
+                      value={this.state.seller_shain_pk}
+                      onChange={this.handleChangeShainList}
+                      input={
+                        <Input
+                          name="seller_shain_pk"
+                          id="seller_shain_pk"
+                          onChange={this.handleChange_seller_shain.bind(this)}
+                        />
+                      }
+                    >
+                      <option value={1}>事務局</option>
+                      <option value={24}>斉藤雅之</option>
+                      <option value={18}>坂本義和</option>
+                      <option value={34}>開地幸司</option>
+                      <option value={10}>山下祐里枝</option>
+                      <option value={15}>三上徹也</option>
+                      <option value={9}>山城博紀</option>
+                      <option value={20}>吉田潤</option>
+                      <option value={22}>角谷貴之</option>
+                      <option value={32}>所司麻衣子</option>
+                      <option value={33}>藤丸麻里</option>
+                      <option value={6}>石垣努</option>
+                      <option value={29}>泉川真人</option>
+                      <option value={35}>大山勲</option>
+                      <option value={31}>川浦啓佑</option>
+                      <option value={13}>小澤佳奈江</option>
+                      <option value={14}>佐々木唯</option>
+                      <option value={17}>佐藤源生</option>
+                      <option value={12}>佐藤充</option>
+                      <option value={23}>高橋卓馬</option>
+                      <option value={7}>田村映梨奈</option>
+                      <option value={11}>中川大輔</option>
+                      <option value={26}>中山貴博</option>
+                      <option value={30}>野崎卓由</option>
+                      <option value={28}>廣岡拓真</option>
+                      <option value={8}>吉田裕一</option>
+                      <option value={16}>渡邉孝徳</option>
+                    </Select> */}
+                  </FormControl>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseAdd} color="primary">
@@ -1285,7 +1352,7 @@ class ComShohinMenteForm extends React.Component {
                     <Select
                       native
                       value={this.state.shohin_bunrui}
-                      onChange={this.handleChange}
+                      // onChange={this.handleChange}
                       input={
                         <Input
                           name="shohin_bunrui"
@@ -1294,7 +1361,6 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
-                      <option value={0} />
                       <option value={1}>菓子</option>
                       <option value={2}>飲料</option>
                       <option value={3}>食品</option>
@@ -1331,10 +1397,56 @@ class ComShohinMenteForm extends React.Component {
                     id="seller_shain"
                     type="number"
                     label="販売社員ID"
-                    defaultValue={this.state.seller_shain}
+                    defaultValue={this.state.seller_shain_pk}
                     fullWidth
                     onChange={this.handleChange_seller_shain.bind(this)}
                   />
+
+                  <FormControl>
+                    {/* <InputLabel shrink htmlFor="age-native-simple">
+                      販売社員ID
+                    </InputLabel> */}
+                    {/* <Select
+                      native
+                      value={this.state.seller_shain_pk}
+                      onChange={this.handleChangeShainList}
+                      input={
+                        <Input
+                          name="seller_shain_pk"
+                          id="seller_shain_pk"
+                          onChange={this.handleChange_seller_shain.bind(this)}
+                        />
+                      }
+                    >
+                      <option value={1}>事務局</option>
+                      <option value={24}>斉藤雅之</option>
+                      <option value={18}>坂本義和</option>
+                      <option value={34}>開地幸司</option>
+                      <option value={10}>山下祐里枝</option>
+                      <option value={15}>三上徹也</option>
+                      <option value={9}>山城博紀</option>
+                      <option value={20}>吉田潤</option>
+                      <option value={22}>角谷貴之</option>
+                      <option value={32}>所司麻衣子</option>
+                      <option value={33}>藤丸麻里</option>
+                      <option value={6}>石垣努</option>
+                      <option value={29}>泉川真人</option>
+                      <option value={35}>大山勲</option>
+                      <option value={31}>川浦啓佑</option>
+                      <option value={13}>小澤佳奈江</option>
+                      <option value={14}>佐々木唯</option>
+                      <option value={17}>佐藤源生</option>
+                      <option value={12}>佐藤充</option>
+                      <option value={23}>高橋卓馬</option>
+                      <option value={7}>田村映梨奈</option>
+                      <option value={11}>中川大輔</option>
+                      <option value={26}>中山貴博</option>
+                      <option value={30}>野崎卓由</option>
+                      <option value={28}>廣岡拓真</option>
+                      <option value={8}>吉田裕一</option>
+                      <option value={16}>渡邉孝徳</option>
+                    </Select> */}
+                  </FormControl>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">

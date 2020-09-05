@@ -49,8 +49,6 @@ router.post("/find", (req, res) => {
   if (req.body.targetCode !== 0) {
     sql += " and shohin_bunrui = '" + req.body.targetCode + "'";
   }
-  // " and shohin_bunrui = " +
-  // req.body.shohin_bunrui +
   sql += " order by shohin_code asc";
   query(sql, params, res, req);
 });
@@ -166,7 +164,7 @@ function mshohinInsert(tx, resdatas, req) {
         req.body.userid,
         null,
         null,
-        req.body.seller_shain,
+        req.body.seller_shain_pk,
         req.body.shohin_bunrui,
       ],
     }).spread((datas, metadata) => {
@@ -198,7 +196,7 @@ function mshohinUpdate(tx, resdatas, req) {
         req.body.shohin_nm2,
         req.body.coin,
         req.body.shohin_bunrui,
-        req.body.seller_shain,
+        req.body.seller_shain_pk,
         req.body.userid,
         req.body.m_shohin_pk,
       ],
