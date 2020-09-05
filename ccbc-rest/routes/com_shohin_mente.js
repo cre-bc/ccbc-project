@@ -44,12 +44,15 @@ router.post("/find", (req, res) => {
   console.log("req.body.targetCode:" + req.body.targetCode);
   const params = [];
   var sql =
-    "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin, shohin_bunrui, seller_shain_pk, case when shohin_bunrui=1 THEN '菓子' when shohin_bunrui=2 THEN '飲料' when shohin_bunrui=3 THEN '食品' when shohin_bunrui=9 THEN 'その他' end as shohin_bunrui_mei from m_shohin" +
-    " where delete_flg = '0'";
+    "select msho.m_shohin_pk, msho.shohin_code, msho.shohin_nm1, msho.shohin_nm2, msho.coin, msho.shohin_bunrui, msho.seller_shain_pk, tsha.shimei, " +
+    "case when msho.shohin_bunrui=1 THEN '菓子' when msho.shohin_bunrui=2 THEN '飲料' when msho.shohin_bunrui=3 THEN '食品' when msho.shohin_bunrui=9 THEN 'その他' end as shohin_bunrui_mei " +
+    "from m_shohin msho" +
+    " left join t_shain tsha on msho.seller_shain_pk = tsha.t_shain_pk " +
+    " where msho.delete_flg = '0'";
   if (req.body.targetCode !== 0) {
-    sql += " and shohin_bunrui = '" + req.body.targetCode + "'";
+    sql += " and msho.shohin_bunrui = '" + req.body.targetCode + "'";
   }
-  sql += " order by shohin_code asc";
+  sql += " order by msho.shohin_code asc";
   query(sql, params, res, req);
 });
 

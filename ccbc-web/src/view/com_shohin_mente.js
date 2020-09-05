@@ -51,18 +51,16 @@ import EditIcon from "@material-ui/icons/Edit";
 import moment from "moment";
 import "moment/locale/ja";
 import request from "superagent";
-// import React, { Component } from "react";
-// import ReactDOM from "react-dom";
 import QRCode from "qrcode.react";
 
 const restdomain = require("../common/constans.js").restdomain;
 
-//createData,desc,getSortingは外だし、または、不要
-let counter = 0;
-function createData(date, name, tytle, calories, coin, qr) {
-  counter += 1;
-  return { id: counter, date, name, tytle, calories, coin, qr };
-}
+// //createData,desc,getSortingは外だし、または、不要
+// let counter = 0;
+// function createData(date, name, tytle, calories, coin, qr) {
+//   counter += 1;
+//   return { id: counter, date, name, tytle, calories, coin, qr };
+// }
 
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -93,7 +91,7 @@ const rows = [
     disablePadding: true,
     label: "商品分類",
   },
-  // { id: 'calorie', numeric: true, disablePadding: false, label: '内容' }
+
   {
     id: "calorie",
     numeric: false,
@@ -126,13 +124,7 @@ class EnhancedTableHead extends React.Component {
   };
 
   render() {
-    const {
-      // onSelectAllClick,
-      order,
-      orderBy,
-      numSelected,
-      rowCount,
-    } = this.props;
+    const { order, orderBy, numSelected, rowCount } = this.props;
 
     return (
       <TableHead>
@@ -141,7 +133,6 @@ class EnhancedTableHead extends React.Component {
             <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
-              // onChange={onSelectAllClick}
             />
           </TableCell>
           {rows.map((row) => {
@@ -178,7 +169,6 @@ class EnhancedTableHead extends React.Component {
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
@@ -230,21 +220,6 @@ let EnhancedTableToolbar = (props) => {
         )}
       </div>
       <div className={classes.spacer} />
-      {/* <div className={classes.actions}>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div> */}
     </Toolbar>
   );
 };
@@ -491,40 +466,8 @@ class ComShohinMenteForm extends React.Component {
       shohin_nm2: "",
       coin: "",
       seller_shain_pk: "",
+      shimei: "",
       targetCode: 0,
-      //dataはモック用のため、完成した際にコメントアウト
-      // data: [
-      //   createData(
-      //     1,
-      //     "000001",
-      //     "菓子",
-      //     "カルビー\r\nポテチうすしお60g",
-      //     "100コイン"
-      //   ),
-      //   createData(
-      //     2,
-      //     "000002",
-      //     "菓子",
-      //     "コイケヤ\r\nオーザックしお60g",
-      //     "50コイン"
-      //   ),
-      //   createData(3, "000003", "菓子", "明治\r\nチョコレート60g", "100コイン"),
-      //   createData(
-      //     4,
-      //     "000004",
-      //     "飲料水",
-      //     "大正製薬\r\nポカリ500ml",
-      //     "150コイン"
-      //   ),
-      //   createData(
-      //     5,
-      //     "000005",
-      //     "カップ麺",
-      //     "マルちゃん\r\n赤いきつね",
-      //     "200コイン"
-      //   ),
-      //   createData(6, "000006", "その他", "Apple\r\niPhone7", "800コイン"),
-      // ],
     };
   }
 
@@ -610,8 +553,6 @@ class ComShohinMenteForm extends React.Component {
       order = "asc";
     }
 
-    // this.setState({ order, orderBy });
-
     const resultList =
       order === "desc"
         ? this.state.resultList.sort((a, b) =>
@@ -631,32 +572,14 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
     this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
   };
-
-  // handleSelectAllClick = (event, checked) => {
-  //   if (checked) {
-  //     this.setState((state) => ({ selected: state.data.map((n) => n.id) }));
-  //     return;
-  //   }
-  //   this.setState({ selected: [] });
-  // };
 
   handleClick = (event, id) => {
     const { selected } = this.state;
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-    // if (selectedIndex === -1) {
-    //   newSelected = newSelected.concat(selected, id);
-    // } else if (selectedIndex === 0) {
-    //   newSelected = newSelected.concat(selected.slice(1));
-    // } else if (selectedIndex === selected.length - 1) {
-    //   newSelected = newSelected.concat(selected.slice(0, -1));
-    // } else if (selectedIndex > 0) {
-    //   newSelected = newSelected.concat(
-    //     selected.slice(0, selectedIndex),
-    //     selected.slice(selectedIndex + 1)
-    //   );
-    // }
+
     if (selectedIndex === -1) {
       newSelected.unshift(id);
     }
@@ -673,6 +596,7 @@ class ComShohinMenteForm extends React.Component {
       this.setState({ shohin_nm2: null });
       this.setState({ coin: null });
       this.setState({ seller_shain_pk: null });
+      this.setState({ shimei: null });
     } else {
       if (this.state.page == 1) id = id + 5;
       if (this.state.page == 2) id = id + 10;
@@ -688,6 +612,7 @@ class ComShohinMenteForm extends React.Component {
       this.setState({
         seller_shain_pk: this.state.resultList[id].seller_shain_pk,
       });
+      this.setState({ shimei: this.state.resultList[id].shimei });
     }
   };
 
@@ -702,6 +627,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
     this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
   };
 
   handleChangeRowsPerPage = (event) => {
@@ -728,11 +654,10 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
     this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
   };
 
   handleChangeShainList = (event) => {
-    // this.setState({ [event.target.name]: event.target.value });
-    // this.state.targetCode = Number(event.target.value);
     request
       .post(restdomain + "/com_shohin_mente/find")
       .send(this.state)
@@ -750,6 +675,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
     this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
   };
 
   handleSubmit = async () => {
@@ -787,6 +713,7 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
           this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -819,6 +746,7 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
           this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -851,6 +779,7 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
           this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -878,6 +807,10 @@ class ComShohinMenteForm extends React.Component {
 
   handleChange_seller_shain(e) {
     this.setState({ seller_shain_pk: e.target.value });
+  }
+
+  handleChange_shimei(e) {
+    this.setState({ shimei: e.target.value });
   }
 
   isSelected = (id) => this.state.selected.indexOf(id) !== -1;
@@ -1086,6 +1019,7 @@ class ComShohinMenteForm extends React.Component {
                               <TableCell padding="checkbox">
                                 <Checkbox checked={isSelected} />
                               </TableCell>
+                              {/* 一覧　商品コード */}
                               <TableCell
                                 component="th"
                                 scope="row"
@@ -1096,6 +1030,7 @@ class ComShohinMenteForm extends React.Component {
                                 {/* {n.m_shohin_pk} */}
                                 {n.shohin_code}
                               </TableCell>
+                              {/* 一覧　商品分類名称 */}
                               <TableCell
                                 component="th"
                                 scope="row"
@@ -1104,6 +1039,7 @@ class ComShohinMenteForm extends React.Component {
                               >
                                 {n.shohin_bunrui_mei}
                               </TableCell>
+                              {/* 一覧　商品名１と商品名２*/}
                               <TableCell
                                 component="th"
                                 scope="row"
@@ -1114,6 +1050,7 @@ class ComShohinMenteForm extends React.Component {
                                   {n.shohin_nm1} {n.shohin_nm2}
                                 </div>
                               </TableCell>
+                              {/* 一覧　コイン数*/}
                               <TableCell
                                 numeric
                                 component="th"
@@ -1125,6 +1062,7 @@ class ComShohinMenteForm extends React.Component {
                                   {n.coin}
                                 </div>
                               </TableCell>
+                              {/* 一覧　販売社員名称*/}
                               <TableCell
                                 numeric
                                 component="th"
@@ -1133,9 +1071,10 @@ class ComShohinMenteForm extends React.Component {
                                 style={{ width: "10%", fontSize: "120%" }}
                               >
                                 <div style={{ whiteSpace: "pre-line" }}>
-                                  {n.seller_shain_pk}
+                                  {n.shimei}
                                 </div>
                               </TableCell>
+                              {/* 一覧　ＱＲコード*/}
                               <TableCell
                                 component="th"
                                 scope="row"
@@ -1249,23 +1188,24 @@ class ComShohinMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_coin.bind(this)}
                   />
-                  <TextField
+                  {/* 直接コードを入力する場合*/}
+                  {/* <TextField
                     margin="normal"
                     id="seller_shain"
                     type="number"
                     label="販売社員ID"
                     fullWidth
                     onChange={this.handleChange_seller_shain.bind(this)}
-                  />
+                  /> */}
 
                   <FormControl>
-                    {/* <InputLabel shrink htmlFor="age-native-simple">
+                    <InputLabel shrink htmlFor="age-native-simple">
                       販売社員ID
-                    </InputLabel> */}
-                    {/* <Select
+                    </InputLabel>
+                    <Select
                       native
                       value={this.state.seller_shain_pk}
-                      onChange={this.handleChangeShainList}
+                      // onChange={this.handleChangeShainList}
                       input={
                         <Input
                           name="seller_shain_pk"
@@ -1274,6 +1214,7 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
+                      {/* プルダウン　今後ＤＢより取得する*/}
                       <option value={1}>事務局</option>
                       <option value={24}>斉藤雅之</option>
                       <option value={18}>坂本義和</option>
@@ -1301,7 +1242,7 @@ class ComShohinMenteForm extends React.Component {
                       <option value={28}>廣岡拓真</option>
                       <option value={8}>吉田裕一</option>
                       <option value={16}>渡邉孝徳</option>
-                    </Select> */}
+                    </Select>
                   </FormControl>
                 </DialogContent>
                 <DialogActions>
@@ -1392,7 +1333,8 @@ class ComShohinMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_coin.bind(this)}
                   />
-                  <TextField
+                  {/* 直接コードを入力する場合*/}
+                  {/* <TextField
                     margin="normal"
                     id="seller_shain"
                     type="number"
@@ -1400,16 +1342,16 @@ class ComShohinMenteForm extends React.Component {
                     defaultValue={this.state.seller_shain_pk}
                     fullWidth
                     onChange={this.handleChange_seller_shain.bind(this)}
-                  />
+                  /> */}
 
                   <FormControl>
-                    {/* <InputLabel shrink htmlFor="age-native-simple">
+                    <InputLabel shrink htmlFor="age-native-simple">
                       販売社員ID
-                    </InputLabel> */}
-                    {/* <Select
+                    </InputLabel>
+                    <Select
                       native
                       value={this.state.seller_shain_pk}
-                      onChange={this.handleChangeShainList}
+                      // onChange={this.handleChangeShainList}
                       input={
                         <Input
                           name="seller_shain_pk"
@@ -1418,6 +1360,7 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
+                      {/* プルダウン　今後ＤＢより取得する*/}
                       <option value={1}>事務局</option>
                       <option value={24}>斉藤雅之</option>
                       <option value={18}>坂本義和</option>
@@ -1445,7 +1388,7 @@ class ComShohinMenteForm extends React.Component {
                       <option value={28}>廣岡拓真</option>
                       <option value={8}>吉田裕一</option>
                       <option value={16}>渡邉孝徳</option>
-                    </Select> */}
+                    </Select>
                   </FormControl>
                 </DialogContent>
                 <DialogActions>
