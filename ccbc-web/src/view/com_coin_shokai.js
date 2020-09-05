@@ -60,34 +60,30 @@ const restdomain = require('../common/constans.js').restdomain
 /** 検索部分のリストボックス */
 const ranges3 = [
   {
-    value: 'イベント１',
-    label: 'チャット'
-  },
-  {
-    value: 'イベント２',
+    value: 'event2',
     label: '記事投稿'
   },
   {
-    value: 'イベント３',
-    label: 'ショッピングカート'
+    value: 'event3',
+    label: 'チャット'
   },
   {
-    value: 'イベント４',
-    label: 'HARVEST投票'
+    value: 'event4',
+    label: '買い物'
   }
 ]
 
 const ranges6 = [
   {
-    value: '取引種類１',
+    value: 'trade1',
     label: 'もらう'
   },
   {
-    value: '取引種類２',
+    value: 'trade2',
     label: 'あげる'
   },
   {
-    value: '取引種類３',
+    value: 'trade3',
     label: '両方'
   }
 ]
@@ -369,14 +365,10 @@ class ComCoinShokaiForm extends React.Component {
       shainList: [],
       yearList: [],
       getCoinAllList: [],
-      getCoinList: [],
-      takeCoinAllList: [],
-      takeCoinList: [],
       allGetCoin: 0,
       getCoin: 0,
       allTakeCoin: 0,
       takeCoin: 0,
-      happyoSu: '',
       year_info: '',
       target_manager: '',
       selectList: [],
@@ -444,6 +436,41 @@ class ComCoinShokaiForm extends React.Component {
   handleClickShowPassword = () => {
     this.setState(state => ({ showPassword: !state.showPassword }))
   }
+
+  handleSearch = async () => {
+    await fetch(restdomain + '/com_coin_shokai/findChange', {
+      method: 'POST',
+      body: JSON.stringify(this.state),
+      headers: new Headers({ 'Content-type': 'application/json' })
+    })
+      .then(function (response) {
+        return response.json()
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === 'undefined') {
+            return
+          }
+          // 検索結果の取得
+          var resList = json.getCoinDatas
+
+          var tableData_copy = []
+          for (var i in resList) {
+            tableData_copy.push([
+              resList[i].insert_tm,
+              resList[i].title,
+              resList[i].shimei,
+              resList[i].coin,
+              i
+            ])
+          }
+          this.setState({ tableData: tableData_copy })
+        }.bind(this)
+      )
+      .catch(error => console.error(error))
+  }
+
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
@@ -488,8 +515,7 @@ class ComCoinShokaiForm extends React.Component {
               resList[i].insert_tm,
               resList[i].title,
               resList[i].shimei,
-              resList[i].coin,
-              i
+              resList[i].coin
             ])
           }
           this.setState({ tableData: tableData_copy })
@@ -506,17 +532,6 @@ class ComCoinShokaiForm extends React.Component {
               value: resList3[i]
             })
           }
-          this.setState({ getCoinAllList: json.getCoinDatasAll })
-          this.setState({ getCoinList: resList })
-          this.setState({ takeCoinAllList: json.takeCoinDatasAll })
-          this.setState({ takeCoinList: json.takeCoinDatas })
-          this.setState({
-            getCoin: '受領コイン計：' + json.getCoinSu
-          })
-          this.setState({
-            takeCoin: '授与コイン計：' + json.takeCoinSu
-          })
-          // this.setState({ happyoSu: json.happyoSu })
         }.bind(this)
       )
       .catch(error => console.error(error))
@@ -835,33 +850,13 @@ class ComCoinShokaiForm extends React.Component {
                   variant="raised"
                   aria-label="Delete"
                   className={classes.button}
+                  onClick={this.handleSearch.bind(this)}
                 >
                   <PageviewIcon
                     className={classNames(classes.leftIcon, classes.iconSmall)}
                   />
                   検索
                 </Button>
-                {/*                 <Button
-                  size="midium"
-                  variant="raised"
-                  aria-label="Delete"
-                  className={classes.button}
-                >
-                  <ListIcon
-                    className={classNames(classes.leftIcon, classes.iconSmall)}
-                  />
-                  所持コイン
-                </Button>
-                <Button
-                  variant="raised"
-                  size="medium"
-                  className={classes.button}
-                >
-                  <Assessment
-                    className={classNames(classes.leftIcon, classes.iconSmall)}
-                  />
-                  グラフ
-                </Button> */}
               </div>
               <strong>
                 <h2>検索結果</h2>
@@ -900,7 +895,7 @@ class ComCoinShokaiForm extends React.Component {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.map(row => {
+                    {this.state.tableData.map(row => {
                       return (
                         <TableRow className={classes.row} key={row.id}>
                           <CustomTableCell
