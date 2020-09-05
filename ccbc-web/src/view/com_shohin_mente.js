@@ -85,37 +85,43 @@ const rows = [
     id: "name",
     numeric: false,
     disablePadding: true,
-    label: "商品コード"
+    label: "商品コード",
   },
   {
     id: "tytle",
     numeric: false,
     disablePadding: true,
-    label: "商品分類"
+    label: "商品分類",
   },
   // { id: 'calorie', numeric: true, disablePadding: false, label: '内容' }
   {
     id: "calorie",
     numeric: false,
     disablePadding: true,
-    label: "商品名"
+    label: "商品名",
   },
   {
     id: "coin",
     numeric: false,
     disablePadding: true,
-    label: "コイン"
+    label: "コイン",
+  },
+  {
+    id: "seller_shain_pk",
+    numeric: false,
+    disablePadding: true,
+    label: "販売社員",
   },
   {
     id: "qr",
     numeric: false,
     disablePadding: true,
-    label: ""
-  }
+    label: "",
+  },
 ];
 
 class EnhancedTableHead extends React.Component {
-  createSortHandler = property => event => {
+  createSortHandler = (property) => (event) => {
     this.props.onRequestSort(event, property);
   };
 
@@ -125,7 +131,7 @@ class EnhancedTableHead extends React.Component {
       order,
       orderBy,
       numSelected,
-      rowCount
+      rowCount,
     } = this.props;
 
     return (
@@ -138,7 +144,7 @@ class EnhancedTableHead extends React.Component {
               // onChange={onSelectAllClick}
             />
           </TableCell>
-          {rows.map(row => {
+          {rows.map((row) => {
             return (
               <TableCell
                 key={row.id}
@@ -175,41 +181,41 @@ EnhancedTableHead.propTypes = {
   // onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired
+  rowCount: PropTypes.number.isRequired,
 };
 
-const toolbarStyles = theme => ({
+const toolbarStyles = (theme) => ({
   root: {
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
   },
   highlight:
     theme.palette.type === "light"
       ? {
           color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
         }
       : {
           color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
+          backgroundColor: theme.palette.secondary.dark,
         },
   spacer: {
-    flex: "1 1 100%"
+    flex: "1 1 100%",
   },
   actions: {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
   },
   title: {
-    flex: "0 0 auto"
-  }
+    flex: "0 0 auto",
+  },
 });
 
-let EnhancedTableToolbar = props => {
+let EnhancedTableToolbar = (props) => {
   const { numSelected, classes } = props;
 
   return (
     <Toolbar
       className={classNames(classes.root, {
-        [classes.highlight]: numSelected > 0
+        [classes.highlight]: numSelected > 0,
       })}
     >
       <div className={classes.title}>
@@ -245,77 +251,77 @@ let EnhancedTableToolbar = props => {
 
 EnhancedTableToolbar.propTypes = {
   classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired
+  numSelected: PropTypes.number.isRequired,
 };
 
 EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar);
 
 const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   root2: {
     width: "100%",
-    marginTop: theme.spacing.unit * 3
+    marginTop: theme.spacing.unit * 3,
   },
   root3: {
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
   appFrame: {
     zIndex: 1,
     overflow: "hidden",
     position: "relative",
     display: "flex",
-    width: "100%"
+    width: "100%",
   },
   buttonFrame: {
     position: "static",
-    marginRight: 24
+    marginRight: 24,
   },
   buttonFrame2: {
     position: "static",
-    marginRight: 0
+    marginRight: 0,
   },
   appBar: {
     position: "absolute",
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
     transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   "appBarShift-left": {
-    marginLeft: drawerWidth
+    marginLeft: drawerWidth,
   },
   "appBarShift-right": {
-    marginRight: drawerWidth
+    marginRight: drawerWidth,
   },
   menuButton: {
     marginLeft: 12,
-    marginRight: 20
+    marginRight: 20,
   },
   hide: {
-    display: "none"
+    display: "none",
   },
   drawerPaper: {
     position: "relative",
-    width: drawerWidth
+    width: drawerWidth,
   },
   drawerHeader: {
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
     padding: "0 8px",
-    ...theme.mixins.toolbar
+    ...theme.mixins.toolbar,
   },
   content: {
     flexGrow: 1,
@@ -323,46 +329,46 @@ const styles = theme => ({
     padding: theme.spacing.unit * 3,
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   "content-left": {
-    marginLeft: -drawerWidth
+    marginLeft: -drawerWidth,
   },
   "content-right": {
-    marginRight: -drawerWidth
+    marginRight: -drawerWidth,
   },
   contentShift: {
     transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
   "contentShift-left": {
-    marginLeft: 0
+    marginLeft: 0,
   },
   "contentShift-right": {
-    marginRight: 0
+    marginRight: 0,
   },
   image: {
     position: "relative",
     height: 300,
     [theme.breakpoints.down("xs")]: {
       width: "100% !important", // Overrides inline-style
-      height: 100
+      height: 100,
     },
     "&:hover, &$focusVisible": {
       zIndex: 1,
       "& $imageBackdrop": {
-        opacity: 1
+        opacity: 1,
       },
       "& $imageMarked": {
-        opacity: 0
+        opacity: 0,
       },
       "& $imageTitle": {
-        border: "4px solid currentColor"
-      }
-    }
+        border: "4px solid currentColor",
+      },
+    },
   },
   focusVisible: {},
   imageButton: {
@@ -374,7 +380,7 @@ const styles = theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: theme.palette.common.white
+    color: theme.palette.common.white,
   },
   imageSrc: {
     position: "absolute",
@@ -384,7 +390,7 @@ const styles = theme => ({
     bottom: 0,
     backgroundSize: "contain",
     backgroundRepeat: "no-repeat",
-    backgroundPosition: "center 40%"
+    backgroundPosition: "center 40%",
   },
   imageBackdrop: {
     position: "absolute",
@@ -394,13 +400,14 @@ const styles = theme => ({
     bottom: 0,
     backgroundColor: theme.palette.common.black,
     opacity: 0.4,
-    transition: theme.transitions.create("opacity")
+    transition: theme.transitions.create("opacity"),
   },
   imageTitle: {
     position: "relative",
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme
-      .spacing.unit + 6}px`,
-    fontSize: "300%"
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
+      theme.spacing.unit + 6
+    }px`,
+    fontSize: "300%",
   },
   imageMarked: {
     height: 3,
@@ -409,34 +416,34 @@ const styles = theme => ({
     position: "absolute",
     bottom: -2,
     left: "calc(50% - 9px)",
-    transition: theme.transitions.create("opacity")
+    transition: theme.transitions.create("opacity"),
   },
   chip: {
     height: "300%",
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
   },
   appBarColorDefault: {
-    backgroundColor: "rgba(255, 136, 0, 0.92)"
+    backgroundColor: "rgba(255, 136, 0, 0.92)",
   },
   table: {
-    minWidth: 1020
+    minWidth: 1020,
   },
   tableWrapper: {
-    overflowX: "auto"
+    overflowX: "auto",
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 120
+    minWidth: 120,
   },
   selectEmpty: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing.unit * 2,
   },
   button: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
   },
   extendedIcon: {
-    marginRight: theme.spacing.unit
-  }
+    marginRight: theme.spacing.unit,
+  },
 });
 
 class ComShohinMenteForm extends React.Component {
@@ -452,7 +459,7 @@ class ComShohinMenteForm extends React.Component {
     orderBy: "name",
     selected: [],
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
   };
 
   constructor(props) {
@@ -483,7 +490,8 @@ class ComShohinMenteForm extends React.Component {
       shohin_nm1: "",
       shohin_nm2: "",
       coin: "",
-      seller_shain: ""
+      seller_shain_pk: "",
+      targetCode: 0,
       //dataはモック用のため、完成した際にコメントアウト
       // data: [
       //   createData(
@@ -562,7 +570,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ open2: !this.state.open2 });
   };
 
-  handleToggleClose = event => {
+  handleToggleClose = (event) => {
     if (this.target1.contains(event.target)) {
       return;
     }
@@ -606,11 +614,11 @@ class ComShohinMenteForm extends React.Component {
 
     const resultList =
       order === "desc"
-        ? this.state.resultList.sort(
-            (a, b) => (b[orderBy] < a[orderBy] ? -1 : 1)
+        ? this.state.resultList.sort((a, b) =>
+            b[orderBy] < a[orderBy] ? -1 : 1
           )
-        : this.state.resultList.sort(
-            (a, b) => (a[orderBy] < b[orderBy] ? -1 : 1)
+        : this.state.resultList.sort((a, b) =>
+            a[orderBy] < b[orderBy] ? -1 : 1
           );
 
     this.setState({ resultList, order, orderBy });
@@ -622,7 +630,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm1: null });
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
-    this.setState({ seller_shain: null });
+    this.setState({ seller_shain_pk: null });
   };
 
   // handleSelectAllClick = (event, checked) => {
@@ -664,7 +672,7 @@ class ComShohinMenteForm extends React.Component {
       this.setState({ shohin_nm1: null });
       this.setState({ shohin_nm2: null });
       this.setState({ coin: null });
-      this.setState({ seller_shain: null });
+      this.setState({ seller_shain_pk: null });
     } else {
       if (this.state.page == 1) id = id + 5;
       if (this.state.page == 2) id = id + 10;
@@ -672,12 +680,14 @@ class ComShohinMenteForm extends React.Component {
       this.setState({ shohin_code: this.state.resultList[id].shohin_code });
       this.setState({ shohin_bunrui: this.state.resultList[id].shohin_bunrui });
       this.setState({
-        shohin_bunrui_mei: this.state.resultList[id].shohin_bunrui_mei
+        shohin_bunrui_mei: this.state.resultList[id].shohin_bunrui_mei,
       });
       this.setState({ shohin_nm1: this.state.resultList[id].shohin_nm1 });
       this.setState({ shohin_nm2: this.state.resultList[id].shohin_nm2 });
       this.setState({ coin: this.state.resultList[id].coin });
-      this.setState({ coin: this.state.resultList[id].seller_shain });
+      this.setState({
+        seller_shain_pk: this.state.resultList[id].seller_shain_pk,
+      });
     }
   };
 
@@ -691,14 +701,14 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm1: null });
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
-    this.setState({ seller_shain: null });
+    this.setState({ seller_shain_pk: null });
   };
 
-  handleChangeRowsPerPage = event => {
+  handleChangeRowsPerPage = (event) => {
     this.setState({ rowsPerPage: event.target.value });
   };
 
-  handleChange = event => {
+  handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
     this.state.targetCode = Number(event.target.value);
     request
@@ -717,7 +727,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm1: null });
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
-    this.setState({ seller_shain: null });
+    this.setState({ seller_shain_pk: null });
   };
 
   handleSubmit = async () => {
@@ -725,13 +735,13 @@ class ComShohinMenteForm extends React.Component {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -754,10 +764,10 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm1: null });
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
-          this.setState({ seller_shain: null });
+          this.setState({ seller_shain_pk: null });
         }.bind(this)
       )
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   handleSubmitEdit = async () => {
@@ -765,13 +775,13 @@ class ComShohinMenteForm extends React.Component {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -786,10 +796,10 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm1: null });
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
-          this.setState({ seller_shain: null });
+          this.setState({ seller_shain_pk: null });
         }.bind(this)
       )
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   handleSubmitDelete = async () => {
@@ -797,13 +807,13 @@ class ComShohinMenteForm extends React.Component {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -818,10 +828,10 @@ class ComShohinMenteForm extends React.Component {
           this.setState({ shohin_nm1: null });
           this.setState({ shohin_nm2: null });
           this.setState({ coin: null });
-          this.setState({ seller_shain: null });
+          this.setState({ seller_shain_pk: null });
         }.bind(this)
       )
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   handleChange_shohin_code(e) {
@@ -845,10 +855,10 @@ class ComShohinMenteForm extends React.Component {
   }
 
   handleChange_seller_shain(e) {
-    this.setState({ seller_shain: e.target.value });
+    this.setState({ seller_shain_pk: e.target.value });
   }
 
-  isSelected = id => this.state.selected.indexOf(id) !== -1;
+  isSelected = (id) => this.state.selected.indexOf(id) !== -1;
 
   render() {
     const { classes, theme } = this.props;
@@ -862,14 +872,14 @@ class ComShohinMenteForm extends React.Component {
       selected,
       rowsPerPage,
       page,
-      resultList
+      resultList,
     } = this.state;
 
     //モックから切り替える時はdata.lengthを修正
     const emptyRows =
       rowsPerPage -
       Math.min(rowsPerPage, resultList.length - page * rowsPerPage);
-    const loginLink = props => <Link to="../" {...props} />;
+    const loginLink = (props) => <Link to="../" {...props} />;
 
     const drawer = (
       <Drawer
@@ -877,7 +887,7 @@ class ComShohinMenteForm extends React.Component {
         anchor={anchor}
         open={open}
         classes={{
-          paper: classes.drawerPaper
+          paper: classes.drawerPaper,
         }}
       >
         <div className={classes.drawerHeader}>
@@ -909,7 +919,7 @@ class ComShohinMenteForm extends React.Component {
           <AppBar
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
-              [classes[`appBarShift-${anchor}`]]: open
+              [classes[`appBarShift-${anchor}`]]: open,
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
             //colorPrimary="rgba(200, 200, 200, 0.92)"
@@ -928,7 +938,7 @@ class ComShohinMenteForm extends React.Component {
               <Manager>
                 <Target>
                   <div
-                    ref={node => {
+                    ref={(node) => {
                       this.target1 = node;
                     }}
                   >
@@ -983,7 +993,7 @@ class ComShohinMenteForm extends React.Component {
               classes[`content-${anchor}`],
               {
                 [classes.contentShift]: open,
-                [classes[`contentShift-${anchor}`]]: open
+                [classes[`contentShift-${anchor}`]]: open,
               }
             )}
           >
@@ -1007,7 +1017,7 @@ class ComShohinMenteForm extends React.Component {
                     />
                   }
                 >
-                  <option value="" />
+                  <option value={0} />
                   <option value={1}>菓子</option>
                   <option value={2}>飲料</option>
                   <option value={3}>食品</option>
@@ -1044,7 +1054,7 @@ class ComShohinMenteForm extends React.Component {
                           return (
                             <TableRow
                               hover
-                              onClick={event => this.handleClick(event, id)}
+                              onClick={(event) => this.handleClick(event, id)}
                               role="checkbox"
                               aria-checked={isSelected}
                               tabIndex={-1}
@@ -1094,13 +1104,24 @@ class ComShohinMenteForm extends React.Component {
                                 </div>
                               </TableCell>
                               <TableCell
+                                numeric
+                                component="th"
+                                scope="row"
+                                padding="dense"
+                                style={{ width: "10%", fontSize: "120%" }}
+                              >
+                                <div style={{ whiteSpace: "pre-line" }}>
+                                  {n.seller_shain_pk}
+                                </div>
+                              </TableCell>
+                              <TableCell
                                 component="th"
                                 scope="row"
                                 padding="dense"
                                 style={{ width: "15%", fontSize: "120%" }}
                               >
                                 <div>
-                                  <QRCode value={n.shohin_code} />
+                                  <QRCode value={"CCC_" + n.shohin_code} />
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -1120,10 +1141,10 @@ class ComShohinMenteForm extends React.Component {
                   rowsPerPage={rowsPerPage}
                   page={page}
                   backIconButtonProps={{
-                    "aria-label": "Previous Page"
+                    "aria-label": "Previous Page",
                   }}
                   nextIconButtonProps={{
-                    "aria-label": "Next Page"
+                    "aria-label": "Next Page",
                   }}
                   onChangePage={this.handleChangePage}
                   onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -1177,7 +1198,7 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
-                      <option value="" />
+                      <option value={0} />
                       <option value={1}>菓子</option>
                       <option value={2}>飲料</option>
                       <option value={3}>食品</option>
@@ -1273,7 +1294,7 @@ class ComShohinMenteForm extends React.Component {
                         />
                       }
                     >
-                      <option value="" />
+                      <option value={0} />
                       <option value={1}>菓子</option>
                       <option value={2}>飲料</option>
                       <option value={3}>食品</option>
@@ -1377,7 +1398,7 @@ class ComShohinMenteForm extends React.Component {
 
 ComShohinMenteForm.propTypes = {
   classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
+  theme: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles, { withTheme: true })(ComShohinMenteForm);

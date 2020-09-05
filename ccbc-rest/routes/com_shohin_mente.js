@@ -43,12 +43,15 @@ router.post("/find", (req, res) => {
   console.log("req.params:" + req.params);
   console.log("req.body.targetCode:" + req.body.targetCode);
   const params = [];
-  const sql =
+  var sql =
     "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin, shohin_bunrui, seller_shain_pk, case when shohin_bunrui=1 THEN '菓子' when shohin_bunrui=2 THEN '飲料' when shohin_bunrui=3 THEN '食品' when shohin_bunrui=9 THEN 'その他' end as shohin_bunrui_mei from m_shohin" +
-    " where delete_flg = '0'" +
-    // " and shohin_bunrui = " +
-    // req.body.shohin_bunrui +
-    " order by shohin_code asc";
+    " where delete_flg = '0'";
+  if (req.body.targetCode !== 0) {
+    sql += " and shohin_bunrui = '" + req.body.targetCode + "'";
+  }
+  // " and shohin_bunrui = " +
+  // req.body.shohin_bunrui +
+  sql += " order by shohin_code asc";
   query(sql, params, res, req);
 });
 
