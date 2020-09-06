@@ -12,7 +12,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import { Link } from 'react-router-dom'
-import { kanriListItems, restUrl, titleItems2 } from './tileData'
+import { comKanriListItems, restUrl, titleItems2 } from './tileData'
 import Avatar from '@material-ui/core/Avatar'
 import Chip from '@material-ui/core/Chip'
 import { Manager, Target, Popper } from 'react-popper'
@@ -37,32 +37,6 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 
-//** ボタン部分 */
-import Button from '@material-ui/core/Button'
-import DeleteIcon from '@material-ui/icons/Delete'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload'
-import KeyboardVoiceICon from '@material-ui/icons/KeyboardVoice'
-import Icon from '@material-ui/core/Icon'
-import SaveIcon from '@material-ui/icons/Save'
-import PageviewIcon from '@material-ui/icons/Pageview'
-import Assessment from '@material-ui/icons/Assessment'
-import NavigationIcon from '@material-ui/icons/Navigation'
-
-//** チェックボックス部分 */
-import green from '@material-ui/core/colors/green'
-import FormGroup from '@material-ui/core/FormGroup'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import Checkbox from '@material-ui/core/Checkbox'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
-import Favorite from '@material-ui/icons/Favorite'
-import FavoriteBorder from '@material-ui/icons/FavoriteBorder'
-
-//** ラジオボタン部分 */
-import Radio from '@material-ui/core/Radio'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import FormLabel from '@material-ui/core/FormLabel'
-
 /** 投票照会より流用 */
 import request from 'superagent'
 import { connect } from 'react-redux'
@@ -80,33 +54,24 @@ import {
   Legend
 } from 'recharts'
 
-//表示させたいデータ群
-const data_event = [
-  { name: '井上　卓', 所持コイン: 2500 },
-  { name: '吉田　裕一', 所持コイン: 1500 },
-  { name: '角谷　貴之', 所持コイン: 1000 },
-  { name: '佐藤　源生', 所持コイン: 750 },
-  { name: '石垣　努', 所持コイン: 500 },
-  { name: '佐々木　唯', 所持コイン: 500 },
-  { name: '山城　博紀', 所持コイン: 100 }
-]
+const restdomain = require('../common/constans.js').restdomain
 
 /** 検索部分のリストボックス */
 const ranges1 = [
   {
-    value: 'ソート１',
+    value: '1',
     label: '所持コイン（昇順）'
   },
   {
-    value: 'ソート２',
+    value: '2',
     label: '所持コイン（降順）'
   },
   {
-    value: 'ソート３',
+    value: '3',
     label: '氏名（昇順）'
   },
   {
-    value: 'ソート４',
+    value: '4',
     label: '氏名（降順）'
   }
 ]
@@ -123,20 +88,6 @@ const CustomTableCell = withStyles(theme => ({
   }
 }))(TableCell)
 
-let id = 0
-function createData(name, coin) {
-  id += 1
-  return { id, name, coin }
-}
-
-const rows = [
-  createData('井上　卓', 400),
-  createData('角谷　貴之', 200),
-  createData('石垣　努', 150),
-  createData('吉田　裕一', 120),
-  createData('山城　博紀', 80),
-  createData('佐藤　源生', 50)
-]
 /**　ここまでがテーブル部分のconst */
 
 const drawerWidth = 240
@@ -364,23 +315,65 @@ class ComShojiCoinForm extends React.Component {
   state = {
     open: false,
     open2: false,
-    anchor: 'left'
+    anchor: 'left',
+    resultList: [],
+    userid: null,
+    password: null,
+    tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
+    data: [],
+    weightRange: ''
   }
 
   handleChange = prop => event => {
     this.setState({ [prop]: event.target.value })
-  }
 
-  handleChange2 = prop => event => {
-    this.setState({ [prop]: event.target.value })
-  }
+    if (event.target.value === '1') {
+      //所持コインの順にソート（昇順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.sakicoin < b.sakicoin) return -1;
+        if (a.sakicoin > b.sakicoin) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '2') {
+      //所持コインの順にソート（降順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.sakicoin > b.sakicoin) return -1;
+        if (a.sakicoin < b.sakicoin) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '3') {
+      //氏名の順にソート（昇順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.shimei_kana < b.shimei_kana) return -1;
+        if (a.shimei_kana > b.shimei_kana) return 1;
+        return 0;
+      })
+    } else if (event.target.value === '4') {
+      //氏名の順にソート（降順）
+      this.state.resultList.sort(function (a, b) {
+        if (a.shimei_kana > b.shimei_kana) return -1;
+        if (a.shimei_kana < b.shimei_kana) return 1;
+        return 0;
+      })
+    }
 
-  handleChange3 = prop => event => {
-    this.setState({ [prop]: event.target.value })
-  }
-
-  handleChange4 = prop => event => {
-    this.setState({ [prop]: event.target.value })
+    this.setState({ resultList: this.state.resultList })
+    //グラフ表示情報（氏名、取得コイン数）設定
+    const data = []
+    var maxCoin = 0
+    for (var i in this.state.resultList) {
+      data.push({
+        name: this.state.resultList[i].shimei,
+        コイン数: Number(this.state.resultList[i].sakicoin)
+      })
+      if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
+        maxCoin = Number(this.state.resultList[i].sakicoin)
+      }
+    }
+    this.setState({ data: data })
   }
 
   handleMouseDownPassword = event => {
@@ -390,6 +383,7 @@ class ComShojiCoinForm extends React.Component {
   handleClickShowPassword = () => {
     this.setState(state => ({ showPassword: !state.showPassword }))
   }
+
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
@@ -403,6 +397,40 @@ class ComShojiCoinForm extends React.Component {
       this.setState({ shimei: loginInfo['shimei'] })
       this.setState({ kengenCd: loginInfo['kengenCd'] })
     }
+
+    request
+      .post(restdomain + '/com_coin_shojicoin/findshojicoin')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          return
+        }
+        var resList = res.body.data
+        var head = []
+        if (resList.length === 0) {
+          head.push(false)
+        } else {
+          head.push(true)
+        }
+
+        // 検索結果表示
+        this.setState({ resultList: resList })
+        this.setState({ headList: head })
+
+        //グラフ表示情報（氏名、取得コイン数）設定
+        const data = []
+        var maxCoin = 0
+        for (var i in this.state.resultList) {
+          data.push({
+            name: this.state.resultList[i].shimei,
+            コイン数: Number(this.state.resultList[i].sakicoin)
+          })
+          if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
+            maxCoin = Number(this.state.resultList[i].sakicoin)
+          }
+        }
+        this.setState({ data: data })
+      })
   }
 
   handleDrawerOpen = () => {
@@ -449,12 +477,12 @@ class ComShojiCoinForm extends React.Component {
             {theme.direction === 'rtl' ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
-        {kanriListItems()}
+        {comKanriListItems()}
       </Drawer>
     )
 
@@ -476,8 +504,8 @@ class ComShojiCoinForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -502,7 +530,7 @@ class ComShojiCoinForm extends React.Component {
                           src={restUrl + `uploads/${this.state.imageFileName}`}
                         />
                       }
-                      label={this.state.shimei + '　' + this.state.coin}
+                      label={this.state.shimei}
                       className={classes.chip}
                       aria-label="More"
                       aria-haspopup="true"
@@ -583,23 +611,23 @@ class ComShojiCoinForm extends React.Component {
                   width={1280} //グラフ全体の幅を指定
                   height={650} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
-                  data={data_event} //Array型のデータを指定
+                  data={this.state.data} //Array型のデータを指定
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
                 >
-                  {/*                   <XAxis //X軸に関する設定
+                  <XAxis //X軸に関する設定
                     xAxisId="use"
                     orientation="top"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
                     domain={[0, 5000]} //軸の表示領域を指定
                     stroke="#000000"
-                  /> */}
-                  <XAxis //X軸に関する設定
+                  />
+                  {/* <XAxis //X軸に関する設定
                     xAxisId="use"
                     orientation="bottom"
                     type="number" //データタイプをnumberに変更。デフォルトではcategoryになっている
                     domain={[0, 5000]} //軸の表示領域を指定
                     stroke="#000000"
-                  />
+                  /> */}
                   <YAxis //Y軸に関する設定
                     type="category" //データタイプをcategoryに変更
                     dataKey="name" //Array型のデータの、Y軸に表示したい値のキーを指定
@@ -614,20 +642,12 @@ class ComShojiCoinForm extends React.Component {
                   <Legend />
                   <Bar
                     xAxisId="use"
-                    dataKey="所持コイン"
+                    dataKey="コイン数"
                     barSize={20}
                     stroke="rgba(34, 80, 162, 0.2)"
                     fillOpacity={1}
                     fill="#FC6903"
                   />
-                  {/*                   <Bar
-                    xAxisId="get"
-                    dataKey="受領コイン"
-                    barSize={20}
-                    stroke="rgba(34, 80, 162, 0.2)"
-                    fillOpacity={1}
-                    fill="#fccb00"
-                  /> */}
                 </ComposedChart>
               </div>
             </div>

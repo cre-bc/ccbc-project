@@ -191,10 +191,10 @@ const styles = theme => ({
 const images1 = [
   {
     url: '/images/com_coin_shokai.png',
-    title: 'コイン照会（準備中）',
+    title: 'コイン照会',
     width: '50%',
-    path: '/',
-    disabled: true,
+    path: '/com_coin_shokai',
+    disabled: false,
   },
   {
     url: '/images/com_kiji.png',
@@ -239,10 +239,10 @@ class ComMenuForm extends React.Component {
       images2 = [
         {
           url: '/images/com_coin_ichiran.png',
-          title: '所持コイン一覧（準備中）',
+          title: '所持コイン一覧',
           width: '50%',
-          path: '/',
-          disabled: true,
+          path: '/com_coin_shojicoin',
+          disabled: false,
         },
         {
           url: '/images/com_oshirase_mente2.png',
@@ -262,10 +262,10 @@ class ComMenuForm extends React.Component {
         },
         {
           url: '/images/com_shohin_mente4.png',
-          title: '商品メンテナンス（準備中）',
+          title: '商品メンテナンス',
           width: '50%',
-          path: '/',
-          disabled: true,
+          path: '/com_shohin_mente',
+          disabled: false,
         }
       ]
     }

@@ -6,6 +6,7 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
 const jimuAccount = require("./common/constans.js").jimuAccount;
+const jimuPassword = require('./common/constans.js').jimuPassword
 const jimuShainPk = require("./common/constans.js").jimuShainPk;
 
 /**
@@ -68,49 +69,6 @@ async function find(req, res) {
     bc_addr: req.body.bc_addr
   };
   availableCoin = await bccoinget(param);
-
-  // //最新の利用可能なコイン数（HARVEST投票用コインを除外）を取得
-  // // 現在の選挙情報を取得
-  // tSenkyo = await senkyoPkGet(req);
-  // // 投票期間中の選挙が存在する場合
-  // if (tSenkyo.length != 0) {
-  //   senkyoPk = tSenkyo[0].tsenkyopk;
-  //   // 未投票情報の取得
-  //   miTohyosha = await miTohohyoshaGet(req, senkyoPk);
-  //   // 未投票の場合
-  //   if (miTohyosha.length == 0) {
-  //     // 投票コイン取得
-  //     tohyoCoin = await tohyoCoinGet(req, senkyoPk);
-  //     if (tohyoCoin.length != 0) {
-  //       haifuCoin = tohyoCoin[0].haifu_coin;
-  //       configCoin = tohyoCoin[0].config_coin;
-  //       presenterPk = tohyoCoin[0].t_presenter_pk;
-  //       countShussekisha = tohyoCoin[0].countshussekisha;
-  //       countPresen = tohyoCoin[0].countpresen;
-
-  //       // console.log(haifuCoin);
-  //       // console.log(configCoin);
-  //       // console.log(presenterPk);
-  //       // console.log(countShussekisha);
-  //       // console.log(countPresen);
-
-  //       // 投票一人当たりのコイン数
-  //       configCoin = configCoin * 50;
-  //       // console.log(configCoin);
-  //       // 部会での配布コイン数
-  //       tohyoCoin = configCoin * countPresen;
-  //       // console.log(tohyoCoin);
-
-  //       //発表者の場合、1人分のコイン数を差し引く
-  //       if (presenterPk != null) {
-  //         tohyoCoin = tohyoCoin - configCoin;
-  //       }
-  //       // 現在のコインから投票用コイン数を差し引く
-  //       availableCoin = availableCoin - tohyoCoin;
-  //       // console.log(tohyoCoin);
-  //     }
-  //   }
-  // }
 
   res.json({
     status: true,
@@ -186,50 +144,7 @@ async function pay(req, res) {
     bc_addr: req.body.bc_addr
   };
   availableCoin = await bccoinget(param);
-
-  //最新の利用可能なコイン数（HARVEST投票用コインを除外）を取得
-
-  // // 現在の選挙情報を取得
-  // tSenkyo = await senkyoPkGet(req);
-  // // 投票期間中の選挙が存在する場合
-  // if (tSenkyo.length != 0) {
-  //   senkyoPk = tSenkyo[0].tsenkyopk;
-  //   // 未投票情報の取得
-  //   miTohyosha = await miTohohyoshaGet(req, senkyoPk);
-  //   // 未投票の場合
-  //   if (miTohyosha.length == 0) {
-  //     // 投票コイン取得
-  //     tohyoCoin = await tohyoCoinGet(req, senkyoPk);
-  //     if (tohyoCoin.length != 0) {
-  //       haifuCoin = tohyoCoin[0].haifu_coin;
-  //       configCoin = tohyoCoin[0].config_coin;
-  //       presenterPk = tohyoCoin[0].t_presenter_pk;
-  //       countShussekisha = tohyoCoin[0].countshussekisha;
-  //       countPresen = tohyoCoin[0].countpresen;
-
-  //       // console.log(haifuCoin);
-  //       // console.log(configCoin);
-  //       // console.log(presenterPk);
-  //       // console.log(countShussekisha);
-  //       // console.log(countPresen);
-
-  //       // 投票一人当たりのコイン数
-  //       configCoin = configCoin * 50;
-  //       console.log(configCoin);
-  //       // 部会での配布コイン数
-  //       tohyoCoin = configCoin * countPresen;
-  //       // console.log(tohyoCoin);
-
-  //       //発表者の場合、1人分のコイン数を差し引く
-  //       if (presenterPk != null) {
-  //         tohyoCoin = tohyoCoin - configCoin;
-  //       }
-  //       // 現在のコインから投票用コイン数を差し引く
-  //       availableCoin = availableCoin - tohyoCoin;
-  //       // console.log(tohyoCoin);
-  //     }
-  //   }
-  // }
+  var bokinCoin = totalCoin;
 
   // 合計コイン数が利用可能コイン数を上回る場合、NG
   if (totalCoin > availableCoin) {
@@ -259,15 +174,29 @@ async function pay(req, res) {
         await insertShiharaiMeisai(db, tx, req, shiharaiPk, shiharaiM);
       }
 
-      const transactionId = await bcrequest(req, totalCoin);
+      const transactionId = await bcrequest(req, totalCoin, req.body.bcAccount, jimuAccount, req.body.password);
       // const transactionId = "test";
 
       // 贈与テーブルの追加
       var ret = await insertZoyo(db, tx, req, transactionId);
       const zoyoPk = ret[0].t_zoyo_pk;
 
+      // 出品者にコインを半分還元
+      for (var i = 0; i < buyList.length; i++) {
+        const resdatas = await selectSellerShain(db, buyList[i].shohin_code);
+        var seller_bc_account = null;
+        if (resdatas.length !== 0) {
+          seller_bc_account = resdatas[0].bc_account;
+        }
+        if (seller_bc_account !== null) {
+          const sellerCoin = Math.round(buyList[i].coin * 0.5);
+          await bcrequest(req, sellerCoin, jimuAccount, seller_bc_account, jimuPassword);
+          bokinCoin -= sellerCoin;
+        }
+      }
+
       // 支払テーブルに贈与PKを更新
-      await updateShiharaiAfterZoyo(db, tx, req, shiharaiPk, zoyoPk);
+      await updateShiharaiAfterZoyo(db, tx, req, shiharaiPk, zoyoPk, bokinCoin);
     })
     .then(result => {
       // コミットしたらこっち
@@ -304,115 +233,6 @@ function bccoinget(param) {
         return resolve(res.body.coin);
       });
     console.log("★end bccoinget★");
-  });
-}
-
-/**
- * 選挙取得用関数
- *
- */
-async function senkyoPkGet(req) {
-  return new Promise((resolve, reject) => {
-    console.log("★ start senkyoPkGet★");
-    // 現在、投票期間か？出席しているか？
-    var sql =
-      "select tsen.t_senkyo_pk as tsenkyopk" +
-      " from t_senkyo tsen" +
-      " inner join t_shussekisha tshu on tsen.t_senkyo_pk = tshu.t_senkyo_pk" +
-      " where tsen.delete_flg = '0' and tshu.delete_flg = '0' and tshu.t_shain_pk = :myPk" +
-      " and current_date between tsen.tohyo_kaishi_dt and tsen.tohyo_shuryo_dt";
-    if (req.body.db_name != null && req.body.db_name != "") {
-      db = db2.sequelize3(req.body.db_name);
-    } else {
-      db = require("./common/sequelize_helper.js").sequelize;
-    }
-    db
-      .query(sql, {
-        replacements: {
-          myPk: req.body.loginShainPk
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        console.log("★End senkyoPkGet★");
-        return resolve(datas);
-      });
-  });
-}
-
-/**
- * 未投票者取得用関数
- *
- * @param {*} req
- * @param {*} tsenkyopk
- */
-async function miTohohyoshaGet(req, tsenkyopk) {
-  return new Promise((resolve, reject) => {
-    console.log("★★★miTohohyoshaGet★★★");
-    // 選挙PKは前SQL（投票期間中かどうか？）より取得する
-    var sql =
-      "select tto.t_tohyo_pk from t_senkyo tsen" +
-      " left join t_shussekisha tsh on tsen.t_senkyo_pk = tsh.t_senkyo_pk" +
-      " left join t_tohyo tto on tsh.t_shussekisha_pk = tto.t_shussekisha_pk" +
-      " where tsen.delete_flg = '0' and tsh.delete_flg = '0' and tto.delete_flg = '0' and tsen.t_senkyo_pk = :tSenkyoPk and tsh.t_shain_pk = :myPk";
-    if (req.body.db_name != null && req.body.db_name != "") {
-      db = db2.sequelize3(req.body.db_name);
-    } else {
-      db = require("./common/sequelize_helper.js").sequelize;
-    }
-    db
-      .query(sql, {
-        replacements: { tSenkyoPk: tsenkyopk, myPk: req.body.loginShainPk },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        // console.log("----------");
-        // console.log(datas);
-        // console.log("----------");
-        console.log("★★★【End】miTohohyoshaGet★★★");
-        return resolve(datas);
-      });
-  });
-}
-
-/**
- * 投票用コイン取得用関数
- *
- * @param {*} req
- * @param {*} tsenkyopk
- */
-async function tohyoCoinGet(req, tsenkyopk) {
-  return new Promise((resolve, reject) => {
-    console.log("★★★tohyoCoinGet★★★");
-    // 選挙PKは前SQL（現在投票期間中の選挙）より取得する
-    // var sql =
-    //   "select tsen.haifu_coin,tsen.config_coin,tpr.t_presenter_pk from t_senkyo tsen" +
-    //   " left outer join (select tpr1.t_presenter_pk,tpr1.t_senkyo_pk from t_presenter tpr1 where tpr1.delete_flg = '0' and tpr1.t_shain_pk = :myPk) tpr on tsen.t_senkyo_pk = tpr.t_senkyo_pk" +
-    //   " where tsen.t_senkyo_pk = :tSenkyoPk and tsen.delete_flg = '0'";
-    var sql =
-      "select tsen.haifu_coin,tsen.config_coin,tpr3.t_presenter_pk,countShussekisha, countPresen from t_senkyo tsen" +
-      " inner join (select count(*) as countShussekisha,t_senkyo_pk from t_shussekisha tsh1 where tsh1.t_senkyo_pk = :tSenkyoPk group by t_senkyo_pk) tsh on tsen.t_senkyo_pk = tsh.t_senkyo_pk" +
-      " inner join (select count(*) as countPresen,t_senkyo_pk from t_presenter tpr1 where tpr1.t_senkyo_pk = :tSenkyoPk group by t_senkyo_pk) tpr on tsen.t_senkyo_pk = tpr.t_senkyo_pk" +
-      " left outer join (select tpr2.t_presenter_pk,tpr2.t_senkyo_pk from t_presenter tpr2 where tpr2.delete_flg = '0' and tpr2.t_shain_pk = :myPk) tpr3 on tsen.t_senkyo_pk = tpr3.t_senkyo_pk" +
-      " where tsen.t_senkyo_pk = :tSenkyoPk and tsen.delete_flg = '0'";
-
-    if (req.body.db_name != null && req.body.db_name != "") {
-      db = db2.sequelize3(req.body.db_name);
-    } else {
-      db = require("./common/sequelize_helper.js").sequelize;
-    }
-    db
-      .query(sql, {
-        replacements: { tSenkyoPk: tsenkyopk, myPk: req.body.loginShainPk },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        // console.log("----------");
-        // console.log(datas);
-        // console.log("----------");
-        console.log("★★★【End】tohyoCoinGet★★★");
-        return resolve(datas);
-      });
   });
 }
 
@@ -557,12 +377,14 @@ function insertZoyo(db, tx, req, transactionId) {
  * @param req リクエスト
  * @param t_shiharai_pk 支払テーブルPK
  * @param t_zoyo_pk 贈与テーブルPK
+ * @param bokin_coin 募金コイン
  */
-function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk) {
+function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk, bokin_coin) {
   return new Promise((resolve, reject) => {
     var sql =
       "update t_shiharai set " +
-      " t_coin_ido_pk = :t_zoyo_pk" +
+      " t_coin_ido_pk = :t_zoyo_pk," +
+      " bokin_coin = :bokin_coin" +
       " where t_shiharai_pk = :t_shiharai_pk";
 
     db
@@ -570,8 +392,30 @@ function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk) {
         transaction: tx,
         replacements: {
           t_shiharai_pk: t_shiharai_pk,
-          t_zoyo_pk: t_zoyo_pk
+          t_zoyo_pk: t_zoyo_pk,
+          bokin_coin: bokin_coin
         }
+      })
+      .spread((datas, metadata) => {
+        return resolve(datas);
+      });
+  });
+}
+
+/**
+ * 出品者を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param shohin_code 商品コード
+ */
+function selectSellerShain(db, shohin_code) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select a.coin, a.seller_shain_pk, b.bc_account from m_shohin a inner join t_shain b on a.seller_shain_pk = b.t_shain_pk where a.shohin_code = :shohin_code and a.delete_flg = '0'";
+
+    db
+      .query(sql, {
+        replacements: { shohin_code: shohin_code },
+        type: db.QueryTypes.RAW
       })
       .spread((datas, metadata) => {
         return resolve(datas);
@@ -583,13 +427,16 @@ function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk) {
  * BCコイン送金用関数
  * @param req リクエスト
  * @param coin 移動コイン
+ * @param fromAccount 送信者アカウント
+ * @param toAccount 受信者アカウント
+ * @param password パスワード（送信者）
  */
-function bcrequest(req, coin) {
+function bcrequest(req, coin, fromAccount, toAccount, password) {
   return new Promise((resolve, reject) => {
     var param = {
-      from_account: [req.body.bcAccount],
-      to_account: [jimuAccount],
-      password: [req.body.password],
+      from_account: [fromAccount],
+      to_account: [toAccount],
+      password: [password],
       coin: [coin],
       bc_addr: req.body.bc_addr
     };
