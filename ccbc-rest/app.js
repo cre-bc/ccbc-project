@@ -29,6 +29,10 @@ const loginGroupRouter = require('./routes/login_group')
 
 // TODO : ここにComComCoin用のAPIを追加していく
 const com_oshirase_menteRouter = require('./routes/com_oshirase_mente')
+const com_shohin_menteRouter = require("./routes/com_shohin_mente");
+// const com_kokoku_menteRouter = require("./routes/com_kokoku_mente");
+const com_coin_shojicoinRouter = require('./routes/com_coin_shojicoin')
+const com_coin_shokaiRouter = require('./routes/com_coin_shokai')
 const comcomcoinHomeRouter = require('./routes/comcomcoin_home')
 const shoppingRouter = require('./routes/shopping')
 const articleRouter = require('./routes/article')
@@ -106,6 +110,10 @@ app.use('/login_group', loginGroupRouter)
 // ComComCoin
 // TODO : ここにComComCoin用のAPIを追加していく
 app.use('/com_oshirase_mente', com_oshirase_menteRouter)
+app.use("/com_shohin_mente", com_shohin_menteRouter);
+// app.use("/com_kokoku_mente", com_kokoku_menteRouter);
+app.use('/com_coin_shojicoin', com_coin_shojicoinRouter)
+app.use('/com_coin_shokai', com_coin_shokaiRouter)
 app.use('/comcomcoin_home', comcomcoinHomeRouter)
 app.use('/shopping', shoppingRouter)
 app.use('/article', articleRouter)
