@@ -1,4 +1,5 @@
 import React from 'react'
+import request from 'superagent'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
@@ -501,56 +502,43 @@ class ComCoinShokaiForm extends React.Component {
     }
 
     // 初期表示情報取得
-    this.findCoinShokai()
+    request
+      .post(restdomain + '/com_coin_shokai/find')
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          return
+        }
+        // 検索結果の取得
+        var resList = res.body.getCoinDatas
+        var resList2 = res.body.shainDatas
+        var resList3 = res.body.nendoDatas
+        var tableData_copy = []
+        for (var i in resList) {
+          tableData_copy.push([
+            resList[i].insert_tm,
+            resList[i].title,
+            resList[i].shimei,
+            resList[i].coin,
+            i
+          ])
+        }
+        // this.setState({ tableData: tableData_copy })
 
-  }
-
-  findCoinShokai = async () => {
-    await fetch(restdomain + '/com_coin_shokai/find', {
-      method: 'POST',
-      body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
-    })
-      .then(function (response) {
-        return response.json()
+        for (var i in resList2) {
+          this.state.shainList.push({
+            label: resList2[i].shimei,
+            value: resList2[i].t_shain_pk
+          })
+        }
+        for (var i in resList3) {
+          this.state.yearList.push({
+            label: resList3[i] + '年',
+            value: resList3[i]
+          })
+        }
+        this.setState({ tableData: tableData_copy })
       })
-      .then(
-        function (json) {
-          // 結果が取得できない場合は終了
-          if (typeof json.getCoinDatas === 'undefined') {
-            return
-          }
-          // 検索結果の取得
-          var resList = json.getCoinDatas
-          var resList2 = json.shainDatas
-          var resList3 = json.nendoDatas
-          var tableData_copy = []
-          for (var i in resList) {
-            tableData_copy.push([
-              resList[i].insert_tm,
-              resList[i].title,
-              resList[i].shimei,
-              resList[i].coin,
-              i
-            ])
-          }
-          this.setState({ tableData: tableData_copy })
-
-          for (var i in resList2) {
-            this.state.shainList.push({
-              label: resList2[i].shimei,
-              value: resList2[i].t_shain_pk
-            })
-          }
-          for (var i in resList3) {
-            this.state.yearList.push({
-              label: resList3[i] + '年',
-              value: resList3[i]
-            })
-          }
-        }.bind(this)
-      )
-      .catch(error => console.error(error))
   }
 
   handleDrawerOpen = () => {
@@ -892,12 +880,12 @@ class ComCoinShokaiForm extends React.Component {
                       </CustomTableCell>
                       <CustomTableCell
                         numeric
-                        style={{ width: '10%', fontSize: '120%' }}
+                        style={{ width: '20%', fontSize: '120%' }}
                       >
                         コイン
                       </CustomTableCell>
                       <CustomTableCell
-                        style={{ width: '30%', fontSize: '120%' }}
+                        style={{ width: '20%', fontSize: '120%' }}
                       >
                         イベント
                       </CustomTableCell>
@@ -926,17 +914,17 @@ class ComCoinShokaiForm extends React.Component {
                           </CustomTableCell>
                           <CustomTableCell
                             numeric
-                            style={{ width: '10%', fontSize: '120%' }}
+                            style={{ width: '20%', fontSize: '120%' }}
                           >
                             {row.coin}
                           </CustomTableCell>
                           <CustomTableCell
-                            style={{ width: '30%', fontSize: '120%' }}
+                            style={{ width: '20%', fontSize: '120%' }}
                           >
                             {row.event}
                           </CustomTableCell>
                           <CustomTableCell
-                            style={{ fwidth: '20%', fontSize: '120%' }}
+                            style={{ width: '20%', fontSize: '120%' }}
                           >
                             {moment(new Date(row.insert_tm)).format(
                               'YYYY/MM/DD'

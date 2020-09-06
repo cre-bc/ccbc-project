@@ -63,13 +63,8 @@ async function finddata(req, res) {
  */
 async function finddataChange(req, res) {
   var getCoinDatas = []
-  // var resdatas = [];
-  // var resbccoin = [];
-  // var sakicoin_sum = 0;
 
   getCoinDatas = await findGetCoin(req)
-
-  // var getCoinSu = 0
 
   var trans = []
   for (var x in getCoinDatas) {
@@ -81,11 +76,9 @@ async function finddataChange(req, res) {
   }
   var resAll = await bccoinget(param)
   var getCoinDatasLength = getCoinDatas.length
-  console.log("検索結果：" + getCoinDatasLength)
   for (var i in resAll.body.trans) {
     if (getCoinDatasLength != '0') {
       getCoinDatas[i].coin = resAll.body.trans[i].coin
-      console.log("紐付け結果：" + getCoinDatas[i].coin)
     }
   }
   res.json({
