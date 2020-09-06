@@ -55,20 +55,27 @@ import Assessment from '@material-ui/icons/Assessment'
 import NavigationIcon from '@material-ui/icons/Navigation'
 import ListIcon from '@material-ui/icons/List'
 
+import moment from 'moment'
+import 'moment/locale/ja'
+
 const restdomain = require('../common/constans.js').restdomain
 
 /** 検索部分のリストボックス */
 const ranges3 = [
   {
-    value: 'event2',
+    value: '1',
+    label: ''
+  },
+  {
+    value: '2',
     label: '記事投稿'
   },
   {
-    value: 'event3',
+    value: '3',
     label: 'チャット'
   },
   {
-    value: 'event4',
+    value: '4',
     label: '買い物'
   }
 ]
@@ -106,16 +113,6 @@ function createData(soufu, juryo, coin, event, date) {
   return { id, soufu, juryo, coin, event, date }
 }
 
-const rows = [
-  createData('吉田　裕一', '井上　卓', 100, 'チャット', '2019/06/26'),
-  createData('事務局', '井上　卓', 400, 'HARVEST投票', '2019/06/20'),
-  createData('事務局', '角谷　貴之', 50, '記事投稿', '2019/06/16'),
-  createData('角谷　貴之', '石垣　努', 150, 'チャット', '2019/06/15'),
-  createData('石垣　努', '事務局', 75, 'ショッピングカート', '2019/06/06'),
-  createData('山城　博紀', '吉田　裕一', 25, 'チャット', '2019/06/01'),
-  createData('山城　博紀', '吉田　裕一', 25, 'HARVESTコイン贈与', '2019/05/01'),
-  createData('佐々木　唯', '事務局', 700, 'HARVEST年度末処理', '2019/04/01')
-]
 /**　ここまでがテーブル部分のconst */
 
 const drawerWidth = 240
@@ -351,8 +348,7 @@ class ComCoinShokaiForm extends React.Component {
     operator: '',
     trading_partner: '',
     trading_type: '',
-    event_type: '',
-    selectedValue: '',
+    event_type: '1',
     weightRange: ''
   }
 
@@ -360,23 +356,22 @@ class ComCoinShokaiForm extends React.Component {
     super(props)
     const params = this.props.match
     this.state = {
+      year: '',
+      date_start: '',
+      date_end: '',
+      operator: '',
+      trading_partner: '',
+      trading_type: '',
       nendoList: [],
       resultList: [],
       shainList: [],
       yearList: [],
-      getCoinAllList: [],
-      allGetCoin: 0,
-      getCoin: 0,
-      allTakeCoin: 0,
-      takeCoin: 0,
+      getCoinList: [],
       year_info: '',
       target_manager: '',
       selectList: [],
       target_select: 0,
-      jimukyokuList: [],
-      target_jimukyoku: 0,
       tableData: [],
-      tableHead: [],
       kengenCd: null,
       checked: false,
       userid: null,
@@ -385,9 +380,8 @@ class ComCoinShokaiForm extends React.Component {
       imageFileName: null,
       shimei: null,
       saveFlg: false,
-      group_id: '',
-      db_name: '',
-      bc_addr: ''
+      event_type: '1',
+      selectedValue: 'a'
     }
   }
 
@@ -424,8 +418,7 @@ class ComCoinShokaiForm extends React.Component {
     this.setState({ event_type: event.target.value })
   }
 
-  handleChange6 = prop => event => {
-    this.setState({ [prop]: event.target.value })
+  handleChange6 = event => {
     this.setState({ selectedValue: event.target.value })
   }
 
@@ -438,6 +431,26 @@ class ComCoinShokaiForm extends React.Component {
   }
 
   handleSearch = async () => {
+    if (this.state.selectedValue == 'a' && this.state.year == '') {
+      window.alert('年度を入力してください')
+      return
+    } else if (this.state.selectedValue == 'b' && (this.state.date_start == '' || this.state.date_end == '')) {
+      window.alert('日付を入力してください')
+      return
+    } else if (this.state.selectedValue == 'b' && this.state.date_start > this.state.date_end) {
+      window.alert('日付を正しく入力してください')
+      return
+    } else if (this.state.operator == '') {
+      window.alert('操作者を入力してください')
+      return
+    } else if (this.state.trading_partner == '') {
+      window.alert('取引相手を入力してください')
+      return
+    } else if (this.state.trading_type == '') {
+      window.alert('取引種類を入力してください')
+      return
+    }
+
     await fetch(restdomain + '/com_coin_shokai/findChange', {
       method: 'POST',
       body: JSON.stringify(this.state),
@@ -449,23 +462,25 @@ class ComCoinShokaiForm extends React.Component {
       .then(
         function (json) {
           // 結果が取得できない場合は終了
-          if (typeof json.data === 'undefined') {
+          if (typeof json.getCoinDatas === 'undefined') {
+            this.setState({ tableData: null })
             return
           }
           // 検索結果の取得
           var resList = json.getCoinDatas
-
-          var tableData_copy = []
+          var event = ""
           for (var i in resList) {
-            tableData_copy.push([
-              resList[i].insert_tm,
-              resList[i].title,
-              resList[i].shimei,
-              resList[i].coin,
-              i
-            ])
+            if (resList[i].nenji_flg == "2") {
+              event = "記事投稿"
+            } else if (resList[i].nenji_flg == "3") {
+              event = "チャット"
+            } else if (resList[i].nenji_flg == "4") {
+              event = "買い物"
+            }
+            resList[i].event = event
           }
-          this.setState({ tableData: tableData_copy })
+          this.setState({ tableData: resList })
+          this.setState({ getCoinList: json.getCoinDatas })
         }.bind(this)
       )
       .catch(error => console.error(error))
@@ -515,7 +530,8 @@ class ComCoinShokaiForm extends React.Component {
               resList[i].insert_tm,
               resList[i].title,
               resList[i].shimei,
-              resList[i].coin
+              resList[i].coin,
+              i
             ])
           }
           this.setState({ tableData: tableData_copy })
@@ -745,11 +761,9 @@ class ComCoinShokaiForm extends React.Component {
                     startAdornment: <InputAdornment position="start" />
                   }}
                 >
-                  {this.state.yearList.map(option => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
+                  {this.state.yearList.map(option => {
+                    return <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                  })}
                 </TextField>
 
                 <TextField
@@ -903,12 +917,12 @@ class ComCoinShokaiForm extends React.Component {
                             scope="row"
                             style={{ width: '20%', fontSize: '120%' }}
                           >
-                            {row.soufu}
+                            {row.shimei_moto}
                           </CustomTableCell>
                           <CustomTableCell
                             style={{ width: '20%', fontSize: '120%' }}
                           >
-                            {row.juryo}
+                            {row.shimei_saki}
                           </CustomTableCell>
                           <CustomTableCell
                             numeric
@@ -924,7 +938,9 @@ class ComCoinShokaiForm extends React.Component {
                           <CustomTableCell
                             style={{ fwidth: '20%', fontSize: '120%' }}
                           >
-                            {row.date}
+                            {moment(new Date(row.insert_tm)).format(
+                              'YYYY/MM/DD'
+                            )}
                           </CustomTableCell>
                         </TableRow>
                       )

@@ -6,6 +6,25 @@ var db = require('./common/sequelize_helper.js').sequelize
 var db2 = require('./common/sequelize_helper.js')
 const bcdomain = require('./common/constans.js').bcdomain
 
+const commonSql = "select tzoyo.zoyo_moto_shain_pk" +
+  " , tsha1.shimei AS shimei_moto" +
+  " , tsha1.shimei_kana AS shimei_kana_moto" +
+  " , tzoyo.zoyo_saki_shain_pk" +
+  " , tsha2.shimei AS shimei_saki" +
+  " , tsha2.shimei_kana AS shimei_kana_saki" +
+  " , tzoyo.zoyo_comment AS event" +
+  " , tzoyo.transaction_id" +
+  " , tzoyo.nenji_flg" +
+  " , tzoyo.insert_tm" +
+  " , tsha1.t_shain_pk as t_shain_pk" +
+  " , tsha1.bc_account as bc_account" +
+  " , tsha1.kengen_cd as kengen_cd" +
+  " from t_zoyo tzoyo" +
+  " left join t_shain tsha1" +
+  " on tsha1.t_shain_pk = tzoyo.zoyo_moto_shain_pk" +
+  " left join t_shain tsha2" +
+  " on tsha2.t_shain_pk = tzoyo.zoyo_saki_shain_pk"
+
 router.post('/find', (req, res) => {
   finddata(req, res)
   console.log('end')
@@ -44,13 +63,13 @@ async function finddata(req, res) {
  */
 async function finddataChange(req, res) {
   var getCoinDatas = []
-  var resdatas = [];
-  var resbccoin = [];
-  var sakicoin_sum = 0;
+  // var resdatas = [];
+  // var resbccoin = [];
+  // var sakicoin_sum = 0;
 
-  getCoinDatas = await findGetCoin(req, 1)
+  getCoinDatas = await findGetCoin(req)
 
-  var getCoinSu = 0
+  // var getCoinSu = 0
 
   var trans = []
   for (var x in getCoinDatas) {
@@ -58,19 +77,17 @@ async function finddataChange(req, res) {
   }
 
   var param = {
-    transaction: trans,
-    bc_addr: req.body.bc_addr
+    transaction: trans
   }
   var resAll = await bccoinget(param)
   var getCoinDatasLength = getCoinDatas.length
-
+  console.log("検索結果：" + getCoinDatasLength)
   for (var i in resAll.body.trans) {
-    if (i < getCoinDatasLength) {
+    if (getCoinDatasLength != '0') {
       getCoinDatas[i].coin = resAll.body.trans[i].coin
-      getCoinSu = getCoinSu + resAll.body.trans[i].coin
+      console.log("紐付け結果：" + getCoinDatas[i].coin)
     }
   }
-
   res.json({
     status: true,
     getCoinDatas: getCoinDatas
@@ -80,14 +97,17 @@ async function finddataChange(req, res) {
 /**
  * 獲得コイン情報取得用関数
  * @req {*} req
- * @shoriId {*} 処理ID
  */
-function findGetCoin(req, shoriId) {
+function findGetCoin(req) {
   return new Promise((resolve, reject) => {
     console.log('社員PK:' + req.body.tShainPk)
-    console.log('処理ID:' + shoriId)
     console.log('年度:' + req.body.year)
-    console.log('氏名:' + req.body.operator)
+    console.log('開始日:' + req.body.date_start)
+    console.log('終了日:' + req.body.date_end)
+    console.log('操作者:' + req.body.operator)
+    console.log('取引相手:' + req.body.trading_partner)
+    console.log('取引種類:' + req.body.trading_type)
+    console.log('イベント:' + req.body.event_type)
     if (req.body.db_name != null && req.body.db_name != '') {
       db = db2.sequelize3(req.body.db_name)
     } else {
@@ -95,29 +115,309 @@ function findGetCoin(req, shoriId) {
     }
 
     console.log('検索処理実行')
-    // 検索条件ありの場合
+
     var nendo = req.body.year
     var manager = req.body.operator
     var partner = req.body.trading_partner
     var nendoStart = nendo + '/04/01'
     var nendoEnd = parseInt(nendo) + 1
     nendoEnd = nendoEnd + '/03/31'
-    var sql =
-      "and to_char(tzo.insert_tm,'yyyy/mm/dd') >= :nendoStart and :nendoEnd >= to_char(tzo.insert_tm, 'yyyy/mm/dd') and tsha.t_shain_pk = :maneger order by tzo.insert_tm desc"
-    db
-      .query(sql, {
-        replacements: {
-          nendoStart: nendoStart,
-          nendoEnd: nendoEnd,
-          maneger: manager,
-          partner: partner
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas)
-      })
+    var dateStart = req.body.date_start
+    var dateEnd = req.body.date_end
+    var tradingType = req.body.trading_type
+    var eventType = req.body.event_type
 
+    // 条件：年度
+    if (req.body.selectedValue == 'a') {
+      // イベント条件なし
+      if (eventType === '1') {
+        // もらう
+        if (tradingType == "trade1") {
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and tsha2.t_shain_pk = :maneger" +
+            " and tsha1.t_shain_pk = :partner" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade2") {
+          //　あげる
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and tsha1.t_shain_pk = :maneger" +
+            " and tsha2.t_shain_pk = :partner" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade3") {
+          // 両方
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and ((tsha1.t_shain_pk = :maneger and tsha2.t_shain_pk = :partner) or (tsha2.t_shain_pk = :maneger and tsha1.t_shain_pk = :partner))" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        }
+        // イベント条件あり
+      } else if (eventType != '') {
+        // もらう
+        if (tradingType == "trade1") {
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and tsha2.t_shain_pk = :maneger" +
+            " and tsha1.t_shain_pk = :partner" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade2") {
+          //　あげる
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and tsha1.t_shain_pk = :maneger" +
+            " and tsha2.t_shain_pk = :partner" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade3") {
+          // 両方
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy/mm/dd') >= :nendoStart" +
+            " and :nendoEnd >= to_char(tzoyo.insert_tm, 'yyyy/mm/dd')" +
+            " and ((tsha1.t_shain_pk = :maneger and tsha2.t_shain_pk = :partner) or (tsha2.t_shain_pk = :maneger and tsha1.t_shain_pk = :partner))" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                nendoStart: nendoStart,
+                nendoEnd: nendoEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        }
+      }
+      // 条件：日付
+    } else if (req.body.selectedValue == 'b') {
+      // イベント条件なし
+      if (eventType === '1') {
+        // もらう
+        if (tradingType == "trade1") {
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and tsha2.t_shain_pk = :maneger" +
+            " and tsha1.t_shain_pk = :partner" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade2") {
+          //　あげる
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and tsha1.t_shain_pk = :maneger" +
+            " and tsha2.t_shain_pk = :partner" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade3") {
+          // 両方
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and ((tsha1.t_shain_pk = :maneger and tsha2.t_shain_pk = :partner) or (tsha2.t_shain_pk = :maneger and tsha1.t_shain_pk = :partner))" +
+            " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        }
+        // イベント条件あり
+      } else if (eventType != '') {
+        // もらう
+        if (tradingType == "trade1") {
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and tsha2.t_shain_pk = :maneger" +
+            " and tsha1.t_shain_pk = :partner" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade2") {
+          //　あげる
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and tsha1.t_shain_pk = :maneger" +
+            " and tsha2.t_shain_pk = :partner" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        } else if (tradingType == "trade3") {
+          // 両方
+          var sql = commonSql +
+            " where tzoyo.delete_flg = '0'" +
+            " and to_char(tzoyo.insert_tm,'yyyy-mm-dd') >= :dateStart" +
+            " and :dateEnd >= to_char(tzoyo.insert_tm, 'yyyy-mm-dd')" +
+            " and ((tsha1.t_shain_pk = :maneger and tsha2.t_shain_pk = :partner) or (tsha2.t_shain_pk = :maneger and tsha1.t_shain_pk = :partner))" +
+            " and tzoyo.nenji_flg = :eventType"
+          " order by tzoyo.insert_tm desc;"
+          db
+            .query(sql, {
+              replacements: {
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                maneger: manager,
+                partner: partner,
+                eventType: eventType
+              },
+              type: db.QueryTypes.RAW
+            })
+            .spread((datas, metadata) => {
+              return resolve(datas)
+            })
+        }
+      }
+    }
   })
 }
 
