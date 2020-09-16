@@ -24,27 +24,27 @@ router.post("/findshojicoin", (req, res) => {
  */
 async function findshojicoin(req, res) {
   var resdatas = [];
-  var bccoin = 0
+  var bccoin = 0;
 
   console.log("API : findshojicoin →中身");
 
   // BCアカウントを取得
-  resdatas = await bcAccountGet(db, req)
+  resdatas = await bcAccountGet(db, req);
 
   for (let i in resdatas) {
     var param = {
       account: resdatas[i].bc_account,
-      bc_addr: req.body.bc_addr
-    }
+      bc_addr: req.body.bc_addr,
+    };
     // BCコイン数を取得
-    bccoin = await bccoinget(param)
-    resdatas[i].sakicoin = bccoin
+    bccoin = await bccoinget(param);
+    resdatas[i].sakicoin = Number(bccoin);
   }
 
   console.log(resdatas);
   res.json({
     status: true,
-    data: resdatas
+    data: resdatas,
   });
 }
 
@@ -68,19 +68,17 @@ function bcAccountGet(db, req) {
       "from " +
       "t_shain tsha " +
       "where tsha.delete_flg = '0' " +
-      "and tsha.t_shain_pk <> '1' "
-    db
-      .query(sql, {
-        replacements: {
-          sort_graph: req.body.sort_graph
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        console.log("DBAccess : getshojicoinList result...");
-        console.log(datas);
-        return resolve(datas);
-      });
+      "and tsha.t_shain_pk <> '1' ";
+    db.query(sql, {
+      replacements: {
+        sort_graph: req.body.sort_graph,
+      },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      console.log("DBAccess : getshojicoinList result...");
+      console.log(datas);
+      return resolve(datas);
+    });
   });
 }
 
@@ -90,21 +88,21 @@ function bcAccountGet(db, req) {
  */
 function bccoinget(param) {
   return new Promise((resolve, reject) => {
-    console.log('★start bccoinget★')
+    console.log("★start bccoinget★");
     request
-      .post(bcdomain + '/bc-api/get_coin')
+      .post(bcdomain + "/bc-api/get_coin")
       .send(param)
       .end((err, res) => {
-        console.log('★★★')
+        console.log("★★★");
         if (err) {
-          console.log('★' + err)
-          return
+          console.log("★" + err);
+          return;
         }
-        console.log('★★★' + res.body.coin)
-        return resolve(res.body.coin)
-      })
-    console.log('★end bccoinget★')
-  })
+        console.log("★★★" + res.body.coin);
+        return resolve(res.body.coin);
+      });
+    console.log("★end bccoinget★");
+  });
 }
 
 module.exports = router;
