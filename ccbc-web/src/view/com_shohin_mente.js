@@ -1,123 +1,130 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
-import { withStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import MenuItem from '@material-ui/core/MenuItem'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import { Link } from 'react-router-dom'
-import { kanriListItems, restUrl, titleItems2 } from './tileData'
-import Avatar from '@material-ui/core/Avatar'
-import Chip from '@material-ui/core/Chip'
-import { Manager, Target, Popper } from 'react-popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import MenuList from '@material-ui/core/MenuList'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableRow from '@material-ui/core/TableRow'
-import TableSortLabel from '@material-ui/core/TableSortLabel'
-import Typography from '@material-ui/core/Typography'
-import Checkbox from '@material-ui/core/Checkbox'
-import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
-import FilterListIcon from '@material-ui/icons/FilterList'
-import { lighten } from '@material-ui/core/styles/colorManipulator'
-import Input from '@material-ui/core/Input'
-import InputLabel from '@material-ui/core/InputLabel'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import NativeSelect from '@material-ui/core/NativeSelect'
-import AddIcon from '@material-ui/icons/Add'
-import Icon from '@material-ui/core/Icon'
-import EditIcon from '@material-ui/icons/Edit'
+import React from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import { withStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import MenuItem from "@material-ui/core/MenuItem";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { Link } from "react-router-dom";
+import { comKanriListItems, restUrl, titleItems2 } from "./tileData";
+import Avatar from "@material-ui/core/Avatar";
+import Chip from "@material-ui/core/Chip";
+import { Manager, Target, Popper } from "react-popper";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import MenuList from "@material-ui/core/MenuList";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableHead from "@material-ui/core/TableHead";
+import TablePagination from "@material-ui/core/TablePagination";
+import TableRow from "@material-ui/core/TableRow";
+import TableSortLabel from "@material-ui/core/TableSortLabel";
+import Typography from "@material-ui/core/Typography";
+import Checkbox from "@material-ui/core/Checkbox";
+import Tooltip from "@material-ui/core/Tooltip";
+import DeleteIcon from "@material-ui/icons/Delete";
+import FilterListIcon from "@material-ui/icons/FilterList";
+import { lighten } from "@material-ui/core/styles/colorManipulator";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import NativeSelect from "@material-ui/core/NativeSelect";
+import AddIcon from "@material-ui/icons/Add";
+import Icon from "@material-ui/core/Icon";
+import EditIcon from "@material-ui/icons/Edit";
+import moment from "moment";
+import "moment/locale/ja";
+import request from "superagent";
+import QRCode from "qrcode.react";
 
-let counter = 0
-function createData(date, name, tytle, calories, coin, qr) {
-  counter += 1
-  return { id: counter, date, name, tytle, calories, coin, qr }
-}
+const restdomain = require("../common/constans.js").restdomain;
+
+// //createData,desc,getSortingは外だし、または、不要
+// let counter = 0;
+// function createData(date, name, tytle, calories, coin, qr) {
+//   counter += 1;
+//   return { id: counter, date, name, tytle, calories, coin, qr };
+// }
 
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
-    return -1
+    return -1;
   }
   if (b[orderBy] > a[orderBy]) {
-    return 1
+    return 1;
   }
-  return 0
+  return 0;
 }
 
 function getSorting(order, orderBy) {
-  return order === 'desc'
+  return order === "desc"
     ? (a, b) => -desc(a, b, orderBy)
-    : (a, b) => desc(a, b, orderBy)
+    : (a, b) => desc(a, b, orderBy);
 }
 
 const rows = [
   {
-    id: 'name',
+    id: "name",
     numeric: false,
     disablePadding: true,
-    label: '商品コード'
+    label: "商品コード",
   },
   {
-    id: 'tytle',
+    id: "tytle",
     numeric: false,
     disablePadding: true,
-    label: '商品分類'
+    label: "商品分類",
   },
-  // { id: 'calorie', numeric: true, disablePadding: false, label: '内容' }
+
   {
-    id: 'calorie',
+    id: "calorie",
     numeric: false,
     disablePadding: true,
-    label: '商品名'
-  },
-  {
-    id: 'coin',
-    numeric: false,
-    disablePadding: true,
-    label: 'コイン'
+    label: "商品名",
   },
   {
-    id: 'qr',
+    id: "coin",
     numeric: false,
     disablePadding: true,
-    label: ''
-  }
-]
+    label: "コイン",
+  },
+  {
+    id: "seller_shain_pk",
+    numeric: false,
+    disablePadding: true,
+    label: "販売社員",
+  },
+  {
+    id: "qr",
+    numeric: false,
+    disablePadding: true,
+    label: "",
+  },
+];
 
 class EnhancedTableHead extends React.Component {
-  createSortHandler = property => event => {
-    this.props.onRequestSort(event, property)
-  }
+  createSortHandler = (property) => (event) => {
+    this.props.onRequestSort(event, property);
+  };
 
   render() {
-    const {
-      onSelectAllClick,
-      order,
-      orderBy,
-      numSelected,
-      rowCount
-    } = this.props
+    const { order, orderBy, numSelected, rowCount } = this.props;
 
     return (
       <TableHead>
@@ -126,21 +133,20 @@ class EnhancedTableHead extends React.Component {
             <Checkbox
               indeterminate={numSelected > 0 && numSelected < rowCount}
               checked={numSelected === rowCount}
-              onChange={onSelectAllClick}
             />
           </TableCell>
-          {rows.map(row => {
+          {rows.map((row) => {
             return (
               <TableCell
                 key={row.id}
                 numeric={row.numeric}
-                padding={row.disablePadding ? 'dense' : 'none'}
+                padding={row.disablePadding ? "dense" : "none"}
                 sortDirection={orderBy === row.id ? order : false}
-                style={{ fontSize: '120%' }}
+                style={{ fontSize: "120%" }}
               >
                 <Tooltip
                   title="Sort"
-                  placement={row.numeric ? 'bottom-end' : 'bottom-start'}
+                  placement={row.numeric ? "bottom-end" : "bottom-start"}
                   enterDelay={300}
                 >
                   <TableSortLabel
@@ -152,55 +158,54 @@ class EnhancedTableHead extends React.Component {
                   </TableSortLabel>
                 </Tooltip>
               </TableCell>
-            )
+            );
           }, this)}
         </TableRow>
       </TableHead>
-    )
+    );
   }
 }
 
 EnhancedTableHead.propTypes = {
   numSelected: PropTypes.number.isRequired,
   onRequestSort: PropTypes.func.isRequired,
-  onSelectAllClick: PropTypes.func.isRequired,
   order: PropTypes.string.isRequired,
   orderBy: PropTypes.string.isRequired,
-  rowCount: PropTypes.number.isRequired
-}
+  rowCount: PropTypes.number.isRequired,
+};
 
-const toolbarStyles = theme => ({
+const toolbarStyles = (theme) => ({
   root: {
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
   },
   highlight:
-    theme.palette.type === 'light'
+    theme.palette.type === "light"
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
   spacer: {
-    flex: '1 1 100%'
+    flex: "1 1 100%",
   },
   actions: {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
   },
   title: {
-    flex: '0 0 auto'
-  }
-})
+    flex: "0 0 auto",
+  },
+});
 
-let EnhancedTableToolbar = props => {
-  const { numSelected, classes } = props
+let EnhancedTableToolbar = (props) => {
+  const { numSelected, classes } = props;
 
   return (
     <Toolbar
       className={classNames(classes.root, {
-        [classes.highlight]: numSelected > 0
+        [classes.highlight]: numSelected > 0,
       })}
     >
       <div className={classes.title}>
@@ -209,389 +214,609 @@ let EnhancedTableToolbar = props => {
             {numSelected} 件選択
           </Typography>
         ) : (
-          <Typography variant="title" id="tableTitle">
-            商品一覧
-          </Typography>
-        )}
+            <Typography variant="title" id="tableTitle">
+              商品一覧
+            </Typography>
+          )}
       </div>
       <div className={classes.spacer} />
-      {/* <div className={classes.actions}>
-        {numSelected > 0 ? (
-          <Tooltip title="Delete">
-            <IconButton aria-label="Delete">
-              <DeleteIcon />
-            </IconButton>
-          </Tooltip>
-        ) : (
-          <Tooltip title="Filter list">
-            <IconButton aria-label="Filter list">
-              <FilterListIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-      </div> */}
     </Toolbar>
-  )
-}
+  );
+};
 
 EnhancedTableToolbar.propTypes = {
   classes: PropTypes.object.isRequired,
-  numSelected: PropTypes.number.isRequired
-}
+  numSelected: PropTypes.number.isRequired,
+};
 
-EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar)
+EnhancedTableToolbar = withStyles(toolbarStyles)(EnhancedTableToolbar);
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   root2: {
-    width: '100%',
-    marginTop: theme.spacing.unit * 3
+    width: "100%",
+    marginTop: theme.spacing.unit * 3,
   },
   root3: {
-    display: 'flex',
-    flexWrap: 'wrap'
+    display: "flex",
+    flexWrap: "wrap",
   },
   appFrame: {
     zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%'
+    overflow: "hidden",
+    position: "relative",
+    display: "flex",
+    width: "100%",
   },
   buttonFrame: {
-    position: 'static',
-    marginRight: 24
+    position: "static",
+    marginRight: 24,
   },
   buttonFrame2: {
-    position: 'static',
-    marginRight: 0
+    position: "static",
+    marginRight: 0,
   },
   appBar: {
-    position: 'absolute',
-    transition: theme.transitions.create(['margin', 'width'], {
+    position: "absolute",
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'appBarShift-left': {
-    marginLeft: drawerWidth
+  "appBarShift-left": {
+    marginLeft: drawerWidth,
   },
-  'appBarShift-right': {
-    marginRight: drawerWidth
+  "appBarShift-right": {
+    marginRight: drawerWidth,
   },
   menuButton: {
     marginLeft: 12,
-    marginRight: 20
+    marginRight: 20,
   },
   hide: {
-    display: 'none'
+    display: "none",
   },
   drawerPaper: {
-    position: 'relative',
-    width: drawerWidth
+    position: "relative",
+    width: drawerWidth,
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: "0 8px",
+    ...theme.mixins.toolbar,
   },
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
-  'content-left': {
-    marginLeft: -drawerWidth
+  "content-left": {
+    marginLeft: -drawerWidth,
   },
-  'content-right': {
-    marginRight: -drawerWidth
+  "content-right": {
+    marginRight: -drawerWidth,
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'contentShift-left': {
-    marginLeft: 0
+  "contentShift-left": {
+    marginLeft: 0,
   },
-  'contentShift-right': {
-    marginRight: 0
+  "contentShift-right": {
+    marginRight: 0,
   },
   image: {
-    position: 'relative',
+    position: "relative",
     height: 300,
-    [theme.breakpoints.down('xs')]: {
-      width: '100% !important', // Overrides inline-style
-      height: 100
+    [theme.breakpoints.down("xs")]: {
+      width: "100% !important", // Overrides inline-style
+      height: 100,
     },
-    '&:hover, &$focusVisible': {
+    "&:hover, &$focusVisible": {
       zIndex: 1,
-      '& $imageBackdrop': {
-        opacity: 1
+      "& $imageBackdrop": {
+        opacity: 1,
       },
-      '& $imageMarked': {
-        opacity: 0
+      "& $imageMarked": {
+        opacity: 0,
       },
-      '& $imageTitle': {
-        border: '4px solid currentColor'
-      }
-    }
+      "& $imageTitle": {
+        border: "4px solid currentColor",
+      },
+    },
   },
   focusVisible: {},
   imageButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: theme.palette.common.white
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.common.white,
   },
   imageSrc: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center 40%'
+    backgroundSize: "contain",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center 40%",
   },
   imageBackdrop: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
     backgroundColor: theme.palette.common.black,
     opacity: 0.4,
-    transition: theme.transitions.create('opacity')
+    transition: theme.transitions.create("opacity"),
   },
   imageTitle: {
-    position: 'relative',
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme
-      .spacing.unit + 6}px`,
-    fontSize: '300%'
+    position: "relative",
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
+      theme.spacing.unit + 6
+      }px`,
+    fontSize: "300%",
   },
   imageMarked: {
     height: 3,
     width: 18,
     backgroundColor: theme.palette.common.white,
-    position: 'absolute',
+    position: "absolute",
     bottom: -2,
-    left: 'calc(50% - 9px)',
-    transition: theme.transitions.create('opacity')
+    left: "calc(50% - 9px)",
+    transition: theme.transitions.create("opacity"),
   },
   chip: {
-    height: '300%',
-    margin: theme.spacing.unit
+    height: "300%",
+    margin: theme.spacing.unit,
   },
   appBarColorDefault: {
-    backgroundColor: 'rgba(255, 136, 0, 0.92)'
+    backgroundColor: "rgba(255, 136, 0, 0.92)",
   },
   table: {
-    minWidth: 1020
+    minWidth: 1020,
   },
   tableWrapper: {
-    overflowX: 'auto'
+    overflowX: "auto",
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 120
+    minWidth: 120,
   },
   selectEmpty: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing.unit * 2,
   },
   button: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit,
   },
   extendedIcon: {
-    marginRight: theme.spacing.unit
-  }
-})
+    marginRight: theme.spacing.unit,
+  },
+});
 
 class ComShohinMenteForm extends React.Component {
   state = {
-    age: '',
+    age: "",
     open: false,
     open2: false,
     openAdd: false,
     openEdit: false,
     openDelete: false,
-    anchor: 'left',
-    order: 'asc',
-    orderBy: 'name',
+    anchor: "left",
+    order: "asc",
+    orderBy: "name",
     selected: [],
-    data: [
-      createData(
-        1,
-        '000001',
-        '菓子',
-        'カルビー\r\nポテチうすしお60g',
-        '100コイン'
-      ),
-      createData(
-        2,
-        '000002',
-        '菓子',
-        'コイケヤ\r\nオーザックしお60g',
-        '50コイン'
-      ),
-      createData(3, '000003', '菓子', '明治\r\nチョコレート60g', '100コイン'),
-      createData(4, '000004', '飲料水', '大正製薬\r\nポカリ500ml', '150コイン'),
-      createData(
-        5,
-        '000005',
-        'カップ麺',
-        'マルちゃん\r\n赤いきつね',
-        '200コイン'
-      ),
-      createData(6, '000006', 'その他', 'Apple\r\niPhone7', '800コイン')
-    ],
     page: 0,
-    rowsPerPage: 5
+    rowsPerPage: 5,
+  };
+
+  constructor(props) {
+    super(props);
+    const params = this.props.match;
+    this.state = {
+      status: true,
+      loaded: false,
+      mode: params.params.mode,
+      readonly: false,
+      selected: [],
+      resultList: [],
+      resultAllList: [],
+      open: false,
+      anchor: "left",
+      anchorEl: null,
+      addFlg: true,
+      Target_year: "",
+      nendoList: [],
+      page: 0,
+      rowsPerPage: 5,
+      checked: false,
+      name: [],
+      m_shohin_pk: null,
+      shohin_code: "",
+      shohin_bunrui: "",
+      shohin_bunrui_mei: "",
+      shohin_nm1: "",
+      shohin_nm2: "",
+      coin: "",
+      seller_shain_pk: "",
+      shimei: "",
+      targetCode: 0,
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
-    var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
 
     for (var i in loginInfos) {
-      var loginInfo = loginInfos[i]
-      this.setState({ userid: loginInfo['userid'] })
-      this.setState({ password: loginInfo['password'] })
-      this.setState({ tShainPk: loginInfo['tShainPk'] })
-      this.setState({ imageFileName: loginInfo['imageFileName'] })
-      this.setState({ shimei: loginInfo['shimei'] })
-      this.setState({ kengenCd: loginInfo['kengenCd'] })
+      var loginInfo = loginInfos[i];
+      this.setState({ userid: loginInfo["userid"] });
+      this.setState({ password: loginInfo["password"] });
+      this.setState({ tShainPk: loginInfo["tShainPk"] });
+      this.setState({ imageFileName: loginInfo["imageFileName"] });
+      this.setState({ shimei: loginInfo["shimei"] });
+      this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
+
+    //データ取得部分
+    request
+      .post(restdomain + "/com_shohin_mente/find")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.setState({ resultList: res.body.data });
+      });
   }
 
   handleDrawerOpen = () => {
-    this.setState({ open: true })
-  }
+    this.setState({ open: true });
+  };
 
   handleDrawerClose = () => {
-    this.setState({ open: false })
-  }
+    this.setState({ open: false });
+  };
 
   handleLogoutClick = () => {
     // ログアウト時にsessionStorageをクリアする
-    sessionStorage.clear()
-  }
+    sessionStorage.clear();
+  };
 
   handleToggle = () => {
-    this.setState({ open2: !this.state.open2 })
-  }
+    this.setState({ open2: !this.state.open2 });
+  };
 
-  handleToggleClose = event => {
+  handleToggleClose = (event) => {
     if (this.target1.contains(event.target)) {
-      return
+      return;
     }
 
-    this.setState({ open2: false })
-  }
+    this.setState({ open2: false });
+  };
 
   handleClickOpenAdd = () => {
-    this.setState({ openAdd: true })
-  }
+    this.setState({ openAdd: true });
+  };
 
   handleCloseAdd = () => {
-    this.setState({ openAdd: false })
-  }
+    this.setState({ openAdd: false });
+  };
 
   handleClickOpenEdit = () => {
-    this.setState({ openEdit: true })
-  }
+    this.setState({ openEdit: true });
+  };
 
   handleCloseEdit = () => {
-    this.setState({ openEdit: false })
-  }
+    this.setState({ openEdit: false });
+  };
 
   handleClickOpenDelete = () => {
-    this.setState({ openDelete: true })
-  }
+    this.setState({ openDelete: true });
+  };
 
   handleCloseDelete = () => {
-    this.setState({ openDelete: false })
-  }
+    this.setState({ openDelete: false });
+  };
 
   handleRequestSort = (event, property) => {
-    const orderBy = property
-    let order = 'desc'
+    const orderBy = property;
+    let order = "desc";
 
-    if (this.state.orderBy === property && this.state.order === 'desc') {
-      order = 'asc'
+    if (this.state.orderBy === property && this.state.order === "desc") {
+      order = "asc";
     }
 
-    this.setState({ order, orderBy })
-  }
+    const resultList =
+      order === "desc"
+        ? this.state.resultList.sort((a, b) =>
+          b[orderBy] < a[orderBy] ? -1 : 1
+        )
+        : this.state.resultList.sort((a, b) =>
+          a[orderBy] < b[orderBy] ? -1 : 1
+        );
 
-  handleSelectAllClick = (event, checked) => {
-    if (checked) {
-      this.setState(state => ({ selected: state.data.map(n => n.id) }))
-      return
-    }
-    this.setState({ selected: [] })
-  }
+    this.setState({ resultList, order, orderBy });
+    this.setState({ selected: [] });
+    this.setState({ m_shohin_pk: null });
+    this.setState({ shohin_code: null });
+    this.setState({ shohin_bunrui: null });
+    this.setState({ shohin_bunrui_mei: null });
+    this.setState({ shohin_nm1: null });
+    this.setState({ shohin_nm2: null });
+    this.setState({ coin: null });
+    this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
+  };
 
   handleClick = (event, id) => {
-    const { selected } = this.state
-    const selectedIndex = selected.indexOf(id)
-    let newSelected = []
+    const { selected } = this.state;
+    const selectedIndex = selected.indexOf(id);
+    let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id)
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1))
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1))
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      )
+      newSelected.unshift(id);
     }
+    this.setState({ selected: newSelected });
 
-    this.setState({ selected: newSelected })
-  }
+    let check = false;
+    check = this.state.selected.indexOf(id) !== -1;
+    if (check == true) {
+      this.setState({ m_shohin_pk: null });
+      this.setState({ shohin_code: null });
+      this.setState({ shohin_bunrui: null });
+      this.setState({ shohin_bunrui_mei: null });
+      this.setState({ shohin_nm1: null });
+      this.setState({ shohin_nm2: null });
+      this.setState({ coin: null });
+      this.setState({ seller_shain_pk: null });
+      this.setState({ shimei: null });
+    } else {
+      if (this.state.page == 1) id = id + 5;
+      if (this.state.page == 2) id = id + 10;
+      this.setState({ m_shohin_pk: this.state.resultList[id].m_shohin_pk });
+      this.setState({ shohin_code: this.state.resultList[id].shohin_code });
+      this.setState({ shohin_bunrui: this.state.resultList[id].shohin_bunrui });
+      this.setState({
+        shohin_bunrui_mei: this.state.resultList[id].shohin_bunrui_mei,
+      });
+      this.setState({ shohin_nm1: this.state.resultList[id].shohin_nm1 });
+      this.setState({ shohin_nm2: this.state.resultList[id].shohin_nm2 });
+      this.setState({ coin: this.state.resultList[id].coin });
+      this.setState({
+        seller_shain_pk: this.state.resultList[id].seller_shain_pk,
+      });
+      this.setState({ shimei: this.state.resultList[id].shimei });
+    }
+  };
 
   handleChangePage = (event, page) => {
-    this.setState({ page })
+    this.setState({ page });
+    this.setState({ selected: [] });
+    this.setState({ m_shohin_pk: null });
+    this.setState({ shohin_code: null });
+    this.setState({ shohin_bunrui: null });
+    this.setState({ shohin_bunrui_mei: null });
+    this.setState({ shohin_nm1: null });
+    this.setState({ shohin_nm2: null });
+    this.setState({ coin: null });
+    this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
+  };
+
+  handleChangeRowsPerPage = (event) => {
+    this.setState({ rowsPerPage: event.target.value });
+  };
+
+  handleChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+    this.state.targetCode = Number(event.target.value);
+    request
+      .post(restdomain + "/com_shohin_mente/find")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.setState({ resultList: res.body.data });
+      });
+    this.setState({ selected: [] });
+    this.setState({ m_shohin_pk: null });
+    this.setState({ shohin_code: null });
+    this.setState({ shohin_bunrui: null });
+    this.setState({ shohin_bunrui_mei: null });
+    this.setState({ shohin_nm1: null });
+    this.setState({ shohin_nm2: null });
+    this.setState({ coin: null });
+    this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
+  };
+
+  handleChangeShainList = (event) => {
+    request
+      .post(restdomain + "/com_shohin_mente/find")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.setState({ resultList: res.body.data });
+      });
+    this.setState({ selected: [] });
+    this.setState({ m_shohin_pk: null });
+    this.setState({ shohin_code: null });
+    this.setState({ shohin_bunrui: null });
+    this.setState({ shohin_bunrui_mei: null });
+    this.setState({ shohin_nm1: null });
+    this.setState({ shohin_nm2: null });
+    this.setState({ coin: null });
+    this.setState({ seller_shain_pk: null });
+    this.setState({ shimei: null });
+  };
+
+  handleSubmit = async () => {
+    await fetch(restdomain + "/com_shohin_mente/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === "undefined") {
+            return;
+          }
+          this.setState({ openAdd: false });
+          request
+            .post(restdomain + "/com_shohin_mente/find")
+            .send(this.state)
+            .end((err, res) => {
+              if (err) return;
+              // 検索結果表示
+              this.setState({ resultList: res.body.data });
+            });
+
+          this.setState({ selected: [] });
+          this.setState({ m_shohin_pk: null });
+          this.setState({ shohin_code: null });
+          this.setState({ shohin_bunrui: null });
+          this.setState({ shohin_bunrui_mei: null });
+          this.setState({ shohin_nm1: null });
+          this.setState({ shohin_nm2: null });
+          this.setState({ coin: null });
+          this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
+        }.bind(this)
+      )
+      .catch((error) => console.error(error));
+  };
+
+  handleSubmitEdit = async () => {
+    await fetch(restdomain + "/com_shohin_mente/edit", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === "undefined") {
+            return;
+          }
+          this.setState({ openEdit: false });
+
+          this.setState({ selected: [] });
+          this.setState({ m_shohin_pk: null });
+          this.setState({ shohin_code: null });
+          this.setState({ shohin_bunrui: null });
+          this.setState({ shohin_bunrui_mei: null });
+          this.setState({ shohin_nm1: null });
+          this.setState({ shohin_nm2: null });
+          this.setState({ coin: null });
+          this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
+        }.bind(this)
+      )
+      .catch((error) => console.error(error));
+  };
+
+  handleSubmitDelete = async () => {
+    await fetch(restdomain + "/com_shohin_mente/delete", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(
+        function (json) {
+          // 結果が取得できない場合は終了
+          if (typeof json.data === "undefined") {
+            return;
+          }
+          this.setState({ openDelete: false });
+
+          this.setState({ selected: [] });
+          this.setState({ m_shohin_pk: null });
+          this.setState({ shohin_code: null });
+          this.setState({ shohin_bunrui: null });
+          this.setState({ shohin_bunrui_mei: null });
+          this.setState({ shohin_nm1: null });
+          this.setState({ shohin_nm2: null });
+          this.setState({ coin: null });
+          this.setState({ seller_shain_pk: null });
+          this.setState({ shimei: null });
+        }.bind(this)
+      )
+      .catch((error) => console.error(error));
+  };
+
+  handleChange_shohin_code(e) {
+    this.setState({ shohin_code: e.target.value });
   }
 
-  handleChangeRowsPerPage = event => {
-    this.setState({ rowsPerPage: event.target.value })
+  handleChange_shohin_bunrui(e) {
+    this.setState({ shohin_bunrui: e.target.value });
   }
 
-  handleChange = name => event => {
-    this.setState({ [name]: event.target.value })
+  handleChange_shohin_nm1(e) {
+    this.setState({ shohin_nm1: e.target.value });
   }
 
-  isSelected = id => this.state.selected.indexOf(id) !== -1
+  handleChange_shohin_nm2(e) {
+    this.setState({ shohin_nm2: e.target.value });
+  }
+
+  handleChange_coin(e) {
+    this.setState({ coin: e.target.value });
+  }
+
+  handleChange_seller_shain(e) {
+    this.setState({ seller_shain_pk: e.target.value });
+  }
+
+  handleChange_shimei(e) {
+    this.setState({ shimei: e.target.value });
+  }
+
+  isSelected = (id) => this.state.selected.indexOf(id) !== -1;
 
   render() {
-    const { classes, theme } = this.props
+    const { classes, theme } = this.props;
     const {
       anchor,
       open,
@@ -601,11 +826,15 @@ class ComShohinMenteForm extends React.Component {
       orderBy,
       selected,
       rowsPerPage,
-      page
-    } = this.state
+      page,
+      resultList,
+    } = this.state;
+
+    //モックから切り替える時はdata.lengthを修正
     const emptyRows =
-      rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage)
-    const loginLink = props => <Link to="../" {...props} />
+      rowsPerPage -
+      Math.min(rowsPerPage, resultList.length - page * rowsPerPage);
+    const loginLink = (props) => <Link to="../" {...props} />;
 
     const drawer = (
       <Drawer
@@ -613,30 +842,30 @@ class ComShohinMenteForm extends React.Component {
         anchor={anchor}
         open={open}
         classes={{
-          paper: classes.drawerPaper
+          paper: classes.drawerPaper,
         }}
       >
         <div className={classes.drawerHeader}>
           <IconButton onClick={this.handleDrawerClose}>
-            {theme.direction === 'rtl' ? (
+            {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
-        {kanriListItems()}
+        {comKanriListItems()}
       </Drawer>
-    )
+    );
 
-    let before = null
-    let after = null
+    let before = null;
+    let after = null;
 
-    if (anchor === 'left') {
-      before = drawer
+    if (anchor === "left") {
+      before = drawer;
     } else {
-      after = drawer
+      after = drawer;
     }
 
     return (
@@ -645,11 +874,11 @@ class ComShohinMenteForm extends React.Component {
           <AppBar
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
-              [classes[`appBarShift-${anchor}`]]: open
+              [classes[`appBarShift-${anchor}`]]: open,
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -664,8 +893,8 @@ class ComShohinMenteForm extends React.Component {
               <Manager>
                 <Target>
                   <div
-                    ref={node => {
-                      this.target1 = node
+                    ref={(node) => {
+                      this.target1 = node;
                     }}
                   >
                     <Chip
@@ -674,7 +903,7 @@ class ComShohinMenteForm extends React.Component {
                           src={restUrl + `uploads/${this.state.imageFileName}`}
                         />
                       }
-                      label={this.state.shimei + '　' + this.state.coin}
+                      label={this.state.shimei}
                       className={classes.chip}
                       aria-label="More"
                       aria-haspopup="true"
@@ -683,7 +912,7 @@ class ComShohinMenteForm extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: '100%' }}
+                      style={{ fontSize: "100%" }}
                     />
                   </div>
                 </Target>
@@ -695,7 +924,7 @@ class ComShohinMenteForm extends React.Component {
                   <Grow
                     in={open2}
                     id="menu-list-grow"
-                    style={{ transformOrigin: '0 0 0' }}
+                    style={{ transformOrigin: "0 0 0" }}
                   >
                     <Paper>
                       <MenuList role="menu">
@@ -719,14 +948,14 @@ class ComShohinMenteForm extends React.Component {
               classes[`content-${anchor}`],
               {
                 [classes.contentShift]: open,
-                [classes[`contentShift-${anchor}`]]: open
+                [classes[`contentShift-${anchor}`]]: open,
               }
             )}
           >
             <div className={classes.drawerHeader} />
             {/* 下のdivの中身を画面に応じて変えること。ヘッダ部分は共通のため、触らないこと。 */}
             <div className={classes.root3}>
-              {/* 年度選択 */}
+              {/* 商品分類選択 */}
               <FormControl className={classes.formControl}>
                 {/* <InputLabel htmlFor="age-native-simple" /> */}
                 <InputLabel shrink htmlFor="age-native-simple">
@@ -734,19 +963,20 @@ class ComShohinMenteForm extends React.Component {
                 </InputLabel>
                 <Select
                   native
-                  value={this.state.age}
-                  onChange={this.handleChange('age')}
-                  // inputProps={{
-                  //   name: 'age',
-                  //   id: 'age-native-simple'
-                  // }}
-                  input={<Input name="age" id="age-native-label-placeholder" />}
+                  value={this.state.shohin_bunrui}
+                  onChange={this.handleChange}
+                  input={
+                    <Input
+                      name="shohin_bunrui"
+                      id="age-native-label-placeholder"
+                    />
+                  }
                 >
-                  <option value="" />
-                  <option value={10}>菓子</option>
-                  <option value={20}>飲料水</option>
-                  <option value={30}>カップ麺</option>
-                  <option value={90}>その他</option>
+                  <option value={0} />
+                  <option value={1}>菓子</option>
+                  <option value={2}>飲料</option>
+                  <option value={3}>食品</option>
+                  <option value={9}>その他</option>
                 </Select>
               </FormControl>
             </div>
@@ -760,91 +990,103 @@ class ComShohinMenteForm extends React.Component {
                       numSelected={selected.length}
                       order={order}
                       orderBy={orderBy}
-                      onSelectAllClick={this.handleSelectAllClick}
+                      // onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
-                      rowCount={data.length}
+                      rowCount={this.state.resultList.length}
+                    // モックデータの場合以下を使用する
+                    //rowCount={data.length}
                     />
                     <TableBody>
-                      {data
+                      {this.state.resultList
+                        //{data
                         .sort(getSorting(order, orderBy))
                         .slice(
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map(n => {
-                          const isSelected = this.isSelected(n.id)
+                        .map((n, id) => {
+                          const isSelected = this.isSelected(id);
                           return (
                             <TableRow
                               hover
-                              onClick={event => this.handleClick(event, n.id)}
+                              onClick={(event) => this.handleClick(event, id)}
                               role="checkbox"
                               aria-checked={isSelected}
                               tabIndex={-1}
-                              key={n.id}
+                              key={id}
                               selected={isSelected}
                             >
                               <TableCell padding="checkbox">
                                 <Checkbox checked={isSelected} />
                               </TableCell>
+                              {/* 一覧　商品コード */}
                               <TableCell
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '15%', fontSize: '120%' }}
+                                style={{ width: "15%", fontSize: "120%" }}
                               >
-                                {n.name}
+                                {/* PK表示確認用 */}
+                                {/* {n.m_shohin_pk} */}
+                                {n.shohin_code}
                               </TableCell>
+                              {/* 一覧　商品分類名称 */}
                               <TableCell
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '25%', fontSize: '120%' }}
+                                style={{ width: "25%", fontSize: "120%" }}
                               >
-                                {n.tytle}
+                                {n.shohin_bunrui_mei}
                               </TableCell>
+                              {/* 一覧　商品名１と商品名２*/}
                               <TableCell
-                                // numeric
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '35%', fontSize: '120%' }}
+                                style={{ width: "35%", fontSize: "120%" }}
                               >
-                                <div style={{ whiteSpace: 'pre-line' }}>
-                                  {n.calories}
+                                <div style={{ whiteSpace: "pre-line" }}>
+                                  {n.shohin_nm1} {n.shohin_nm2}
                                 </div>
                               </TableCell>
+                              {/* 一覧　コイン数*/}
                               <TableCell
                                 numeric
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '10%', fontSize: '120%' }}
+                                style={{ width: "10%", fontSize: "120%" }}
                               >
-                                <div style={{ whiteSpace: 'pre-line' }}>
+                                <div style={{ whiteSpace: "pre-line" }}>
                                   {n.coin}
                                 </div>
                               </TableCell>
+                              {/* 一覧　販売社員名称*/}
                               <TableCell
-                                //numeric
+                                numeric
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: '15%', fontSize: '120%' }}
+                                style={{ width: "10%", fontSize: "120%" }}
                               >
-                                <Button
-                                  variant="raised"
-                                  size="medium"
-                                  className={classes.button}
-                                >
-                                  <Icon>exit_to_app</Icon>
-                                  QRコード発行
-                                </Button>
+                                <div style={{ whiteSpace: "pre-line" }}>
+                                  {n.shimei}
+                                </div>
                               </TableCell>
-                              {/* <TableCell numeric>{n.fat}</TableCell>
-                              <TableCell numeric>{n.carbs}</TableCell>
-                              <TableCell numeric>{n.protein}</TableCell> */}
+                              {/* 一覧　ＱＲコード*/}
+                              <TableCell
+                                component="th"
+                                scope="row"
+                                padding="dense"
+                                style={{ width: "15%", fontSize: "120%" }}
+                              >
+                                <div>
+                                  <QRCode value={"CCC_" + n.shohin_code} />
+                                </div>
+                              </TableCell>
                             </TableRow>
-                          )
+                          );
                         })}
                       {emptyRows > 0 && (
                         <TableRow style={{ height: 49 * emptyRows }}>
@@ -856,14 +1098,14 @@ class ComShohinMenteForm extends React.Component {
                 </div>
                 <TablePagination
                   component="div"
-                  count={data.length}
+                  count={resultList.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   backIconButtonProps={{
-                    'aria-label': 'Previous Page'
+                    "aria-label": "Previous Page",
                   }}
                   nextIconButtonProps={{
-                    'aria-label': 'Next Page'
+                    "aria-label": "Next Page",
                   }}
                   onChangePage={this.handleChangePage}
                   onChangeRowsPerPage={this.handleChangeRowsPerPage}
@@ -872,14 +1114,6 @@ class ComShohinMenteForm extends React.Component {
             </div>
             <div>
               {/* 追加ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenAdd}
-                variant="outlined"
-                color="secondary"
-                className={classes.button}
-              >
-                追加
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenAdd}
                 // variant="extendedFab"
@@ -903,11 +1137,10 @@ class ComShohinMenteForm extends React.Component {
                   </DialogContentText>
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_code"
                     label="商品コード"
-                    defaultValue="000007"
                     fullWidth
-                    disabled
+                    onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
                     {/* <InputLabel htmlFor="age-native-simple" /> */}
@@ -916,67 +1149,118 @@ class ComShohinMenteForm extends React.Component {
                     </InputLabel>
                     <Select
                       native
-                      value={this.state.age}
-                      onChange={this.handleChange('age')}
-                      // inputProps={{
-                      //   name: 'age',
-                      //   id: 'age-native-simple'
-                      // }}
+                      value={this.state.shohin_bunrui}
+                      // onChange={this.handleChange}
                       input={
-                        <Input name="age" id="age-native-label-placeholder" />
+                        <Input
+                          name="shohin_bunrui"
+                          id="shohin_bunrui"
+                          onChange={this.handleChange_shohin_bunrui.bind(this)}
+                        />
                       }
                     >
-                      <option value="" />
-                      <option value={10}>菓子</option>
-                      <option value={20}>飲料水</option>
-                      <option value={30}>カップ麺</option>
-                      <option value={90}>その他</option>
+                      <option value={1}>菓子</option>
+                      <option value={2}>飲料</option>
+                      <option value={3}>食品</option>
+                      <option value={9}>その他</option>
                     </Select>
                   </FormControl>
+
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_nm1"
                     label="商品名1段目(11文字)"
-                    defaultValue="日清"
                     fullWidth
+                    onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_nm2"
                     label="商品名2段目(11文字)"
-                    defaultValue="カップヌードルS"
                     fullWidth
+                    onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
                     margin="normal"
+                    id="coin"
                     type="number"
                     label="コイン"
-                    defaultValue="100"
                     fullWidth
+                    onChange={this.handleChange_coin.bind(this)}
                   />
+                  {/* 直接コードを入力する場合*/}
+                  {/* <TextField
+                    margin="normal"
+                    id="seller_shain"
+                    type="number"
+                    label="販売社員ID"
+                    fullWidth
+                    onChange={this.handleChange_seller_shain.bind(this)}
+                  /> */}
+
+                  <FormControl>
+                    <InputLabel shrink htmlFor="age-native-simple">
+                      販売社員ID
+                    </InputLabel>
+                    <Select
+                      native
+                      value={this.state.seller_shain_pk}
+                      // onChange={this.handleChangeShainList}
+                      input={
+                        <Input
+                          name="seller_shain_pk"
+                          id="seller_shain_pk"
+                          onChange={this.handleChange_seller_shain.bind(this)}
+                        />
+                      }
+                    >
+                      {/* プルダウン　今後ＤＢより取得する*/}
+                      <option value={1}>事務局</option>
+                      <option value={24}>斉藤雅之</option>
+                      <option value={18}>坂本義和</option>
+                      <option value={34}>開地幸司</option>
+                      <option value={10}>山下祐里枝</option>
+                      <option value={15}>三上徹也</option>
+                      <option value={9}>山城博紀</option>
+                      <option value={20}>吉田潤</option>
+                      <option value={22}>角谷貴之</option>
+                      <option value={32}>所司麻衣子</option>
+                      <option value={33}>藤丸麻里</option>
+                      <option value={6}>石垣努</option>
+                      <option value={29}>泉川真人</option>
+                      <option value={35}>大山勲</option>
+                      <option value={31}>川浦啓佑</option>
+                      <option value={13}>小澤佳奈江</option>
+                      <option value={14}>佐々木唯</option>
+                      <option value={17}>佐藤源生</option>
+                      <option value={12}>佐藤充</option>
+                      <option value={23}>高橋卓馬</option>
+                      <option value={7}>田村映梨奈</option>
+                      <option value={11}>中川大輔</option>
+                      <option value={26}>中山貴博</option>
+                      <option value={30}>野崎卓由</option>
+                      <option value={28}>廣岡拓真</option>
+                      <option value={8}>吉田裕一</option>
+                      <option value={16}>渡邉孝徳</option>
+                    </Select>
+                  </FormControl>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseAdd} color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseAdd} color="secondary">
+                  <Button
+                    onClick={this.handleSubmit.bind(this)}
+                    color="secondary"
+                  >
                     決定
                   </Button>
                 </DialogActions>
               </Dialog>
 
               {/* 編集ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenEdit}
-                variant="outlined"
-                color="primary"
-                className={classes.button}
-              >
-                編集
-              </Button> */}
               <Button
                 onClick={this.handleClickOpenEdit}
-                // variant="extendedFab"
                 variant="raised"
                 aria-label="Delete"
                 className={classes.button}
@@ -996,77 +1280,131 @@ class ComShohinMenteForm extends React.Component {
                   </DialogContentText>
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_code"
                     label="商品コード"
-                    defaultValue="000007"
+                    defaultValue={this.state.shohin_code}
                     fullWidth
-                    disabled
+                    onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
-                    {/* <InputLabel htmlFor="age-native-simple" /> */}
                     <InputLabel shrink htmlFor="age-native-simple">
                       商品分類
                     </InputLabel>
                     <Select
                       native
-                      value={this.state.age}
-                      onChange={this.handleChange('age')}
-                      // inputProps={{
-                      //   name: 'age',
-                      //   id: 'age-native-simple'
-                      // }}
+                      value={this.state.shohin_bunrui}
+                      // onChange={this.handleChange}
                       input={
-                        <Input name="age" id="age-native-label-placeholder" />
+                        <Input
+                          name="shohin_bunrui"
+                          id="shohin_bunrui"
+                          onChange={this.handleChange_shohin_bunrui.bind(this)}
+                        />
                       }
                     >
-                      <option value="" />
-                      <option value={10}>菓子</option>
-                      <option value={20}>飲料水</option>
-                      <option value={30}>カップ麺</option>
-                      <option value={90}>その他</option>
+                      <option value={1}>菓子</option>
+                      <option value={2}>飲料</option>
+                      <option value={3}>食品</option>
+                      <option value={9}>その他</option>
                     </Select>
                   </FormControl>
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_nm1"
                     label="商品名1段目(11文字)"
-                    defaultValue="日清"
+                    defaultValue={this.state.shohin_nm1}
                     fullWidth
+                    onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
                     margin="normal"
-                    id="tytle1"
+                    id="shohin_nm2"
                     label="商品名2段目(11文字)"
-                    defaultValue="カップヌードルS"
+                    defaultValue={this.state.shohin_nm2}
                     fullWidth
+                    onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
                     margin="normal"
+                    id="coin"
                     type="number"
                     label="コイン"
-                    defaultValue="100"
+                    defaultValue={this.state.coin}
                     fullWidth
+                    onChange={this.handleChange_coin.bind(this)}
                   />
+                  {/* 直接コードを入力する場合*/}
+                  {/* <TextField
+                    margin="normal"
+                    id="seller_shain"
+                    type="number"
+                    label="販売社員ID"
+                    defaultValue={this.state.seller_shain_pk}
+                    fullWidth
+                    onChange={this.handleChange_seller_shain.bind(this)}
+                  /> */}
+
+                  <FormControl>
+                    <InputLabel shrink htmlFor="age-native-simple">
+                      販売社員ID
+                    </InputLabel>
+                    <Select
+                      native
+                      value={this.state.seller_shain_pk}
+                      // onChange={this.handleChangeShainList}
+                      input={
+                        <Input
+                          name="seller_shain_pk"
+                          id="seller_shain_pk"
+                          onChange={this.handleChange_seller_shain.bind(this)}
+                        />
+                      }
+                    >
+                      {/* プルダウン　今後ＤＢより取得する*/}
+                      <option value={1}>事務局</option>
+                      <option value={24}>斉藤雅之</option>
+                      <option value={18}>坂本義和</option>
+                      <option value={34}>開地幸司</option>
+                      <option value={10}>山下祐里枝</option>
+                      <option value={15}>三上徹也</option>
+                      <option value={9}>山城博紀</option>
+                      <option value={20}>吉田潤</option>
+                      <option value={22}>角谷貴之</option>
+                      <option value={32}>所司麻衣子</option>
+                      <option value={33}>藤丸麻里</option>
+                      <option value={6}>石垣努</option>
+                      <option value={29}>泉川真人</option>
+                      <option value={35}>大山勲</option>
+                      <option value={31}>川浦啓佑</option>
+                      <option value={13}>小澤佳奈江</option>
+                      <option value={14}>佐々木唯</option>
+                      <option value={17}>佐藤源生</option>
+                      <option value={12}>佐藤充</option>
+                      <option value={23}>高橋卓馬</option>
+                      <option value={7}>田村映梨奈</option>
+                      <option value={11}>中川大輔</option>
+                      <option value={26}>中山貴博</option>
+                      <option value={30}>野崎卓由</option>
+                      <option value={28}>廣岡拓真</option>
+                      <option value={8}>吉田裕一</option>
+                      <option value={16}>渡邉孝徳</option>
+                    </Select>
+                  </FormControl>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">
                     戻る
                   </Button>
-                  <Button onClick={this.handleCloseEdit} color="secondary">
+                  <Button
+                    color="secondary"
+                    onClick={this.handleSubmitEdit.bind(this)}
+                  >
                     決定
                   </Button>
                 </DialogActions>
               </Dialog>
 
               {/* 削除ボタン */}
-              {/* <Button
-                onClick={this.handleClickOpenDelete}
-                variant="outlined"
-                className={classes.button}
-              >
-                削除
-              </Button> */}
-
               <Button
                 onClick={this.handleClickOpenDelete}
                 variant="contained"
@@ -1084,7 +1422,7 @@ class ComShohinMenteForm extends React.Component {
                 aria-describedby="alert-dialog-description"
               >
                 <DialogTitle id="alert-dialog-title">
-                  {'削除してよろしいですか。'}
+                  {"削除してよろしいですか。"}
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
@@ -1096,7 +1434,7 @@ class ComShohinMenteForm extends React.Component {
                     いいえ
                   </Button>
                   <Button
-                    onClick={this.handleCloseDelete}
+                    onClick={this.handleSubmitDelete.bind(this)}
                     color="secondary"
                     autoFocus
                   >
@@ -1109,13 +1447,13 @@ class ComShohinMenteForm extends React.Component {
           {after}
         </div>
       </div>
-    )
+    );
   }
 }
 
 ComShohinMenteForm.propTypes = {
   classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
-}
+  theme: PropTypes.object.isRequired,
+};
 
-export default withStyles(styles, { withTheme: true })(ComShohinMenteForm)
+export default withStyles(styles, { withTheme: true })(ComShohinMenteForm);

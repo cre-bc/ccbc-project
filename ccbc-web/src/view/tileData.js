@@ -193,20 +193,20 @@ export var comKanriListItems = function () {
     if (loginInfo.kengenCd === '0' || loginInfo.kengenCd === '1') {
       return (
         <div>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/com_coin_shokai">
             <img src="/images/com_coin_shokai.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
-            <ListItemText primary="コイン照会（準備中）" />
+            <ListItemText primary="コイン照会" />
           </ListItem>
           <ListItem button component={Link} to="/article">
             <img src="/images/com_kiji.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="記事投稿" />
           </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/com_coin_shojicoin">
             <img src="/images/com_coin_ichiran.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
-            <ListItemText primary="所持コイン一覧（準備中）" />
+            <ListItemText primary="所持コイン一覧" />
           </ListItem>
           <ListItem button component={Link} to="/com_oshirase_mente">
             <img src="/images/com_oshirase_mente2.png" width="40" />
@@ -218,10 +218,10 @@ export var comKanriListItems = function () {
             {/* <Avatar alt="shain_kanri" src="/images/com_kokoku_mente.png" /> */}
             <ListItemText primary="広告メンテナンス（準備中）" />
           </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/com_shohin_mente">
             <img src="/images/com_shohin_mente4.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_shohin_mente3.png" /> */}
-            <ListItemText primary="商品メンテナンス（準備中）" />
+            <ListItemText primary="商品メンテナンス" />
           </ListItem>
         </div>
       )
