@@ -34,24 +34,26 @@ router.post("/create", (req, res) => {
   } else {
     db = require("./common/sequelize_helper.js").sequelize;
   }
-  db
-    .transaction(async function (tx) {
-      // チャットテーブルinsert
-      var t_chat_pk = await insertChat(tx, req);
-      // console.log("t_chat_pk:", t_chat_pk);
-      // チャット既読テーブル更新
-      // await updateChatKidoku(
-      //   req,
-      //   t_chat_pk,
-      //   req.body.loginShainPk,
-      //   req.body.fromShainPk
-      // )
-      res.json({ status: true });
-      // console.log("res.json:", res.json);
-    })
-    .then(result => {
+  db.transaction(async function (tx) {
+    // チャットテーブルinsert
+    var t_chat_pk = await insertChat(tx, req);
+    // console.log("t_chat_pk:", t_chat_pk);
+    // チャット既読テーブル更新
+    // await updateChatKidoku(
+    //   req,
+    //   t_chat_pk,
+    //   req.body.loginShainPk,
+    //   req.body.fromShainPk
+    // )
+    res.json({ status: true });
+    // console.log("res.json:", res.json);
+  })
+    .then((result) => {
       // プッシュ通知
-      if (req.body.fromExpoPushToken !== "" && req.body.fromExpoPushToken !== null) {
+      if (
+        req.body.fromExpoPushToken !== "" &&
+        req.body.fromExpoPushToken !== null
+      ) {
         const pushData = [
           {
             to: req.body.fromExpoPushToken,
@@ -65,23 +67,24 @@ router.post("/create", (req, res) => {
               fromShainPk: req.body.loginShainPk,
               fromShimei: req.body.shimei,
               fromImageFileNm: req.body.imageFileName,
-              fromExpoPushToken: req.body.expo_push_token
-            }
-          }]
+              fromExpoPushToken: req.body.expo_push_token,
+            },
+          },
+        ];
         request
           .post("https://exp.host/--/api/v2/push/send")
           .send(pushData)
           .end((err, res) => {
             if (err) {
-              console.log("chat_msg:", "Push send error:", err)
-              console.log("chat_msg:", "Push send data:", pushData)
+              console.log("chat_msg:", "Push send error:", err);
+              console.log("chat_msg:", "Push send data:", pushData);
             }
           });
       }
       // コミットしたらこっち
       console.log("正常");
     })
-    .catch(e => {
+    .catch((e) => {
       // ロールバックしたらこっち
       console.log("異常");
       console.log(e);
@@ -205,18 +208,16 @@ async function chatMsgGet(req) {
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-    db
-      .query(sql, {
-        replacements: {
-          myPk: req.body.loginShainPk,
-          fromPk: req.body.fromShainPk
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        console.log("★End chatMsgGet");
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: {
+        myPk: req.body.loginShainPk,
+        fromPk: req.body.fromShainPk,
+      },
+      type: db.QueryTypes.RAW,
+    }).spread(async (datas, metadata) => {
+      console.log("★End chatMsgGet");
+      return resolve(datas);
+    });
   });
 }
 
@@ -235,18 +236,16 @@ async function chatKidokuGet(req, fromShainPk, toShainPk) {
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-    db
-      .query(sql, {
-        replacements: {
-          myPk: toShainPk,
-          fromPk: fromShainPk
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        console.log("★End chatKidokuGet");
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: {
+        myPk: toShainPk,
+        fromPk: fromShainPk,
+      },
+      type: db.QueryTypes.RAW,
+    }).spread(async (datas, metadata) => {
+      console.log("★End chatKidokuGet");
+      return resolve(datas);
+    });
   });
 }
 
@@ -265,18 +264,16 @@ async function chatPkGet(req) {
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-    db
-      .query(sql, {
-        replacements: {
-          myPk: req.body.loginShainPk,
-          fromPk: req.body.fromShainPk
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        console.log("★End chatPkGet");
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: {
+        myPk: req.body.loginShainPk,
+        fromPk: req.body.fromShainPk,
+      },
+      type: db.QueryTypes.RAW,
+    }).spread(async (datas, metadata) => {
+      console.log("★End chatPkGet");
+      return resolve(datas);
+    });
   });
 }
 
@@ -295,20 +292,18 @@ async function updateChatKidoku(req, maxChatPk, fromShainPk, toShainPk) {
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-    db
-      .query(sql, {
-        replacements: {
-          chatPk: maxChatPk,
-          myPk: toShainPk,
-          fromPk: fromShainPk,
-          userId: req.body.userid
-        },
-        type: db.QueryTypes.RAW
-      })
-      .spread(async (datas, metadata) => {
-        console.log("★End updateChatKidoku★");
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: {
+        chatPk: maxChatPk,
+        myPk: toShainPk,
+        fromPk: fromShainPk,
+        userId: req.body.userid,
+      },
+      type: db.QueryTypes.RAW,
+    }).spread(async (datas, metadata) => {
+      console.log("★End updateChatKidoku★");
+      return resolve(datas);
+    });
   });
 }
 
@@ -328,14 +323,12 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
       db = require("./common/sequelize_helper.js").sequelize;
     }
 
-    db
-      .query(sql, {
-        replacements: [toShainPk, fromShainPk, 0, userid, null, null]
-      })
-      .spread((datas, metadata) => {
-        // console.log(datas);
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: [toShainPk, fromShainPk, 0, userid, null, null],
+    }).spread((datas, metadata) => {
+      // console.log(datas);
+      return resolve(datas);
+    });
   });
 }
 
@@ -347,32 +340,31 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
 function insertChat(tx, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
-      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?) RETURNING t_chat_pk";
+      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd) " +
+      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?) RETURNING t_chat_pk";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
 
-    db
-      .query(sql, {
-        transaction: tx,
-        replacements: [
-          req.body.loginShainPk,
-          req.body.fromShainPk,
-          req.body.message,
-          0,
-          0,
-          req.body.userid,
-          null,
-          null
-        ]
-      })
-      .spread((datas, metadata) => {
-        // console.log(datas);
-        return resolve(datas[0].t_chat_pk);
-      });
+    db.query(sql, {
+      transaction: tx,
+      replacements: [
+        req.body.loginShainPk,
+        req.body.fromShainPk,
+        req.body.message,
+        0,
+        0,
+        req.body.userid,
+        null,
+        null,
+        null,
+      ],
+    }).spread((datas, metadata) => {
+      // console.log(datas);
+      return resolve(datas[0].t_chat_pk);
+    });
   });
 }
 module.exports = router;
