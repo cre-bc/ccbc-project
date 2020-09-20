@@ -338,7 +338,6 @@ class ComCoinShokaiForm extends React.Component {
     open: false,
     open2: false,
     anchor: 'left',
-    resultList: [],
     userid: null,
     password: null,
     tShainPk: 0,
@@ -353,41 +352,15 @@ class ComCoinShokaiForm extends React.Component {
     trading_partner: '',
     trading_type: '',
     event_type: '1',
-    weightRange: ''
-  }
-
-  constructor(props) {
-    super(props)
-    const params = this.props.match
-    this.state = {
-      year: '',
-      date_start: '',
-      date_end: '',
-      operator: '',
-      trading_partner: '',
-      trading_type: '',
-      nendoList: [],
-      resultList: [],
-      shainList: [],
-      shainListManeger: [],
-      yearList: [],
-      getCoinList: [],
-      year_info: '',
-      target_manager: '',
-      selectList: [],
-      target_select: 0,
-      tableData: [],
-      kengenCd: null,
-      checked: false,
-      userid: null,
-      password: null,
-      tShainPk: 0,
-      imageFileName: null,
-      shimei: null,
-      saveFlg: false,
-      event_type: '1',
-      selectedValue: 'a'
-    }
+    weightRange: '',
+    shainList: [],
+    shainListManeger: [],
+    yearList: [],
+    getCoinList: [],
+    target_manager: '',
+    tableData: [],
+    checked: false,
+    selectedValue: 'a'
   }
 
   handleChange = prop => event => {
