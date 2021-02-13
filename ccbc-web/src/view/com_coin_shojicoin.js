@@ -94,26 +94,7 @@ const drawerWidth = 240
 
 const styles = theme => ({
   root: {
-    /** チェックボックスのstyles */
-    // color: green[600],
-    // '&$checked': {
-    //   color: green[500]
-    // },
     flexGrow: 1,
-    /** ラジオボタンのstyles */
-    formControl: {
-      margin: theme.spacing.unit * 3
-    },
-    group: {
-      margin: `${theme.spacing.unit}px 0`
-    },
-    /** 検索条件部品のstyles */
-    display: 'flex',
-    flexWrap: 'wrap',
-    /** テーブル部品のstyles */
-    width: '100%',
-    marginTop: theme.spacing.unit * 3,
-    overflowX: 'auto'
   },
   /** ここから検索条件 */
   margin: {
@@ -324,7 +305,7 @@ class ComShojiCoinForm extends React.Component {
     shimei: null,
     kengenCd: null,
     data: [],
-    weightRange: ''
+    weightRange: '3'
   }
 
   handleChange = prop => event => {
@@ -366,7 +347,7 @@ class ComShojiCoinForm extends React.Component {
     var maxCoin = 0
     for (var i in this.state.resultList) {
       data.push({
-        name: this.state.resultList[i].shimei,
+        name: this.state.resultList[i].shimei + "\n(" + Number(this.state.resultList[i].sakicoin).toLocaleString() + "コイン)",
         コイン数: Number(this.state.resultList[i].sakicoin)
       })
       if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
@@ -417,12 +398,19 @@ class ComShojiCoinForm extends React.Component {
         this.setState({ resultList: resList })
         this.setState({ headList: head })
 
+        //氏名の順にソート（昇順）
+        this.state.resultList.sort(function (a, b) {
+          if (a.shimei_kana < b.shimei_kana) return -1;
+          if (a.shimei_kana > b.shimei_kana) return 1;
+          return 0;
+        })
+
         //グラフ表示情報（氏名、取得コイン数）設定
         const data = []
         var maxCoin = 0
         for (var i in this.state.resultList) {
           data.push({
-            name: this.state.resultList[i].shimei,
+            name: this.state.resultList[i].shimei + "\n(" + Number(this.state.resultList[i].sakicoin).toLocaleString() + "コイン)",
             コイン数: Number(this.state.resultList[i].sakicoin)
           })
           if (maxCoin < Number(this.state.resultList[i].sakicoin)) {
@@ -609,7 +597,7 @@ class ComShojiCoinForm extends React.Component {
               <div>
                 <ComposedChart //グラフ全体のサイズや位置、データを指定。場合によってmarginで上下左右の位置を指定する必要あり。
                   width={1280} //グラフ全体の幅を指定
-                  height={650} //グラフ全体の高さを指定
+                  height={this.state.data.length * 60} //グラフ全体の高さを指定
                   layout="vertical" //グラフのX軸とY軸を入れ替え
                   data={this.state.data} //Array型のデータを指定
                   margin={{ top: 20, right: 60, bottom: 0, left: 150 }} //marginを指定
@@ -633,17 +621,17 @@ class ComShojiCoinForm extends React.Component {
                     dataKey="name" //Array型のデータの、Y軸に表示したい値のキーを指定
                     stroke="#000000" //軸の色を黒に指定
                   />
-                  <Tooltip />{' '}
+                  {/* <Tooltip />{' '} */}
                   ////hoverさせた時に具体的な値を表示させるように指定
                   <CartesianGrid //グラフのグリッドを指定
-                    stroke="#000000" //グリッド線の色を指定
-                    strokeDasharray="3 3" //グリッド線を点線に指定
+                    stroke="#a5a5a5" //グリッド線の色を指定
+                    // strokeDasharray="3 3" //グリッド線を点線に指定
                   />
                   <Legend />
                   <Bar
                     xAxisId="use"
                     dataKey="コイン数"
-                    barSize={20}
+                    barSize={15}
                     stroke="rgba(34, 80, 162, 0.2)"
                     fillOpacity={1}
                     fill="#FC6903"

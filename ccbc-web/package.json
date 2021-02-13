@@ -7,7 +7,7 @@
     "@material-ui/icons": "^1.0.0",
     "moment": "^2.22.2",
     "prop-types": "^15.6.2",
-    "qrcode.react": "^1.0.0",
+    "qrcode.react": "^1.0.1",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-image-crop": "^8.6.2",

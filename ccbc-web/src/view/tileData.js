@@ -213,10 +213,10 @@ export var comKanriListItems = function () {
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="お知らせメンテナンス" />
           </ListItem>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/com_kokoku_mente">
             <img src="/images/com_kokoku_mente2.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_kokoku_mente.png" /> */}
-            <ListItemText primary="広告メンテナンス（準備中）" />
+            <ListItemText primary="広告メンテナンス" />
           </ListItem>
           <ListItem button component={Link} to="/com_shohin_mente">
             <img src="/images/com_shohin_mente4.png" width="40" />
@@ -228,10 +228,10 @@ export var comKanriListItems = function () {
     } else {
       return (
         <div>
-          <ListItem button component={Link} to="/" disabled={true}>
+          <ListItem button component={Link} to="/com_coin_shokai">
             <img src="/images/com_coin_shokai.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
-            <ListItemText primary="コイン照会（準備中）" />
+            <ListItemText primary="コイン照会" />
           </ListItem>
           <ListItem button component={Link} to="/article">
             <img src="/images/com_kiji.png" width="40" />

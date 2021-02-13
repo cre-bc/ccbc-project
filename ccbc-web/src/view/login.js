@@ -236,6 +236,12 @@ class TextFields extends React.Component {
                     label="Password"
                     className={classes.textField}
                     onChange={this.handleChange('passwordInput')}
+                    onKeyDown={e => {
+                      if (e.keyCode === 13) {
+                        // エンターキー押下時の処理
+                        this.handleClick();
+                      }
+                    }}
                     type="password"
                     autoComplete="current-password"
                     fullWidth
@@ -297,7 +303,7 @@ class TextFields extends React.Component {
                   component="p"
                   align="center"
                   style={{
-                    color: 'white'
+                    color: 'black'
                   }}
                 >
                   Copyright © Creative Consultant Co., Ltd

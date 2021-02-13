@@ -1021,6 +1021,42 @@ class ComOshiraseMenteForm extends React.Component {
               </FormControl>
             </div>
             <div>
+              {/* 追加ボタン */}
+              <Button
+                onClick={this.handleClickOpenAdd}
+                // variant="extendedFab"
+                variant="raised"
+                aria-label="Delete"
+                className={classes.button}
+              >
+                <AddIcon className={classes.extendedIcon} />
+                追加
+              </Button>
+
+              {/* 編集ボタン */}
+              <Button
+                onClick={this.handleClickOpenEdit}
+                // variant="extendedFab"
+                variant="raised"
+                aria-label="Delete"
+                className={classes.button}
+              >
+                <EditIcon className={classes.extendedIcon} />
+                編集
+              </Button>
+
+              {/* 削除ボタン */}
+              <Button
+                onClick={this.handleClickOpenDelete}
+                variant="contained"
+                variant="raised"
+                className={classes.button}
+              >
+                <DeleteIcon className={classes.extendedIcon} />
+                削除
+              </Button>
+            </div>
+            <div>
               {/* 一覧 */}
               <Paper className={classes.root2}>
                 <Typography className={classes.root4} elevation={1} variant="headline" component="h3">

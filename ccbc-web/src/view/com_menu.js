@@ -255,10 +255,10 @@ class ComMenuForm extends React.Component {
       images3 = [
         {
           url: '/images/com_kokoku_mente2.png',
-          title: '広告メンテナンス（準備中）',
+          title: '広告メンテナンス',
           width: '50%',
-          path: '/',
-          disabled: true,
+          path: '/com_kokoku_mente',
+          disabled: false,
         },
         {
           url: '/images/com_shohin_mente4.png',
