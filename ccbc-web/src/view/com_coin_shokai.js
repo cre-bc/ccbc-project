@@ -108,12 +108,6 @@ const CustomTableCell = withStyles(theme => ({
   }
 }))(TableCell)
 
-let id = 0
-function createData(soufu, juryo, coin, event, date) {
-  id += 1
-  return { id, soufu, juryo, coin, event, date }
-}
-
 /**　ここまでがテーブル部分のconst */
 
 const drawerWidth = 240
@@ -162,7 +156,8 @@ const styles = theme => ({
   },
   /**　ここからテーブル */
   table: {
-    minWidth: 700
+    minWidth: 700,
+    width: '100%'
   },
   /** ここからボタン */
   button: {
@@ -343,6 +338,13 @@ class ComCoinShokaiForm extends React.Component {
     open: false,
     open2: false,
     anchor: 'left',
+    userid: null,
+    password: null,
+    tShainPk: 0,
+    imageFileName: null,
+    shimei: null,
+    kengenCd: null,
+    data: [],
     year: '',
     date_start: '',
     date_end: '',
@@ -350,40 +352,15 @@ class ComCoinShokaiForm extends React.Component {
     trading_partner: '',
     trading_type: '',
     event_type: '1',
-    weightRange: ''
-  }
-
-  constructor(props) {
-    super(props)
-    const params = this.props.match
-    this.state = {
-      year: '',
-      date_start: '',
-      date_end: '',
-      operator: '',
-      trading_partner: '',
-      trading_type: '',
-      nendoList: [],
-      resultList: [],
-      shainList: [],
-      yearList: [],
-      getCoinList: [],
-      year_info: '',
-      target_manager: '',
-      selectList: [],
-      target_select: 0,
-      tableData: [],
-      kengenCd: null,
-      checked: false,
-      userid: null,
-      password: null,
-      tShainPk: 0,
-      imageFileName: null,
-      shimei: null,
-      saveFlg: false,
-      event_type: '1',
-      selectedValue: 'a'
-    }
+    weightRange: '',
+    shainList: [],
+    shainListManeger: [],
+    yearList: [],
+    getCoinList: [],
+    target_manager: '',
+    tableData: [],
+    checked: false,
+    selectedValue: 'a'
   }
 
   handleChange = prop => event => {
@@ -525,10 +502,27 @@ class ComCoinShokaiForm extends React.Component {
         }
         // this.setState({ tableData: tableData_copy })
 
-        for (var i in resList2) {
-          this.state.shainList.push({
-            label: resList2[i].shimei,
-            value: resList2[i].t_shain_pk
+        if (this.state.kengenCd == '0' || this.state.kengenCd == '1') {
+          for (var i in resList2) {
+            this.state.shainList.push({
+              label: resList2[i].shimei,
+              value: resList2[i].t_shain_pk
+            })
+            this.state.shainListManeger.push({
+              label: resList2[i].shimei,
+              value: resList2[i].t_shain_pk
+            })
+          }
+        } else {
+          for (var i in resList2) {
+            this.state.shainList.push({
+              label: resList2[i].shimei,
+              value: resList2[i].t_shain_pk
+            })
+          }
+          this.state.shainListManeger.push({
+            label: this.state.shimei,
+            value: this.state.tShainPk
           })
         }
         for (var i in resList3) {
@@ -741,6 +735,7 @@ class ComCoinShokaiForm extends React.Component {
               <form className={classes.container} noValidate>
                 <TextField
                   select
+                  disabled={this.state.selectedValue === 'b'}
                   label="日付（年）"
                   className={classes.textField}
                   value={this.state.weightRange}
@@ -755,6 +750,7 @@ class ComCoinShokaiForm extends React.Component {
                 </TextField>
 
                 <TextField
+                  disabled={this.state.selectedValue === 'a'}
                   id="date"
                   label="日付（開始）"
                   type="date"
@@ -766,6 +762,7 @@ class ComCoinShokaiForm extends React.Component {
                   }}
                 />
                 <TextField
+                  disabled={this.state.selectedValue === 'a'}
                   id="date"
                   label="日付（終了）"
                   type="date"
@@ -789,7 +786,7 @@ class ComCoinShokaiForm extends React.Component {
                   startAdornment: <InputAdornment position="start" />
                 }}
               >
-                {this.state.shainList.map(option => (
+                {this.state.shainListManeger.map(option => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>
