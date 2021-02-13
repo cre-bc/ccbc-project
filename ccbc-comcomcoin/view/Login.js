@@ -94,7 +94,8 @@ export default class Login extends Component {
               bcAccount: resList.bc_account,
               shimei: resList.shimei,
               kengenCd: resList.kengen_cd,
-              tokenId: json.token
+              tokenId: json.token,
+              chatGroupPk: resList.t_chat_group_pk
             }
             this.setLoginInfo(JSON.stringify(loginInfo))
 

@@ -50,6 +50,8 @@ export default class ChatCoinForm extends BaseComponent {
       shoninPoint: "",
       zoyoComment: "",
       shoninMstList: [],
+      screenNo: 12,
+      displayCoin: 0
     };
   }
 
@@ -68,6 +70,9 @@ export default class ChatCoinForm extends BaseComponent {
 
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
+
+    //アクセス情報登録
+    this.setAccessLog()
 
     // websocket切断
     if (socket.connected) {
@@ -116,6 +121,20 @@ export default class ChatCoinForm extends BaseComponent {
     }
   };
 
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
+  }
+
   /** 画面初期表示情報取得 */
   findChatCoin = async () => {
     await fetch(restdomain + "/chat_coin/find", {
@@ -147,11 +166,18 @@ export default class ChatCoinForm extends BaseComponent {
               key: mDataList[i].shonin_cd,
             });
           }
+          // コインを3桁の桁区切りで表記する
+          var s = String(resbccoin).split('.');
+          var retCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+          if (s.length > 1) {
+            retCoin += '.' + s[1];
+          }
           this.setState({ resultList: dataList });
           this.setState({ bccoin: resbccoin });
           this.setState({ from_bcaccount: resfrom_bcaccount });
           this.setState({ shoninList: resShoninList });
           this.setState({ shoninMstList: mDataList });
+          this.setState({ displayCoin: retCoin });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -329,7 +355,7 @@ export default class ChatCoinForm extends BaseComponent {
           <View style={{ flex: 1, alignItems: "flex-end" }} />
         </View>
 
-        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
           <ScrollView>
             <View style={{ flexDirection: "row", flexWrap: "nowrap" }}>
               <View style={{ flexDirection: "column", flexWrap: "nowrap" }}>
@@ -352,7 +378,7 @@ export default class ChatCoinForm extends BaseComponent {
                     fontWeight: "bold",
                   }}
                 >
-                  {this.state.bccoin}
+                  {this.state.displayCoin}
                 </Text>
                 <Text
                   style={{
@@ -476,7 +502,7 @@ export default class ChatCoinForm extends BaseComponent {
               </View>
             </View>
           </ScrollView>
-        </KeyboardAvoidingView>
+        {/* </KeyboardAvoidingView> */}
 
         {/* -- 確認ダイアログ -- */}
         <ConfirmDialog

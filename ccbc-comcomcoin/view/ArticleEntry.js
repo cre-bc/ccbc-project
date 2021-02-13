@@ -49,6 +49,7 @@ export default class ArticleEntry extends BaseComponent {
       isProcessing: false,
       finDialogVisible: false,
       getCoin: 0,
+      screenNo: 16
     }
   }
 
@@ -56,6 +57,9 @@ export default class ArticleEntry extends BaseComponent {
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    // アクセス情報登録
+    this.setAccessLog();
 
     // スマホの画像機能へのアクセス許可
     this.getPermissionAsync()
@@ -91,6 +95,20 @@ export default class ArticleEntry extends BaseComponent {
       selectArticle: paramArticle,
       categoryNm: paramCategory.category_nm
     })
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   getPermissionAsync = async () => {
@@ -282,7 +300,7 @@ export default class ArticleEntry extends BaseComponent {
         <InAppHeader navigate={this.props.navigation.navigate} />
 
         {/* -- 入力部 -- */}
-        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+        {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
           <View style={{ height: "90%" }}>
             <ScrollView>
               <View style={{ padding: 10 }}>
@@ -389,7 +407,7 @@ export default class ArticleEntry extends BaseComponent {
               </View>
             </ScrollView>
           </View>
-        </KeyboardAvoidingView>
+        {/* </KeyboardAvoidingView> */}
 
         {/* -- 確認ダイアログ -- */}
         <ConfirmDialog

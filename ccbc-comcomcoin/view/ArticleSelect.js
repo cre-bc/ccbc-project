@@ -10,7 +10,8 @@ export default class ArticleSelect extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
-      categoryList: []
+      categoryList: [],
+      screenNo: 14
     }
   }
 
@@ -24,6 +25,9 @@ export default class ArticleSelect extends BaseComponent {
   onWillFocus = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    //アクセス情報登録
+    this.setAccessLog()
 
     // 記事API.記事カテゴリ一覧取得処理の呼び出し
     await fetch(restdomain + '/article/findCategory', {
@@ -46,6 +50,20 @@ export default class ArticleSelect extends BaseComponent {
         }.bind(this)
       )
       .catch(error => console.error(error))
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   /** 記事照会画面へ遷移 */

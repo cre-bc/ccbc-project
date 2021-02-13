@@ -38,6 +38,7 @@ export default class ArticleRefer extends BaseComponent {
       searchCondKeyword: "",
       searchCondHashtag: "",
       readLastKijiPk: "",
+      screenNo: 15
     }
   }
 
@@ -54,6 +55,9 @@ export default class ArticleRefer extends BaseComponent {
   onWillFocus = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    //アクセス情報登録
+    this.setAccessLog()
 
     this.state.readLastKijiPk = ""
 
@@ -76,6 +80,20 @@ export default class ArticleRefer extends BaseComponent {
 
     // 記事リスト取得
     await this.readArticle(true)
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   readArticle = async (isFirst) => {

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,98 +7,92 @@ import {
   AsyncStorage,
   Image,
   Modal,
-  Platform
-} from 'react-native'
-import {
-  Button,
-  FormLabel,
-  FormInput,
-  Card,
-  CheckBox
-} from 'react-native-elements'
-import { Notifications } from 'expo'
+  Platform,
+} from "react-native";
+import { Button, FormInput, Card } from "react-native-elements";
+import { Notifications } from "expo";
 
-const restdomain = require('./common/constans.js').restdomain
+const restdomain = require("./common/constans.js").restdomain;
 
 export default class LoginGroupForm extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      id: '',
-      passwordInput: '',
-      bc_account: '',
-      image_file_nm: '',
-      shimei: '',
-      kengen_cd: '',
-      msg: '',
+      id: "",
+      passwordInput: "",
+      bc_account: "",
+      image_file_nm: "",
+      shimei: "",
+      kengen_cd: "",
+      msg: "",
       modalVisible: false,
-      checked: false
-    }
+      checked: false,
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
     // Push通知のリスナー登録
-    Notifications.addListener(this.handleNotification)
+    Notifications.addListener(this.handleNotification);
 
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0)
+        Notifications.setBadgeNumberAsync(0);
       }
-    })
+    });
   }
 
   getGroupInfo = async () => {
     try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
+      return JSON.parse(await AsyncStorage.getItem("groupInfo"));
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
   getLoginInfo = async () => {
     try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
+      return JSON.parse(await AsyncStorage.getItem("loginInfo"));
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
   getChatInfo = async () => {
     try {
-      return JSON.parse(await AsyncStorage.getItem('chatInfo'))
+      return JSON.parse(await AsyncStorage.getItem("chatInfo"));
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
   removeChatInfo = async () => {
     try {
-      await AsyncStorage.removeItem('chatInfo')
+      await AsyncStorage.removeItem("chatInfo");
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
-  setGroupInfo = async groupInfo => {
+  setGroupInfo = async (groupInfo) => {
     try {
-      await AsyncStorage.setItem('groupInfo', groupInfo)
+      await AsyncStorage.setItem("groupInfo", groupInfo);
     } catch (error) {
       //alert(error)
-      return
+      return;
     }
-  }
+  };
 
   onPressButton = async () => {
-    var groupInfo = await this.getGroupInfo()
-    var loginInfo = await this.getLoginInfo()
+    var groupInfo = await this.getGroupInfo();
+    var loginInfo = await this.getLoginInfo();
     // var chatInfo = await this.getChatInfo()
     // await this.removeChatInfo()
     if (groupInfo == null) {
-      this.openModal()
+      this.openModal();
     } else if (groupInfo != null && loginInfo == null) {
-      this.props.navigation.navigate('Login')
+      this.props.navigation.navigate("Login");
       // } else if (loginInfo != null && chatInfo != null) {
       //   // バックグラウンドでチャットのプッシュ通知を受信した場合、直接チャット画面に遷移する
       //   // this.props.navigation.navigate('Home')
@@ -110,94 +104,101 @@ export default class LoginGroupForm extends Component {
       //   })
     } else if (loginInfo != null) {
       // ログイン情報が保持されている場合は、ホーム画面に遷移する
-      this.props.navigation.navigate('Home')
+      this.props.navigation.navigate("Home");
     }
-  }
+  };
 
   handleNotification = async (notification) => {
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then(badgeNumber => {
+    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0)
+        Notifications.setBadgeNumberAsync(0);
       }
-    })
+    });
 
     // ログインしていない場合は何もしない
-    var loginInfo = await this.getLoginInfo()
+    var loginInfo = await this.getLoginInfo();
     if (loginInfo == null) {
-      return
+      return;
     }
 
-    if (notification.origin == 'selected' || Platform.OS === 'ios') {
+    if (notification.origin == "selected" || Platform.OS === "ios") {
       // バックグラウンドでプッシュ通知をタップした時
-      if (notification.data && "fromShainPk" in notification.data) {
+      if (notification.data && "chatGroupPk" in notification.data) {
+        // alert(JSON.stringify(notification))
+        // チャット画面に遷移
+        this.props.navigation.navigate("GroupChatMsg", {
+          chatGroupPk: notification.data.chatGroupPk,
+          chatGroupNm: notification.data.chatGroupNm,
+        });
+      } else if (notification.data && "fromShainPk" in notification.data) {
         // alert(JSON.stringify(notification))
         // チャット画面に遷移
         this.props.navigation.navigate("ChatMsg", {
           fromShainPk: notification.data.fromShainPk,
           fromShimei: notification.data.fromShimei,
           fromImageFileNm: notification.data.fromImageFileNm,
-          fromExpoPushToken: notification.data.fromExpoPushToken
-        })
+          fromExpoPushToken: notification.data.fromExpoPushToken,
+        });
       }
     }
-  }
+  };
 
   openModal() {
-    this.setState({ modalVisible: true })
+    this.setState({ modalVisible: true });
   }
 
   closeModal() {
-    this.setState({ id: '' })
-    this.setState({ msg: '' })
-    this.setState({ checked: false })
-    this.setState({ modalVisible: false })
+    this.setState({ id: "" });
+    this.setState({ msg: "" });
+    this.setState({ checked: false });
+    this.setState({ modalVisible: false });
   }
 
   handleSubmit = () => {
-    fetch(restdomain + '/login_group/find', {
-      method: 'POST',
-      mode: 'cors',
+    fetch(restdomain + "/login_group/find", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
-            if (typeof json.data === 'undefined') {
-              return
+            if (typeof json.data === "undefined") {
+              return;
             }
-            var resList = json.data[0]
+            var resList = json.data[0];
             let groupInfo = {
               // saveFlg: this.state.checked,
               saveFlg: true,
               group_id: resList.group_id,
               db_name: resList.db_name,
-              bc_addr: resList.bc_addr
-            }
-            this.setGroupInfo(JSON.stringify(groupInfo))
-            this.closeModal()
-            this.props.navigation.navigate('Login')
+              bc_addr: resList.bc_addr,
+            };
+            this.setGroupInfo(JSON.stringify(groupInfo));
+            this.closeModal();
+            this.props.navigation.navigate("Login");
           } else {
             this.setState({
-              msg: 'グループIDを確認してください'
-            })
-            return
+              msg: "グループIDを確認してください",
+            });
+            return;
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch((error) => console.error(error));
+  };
 
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={require('./../images/title2.jpg')}
+          source={require("./../images/title2.jpg")}
           style={styles.backgroud_image}
         >
           <View
@@ -205,19 +206,19 @@ export default class LoginGroupForm extends Component {
               height: 30,
               minWidth: 150,
               marginTop: 150,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center'
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <View>
               <Image
                 style={{
                   height: 40,
-                  width: 350
+                  width: 350,
                 }}
                 resizeMode="contain"
-                source={require('./../images/ComComCoin_logo.png')}
+                source={require("./../images/ComComCoin_logo.png")}
               />
             </View>
           </View>
@@ -225,50 +226,50 @@ export default class LoginGroupForm extends Component {
           <View
             style={{
               flex: 2,
-              flexDirection: 'column'
+              flexDirection: "column",
             }}
           />
           <View
             style={{
               flex: 1,
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center'
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <Button
               title="Start"
               onPress={this.onPressButton}
-              icon={{ name: 'sign-in', type: 'font-awesome' }}
-              loadingProps={{ size: 'large', color: 'rgba(111, 202, 186, 1)' }}
-              titleStyle={{ fontWeight: '700' }}
+              icon={{ name: "sign-in", type: "font-awesome", color: "white" }}
+              loadingProps={{ size: "large", color: "rgba(111, 202, 186, 1)" }}
+              // titleStyle={{ fontWeight: "700" }}
               buttonStyle={{
-                backgroundColor: '#ff5622',
+                backgroundColor: "#ff5622",
                 width: 300,
                 height: 45,
-                borderColor: 'transparent',
+                borderColor: "transparent",
                 borderWidth: 0,
-                borderRadius: 5
+                borderRadius: 5,
               }}
               containerStyle={{ marginTop: 20 }}
             />
-            <Text style={{ color: '#FFFFFF', textAlign: 'center' }} />
-            <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>
+            <Text style={{ color: "#FFFFFF", textAlign: "center" }} />
+            <Text style={{ color: "#FFFFFF", textAlign: "center" }}>
               Copyright © Creative Consultant Co., Ltd
             </Text>
           </View>
 
           <Modal
             visible={this.state.modalVisible}
-            animationType={'slide'}
+            animationType={"slide"}
             onRequestClose={() => this.closeModal()}
-          //transparent={true}
+            //transparent={true}
           >
             <View style={styles.modal_style}>
               <View style={{ flex: 1 }} />
               <Card title="グループIDを入力してください" style={{ flex: 1 }}>
                 <FormInput
-                  onChangeText={text => this.setState({ id: text })}
+                  onChangeText={(text) => this.setState({ id: text })}
                   value={this.state.id}
                 />
                 {/* <CheckBox
@@ -279,13 +280,13 @@ export default class LoginGroupForm extends Component {
                   }
                 /> */}
 
-                <Text style={{ color: 'red' }}>{this.state.msg}</Text>
+                <Text style={{ color: "red" }}>{this.state.msg}</Text>
               </Card>
-              <View style={{ flex: 1, flexDirection: 'row' }}>
+              <View style={{ flex: 1, flexDirection: "row" }}>
                 <View style={{ flex: 1 }}>
                   <Button
                     buttonStyle={{
-                      borderRadius: 5
+                      borderRadius: 5,
                     }}
                     onPress={() => this.closeModal()}
                     title="Back"
@@ -294,7 +295,7 @@ export default class LoginGroupForm extends Component {
                 <View style={{ flex: 1 }}>
                   <Button
                     buttonStyle={{
-                      borderRadius: 5
+                      borderRadius: 5,
                     }}
                     onPress={() => this.handleSubmit()}
                     title="Next"
@@ -306,22 +307,22 @@ export default class LoginGroupForm extends Component {
           </Modal>
         </ImageBackground>
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF'
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
   },
   backgroud_image: {
-    width: '100%',
-    height: '100%'
+    width: "100%",
+    height: "100%",
   },
   modal_style: {
-    flex: 1
-  }
-})
+    flex: 1,
+  },
+});

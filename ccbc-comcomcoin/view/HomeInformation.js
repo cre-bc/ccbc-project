@@ -17,6 +17,7 @@ export default class HomeInformation extends BaseComponent {
       title: "",
       comment: "",
       notice_dt: null,
+      screenNo: 7
     }
   }
 
@@ -24,6 +25,9 @@ export default class HomeInformation extends BaseComponent {
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
+
+    //アクセス情報登録
+    this.setAccessLog()
 
     // 引き継ぎパラメータの取得
     const renban = this.props.navigation.getParam("renban")
@@ -55,6 +59,20 @@ export default class HomeInformation extends BaseComponent {
         }.bind(this)
       )
       .catch(error => console.error(error))
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   render() {

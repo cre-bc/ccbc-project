@@ -17,7 +17,8 @@ export default class HomeArticleList extends BaseComponent {
       isProcessing: false,
       mode: "",
       screenTitle: "",
-      articleList: []
+      articleList: [],
+      screenNo: 0
     }
   }
 
@@ -42,6 +43,16 @@ export default class HomeArticleList extends BaseComponent {
       mode: mode,
       screenTitle: screenTitle
     })
+    if (screenTitle === '最新の記事') {
+      this.state.screenNo = 8
+    } else if(screenTitle === '人気の記事') {
+      this.state.screenNo = 9
+    } else {
+      this.state.screenNo = 17
+    }
+
+    //アクセス情報登録
+    this.setAccessLog()
 
     // ホームAPI.ComComCoinホーム記事情報取得処理の呼び出し
     await fetch(restdomain + '/comcomcoin_home/findHomeArticleList', {
@@ -66,6 +77,20 @@ export default class HomeArticleList extends BaseComponent {
       .catch(error => console.error(error))
 
     this.setState({ isProcessing: false })
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   render() {

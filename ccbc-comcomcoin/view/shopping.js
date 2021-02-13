@@ -39,7 +39,10 @@ export default class Shopping extends BaseComponent {
       confirmDialogVisible: false,
       confirmDialogMessage: "",
       isScaning: false,
-      isProcessing: false
+      isProcessing: false,
+      screenNo: 13,
+      displayCoin: 0,
+      displayTotalCoin: 0
     };
     this.props = props;
   }
@@ -56,10 +59,27 @@ export default class Shopping extends BaseComponent {
       hasCameraPermission: status === "granted"
     });
 
+    //アクセス情報登録
+    this.setAccessLog();
+
     // 初期表示情報取得
     this.findShopping();
 
     this.setState({ isProcessing: false });
+  };
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   };
 
   /** 画面初期表示情報取得 */
@@ -90,10 +110,16 @@ export default class Shopping extends BaseComponent {
               key: dataList[i].m_bokin_pk
             });
           }
-
+          // コイン数を3桁カンマ区切り
+          var s = String(coin).split('.');
+          var retCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+          if (s.length > 1) {
+            retCoin += '.' + s[1];
+          }
           this.setState({
             bokinList: bokinList,
-            haveCoin: coin
+            haveCoin: coin,
+            displayCoin: retCoin
           });
         }.bind(this)
       )
@@ -146,13 +172,20 @@ export default class Shopping extends BaseComponent {
 
           // 合計コイン数を算出
           var totalCoin = this.calcTotalCoin(buyList);
+          // コインを3桁の桁区切りで表記する
+          var s = String(totalCoin).split('.');
+          var retTotalCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+          if (s.length > 1) {
+            retTotalCoin += '.' + s[1];
+          }
 
           // ショッピングカートに戻る
           this.setState({
             buyList: buyList,
             totalCoin: totalCoin,
             itemCnt: itemCnt,
-            mode: "cart"
+            mode: "cart",
+            displayTotalCoin: retTotalCoin
           });
         }.bind(this)
       )
@@ -263,11 +296,18 @@ export default class Shopping extends BaseComponent {
     var buyList = this.state.buyList;
     buyList.splice(i, 1);
     var totalCoin = this.calcTotalCoin(buyList);
-
+    // コインを3桁の桁区切りで表記する
+    var s = String(totalCoin).split('.');
+    var retTotalCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    if (s.length > 1) {
+      retTotalCoin += '.' + s[1];
+    }
+    
     this.setState({
       buyList: buyList,
       itemCnt: this.state.itemCnt - 1,
-      totalCoin: totalCoin
+      totalCoin: totalCoin,
+      displayTotalCoin: retTotalCoin
     });
   }
 
@@ -366,7 +406,7 @@ export default class Shopping extends BaseComponent {
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
-                        {Number(this.state.haveCoin).toLocaleString()}
+                        {this.state.displayCoin}
                       </Text>
                     </View>
                     <View style={{ flex: 1 }}>
@@ -386,7 +426,7 @@ export default class Shopping extends BaseComponent {
                   <View style={{ flexDirection: "row" }}>
                     <View style={{ flex: 1 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
-                        {Number(this.state.totalCoin).toLocaleString()}
+                        {this.state.displayTotalCoin}
                       </Text>
                     </View>
                     <View style={{ flex: 1 }}>

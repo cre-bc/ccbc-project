@@ -12,7 +12,8 @@ export default class HomeInfoList extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
-      inforList: []
+      inforList: [],
+      screenNo: 6
     }
   }
 
@@ -21,6 +22,9 @@ export default class HomeInfoList extends BaseComponent {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo()
 
+    //アクセス情報登録
+    this.setAccessLog();
+    
     // ホームAPI.ComComCoinホームお知らせ一覧取得処理の呼び出し
     await fetch(restdomain + '/comcomcoin_home/findHomeInfoList', {
       method: 'POST',
@@ -44,6 +48,20 @@ export default class HomeInfoList extends BaseComponent {
         }.bind(this)
       )
       .catch(error => console.error(error))
+  }
+
+  /** アクセス情報登録 */
+  setAccessLog = async () => {
+    await fetch(restdomain + "/access_log/create", {
+      method: "POST",
+      mode: "cors",
+      body: JSON.stringify(this.state),
+      headers: new Headers({ "Content-type": "application/json" }),
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .catch((error) => console.error(error));
   }
 
   render() {

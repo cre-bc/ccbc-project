@@ -7,13 +7,11 @@ import {
   Text,
   TouchableHighlight,
   AppState,
-  Platform,
-  Alert,
 } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import io from "socket.io-client";
-import KeyboardSpacer from "react-native-keyboard-spacer";
 import Spinner from "react-native-loading-spinner-overlay";
+
 
 import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
@@ -22,41 +20,39 @@ const restdomain = require("./common/constans.js").restdomain;
 const restdomain_ws = require("./common/constans.js").restdomain_ws;
 const socket = io(restdomain_ws, { secure: true, transports: ["websocket"] });
 
-export default class ChatMsgForm extends BaseComponent {
+export default class GroupChatMsgForm extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {
       comment: {},
       resultList: [],
+      resultMemberList: [],
       text: "",
-      fromShainPk: 0,
+      chatGroupPk: 0,
+      chatGroupNm: null,
       chatUser: null,
-      fromImageFileName: null,
       fromExpoPushToken: null,
       messages: [],
       message: [],
       isProcessing: false,
-      test: "",
-      screenNo: 11
+      count: 0,
+      screenNo: 18
     };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
-    this.setState({"test": "componentWillMount"})
     // チャットメッセージの受信（websocket）
     socket.off("comcomcoin_chat");
     socket.on(
       "comcomcoin_chat",
       function (message) {
-        this.setState({"test": "comcomcoin_chat get message"})
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
         if (
-          Number(JSON.parse(message).to_shain_pk) ===
-          Number(this.state.fromShainPk)
+          Number(JSON.parse(message).chatGroupPk) === Number(this.state.chatGroupPk) &&
+          Number(JSON.parse(message).to_shain_pk) !== Number(this.state.loginShainPk)
         ) {
           this.getChatMessage(message);
-          this.setState({"test": "comcomcoin_chat set message"})
         }
       }.bind(this)
     );
@@ -73,22 +69,25 @@ export default class ChatMsgForm extends BaseComponent {
 
   /** コンポーネントのアンマウント時処理 */
   componentWillUnmount = async () => {
-    if (!socket.disconnected) {
-      // websocket切断
-      socket.close();
-      socket.disconnect();
-    }
+    // websocket切断
+    socket.close();
+    socket.disconnect();
     AppState.removeEventListener("change", this.handleAppStateChange);
   };
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
-    this.setState({ isProcessing: true });
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
 
     //アクセス情報登録
     this.setAccessLog()
+
+    // 前画面情報取得
+    // チャットグループ
+    this.state.chatGroupPk = this.props.navigation.getParam("chatGroupPk");
+    // チャットグループ名
+    this.state.chatGroupNm = this.props.navigation.getParam("chatGroupNm");
 
     // アプリの未読件数をクリア
     Notifications.getBadgeNumberAsync().then((badgeNumber) => {
@@ -106,26 +105,11 @@ export default class ChatMsgForm extends BaseComponent {
     // websocket接続
     socket.connect();
 
-    // チャットルーム（自分の社員PK）に接続
-    socket.emit("join", this.state.loginShainPk);
-
-    // 前画面情報取得
-    // チャット相手
-    this.state.fromShainPk = this.props.navigation.getParam("fromShainPk");
-    // チャット相手氏名
-    this.state.chatUser = this.props.navigation.getParam("fromShimei");
-    // チャット相手イメージファイル
-    this.state.fromImageFileName = this.props.navigation.getParam(
-      "fromImageFileNm"
-    );
-    // チャット相手先EXPOプッシュトークン
-    this.state.fromExpoPushToken = this.props.navigation.getParam(
-      "fromExpoPushToken"
-    );
+    // チャットルーム（グループPK）に接続
+    socket.emit("join", this.state.chatGroupPk);
 
     // 初期表示情報取得
     this.findChat();
-    this.setState({ isProcessing: false });
   };
 
   /** 画面遷移時処理（後処理） */
@@ -153,7 +137,7 @@ export default class ChatMsgForm extends BaseComponent {
 
   /** 画面初期表示情報取得 */
   findChat = async () => {
-    await fetch(restdomain + "/chat_msg/find", {
+    await fetch(restdomain + "/group_chat_msg/find", {
       method: "POST",
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" }),
@@ -169,17 +153,21 @@ export default class ChatMsgForm extends BaseComponent {
           }
           // 検索結果の取得
           var dataList = json.data;
+          var memberDataList = json.memberData;
           this.setState({ resultList: dataList });
+          this.setState({ resultMemberList: memberDataList });
 
           var chat = [];
           var chatNo = 0;
           for (var i in dataList) {
             // user._idの値の大きい方がチャット画面の左側に表示されるため、
-            // 自分（ログインユーザー）は[1]固定、チャット相手は[2]固定とする
+            // 自分（ログインユーザー）は[1]固定、チャット相手は[i + 2]固定とする
+            // ※[1]（ログインユーザー）と重ならないようにi + 2にしておく。
+            // また、user._idが同じ場合、同一人物とみなされるため、相手側のuser._idは同一とならないようにする。
             if (dataList[i].from_shain_pk == this.state.loginShainPk) {
               chatNo = 1;
             } else {
-              chatNo = 2;
+              chatNo = dataList[i].from_shain_pk + 1;
             }
             // 取得結果をチャットにセット
             chat.push({
@@ -188,32 +176,32 @@ export default class ChatMsgForm extends BaseComponent {
               createdAt: dataList[i].post_dttm,
               user: {
                 _id: chatNo,
-                name: this.state.chatUser,
-                avatar: restdomain + `/uploads/${this.state.fromImageFileName}`,
+                name: dataList[i].user_id,
+                avatar: restdomain + `/uploads/${dataList[i].image_file_nm}`,
               },
             });
           }
           this.setState({ messages: chat });
+          this.setState({ count: i + 2 });
         }.bind(this)
       )
       .catch((error) => console.error(error));
   };
 
-  /** コイン送付ボタン押下 */
-  onPressChatCoin() {
-    // 画面遷移（コイン送付画面）
-    this.props.navigation.navigate("ChatCoin", {
-      fromShainPk: this.state.fromShainPk,
-      fromShimei: this.state.chatUser,
-      fromImageFileNm: this.state.fromImageFileName,
-      fromExpoPushToken: this.state.fromExpoPushToken,
+  /** グループチャットPushボタン押下 */
+  onPressGroupChatPush() {
+    // 画面遷移（グループチャットPush画面）
+    this.props.navigation.navigate("GroupChatPush", {
+      chatGroupNm: this.state.chatGroupNm,
+      resultMemberList: this.state.resultMemberList,
+      chatGroupPk: this.state.chatGroupPk,
     });
   }
 
   /** 送信ボタン押下 */
   onSend = async (messages = []) => {
     this.state.message = messages[0].text;
-    await fetch(restdomain + "/chat_msg/create", {
+    await fetch(restdomain + "/group_chat_msg/create", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
@@ -232,11 +220,14 @@ export default class ChatMsgForm extends BaseComponent {
             }));
             // チャットメッセージの送信
             const message = {
-              room_id: this.state.fromShainPk,
+              room_id: this.state.chatGroupPk,
               to_shain_pk: this.state.loginShainPk,
               _id: messages[0]._id,
               text: this.state.message,
               createdAt: new Date(),
+              imageFileName: this.state.imageFileName,
+              userid: this.state.userid,
+              chatGroupPk: this.state.chatGroupPk,
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
           }
@@ -247,7 +238,7 @@ export default class ChatMsgForm extends BaseComponent {
 
   /** チャットメッセージ受信時の処理 */
   getChatMessage = async (message) => {
-    await fetch(restdomain + "/chat_msg/kidoku_update", {
+    await fetch(restdomain + "/group_chat_msg/kidoku_update", {
       method: "POST",
       body: JSON.stringify(this.state),
       headers: new Headers({ "Content-type": "application/json" }),
@@ -260,9 +251,9 @@ export default class ChatMsgForm extends BaseComponent {
           if (json.status) {
             var chat = JSON.parse(message);
             var user = {
-              _id: 2,
-              name: this.state.chatUser,
-              avatar: restdomain + `/uploads/${this.state.fromImageFileName}`,
+              _id: chat.to_shain_pk + 1,
+              name: chat.userid,
+              avatar: restdomain + `/uploads/${chat.imageFileName}`,
             };
             chat.user = user;
             var messages = [chat];
@@ -300,14 +291,13 @@ export default class ChatMsgForm extends BaseComponent {
           <View style={{ flex: 1, alignItems: "flex-start" }} />
           {/* チャット相手 */}
           <View style={{ alignItems: "center" }}>
-            <Text style={styles.screenTitleText}>{this.state.chatUser}</Text>
-            {/* <Text style={styles.screenTitleText}>{this.state.test}</Text> */}
+            <Text style={styles.screenTitleText}>{this.state.chatGroupNm}</Text>
           </View>
-          {/* コイン贈与アイコン */}
+          {/* 全員通知アイコン */}
           <View style={{ flex: 1, alignItems: "flex-end", marginRight: 10 }}>
-            <TouchableHighlight onPress={() => this.onPressChatCoin()}>
+            <TouchableHighlight onPress={() => this.onPressGroupChatPush()}>
               <Image
-                source={require("./../images/coin_icon.png")}
+                source={require("./../images/push_icon.png")}
                 style={styles.menu_icon}
               />
             </TouchableHighlight>
