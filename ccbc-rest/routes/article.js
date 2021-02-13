@@ -355,9 +355,10 @@ function selectKijiWithCond(db, req) {
       sqlcond_hashtag +
       sqlcond_keyword +
       " order by kij.t_kiji_pk desc"
-      if (req.body.expo_push_token != null && req.body.expo_push_token != "") {
-        sql += " limit " + READ_COUNT
-      }
+    if (req.body.expo_push_token != null && req.body.expo_push_token != "") {
+      sql += " limit " + READ_COUNT
+    }
+
     db.query(sql, {
       replacements:
         Object.assign(

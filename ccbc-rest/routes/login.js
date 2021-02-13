@@ -14,7 +14,9 @@ router.post('/find', (req, res) => {
   // console.log('----------')
 
   var sql =
-    "select t_shain_pk, user_id, shimei, image_file_nm, kengen_cd, bc_account from t_shain where delete_flg = '0' and user_id = :mypk"
+    "select s.t_shain_pk, s.user_id, s.shimei, s.image_file_nm, s.kengen_cd, s.bc_account ,g.t_chat_group_pk from t_shain s" +
+    " left join t_chat_group_member g on s.t_shain_pk = g.t_shain_pk and g.delete_flg = '0'" +
+    " where s.delete_flg = '0' and s.user_id = :mypk"
 
   if (req.body.db_name != null && req.body.db_name != '') {
     db = db2.sequelize3(req.body.db_name)
@@ -144,6 +146,52 @@ function tokenUpdate(tx, req, token) {
         return resolve(datas)
       })
   })
+}
+
+router.post("/chatGroupFind", (req, res) => {
+  console.log(req.params);
+  findData(req, res);
+});
+
+/**
+ * データ取得用関数
+ *
+ * @param {*} req
+ * @param {*} res
+ */
+async function findData(req, res) {
+
+  var resultData = [];
+  // チャットグループを取得
+  resultData = await chatGroupGet(req);
+  // console.log(resultData);
+  res.json({ status: true, chatGroupData: resultData });
+}
+
+/**
+ * チャットグループ取得用関数
+ *
+ * @param {*} req
+ */
+async function chatGroupGet(req) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select g.t_chat_group_pk" +
+      " from t_chat_group g" +
+      " inner join t_chat_group_member gm on g.t_chat_group_pk = gm.t_chat_group_pk" +
+      " where gm.t_shain_pk = :myPk"
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
+    } else {
+      db = require("./common/sequelize_helper.js").sequelize;
+    }
+    db.query(sql, {
+      replacements: { myPk: req.body.t_shain_pk },
+      type: db.QueryTypes.RAW,
+    }).spread(async (datas, metadata) => {
+      return resolve(datas);
+    });
+  });
 }
 
 module.exports = router

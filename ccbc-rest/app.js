@@ -26,11 +26,12 @@ const shainTorokuRouter = require('./routes/shain_toroku')
 const tohyo_shokai_nendoRouter = require('./routes/tohyo_shokai_nendo')
 const shain_kensakuRouter = require('./routes/shain_kensaku')
 const loginGroupRouter = require('./routes/login_group')
+//const com_coin_shokai_graphRouter = require('./routes/com_coin_shokai_graph')
 
 // TODO : ここにComComCoin用のAPIを追加していく
+const com_shohin_menteRouter = require('./routes/com_shohin_mente')
+const com_kokoku_menteRouter = require('./routes/com_kokoku_mente')
 const com_oshirase_menteRouter = require('./routes/com_oshirase_mente')
-const com_shohin_menteRouter = require("./routes/com_shohin_mente");
-// const com_kokoku_menteRouter = require("./routes/com_kokoku_mente");
 const com_coin_shojicoinRouter = require('./routes/com_coin_shojicoin')
 const com_coin_shokaiRouter = require('./routes/com_coin_shokai')
 const comcomcoinHomeRouter = require('./routes/comcomcoin_home')
@@ -39,6 +40,9 @@ const articleRouter = require('./routes/article')
 const chatSelectRouter = require('./routes/chat_select')
 const chatMsgRouter = require('./routes/chat_msg')
 const chatCoinRouter = require('./routes/chat_coin')
+const groupChatMsgRouter = require("./routes/group_chat_msg");
+const groupChatPushRouter = require("./routes/group_chat_push");
+const accessLogRouter = require('./routes/access_log')
 
 const sampleRouter = require('./routes/sample')
 const comcomcoinMainteRouter = require('./routes/comcomcoin_mainte')
@@ -106,12 +110,13 @@ app.use('/tohyo_shokai_nendo', tohyo_shokai_nendoRouter)
 app.use('/shain_kensaku', shain_kensakuRouter)
 
 app.use('/login_group', loginGroupRouter)
+//app.use('/com_coin_shokai_graph', com_coin_shokai_graphRouter)
 
 // ComComCoin
 // TODO : ここにComComCoin用のAPIを追加していく
+app.use('/com_shohin_mente', com_shohin_menteRouter)
+app.use('/com_kokoku_mente', com_kokoku_menteRouter)
 app.use('/com_oshirase_mente', com_oshirase_menteRouter)
-app.use("/com_shohin_mente", com_shohin_menteRouter);
-// app.use("/com_kokoku_mente", com_kokoku_menteRouter);
 app.use('/com_coin_shojicoin', com_coin_shojicoinRouter)
 app.use('/com_coin_shokai', com_coin_shokaiRouter)
 app.use('/comcomcoin_home', comcomcoinHomeRouter)
@@ -120,6 +125,9 @@ app.use('/article', articleRouter)
 app.use('/chat_select', chatSelectRouter)
 app.use('/chat_msg', chatMsgRouter)
 app.use('/chat_coin', chatCoinRouter)
+app.use("/group_chat_msg", groupChatMsgRouter);
+app.use("/group_chat_push", groupChatPushRouter);
+app.use('/access_log' , accessLogRouter)
 
 // sample
 app.use('/sample', sampleRouter)

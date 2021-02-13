@@ -46,16 +46,21 @@ io.on('connection', function (socket) {
   // チャットルームの設定（接続した社員の社員PKがroom_id）
   socket.on('join', function (room_id) {
     console.log("chat join:", room_id)
-    socket.join(room_id)
+    socket.join(Number(room_id))
   })
 
   // チャットのメッセージを受信した場合、msgに設定している相手の社員PKに対して、メッセージを送信
   // メッセージはJSON形式を文字列化したデータとし、room_idに相手先の社員PKを設定すること
   socket.on('comcomcoin_chat', function (msg) {
     const room_id = JSON.parse(msg).room_id
-    console.log("chat send message:", room_id, JSON.stringify(msg))
-    io.to(room_id).emit('comcomcoin_chat', msg)
+    console.log("chat send 1 message:", room_id, JSON.stringify(msg))
+    io.in(Number(room_id)).emit('comcomcoin_chat', msg)
+    console.log("chat send 2 message:", room_id, JSON.stringify(msg))
   })
+
+//  socket.on('disconnecting', function () {
+//    console.log("chat disconnecting:", socket.rooms)
+//  })
 })
 
 /**
