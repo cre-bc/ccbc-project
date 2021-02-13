@@ -392,25 +392,36 @@ router.post("/get_transaction", async function (req, res, err) {
   try {
     // 照会
     var trans = await web3.eth.getTransaction(transaction);
-    var input = trans.input;
-    var fromAccount = trans.from;
+    if (trans) {
+      var input = trans.input;
+      var fromAccount = trans.from;
 
-    // inputの内容より送金先と送金数を取得
-    // inputの構成：10byte=MethodID, 64byte=[0]送金先(内最終40byteを切り出す), 64byte=[1]送金数(16進数)
-    var toAccount = "0x" + input.substr(10 + 24, 40);
-    var coin = parseInt(input.substr(10 + 64, 64), 16);
+      // inputの内容より送金先と送金数を取得
+      // inputの構成：10byte=MethodID, 64byte=[0]送金先(内最終40byteを切り出す), 64byte=[1]送金数(16進数)
+      var toAccount = "0x" + input.substr(10 + 24, 40);
+      var coin = parseInt(input.substr(10 + 64, 64), 16);
 
-    console.log("### input:" + input);
-    console.log("### frAccount:" + fromAccount);
-    console.log("### toAccount:" + toAccount);
-    console.log("### coin:" + coin);
+      console.log("### input:" + input);
+      console.log("### frAccount:" + fromAccount);
+      console.log("### toAccount:" + toAccount);
+      console.log("### coin:" + coin);
 
-    res.json({
-      sender: fromAccount,
-      receiver: toAccount,
-      coin: coin,
-      result: true
-    });
+      res.json({
+        sender: fromAccount,
+        receiver: toAccount,
+        coin: coin,
+        result: true
+      });
+    } else {
+      console.log("### trans null");
+
+      res.json({
+        sender: "",
+        receiver: "",
+        coin: 0,
+        result: true
+      });
+    }
   } catch (e) {
     console.log(methodNm + ":err:" + e);
     err = e;
@@ -475,24 +486,34 @@ router.post("/get_transactions", function (req, res, err) {
           console.log("### id:" + bcRes.id);
           var index = bcRes.id;
           var trans = bcRes.result;
-          var input = trans.input;
-          var fromAccount = trans.from;
+          if (trans) {
+            var input = trans.input;
+            var fromAccount = trans.from;
 
-          // inputの内容より送金先と送金数を取得
-          // inputの構成：10byte=MethodID, 64byte=[0]送金先(内最終40byteを切り出す), 64byte=[1]送金数(16進数)
-          var toAccount = "0x" + input.substr(10 + 24, 40);
-          var coin = parseInt(input.substr(10 + 64, 64), 16);
+            // inputの内容より送金先と送金数を取得
+            // inputの構成：10byte=MethodID, 64byte=[0]送金先(内最終40byteを切り出す), 64byte=[1]送金数(16進数)
+            var toAccount = "0x" + input.substr(10 + 24, 40);
+            var coin = parseInt(input.substr(10 + 64, 64), 16);
 
-          console.log("### input:" + input);
-          console.log("### frAccount:" + fromAccount);
-          console.log("### toAccount:" + toAccount);
-          console.log("### coin:" + coin);
+            console.log("### input:" + input);
+            console.log("### frAccount:" + fromAccount);
+            console.log("### toAccount:" + toAccount);
+            console.log("### coin:" + coin);
 
-          resTrans[index] = {
-            sender: fromAccount,
-            receiver: toAccount,
-            coin: coin
-          };
+            resTrans[index] = {
+              sender: fromAccount,
+              receiver: toAccount,
+              coin: coin
+            };
+          } else {
+            console.log("### trans null");
+
+            resTrans[index] = {
+              sender: "",
+              receiver: "",
+              coin: 0
+            };
+          }
           i++;
         }
 
