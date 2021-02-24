@@ -2,7 +2,7 @@
 
 export function setShainTorokuData(pShainPk) {
   return {
-    type: 'SETSHAINTOROKUDATA',
-    pShainPk: pShainPk
-  }
+    type: "SETSHAINTOROKUDATA",
+    pShainPk: pShainPk,
+  };
 }

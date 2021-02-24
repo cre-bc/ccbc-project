@@ -301,7 +301,7 @@ class ComKokokuMenteForm extends React.Component {
       this.setState({ shimei: loginInfo["shimei"] });
       this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
-    
+
     // データ取得
     this.read(0);
   }
@@ -309,23 +309,24 @@ class ComKokokuMenteForm extends React.Component {
   read = (index) => {
     //データ取得部分
     request
-    .post(restdomain + "/com_kokoku_mente/find")
-    .send(this.state)
-    .end((err, res) => {
-      if (err) return;
-      // 検索結果表示
-      this.setState({ resultList: res.body.data });
-      this.setState({ index: index });
-      if (this.state.resultList.length > 0) {
-        this.setState({ 
-          renban: this.state.resultList[index].renban,
-          file_path: this.state.resultList[index].file_path,
-          comment: this.state.resultList[index].comment,
-          delete_flg: (this.state.resultList[index].delete_flg == '0'? false : true),
-        })
-      }
-    });
-  }
+      .post(restdomain + "/com_kokoku_mente/find")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) return;
+        // 検索結果表示
+        this.setState({ resultList: res.body.data });
+        this.setState({ index: index });
+        if (this.state.resultList.length > 0) {
+          this.setState({
+            renban: this.state.resultList[index].renban,
+            file_path: this.state.resultList[index].file_path,
+            comment: this.state.resultList[index].comment,
+            delete_flg:
+              this.state.resultList[index].delete_flg == "0" ? false : true,
+          });
+        }
+      });
+  };
 
   handleClickOpen = () => {
     if (this.state.comment == "" || this.state.comment == null) {
@@ -347,16 +348,16 @@ class ComKokokuMenteForm extends React.Component {
   save = () => {
     this.setState({ openDialog: false });
 
-    var form = new FormData()
-    form.append('image', this.state.gazo);
-    form.append('renban', this.state.renban);
-    form.append('file_path', this.state.file_path);
-    form.append('comment', this.state.comment);
-    form.append('delete_flg', (this.state.delete_flg ? "1" : "0"));
-    form.append('userid', this.state.userid)
+    var form = new FormData();
+    form.append("image", this.state.gazo);
+    form.append("renban", this.state.renban);
+    form.append("file_path", this.state.file_path);
+    form.append("comment", this.state.comment);
+    form.append("delete_flg", this.state.delete_flg ? "1" : "0");
+    form.append("userid", this.state.userid);
 
     request
-      .post(restdomain + '/com_kokoku_mente/create')
+      .post(restdomain + "/com_kokoku_mente/create")
       .send(form)
       .end((err, res) => {
         if (err) {
@@ -365,9 +366,9 @@ class ComKokokuMenteForm extends React.Component {
           return;
         }
         alert("更新しました。");
-        this.setState({ gazo: null, srcImageUrl: null })
+        this.setState({ gazo: null, srcImageUrl: null });
         this.read(this.state.index);
-      })
+      });
   };
 
   handleDrawerOpen = () => {
@@ -398,21 +399,22 @@ class ComKokokuMenteForm extends React.Component {
   setItems = (index) => {
     this.setState({ index: index });
     if (this.state.resultList.length > index) {
-      this.setState({ 
+      this.setState({
         renban: this.state.resultList[index].renban,
         file_path: this.state.resultList[index].file_path,
         comment: this.state.resultList[index].comment,
-        delete_flg: (this.state.resultList[index].delete_flg == '0'? false : true),
-      })
+        delete_flg:
+          this.state.resultList[index].delete_flg == "0" ? false : true,
+      });
     } else {
-      this.setState({ 
+      this.setState({
         renban: "",
         file_path: "",
         comment: "",
         delete_flg: false,
-      })
+      });
     }
-  }
+  };
 
   handleCheckedChange = (name) => (event) => {
     this.setState({ [name]: event.target.checked });
@@ -439,7 +441,14 @@ class ComKokokuMenteForm extends React.Component {
     for (var i = 0; i < this.state.resultList.length; i++) {
       preview[i] = (
         <div>
-          <img width="400" height="250" src={restUrl + `uploads/advertise/${this.state.resultList[i].file_path}`} />
+          <img
+            width="400"
+            height="250"
+            src={
+              restUrl +
+              `uploads/advertise/${this.state.resultList[i].file_path}`
+            }
+          />
         </div>
       );
     }
@@ -563,7 +572,7 @@ class ComKokokuMenteForm extends React.Component {
             <Typography
               component="p"
               style={{
-                color: 'red'
+                color: "red",
               }}
             >
               {this.state.msg}
@@ -606,7 +615,9 @@ class ComKokokuMenteForm extends React.Component {
                             size="medium"
                             component="label"
                           >
-                            <Icon className={classes.rightIcon}>attachment</Icon>
+                            <Icon className={classes.rightIcon}>
+                              attachment
+                            </Icon>
                             ファイルを選択
                             <input
                               type="file"
@@ -619,14 +630,26 @@ class ComKokokuMenteForm extends React.Component {
                           </Button>
                         </div>
                         <div className={classes.imagePre}>
-                        <div>
-                          {this.state.srcImageUrl && (
-                            <img width="400" height="250" src={this.state.srcImageUrl} />
-                          )}
-                          {(!this.state.srcImageUrl && this.state.file_path != "") && (
-                            <img width="400" height="250" src={restUrl + `uploads/advertise/${this.state.file_path}`} />
-                          )}
-                        </div>
+                          <div>
+                            {this.state.srcImageUrl && (
+                              <img
+                                width="400"
+                                height="250"
+                                src={this.state.srcImageUrl}
+                              />
+                            )}
+                            {!this.state.srcImageUrl &&
+                              this.state.file_path != "" && (
+                                <img
+                                  width="400"
+                                  height="250"
+                                  src={
+                                    restUrl +
+                                    `uploads/advertise/${this.state.file_path}`
+                                  }
+                                />
+                              )}
+                          </div>
                         </div>
                         <div className={classes.massage}>
                           <TextField
@@ -635,7 +658,7 @@ class ComKokokuMenteForm extends React.Component {
                             label="広告メッセージ(1000文字)"
                             placeholder="内容"
                             rows="10"
-                            inputProps={{maxLength: "1000"}}
+                            inputProps={{ maxLength: "1000" }}
                             multiline
                             fullWidth
                             className={classes.textField}
@@ -652,7 +675,7 @@ class ComKokokuMenteForm extends React.Component {
                             <Checkbox
                               checked={this.state.delete_flg}
                               onChange={(e) => {
-                                this.setState({ delete_flg: e.target.checked})
+                                this.setState({ delete_flg: e.target.checked });
                               }}
                             />
                           }
@@ -685,7 +708,9 @@ class ComKokokuMenteForm extends React.Component {
                     </DialogTitle>
                     <DialogContent>
                       <DialogContentText>
-                        {"広告" + (this.state.index + 1) + "を更新します。よろしいですか？"}
+                        {"広告" +
+                          (this.state.index + 1) +
+                          "を更新します。よろしいですか？"}
                       </DialogContentText>
                     </DialogContent>
                     <DialogActions>

@@ -2,7 +2,7 @@
 
 export function setTohyoShokaiNendoData(pNendo) {
   return {
-    type: 'SETTOHYOSHOKAINENDODATA',
-    pNendo: pNendo
-  }
+    type: "SETTOHYOSHOKAINENDODATA",
+    pNendo: pNendo,
+  };
 }

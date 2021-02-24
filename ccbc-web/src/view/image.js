@@ -1,92 +1,92 @@
-import React, { Component } from 'react'
-import request from 'superagent'
-import { Redirect } from 'react-router-dom'
+import React, { Component } from "react";
+import request from "superagent";
+import { Redirect } from "react-router-dom";
 
 var createObjectURL =
-  (window.URL || window.webkitURL).createObjectURL || window.createObjectURL
+  (window.URL || window.webkitURL).createObjectURL || window.createObjectURL;
 
 export default class ImageForm extends React.Component {
   constructor(props) {
-    super(props)
-    const params = this.props.match
+    super(props);
+    const params = this.props.match;
     this.state = {
       status: true,
       loaded: false,
       mode: params.params.mode,
       readonly: false,
-      message: '',
+      message: "",
       resultList: [],
       id: 1,
       gazo: [],
-      filename: '',
-      image_src: '',
+      filename: "",
+      image_src: "",
       gazo_res: [],
-      image_src_res: ''
-    }
+      image_src_res: "",
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     // プルダウン用のマスタ読み込み
-    request.get('/server/find').end((err, res) => {
-      if (err) return
+    request.get("/server/find").end((err, res) => {
+      if (err) return;
       // 検索結果表示
-      this.setState({ resultList: res.body.data })
-    })
+      this.setState({ resultList: res.body.data });
+    });
   }
 
   getInitialState() {
     return {
-      image_src: ''
-    }
+      image_src: "",
+    };
   }
 
-  handleChangeFile = event => {
+  handleChangeFile = (event) => {
     // ①イベントからfileの配列を受け取る
-    var files = event.target.files
+    var files = event.target.files;
 
-    this.setState({ gazo: files[0] })
-    this.setState({ filename: files[0].name })
+    this.setState({ gazo: files[0] });
+    this.setState({ filename: files[0].name });
 
     // ②createObjectURLで、files[0]を読み込む
-    var image_url = createObjectURL(files[0])
+    var image_url = createObjectURL(files[0]);
     // ③setStateする！
-    this.setState({ image_src: image_url })
-  }
+    this.setState({ image_src: image_url });
+  };
 
   /** 登録処理 */
-  entry = event => {
+  entry = (event) => {
     // 確認ダイアログ
-    if (!window.confirm('登録します。よろしいですか？')) {
-      return
+    if (!window.confirm("登録します。よろしいですか？")) {
+      return;
     }
-    var form = new FormData()
-    form.append('image', this.state.gazo)
+    var form = new FormData();
+    form.append("image", this.state.gazo);
     request
-      .post('/image/update')
+      .post("/image/update")
       .send(form)
       .end((err, res) => {
-        if (err) return
+        if (err) return;
         // 登録後処理（通知等）
-        this.setState({ readonly: true })
-        this.setState({ message: '登録が完了しました。' })
-        window.scrollTo(0, 0)
-      })
-  }
+        this.setState({ readonly: true });
+        this.setState({ message: "登録が完了しました。" });
+        window.scrollTo(0, 0);
+      });
+  };
 
-  find = event => {
+  find = (event) => {
     request
-      .get('/image/find')
+      .get("/image/find")
       .send(this.state)
       .end((err, res) => {
-        if (err) return
-        this.setState({ image_src_res: res.body.data[0].image })
-      })
-  }
+        if (err) return;
+        this.setState({ image_src_res: res.body.data[0].image });
+      });
+  };
 
   render() {
     // 検索結果リスト
-    const resultList = this.state.resultList.map(data => (
+    const resultList = this.state.resultList.map((data) => (
       <div>
         ID ： {data.id}
         <br />
@@ -95,15 +95,15 @@ export default class ImageForm extends React.Component {
         パスワード ： {data.pass}
         <hr />
       </div>
-    ))
+    ));
 
-    var image = ''
+    var image = "";
     if (this.state.image_src_res) {
       image = (
         <img
           src={`http://localhost:3001/uploads/${this.state.image_src_res}`}
         />
-      )
+      );
     }
 
     return (
@@ -133,6 +133,6 @@ export default class ImageForm extends React.Component {
           {image}
         </div>
       </div>
-    )
+    );
   }
 }

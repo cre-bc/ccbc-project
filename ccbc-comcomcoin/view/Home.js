@@ -46,7 +46,7 @@ export default class Home extends BaseComponent {
       chatCnt: 0,
       articleCnt: 0,
       bccoin: 0,
-      screenNo: 4
+      screenNo: 4,
     };
   }
 
@@ -146,17 +146,20 @@ export default class Home extends BaseComponent {
           if (typeof json.data === "undefined") {
             // 結果が取得できない場合は終了
           } else {
-            var coin = json.data.bccoin
+            var coin = json.data.bccoin;
             // 所持コインが上限値（99999）を超える場合
-            if(coin > 99999){
+            if (coin > 99999) {
               // コイン数100000以上は99999固定の表記にする
-              coin = 99999
+              coin = 99999;
             }
             // コイン数を3桁カンマ区切り
-            var s = String(coin).split('.');
-            var retCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+            var s = String(coin).split(".");
+            var retCoin = String(s[0]).replace(
+              /(\d)(?=(\d\d\d)+(?!\d))/g,
+              "$1,"
+            );
             if (s.length > 1) {
-              retCoin += '.' + s[1];
+              retCoin += "." + s[1];
             }
             // 取得したデータをStateに格納
             this.setState({
@@ -300,7 +303,7 @@ export default class Home extends BaseComponent {
                 style={styles.sectionMoreText}
                 onPress={() => this.props.navigation.navigate("HomeInfoList")}
               >
-                もっと見る>
+                {"もっと見る>"}
               </Text>
             </View>
             <View>
@@ -349,7 +352,7 @@ export default class Home extends BaseComponent {
                   })
                 }
               >
-                もっと見る>
+                {"もっと見る>"}
               </Text>
             </View>
 
@@ -445,7 +448,7 @@ export default class Home extends BaseComponent {
                   })
                 }
               >
-                もっと見る>
+                {"もっと見る>"}
               </Text>
             </View>
 

@@ -1,73 +1,73 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from "react";
+import ReactDOM from "react-dom";
 import {
   BrowserRouter,
   HashRouter,
   Route,
   Link,
-  Switch
-} from 'react-router-dom'
-import { createStore, combineReducers, applyMiddleware } from 'redux'
-import { Provider } from 'react-redux'
-import createHistory from 'history/createBrowserHistory'
-import Auth from './view/auth'
+  Switch,
+} from "react-router-dom";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import { Provider } from "react-redux";
+import createHistory from "history/createBrowserHistory";
+import Auth from "./view/auth";
 import {
   ConnectedRouter,
   routerReducer,
-  routerMiddleware
-} from 'react-router-redux'
-import { countReducer } from './reducers/count'
-import { coinShokaiReducer } from './reducers/coin_shokai'
-import { tohyo_shokai_shosaiReducer } from './reducers/tohyo_shokai_shosai'
-import { tohyoShokaiKobetsuReducer } from './reducers/tohyo_shokai_kobetsu'
-import { tohyo_shokai_nendoReducer } from './reducers/tohyo_shokai_nendo'
-import { shainTorokuReducer } from './reducers/shain_toroku'
-import { senkyoKanriReducer } from './reducers/senkyo_kanri'
-import ScrollToTop from './view/scroll_to_top'
+  routerMiddleware,
+} from "react-router-redux";
+import { countReducer } from "./reducers/count";
+import { coinShokaiReducer } from "./reducers/coin_shokai";
+import { tohyo_shokai_shosaiReducer } from "./reducers/tohyo_shokai_shosai";
+import { tohyoShokaiKobetsuReducer } from "./reducers/tohyo_shokai_kobetsu";
+import { tohyo_shokai_nendoReducer } from "./reducers/tohyo_shokai_nendo";
+import { shainTorokuReducer } from "./reducers/shain_toroku";
+import { senkyoKanriReducer } from "./reducers/senkyo_kanri";
+import ScrollToTop from "./view/scroll_to_top";
 
-import HeaderForm from './view/header'
-import FooterForm from './view/footer'
-import LoginForm from './view/login'
-import CheckForm from './view/check'
-import CheckSuccessForm from './view/check_success'
-import ReduxForm from './view/redux'
-import ReduxCountForm from './view/redux_count'
-import ReduxDisplayForm from './view/redux_display'
-import ReduxDisplayForm2 from './view/redux_display2'
+import HeaderForm from "./view/header";
+import FooterForm from "./view/footer";
+import LoginForm from "./view/login";
+import CheckForm from "./view/check";
+import CheckSuccessForm from "./view/check_success";
+import ReduxForm from "./view/redux";
+import ReduxCountForm from "./view/redux_count";
+import ReduxDisplayForm from "./view/redux_display";
+import ReduxDisplayForm2 from "./view/redux_display2";
 
-import SampleForm from './view/sample'
-import RadarChartForm from './view/radar'
-import GraphForm from './view/graph'
-import DbForm from './view/db'
-import ImageForm from './view/image'
-import MenuForm from './view/menu'
-import SenkyoKanriForm from './view/senkyo_kanri'
-import SenkyoTorokuForm from './view/senkyo_toroku'
-import TohyoTorokuForm from './view/tohyo_toroku'
-import TohyoIchiranForm from './view/tohyo_ichiran'
-import TohyoShokaiKobetsuForm from './view/tohyo_shokai_kobetsu'
-import TohyoShokaiShosaiForm from './view/tohyo_shokai_shosai'
-import CommentShokaiForm from './view/comment_shokai'
-import CoinShokaiForm from './view/coin_shokai'
-import TohyoShokaiNendoForm from './view/tohyo_shokai_nendo'
-import ShainKensakuForm from './view/shain_kensaku'
-import ShainTorokuForm from './view/shain_toroku'
-import CoinZoyoForm from './view/coin_zoyo'
+import SampleForm from "./view/sample";
+import RadarChartForm from "./view/radar";
+import GraphForm from "./view/graph";
+import DbForm from "./view/db";
+import ImageForm from "./view/image";
+import MenuForm from "./view/menu";
+import SenkyoKanriForm from "./view/senkyo_kanri";
+import SenkyoTorokuForm from "./view/senkyo_toroku";
+import TohyoTorokuForm from "./view/tohyo_toroku";
+import TohyoIchiranForm from "./view/tohyo_ichiran";
+import TohyoShokaiKobetsuForm from "./view/tohyo_shokai_kobetsu";
+import TohyoShokaiShosaiForm from "./view/tohyo_shokai_shosai";
+import CommentShokaiForm from "./view/comment_shokai";
+import CoinShokaiForm from "./view/coin_shokai";
+import TohyoShokaiNendoForm from "./view/tohyo_shokai_nendo";
+import ShainKensakuForm from "./view/shain_kensaku";
+import ShainTorokuForm from "./view/shain_toroku";
+import CoinZoyoForm from "./view/coin_zoyo";
 
 // ComComCoin
-import ComCoinShokaiForm from './view/com_coin_shokai'
-import ComCoinShokaiGraphForm from './view/com_coin_shokai_graph'
-import ComCoinShojicoinForm from './view/com_coin_shojicoin'
-import ComShohinMenteForm from './view/com_shohin_mente'
-import ComKokokuMenteForm from './view/com_kokoku_mente'
-import ComOshiraseMenteForm from './view/com_oshirase_mente'
-import ArtcleForm from './view/article'
+import ComCoinShokaiForm from "./view/com_coin_shokai";
+import ComCoinShokaiGraphForm from "./view/com_coin_shokai_graph";
+import ComCoinShojicoinForm from "./view/com_coin_shojicoin";
+import ComShohinMenteForm from "./view/com_shohin_mente";
+import ComKokokuMenteForm from "./view/com_kokoku_mente";
+import ComOshiraseMenteForm from "./view/com_oshirase_mente";
+import ArtcleForm from "./view/article";
 
-import AppSelectForm from './view/app_select'
-import ComMenuForm from './view/com_menu'
+import AppSelectForm from "./view/app_select";
+import ComMenuForm from "./view/com_menu";
 
-const history = createHistory()
-const middleware = routerMiddleware(history)
+const history = createHistory();
+const middleware = routerMiddleware(history);
 
 const store = createStore(
   combineReducers({
@@ -79,10 +79,10 @@ const store = createStore(
     shainToroku: shainTorokuReducer,
     shain_toroku: shainTorokuReducer,
     senkyoKanri: senkyoKanriReducer,
-    routing: routerReducer
+    routing: routerReducer,
   }),
   applyMiddleware(middleware)
-)
+);
 
 // history.listen(location => {
 //   setTimeout(() => {
@@ -175,5 +175,5 @@ ReactDOM.render(
     </ConnectedRouter>
     {/* </HashRouter> */}
   </Provider>,
-  document.getElementById('root')
-)
+  document.getElementById("root")
+);

@@ -2,9 +2,9 @@
 
 export function setTohyoShokaiKobetsuData(pSenkyoPk, pName, pNendo) {
   return {
-    type: 'SETTOHYOSHOKAIKOBETSUDATA',
+    type: "SETTOHYOSHOKAIKOBETSUDATA",
     pSenkyoPk: pSenkyoPk,
     pName: pName,
-    pNendo: pNendo
-  }
+    pNendo: pNendo,
+  };
 }

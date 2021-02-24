@@ -40,7 +40,7 @@ export default class ChatCoinForm extends BaseComponent {
       chatGroupNm: null,
       resultMemberList: [],
       chatGroupPk: 0,
-      screenNo: 19
+      screenNo: 19,
     };
   }
 
@@ -59,7 +59,7 @@ export default class ChatCoinForm extends BaseComponent {
     await this.getLoginInfo();
 
     //アクセス情報登録
-    this.setAccessLog()
+    this.setAccessLog();
 
     // websocket切断
     if (socket.connected) {
@@ -102,7 +102,7 @@ export default class ChatCoinForm extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   /** 送信ボタン押下 */
   onClickSend = async () => {

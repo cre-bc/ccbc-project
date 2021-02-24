@@ -15,13 +15,13 @@ var router = express.Router();
  *          [ message ]    - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/add_account", function(req, res, err) {
+router.post("/add_account", function (req, res, err) {
   console.log("★add_account:param:" + JSON.stringify(req.body));
 
   // 正常時
   res.json({
     bc_account: "0xtest000000000000000000000000000000000000",
-    result: true
+    result: true,
   });
   // エラー時
   //res.json({ result: false, message: "エラーです。" })
@@ -37,7 +37,7 @@ router.post("/add_account", function(req, res, err) {
  *          [ message ]  - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/login", function(req, res, err) {
+router.post("/login", function (req, res, err) {
   console.log("★login:param:" + JSON.stringify(req.body));
 
   // 正常時(ログイン成功)
@@ -61,7 +61,7 @@ router.post("/login", function(req, res, err) {
  *          [ message ]        - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/send_coin", function(req, res, err) {
+router.post("/send_coin", function (req, res, err) {
   console.log("send_coin:param:" + JSON.stringify(req.body));
   var toAccounts = req.body.to_account;
   var resTransactions = new Array(toAccounts.length);
@@ -87,7 +87,7 @@ router.post("/send_coin", function(req, res, err) {
  *          [ message ] - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_coin", function(req, res, err) {
+router.post("/get_coin", function (req, res, err) {
   console.log("get_coin:param:" + JSON.stringify(req.body));
 
   // 正常時
@@ -107,7 +107,7 @@ router.post("/get_coin", function(req, res, err) {
  *          [ message ] - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_coin_year", function(req, res, err) {
+router.post("/get_coin_year", function (req, res, err) {
   console.log("get_coin:param:" + JSON.stringify(req.body));
 
   // 正常時
@@ -128,7 +128,7 @@ router.post("/get_coin_year", function(req, res, err) {
  *          [ message ]     - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_transaction", function(req, res, err) {
+router.post("/get_transaction", function (req, res, err) {
   console.log("get_transaction:param:" + JSON.stringify(req.body));
 
   // 正常時
@@ -136,7 +136,7 @@ router.post("/get_transaction", function(req, res, err) {
     sender: "0xtest000000000000000000000000000000000000",
     receiver: "0xtest000000000000000000000000000000000001",
     coin: 2000,
-    result: true
+    result: true,
   });
   // エラー時
   /*
@@ -163,7 +163,7 @@ router.post("/get_transaction", function(req, res, err) {
  *          [ message ]     - エラーメッセージ(エラー時のみ)
  * ------------------------------------------------------------
  */
-router.post("/get_transactions", function(req, res, err) {
+router.post("/get_transactions", function (req, res, err) {
   console.log("get_transactions:param:" + JSON.stringify(req.body));
 
   var prmTransaction = req.body.transaction;
@@ -173,7 +173,7 @@ router.post("/get_transactions", function(req, res, err) {
     resTrans[i] = {
       sender: "0xtest000000000000000000000000000000000000",
       receiver: "0xtest000000000000000000000000000000000001",
-      coin: 1000
+      coin: 1000,
     };
     i++;
   }

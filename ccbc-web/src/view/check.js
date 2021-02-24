@@ -1,41 +1,41 @@
-import React, { Component } from 'react'
-import request from 'superagent'
-import { Redirect, Link } from 'react-router-dom'
-import { withStyles } from '@material-ui/core/styles'
+import React, { Component } from "react";
+import request from "superagent";
+import { Redirect, Link } from "react-router-dom";
+import { withStyles } from "@material-ui/core/styles";
 
-const styles = theme => ({
-  root: {}
-})
+const styles = (theme) => ({
+  root: {},
+});
 
 class CheckForm extends Component {
   state = {
-    msg: '',
-    inputtext: '',
-    aaa: 'aaa'
-  }
+    msg: "",
+    inputtext: "",
+    aaa: "aaa",
+  };
 
-  onClick = event => {
-    this.setState({ msg: '' })
-    var test = document.getElementById('test').value
-    this.setState({ inputtext: test })
-    this.state.inputtext = test
+  onClick = (event) => {
+    this.setState({ msg: "" });
+    var test = document.getElementById("test").value;
+    this.setState({ inputtext: test });
+    this.state.inputtext = test;
 
     request
-      .post('/server/check')
+      .post("/server/check")
       .send(this.state)
       .end((err, res) => {
         if (err) {
-          this.setState({ msg: '予期せぬエラーです。' })
-          return
+          this.setState({ msg: "予期せぬエラーです。" });
+          return;
         }
-        var result = res.body.status
+        var result = res.body.status;
         if (result) {
-          window.location.href = '/check_success'
+          window.location.href = "/check_success";
         } else {
-          this.setState({ msg: '入力エラーです。testを入力してください。' })
+          this.setState({ msg: "入力エラーです。testを入力してください。" });
         }
-      })
-  }
+      });
+  };
 
   render() {
     return (
@@ -50,8 +50,8 @@ class CheckForm extends Component {
         <br />
         {this.state.msg}
       </div>
-    )
+    );
   }
 }
 
-export default withStyles(styles, { withTheme: true })(CheckForm)
+export default withStyles(styles, { withTheme: true })(CheckForm);

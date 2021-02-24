@@ -51,15 +51,15 @@ router.post("/find", (req, res) => {
  * @res {*} res
  */
 async function finddata(req, res) {
-  var shohinDatas = []
-  var shainDatas = []
+  var shohinDatas = [];
+  var shainDatas = [];
   shohinDatas = await findMShohin(req);
   shainDatas = await findTShain(req);
   res.json({
     status: true,
     shohinData: shohinDatas,
-    shainData: shainDatas
-  })
+    shainData: shainDatas,
+  });
 }
 
 /**
@@ -68,29 +68,27 @@ async function finddata(req, res) {
  */
 function findMShohin(req) {
   return new Promise((resolve, reject) => {
-    if (req.body.db_name != null && req.body.db_name != '') {
-      db = db2.sequelize3(req.body.db_name)
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
     } else {
-      db = require('./common/sequelize_helper.js').sequelize
+      db = require("./common/sequelize_helper.js").sequelize;
     }
     var sql =
-    "select msho.m_shohin_pk, msho.shohin_code, msho.shohin_nm1, msho.shohin_nm2, msho.coin, msho.shohin_bunrui, msho.seller_shain_pk, tsha.shimei, " +
-    "case when msho.shohin_bunrui=1 THEN '菓子' when msho.shohin_bunrui=2 THEN '飲料' when msho.shohin_bunrui=3 THEN '食品' when msho.shohin_bunrui=9 THEN 'その他' end as shohin_bunrui_mei " +
-    "from m_shohin msho" +
-    " left join t_shain tsha on msho.seller_shain_pk = tsha.t_shain_pk " +
-    " where msho.delete_flg = '0'";
+      "select msho.m_shohin_pk, msho.shohin_code, msho.shohin_nm1, msho.shohin_nm2, msho.coin, msho.shohin_bunrui, msho.seller_shain_pk, tsha.shimei, " +
+      "case when msho.shohin_bunrui=1 THEN '菓子' when msho.shohin_bunrui=2 THEN '飲料' when msho.shohin_bunrui=3 THEN '食品' when msho.shohin_bunrui=9 THEN 'その他' end as shohin_bunrui_mei " +
+      "from m_shohin msho" +
+      " left join t_shain tsha on msho.seller_shain_pk = tsha.t_shain_pk " +
+      " where msho.delete_flg = '0'";
     if (req.body.targetCode !== 0) {
       sql += " and msho.shohin_bunrui = '" + req.body.targetCode + "'";
     }
-    sql += " order by msho.shohin_code asc"
-    db
-      .query(sql, {
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas)
-      })
-  })
+    sql += " order by msho.shohin_code asc";
+    db.query(sql, {
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
+  });
 }
 
 /**
@@ -99,24 +97,22 @@ function findMShohin(req) {
  */
 function findTShain(req) {
   return new Promise((resolve, reject) => {
-    if (req.body.db_name != null && req.body.db_name != '') {
-      db = db2.sequelize3(req.body.db_name)
+    if (req.body.db_name != null && req.body.db_name != "") {
+      db = db2.sequelize3(req.body.db_name);
     } else {
-      db = require('./common/sequelize_helper.js').sequelize
+      db = require("./common/sequelize_helper.js").sequelize;
     }
     var sql =
       "select tsha.t_shain_pk as t_shain_pk, tsha.shimei as shimei" +
       " from t_shain tsha" +
       " where tsha.delete_flg = '0' " +
-      " order by convert_to(tsha.shimei_kana,'UTF8') "
-    db
-      .query(sql, {
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas)
-      })
-  })
+      " order by convert_to(tsha.shimei_kana,'UTF8') ";
+    db.query(sql, {
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
+  });
 }
 
 /**
@@ -230,7 +226,7 @@ function mshohinInsert(tx, resdatas, req) {
         req.body.userid,
         null,
         null,
-        (req.body.seller_shain_pk == "" ? null : req.body.seller_shain_pk),
+        req.body.seller_shain_pk == "" ? null : req.body.seller_shain_pk,
         req.body.shohin_bunrui,
       ],
     }).spread((datas, metadata) => {
@@ -262,7 +258,7 @@ function mshohinUpdate(tx, resdatas, req) {
         req.body.shohin_nm2,
         req.body.coin,
         req.body.shohin_bunrui,
-        (req.body.seller_shain_pk == "" ? null : req.body.seller_shain_pk),
+        req.body.seller_shain_pk == "" ? null : req.body.seller_shain_pk,
         req.body.userid,
         req.body.m_shohin_pk,
       ],

@@ -37,26 +37,26 @@ export default class ChatMsgForm extends BaseComponent {
       message: [],
       isProcessing: false,
       test: "",
-      screenNo: 11
+      screenNo: 11,
     };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
-    this.setState({"test": "componentWillMount"})
+    this.setState({ test: "componentWillMount" });
     // チャットメッセージの受信（websocket）
     socket.off("comcomcoin_chat");
     socket.on(
       "comcomcoin_chat",
       function (message) {
-        this.setState({"test": "comcomcoin_chat get message"})
+        this.setState({ test: "comcomcoin_chat get message" });
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
         if (
           Number(JSON.parse(message).to_shain_pk) ===
           Number(this.state.fromShainPk)
         ) {
           this.getChatMessage(message);
-          this.setState({"test": "comcomcoin_chat set message"})
+          this.setState({ test: "comcomcoin_chat set message" });
         }
       }.bind(this)
     );
@@ -88,7 +88,7 @@ export default class ChatMsgForm extends BaseComponent {
     await this.getLoginInfo();
 
     //アクセス情報登録
-    this.setAccessLog()
+    this.setAccessLog();
 
     // アプリの未読件数をクリア
     Notifications.getBadgeNumberAsync().then((badgeNumber) => {
@@ -149,7 +149,7 @@ export default class ChatMsgForm extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   /** 画面初期表示情報取得 */
   findChat = async () => {

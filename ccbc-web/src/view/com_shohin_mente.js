@@ -665,14 +665,18 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ shohin_nm2: null });
     this.setState({ coin: null });
     this.setState({ seller_shain_pk: null });
-  }
+  };
 
-  checkInput = () => {  
+  checkInput = () => {
     if (this.state.shohin_code == "") {
       alert("商品コードを入力してください。");
       return false;
     }
-    if (this.state.shohin_bunrui == null || this.state.shohin_bunrui == "" || this.state.shohin_bunrui == "0") {
+    if (
+      this.state.shohin_bunrui == null ||
+      this.state.shohin_bunrui == "" ||
+      this.state.shohin_bunrui == "0"
+    ) {
       alert("商品分類を選択してください。");
       return false;
     }
@@ -685,7 +689,7 @@ class ComShohinMenteForm extends React.Component {
       return false;
     }
     return true;
-  }
+  };
 
   handleSubmit = async () => {
     if (this.checkInput() == false) {
@@ -1152,7 +1156,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_code"
                     label="商品コード"
                     fullWidth
-                    inputProps={{maxLength: "4"}}
+                    inputProps={{ maxLength: "4" }}
                     onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
@@ -1185,7 +1189,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_nm1"
                     label="商品名1段目(11文字)"
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
@@ -1193,7 +1197,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_nm2"
                     label="商品名2段目(11文字)"
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
@@ -1202,7 +1206,7 @@ class ComShohinMenteForm extends React.Component {
                     type="number"
                     label="コイン"
                     fullWidth
-                    inputProps={{maxLength: "6"}}
+                    inputProps={{ maxLength: "6" }}
                     onChange={this.handleChange_coin.bind(this)}
                   />
                   {/* 直接コードを入力する場合*/}
@@ -1232,8 +1236,10 @@ class ComShohinMenteForm extends React.Component {
                       }
                     >
                       <option value={""} />
-                      {this.state.shainList.map(option => (
-                        <option value={option.t_shain_pk}>{option.shimei}</option>
+                      {this.state.shainList.map((option) => (
+                        <option value={option.t_shain_pk}>
+                          {option.shimei}
+                        </option>
                       ))}
                     </Select>
                   </FormControl>
@@ -1277,7 +1283,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品コード"
                     defaultValue={this.state.shohin_code}
                     fullWidth
-                    inputProps={{maxLength: "4"}}
+                    inputProps={{ maxLength: "4" }}
                     onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
@@ -1309,7 +1315,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品名1段目(11文字)"
                     defaultValue={this.state.shohin_nm1}
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
@@ -1318,7 +1324,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品名2段目(11文字)"
                     defaultValue={this.state.shohin_nm2}
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
@@ -1328,7 +1334,7 @@ class ComShohinMenteForm extends React.Component {
                     label="コイン"
                     defaultValue={this.state.coin}
                     fullWidth
-                    inputProps={{maxLength: "6"}}
+                    inputProps={{ maxLength: "6" }}
                     onChange={this.handleChange_coin.bind(this)}
                   />
                   {/* 直接コードを入力する場合*/}
@@ -1359,8 +1365,10 @@ class ComShohinMenteForm extends React.Component {
                       }
                     >
                       <option value={""} />
-                      {this.state.shainList.map(option => (
-                        <option value={option.t_shain_pk}>{option.shimei}</option>
+                      {this.state.shainList.map((option) => (
+                        <option value={option.t_shain_pk}>
+                          {option.shimei}
+                        </option>
                       ))}
                     </Select>
                   </FormControl>

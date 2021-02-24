@@ -1,264 +1,265 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
-import { withStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import { Link } from 'react-router-dom'
-import ButtonBase from '@material-ui/core/ButtonBase'
-import { kanriListItems, systemName, restUrl, titleItems } from './tileData'
-import Avatar from '@material-ui/core/Avatar'
-import Chip from '@material-ui/core/Chip'
-import { Manager, Target, Popper } from 'react-popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import MenuList from '@material-ui/core/MenuList'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
+import React from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import { withStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import MenuItem from "@material-ui/core/MenuItem";
+import Typography from "@material-ui/core/Typography";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import { Link } from "react-router-dom";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import { kanriListItems, systemName, restUrl, titleItems } from "./tileData";
+import Avatar from "@material-ui/core/Avatar";
+import Chip from "@material-ui/core/Chip";
+import { Manager, Target, Popper } from "react-popper";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import MenuList from "@material-ui/core/MenuList";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   appFrame: {
     zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%'
+    overflow: "hidden",
+    position: "relative",
+    display: "flex",
+    width: "100%",
   },
   buttonFrame: {
-    position: 'static',
-    marginRight: 24
+    position: "static",
+    marginRight: 24,
   },
   buttonFrame2: {
-    position: 'static',
-    marginRight: 0
+    position: "static",
+    marginRight: 0,
   },
   appBar: {
-    position: 'absolute',
-    transition: theme.transitions.create(['margin', 'width'], {
+    position: "absolute",
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'appBarShift-left': {
-    marginLeft: drawerWidth
+  "appBarShift-left": {
+    marginLeft: drawerWidth,
   },
-  'appBarShift-right': {
-    marginRight: drawerWidth
+  "appBarShift-right": {
+    marginRight: drawerWidth,
   },
   menuButton: {
     marginLeft: 12,
-    marginRight: 20
+    marginRight: 20,
   },
   hide: {
-    display: 'none'
+    display: "none",
   },
   drawerPaper: {
-    position: 'relative',
-    width: drawerWidth
+    position: "relative",
+    width: drawerWidth,
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: "0 8px",
+    ...theme.mixins.toolbar,
   },
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
-  'content-left': {
-    marginLeft: -drawerWidth
+  "content-left": {
+    marginLeft: -drawerWidth,
   },
-  'content-right': {
-    marginRight: -drawerWidth
+  "content-right": {
+    marginRight: -drawerWidth,
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'contentShift-left': {
-    marginLeft: 0
+  "contentShift-left": {
+    marginLeft: 0,
   },
-  'contentShift-right': {
-    marginRight: 0
+  "contentShift-right": {
+    marginRight: 0,
   },
   image: {
-    position: 'relative',
+    position: "relative",
     height: 300,
-    [theme.breakpoints.down('xs')]: {
-      width: '100% !important', // Overrides inline-style
-      height: 100
+    [theme.breakpoints.down("xs")]: {
+      width: "100% !important", // Overrides inline-style
+      height: 100,
     },
-    '&:hover, &$focusVisible': {
+    "&:hover, &$focusVisible": {
       zIndex: 1,
-      '& $imageBackdrop': {
-        opacity: 0.15
+      "& $imageBackdrop": {
+        opacity: 0.15,
       },
-      '& $imageMarked': {
-        opacity: 0
+      "& $imageMarked": {
+        opacity: 0,
       },
-      '& $imageTitle': {
-        border: '4px solid currentColor'
-      }
-    }
+      "& $imageTitle": {
+        border: "4px solid currentColor",
+      },
+    },
   },
   focusVisible: {},
   imageButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: theme.palette.common.white
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.common.white,
   },
   imageSrc: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
     // backgroundSize: 'contain',
     // backgroundRepeat: 'no-repeat',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center 40%'
+    backgroundSize: "cover",
+    backgroundPosition: "center 40%",
   },
   imageBackdrop: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
     // backgroundColor: theme.palette.common.black,
     opacity: 0.4,
-    transition: theme.transitions.create('opacity')
+    transition: theme.transitions.create("opacity"),
   },
   imageTitle: {
-    position: 'relative',
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme
-      .spacing.unit + 6}px`,
-    fontSize: '300%'
+    position: "relative",
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
+      theme.spacing.unit + 6
+    }px`,
+    fontSize: "300%",
   },
   imageMarked: {
     height: 3,
     width: 18,
     backgroundColor: theme.palette.common.white,
-    position: 'absolute',
+    position: "absolute",
     bottom: -2,
-    left: 'calc(50% - 9px)',
-    transition: theme.transitions.create('opacity')
+    left: "calc(50% - 9px)",
+    transition: theme.transitions.create("opacity"),
   },
   chip: {
-    height: '300%',
-    margin: theme.spacing.unit
+    height: "300%",
+    margin: theme.spacing.unit,
   },
   appBarColorDefault: {
-    backgroundColor: 'rgba(179, 179, 179, 0.92)'
-  }
-})
+    backgroundColor: "rgba(179, 179, 179, 0.92)",
+  },
+});
 
 // 権限による表示制御のないメニューのため、constとして定義
 const images1 = [
   {
-    url: '/images/title.jpg',
-    title: 'HARVEST',
-    width: '100%',
-    path: '/menu'
-  }
-]
+    url: "/images/title.jpg",
+    title: "HARVEST",
+    width: "100%",
+    path: "/menu",
+  },
+];
 
 const images2 = [
   {
-    url: '/images/title2.jpg',
-    title: 'ComComCoin',
-    width: '100%',
-    path: '/com_menu'
-  }
-]
+    url: "/images/title2.jpg",
+    title: "ComComCoin",
+    width: "100%",
+    path: "/com_menu",
+  },
+];
 
 class AppSelectForm extends React.Component {
   state = {
     open: false,
     open2: false,
-    anchor: 'left'
-  }
+    anchor: "left",
+  };
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
-    var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
 
     for (var i in loginInfos) {
-      var loginInfo = loginInfos[i]
-      this.setState({ userid: loginInfo['userid'] })
-      this.setState({ password: loginInfo['password'] })
-      this.setState({ tShainPk: loginInfo['tShainPk'] })
-      this.setState({ imageFileName: loginInfo['imageFileName'] })
-      this.setState({ shimei: loginInfo['shimei'] })
-      this.setState({ kengenCd: loginInfo['kengenCd'] })
-      this.setState({ coin: loginInfo['coin'] })
+      var loginInfo = loginInfos[i];
+      this.setState({ userid: loginInfo["userid"] });
+      this.setState({ password: loginInfo["password"] });
+      this.setState({ tShainPk: loginInfo["tShainPk"] });
+      this.setState({ imageFileName: loginInfo["imageFileName"] });
+      this.setState({ shimei: loginInfo["shimei"] });
+      this.setState({ kengenCd: loginInfo["kengenCd"] });
+      this.setState({ coin: loginInfo["coin"] });
     }
   }
 
   handleDrawerOpen = () => {
-    this.setState({ open: true })
-  }
+    this.setState({ open: true });
+  };
 
   handleDrawerClose = () => {
-    this.setState({ open: false })
-  }
+    this.setState({ open: false });
+  };
 
   handleLogoutClick = () => {
     // ログアウト時にsessionStorageをクリアする
-    sessionStorage.clear()
-  }
+    sessionStorage.clear();
+  };
 
   handleToggle = () => {
-    this.setState({ open2: !this.state.open2 })
-  }
+    this.setState({ open2: !this.state.open2 });
+  };
 
-  handleToggleClose = event => {
+  handleToggleClose = (event) => {
     if (this.target1.contains(event.target)) {
-      return
+      return;
     }
 
-    this.setState({ open2: false })
-  }
+    this.setState({ open2: false });
+  };
 
   render() {
-    const { classes, theme } = this.props
-    const { anchor, open, open2 } = this.state
-    const loginLink = props => <Link to="../" {...props} />
+    const { classes, theme } = this.props;
+    const { anchor, open, open2 } = this.state;
+    const loginLink = (props) => <Link to="../" {...props} />;
 
     const drawer = (
       <Drawer
@@ -266,16 +267,16 @@ class AppSelectForm extends React.Component {
         anchor={anchor}
         open={open}
         classes={{
-          paper: classes.drawerPaper
+          paper: classes.drawerPaper,
         }}
       >
         <div className={classes.drawerHeader}>
           <IconButton onClick={this.handleDrawerClose}>
-            {theme.direction === 'rtl' ? (
+            {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
-                <ChevronLeftIcon />
-              )}
+              <ChevronLeftIcon />
+            )}
           </IconButton>
         </div>
         <Divider />
@@ -290,15 +291,15 @@ class AppSelectForm extends React.Component {
           </ListItem>
         </div>
       </Drawer>
-    )
+    );
 
-    let before = null
-    let after = null
+    let before = null;
+    let after = null;
 
-    if (anchor === 'left') {
-      before = drawer
+    if (anchor === "left") {
+      before = drawer;
     } else {
-      after = drawer
+      after = drawer;
     }
 
     return (
@@ -307,7 +308,7 @@ class AppSelectForm extends React.Component {
           <AppBar
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
-              [classes[`appBarShift-${anchor}`]]: open
+              [classes[`appBarShift-${anchor}`]]: open,
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
           >
@@ -323,14 +324,14 @@ class AppSelectForm extends React.Component {
               <div
                 style={{
                   zIndex: 1,
-                  overflow: 'hidden',
-                  position: 'relative',
-                  display: 'flex',
-                  width: '100%',
+                  overflow: "hidden",
+                  position: "relative",
+                  display: "flex",
+                  width: "100%",
                   /* 左右中央寄せ */
-                  webkitBoxPack: 'center',
-                  msFlexPack: 'center',
-                  justifyContent: 'center'
+                  webkitBoxPack: "center",
+                  msFlexPack: "center",
+                  justifyContent: "center",
                 }}
               >
                 <img
@@ -341,8 +342,8 @@ class AppSelectForm extends React.Component {
               <Manager>
                 <Target>
                   <div
-                    ref={node => {
-                      this.target1 = node
+                    ref={(node) => {
+                      this.target1 = node;
                     }}
                   >
                     <Chip
@@ -360,7 +361,7 @@ class AppSelectForm extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: '100%' }}
+                      style={{ fontSize: "100%" }}
                     />
                   </div>
                 </Target>
@@ -372,7 +373,7 @@ class AppSelectForm extends React.Component {
                   <Grow
                     in={open2}
                     id="menu-list-grow"
-                    style={{ transformOrigin: '0 0 0' }}
+                    style={{ transformOrigin: "0 0 0" }}
                   >
                     <Paper>
                       <MenuList role="menu">
@@ -396,21 +397,21 @@ class AppSelectForm extends React.Component {
               classes[`content-${anchor}`],
               {
                 [classes.contentShift]: open,
-                [classes[`contentShift-${anchor}`]]: open
+                [classes[`contentShift-${anchor}`]]: open,
               }
             )}
           >
             <div className={classes.drawerHeader} />
             <Typography noWrap>
               <div className={classes.root}>
-                {images1.map(image => (
+                {images1.map((image) => (
                   <ButtonBase
                     focusRipple
                     key={image.title}
                     className={classes.image}
                     focusVisibleClassName={classes.focusVisible}
                     style={{
-                      width: image.width
+                      width: image.width,
                     }}
                     component={Link}
                     to={image.path}
@@ -418,7 +419,7 @@ class AppSelectForm extends React.Component {
                     <span
                       className={classes.imageSrc}
                       style={{
-                        backgroundImage: `url(${image.url})`
+                        backgroundImage: `url(${image.url})`,
                       }}
                     />
                     <span className={classes.imageBackdrop} />
@@ -438,14 +439,14 @@ class AppSelectForm extends React.Component {
             </Typography>
             <Typography noWrap>
               <div className={classes.root}>
-                {images2.map(image => (
+                {images2.map((image) => (
                   <ButtonBase
                     focusRipple
                     key={image.title}
                     className={classes.image}
                     focusVisibleClassName={classes.focusVisible}
                     style={{
-                      width: image.width
+                      width: image.width,
                     }}
                     component={Link}
                     to={image.path}
@@ -454,7 +455,7 @@ class AppSelectForm extends React.Component {
                     <span
                       className={classes.imageSrc}
                       style={{
-                        backgroundImage: `url(${image.url})`
+                        backgroundImage: `url(${image.url})`,
                       }}
                     />
                     <span className={classes.imageBackdrop} />
@@ -476,13 +477,13 @@ class AppSelectForm extends React.Component {
           {/* {after} */}
         </div>
       </div>
-    )
+    );
   }
 }
 
 AppSelectForm.propTypes = {
   classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
-}
+  theme: PropTypes.object.isRequired,
+};
 
-export default withStyles(styles, { withTheme: true })(AppSelectForm)
+export default withStyles(styles, { withTheme: true })(AppSelectForm);

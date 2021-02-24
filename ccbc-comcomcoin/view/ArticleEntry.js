@@ -1,28 +1,39 @@
-import React from 'react'
-import { Platform, StyleSheet, Text, View, Image, ScrollView, TextInput, TouchableHighlight, KeyboardAvoidingView, Dimensions } from 'react-native'
-import { Icon } from 'react-native-elements'
-import * as ImagePicker from 'expo-image-picker'
-import * as Permissions from 'expo-permissions'
-import Spinner from 'react-native-loading-spinner-overlay'
-import moment from 'moment'
-import 'moment/locale/ja'
-import BaseComponent from './components/BaseComponent'
-import InAppHeader from './components/InAppHeader'
-import ConfirmDialog from './components/ConfirmDialog'
-import AlertDialog from './components/AlertDialog'
+import React from "react";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TextInput,
+  TouchableHighlight,
+  KeyboardAvoidingView,
+  Dimensions,
+} from "react-native";
+import { Icon } from "react-native-elements";
+import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
+import Spinner from "react-native-loading-spinner-overlay";
+import moment from "moment";
+import "moment/locale/ja";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
+import ConfirmDialog from "./components/ConfirmDialog";
+import AlertDialog from "./components/AlertDialog";
 
-const restdomain = require('./common/constans.js').restdomain
-const CHAR_LEN_TITLE = 30
-const CHAR_LEN_HASHTAG = 10
-const CHAR_LEN_CONTENTS = 1000
-const HASHTAG_UPPER_LIMIT = 3
+const restdomain = require("./common/constans.js").restdomain;
+const CHAR_LEN_TITLE = 30;
+const CHAR_LEN_HASHTAG = 10;
+const CHAR_LEN_CONTENTS = 1000;
+const HASHTAG_UPPER_LIMIT = 3;
 
-const windowWidth = Dimensions.get('window').width
-const articleImageWidth = windowWidth * 0.8
+const windowWidth = Dimensions.get("window").width;
+const articleImageWidth = windowWidth * 0.8;
 
 export default class ArticleEntry extends BaseComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       mode: "",
       selectCategory: null,
@@ -39,7 +50,7 @@ export default class ArticleEntry extends BaseComponent {
       imageData: {
         uri: "",
         type: "",
-        name: ""
+        name: "",
       },
       categoryNm: "",
       confirmDialogVisible: false,
@@ -49,25 +60,25 @@ export default class ArticleEntry extends BaseComponent {
       isProcessing: false,
       finDialogVisible: false,
       getCoin: 0,
-      screenNo: 16
-    }
+      screenNo: 16,
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
+    await this.getLoginInfo();
 
     // アクセス情報登録
     this.setAccessLog();
 
     // スマホの画像機能へのアクセス許可
-    this.getPermissionAsync()
+    this.getPermissionAsync();
 
     // 記事照会画面からのパラメータ受け取り
-    const mode = this.props.navigation.getParam("mode")
-    const paramCategory = this.props.navigation.getParam("selectCategory")
-    const paramArticle = this.props.navigation.getParam("selectArticle")
+    const mode = this.props.navigation.getParam("mode");
+    const paramCategory = this.props.navigation.getParam("selectCategory");
+    const paramArticle = this.props.navigation.getParam("selectArticle");
     if (paramArticle !== null) {
       // 編集時
       this.setState({
@@ -79,23 +90,23 @@ export default class ArticleEntry extends BaseComponent {
         post_dt: paramArticle.post_dt,
         post_tm: paramArticle.post_tm,
         file_path: paramArticle.file_path,
-        hashtag_str: paramArticle.hashtag_str.replace(/#/g, "")
-      })
+        hashtag_str: paramArticle.hashtag_str.replace(/#/g, ""),
+      });
     } else {
       // 新規投稿時
       this.setState({
         t_kiji_category_pk: paramCategory.t_kiji_category_pk,
         t_shain_pk: this.state.login_shain_pk,
-        getCoin: paramCategory.get_coin
-      })
+        getCoin: paramCategory.get_coin,
+      });
     }
     this.setState({
       mode: mode,
       selectCategory: paramCategory,
       selectArticle: paramArticle,
-      categoryNm: paramCategory.category_nm
-    })
-  }
+      categoryNm: paramCategory.category_nm,
+    });
+  };
 
   /** アクセス情報登録 */
   setAccessLog = async () => {
@@ -109,49 +120,64 @@ export default class ArticleEntry extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   getPermissionAsync = async () => {
     if (Platform.OS === "ios") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
+      if (status !== "granted") {
+        alert("Sorry, we need camera roll permissions to make this work!");
       }
     }
-  }
+  };
 
   /** 記事投稿ボタン押下 */
   onClickEntry = async () => {
     // 入力チェック
-    var alertMessage = ""
+    var alertMessage = "";
     if (this.state.title == "") {
-      alertMessage += "タイトルを入力してください\n\n"
+      alertMessage += "タイトルを入力してください\n\n";
     }
     if (this.state.contents == "") {
-      alertMessage += "記事の内容を入力してください\n\n"
+      alertMessage += "記事の内容を入力してください\n\n";
     }
     if (this.state.title.length > CHAR_LEN_TITLE) {
-      alertMessage += "タイトルの文字数が超過しています" + "（" + this.state.title.length + "文字）\n\n"
+      alertMessage +=
+        "タイトルの文字数が超過しています" +
+        "（" +
+        this.state.title.length +
+        "文字）\n\n";
     }
-    var hashes = this.state.hashtag_str.replace("　", " ").replace("　", " ").split(" ")
+    var hashes = this.state.hashtag_str
+      .replace("　", " ")
+      .replace("　", " ")
+      .split(" ");
     if (hashes.length > HASHTAG_UPPER_LIMIT) {
-      alertMessage += "タグの数は" + HASHTAG_UPPER_LIMIT + "つまでです\n\n"
+      alertMessage += "タグの数は" + HASHTAG_UPPER_LIMIT + "つまでです\n\n";
     } else {
       for (var i = 0; i < hashes.length; i++) {
         if (hashes[i].length > CHAR_LEN_HASHTAG) {
-          alertMessage += "タグの文字数が超過しています" + "（" + hashes[i].length + "文字）\n\n"
+          alertMessage +=
+            "タグの文字数が超過しています" +
+            "（" +
+            hashes[i].length +
+            "文字）\n\n";
         }
       }
     }
     if (this.state.contents.length > CHAR_LEN_CONTENTS) {
-      alertMessage += "記事の文字数が超過しています" + "（" + this.state.contents.length + "文字）\n\n"
+      alertMessage +=
+        "記事の文字数が超過しています" +
+        "（" +
+        this.state.contents.length +
+        "文字）\n\n";
     }
     if (alertMessage !== "") {
       this.setState({
         alertDialogVisible: true,
-        alertDialogMessage: alertMessage
-      })
-      return
+        alertDialogMessage: alertMessage,
+      });
+      return;
     }
 
     // this.setState({ isProcessing: true })
@@ -160,108 +186,112 @@ export default class ArticleEntry extends BaseComponent {
     this.setState({
       confirmDialogVisible: true,
       confirmDialogMessage: "記事を投稿します。よろしいですか？",
-    })
-  }
+    });
+  };
 
   /** 記事更新処理 */
   entry = async () => {
     // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
     if (this.state.t_kiji_pk === "") {
-      this.setState({ isProcessing: true })
+      this.setState({ isProcessing: true });
     }
-    this.setState({ confirmDialogVisible: false })
+    this.setState({ confirmDialogVisible: false });
 
     if (this.state.imageData.uri !== "") {
       // 画像ファイルのアップロードがある場合
-      const extension = this.getExtension(this.state.imageData.uri)
-      const fileName = moment(new Date()).format('YYYYMMDDHHmmssSS') + "." + extension
-      let data = new FormData()
-      data.append('image', {
+      const extension = this.getExtension(this.state.imageData.uri);
+      const fileName =
+        moment(new Date()).format("YYYYMMDDHHmmssSS") + "." + extension;
+      let data = new FormData();
+      data.append("image", {
         uri: this.state.imageData.uri,
         name: fileName,
-        type: this.state.imageData.type + "/" + extension
-      })
+        type: this.state.imageData.type + "/" + extension,
+      });
 
-      await fetch(restdomain + '/article/upload', {
-        method: 'POST',
+      await fetch(restdomain + "/article/upload", {
+        method: "POST",
         body: data,
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'multipart/form-data',
-        }
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+        },
       })
         .then(function (response) {
-          return response.json()
+          return response.json();
         })
-        .then(function (json) {
-          if (json.status) {
-            // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-            this.edit(fileName)
-          } else {
-            alert("画像ファイルのアップロードに失敗しました")
-          }
-        }.bind(this))
-        .catch(error => alert(error))
-
+        .then(
+          function (json) {
+            if (json.status) {
+              // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+              this.edit(fileName);
+            } else {
+              alert("画像ファイルのアップロードに失敗しました");
+            }
+          }.bind(this)
+        )
+        .catch((error) => alert(error));
     } else {
       // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-      this.edit(this.state.file_path)
+      this.edit(this.state.file_path);
     }
-  }
+  };
 
   /** ファイルパスよりファイルの拡張子を取得 */
   getExtension = (fileName) => {
-    var ret = ""
+    var ret = "";
     if (!fileName) {
-      return ret
+      return ret;
     }
-    var fileTypes = fileName.split(".")
-    var len = fileTypes.length
+    var fileTypes = fileName.split(".");
+    var len = fileTypes.length;
     if (len === 0) {
-      return ret
+      return ret;
     }
-    ret = fileTypes[len - 1]
-    return ret
-  }
+    ret = fileTypes[len - 1];
+    return ret;
+  };
 
   /** データ更新処理 */
   edit = async (fileName) => {
     // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
     if (this.state.t_kiji_pk === "") {
-      this.setState({ isProcessing: true })
+      this.setState({ isProcessing: true });
     }
-    this.state.file_path = fileName
+    this.state.file_path = fileName;
 
-    await fetch(restdomain + '/article/edit', {
-      method: 'POST',
-      mode: 'cors',
+    await fetch(restdomain + "/article/edit", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
-      .then(function (json) {
-        this.setState({ isProcessing: false })
-        if (!json.status) {
-          alert("投稿処理でエラーが発生しました")
-        } else {
-          if (this.state.t_kiji_pk === "") {
-            // 新規投稿の場合は、コイン獲得のメッセージを表示してから記事照会画面に戻る
-            this.setState({ finDialogVisible: true })
+      .then(
+        function (json) {
+          this.setState({ isProcessing: false });
+          if (!json.status) {
+            alert("投稿処理でエラーが発生しました");
           } else {
-            // 記事照会画面に戻る
-            this.props.navigation.navigate('ArticleRefer', {
-              mode: this.state.mode,
-              selectCategory: this.state.selectCategory
-            })
+            if (this.state.t_kiji_pk === "") {
+              // 新規投稿の場合は、コイン獲得のメッセージを表示してから記事照会画面に戻る
+              this.setState({ finDialogVisible: true });
+            } else {
+              // 記事照会画面に戻る
+              this.props.navigation.navigate("ArticleRefer", {
+                mode: this.state.mode,
+                selectCategory: this.state.selectCategory,
+              });
+            }
           }
-        }
-      }.bind(this))
-      .catch((error) => alert(error))
+        }.bind(this)
+      )
+      .catch((error) => alert(error));
 
-    this.setState({ isProcessing: false })
-  }
+    this.setState({ isProcessing: false });
+  };
 
   /** 画像選択処理 */
   onClickPickImage = async () => {
@@ -269,22 +299,22 @@ export default class ArticleEntry extends BaseComponent {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.2
-    })
-    let data = {}
+      quality: 0.2,
+    });
+    let data = {};
     if (!result.cancelled) {
       data = {
         uri: result.uri,
-        type: result.type
-      }
+        type: result.type,
+      };
     } else {
       data = {
         uri: "",
-        type: ""
-      }
+        type: "",
+      };
     }
-    this.setState({ imageData: data })
-  }
+    this.setState({ imageData: data });
+  };
 
   render() {
     return (
@@ -292,7 +322,7 @@ export default class ArticleEntry extends BaseComponent {
         {/* -- 処理中アニメーション -- */}
         <Spinner
           visible={this.state.isProcessing}
-          textContent={'Processing…'}
+          textContent={"Processing…"}
           textStyle={styles.spinnerTextStyle}
         />
 
@@ -301,112 +331,152 @@ export default class ArticleEntry extends BaseComponent {
 
         {/* -- 入力部 -- */}
         {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
-          <View style={{ height: "90%" }}>
-            <ScrollView>
-              <View style={{ padding: 10 }}>
-                <View>
-                  {/* 投稿先カテゴリ（表示のみ） */}
-                  <Text style={styles.inputTitle}>投稿先</Text>
-                  <TextInput
-                    style={{ fontSize: 16, color: 'black', padding: 5 }}
-                    value={this.state.categoryNm}
-                    editable={false}
-                  />
-                </View>
-                <View>
-                  {/* タイトル */}
-                  <Text style={styles.inputTitle}>{"タイトル（" + CHAR_LEN_TITLE + "文字以内）"}</Text>
-                  <TextInput
-                    style={styles.inputText}
-                    value={this.state.title}
-                    onChangeText={text => { this.setState({ title: text }) }}
-                  />
-                </View>
-                <View>
-                  {/* ハッシュタグ */}
-                  <Text style={styles.inputTitle}>
-                    {"タグ（1タグ" + CHAR_LEN_HASHTAG + "文字以内、スペース区切りで" + HASHTAG_UPPER_LIMIT + "つまで #は不要）"}
-                  </Text>
-                  <TextInput
-                    style={styles.inputText}
-                    value={this.state.hashtag_str}
-                    onChangeText={text => { this.setState({ hashtag_str: text }) }}
-                  />
-                </View>
-                <View style={{ marginTop: 10, marginButtom: 10 }}>
-                  {/* 記事内容 */}
-                  <Text style={styles.inputTitle}>
-                    {"記事（" + CHAR_LEN_CONTENTS + "文字以内）"}
-                  </Text>
-                  <TextInput
-                    multiline={true}
-                    numberOfLines={8}
-                    scrollEnabled={false}
-                    style={[styles.inputText, { textAlignVertical: 'top' }]}
-                    value={this.state.contents}
-                    onChangeText={text => { this.setState({ contents: text }) }}
-                  />
-                </View>
-                {/* 画像 */}
-                <View>
-                  <Text style={styles.inputTitle}>画像</Text>
-                  {(this.state.file_path !== "" && this.state.imageData.uri === "") && (
+        <View style={{ height: "90%" }}>
+          <ScrollView>
+            <View style={{ padding: 10 }}>
+              <View>
+                {/* 投稿先カテゴリ（表示のみ） */}
+                <Text style={styles.inputTitle}>投稿先</Text>
+                <TextInput
+                  style={{ fontSize: 16, color: "black", padding: 5 }}
+                  value={this.state.categoryNm}
+                  editable={false}
+                />
+              </View>
+              <View>
+                {/* タイトル */}
+                <Text style={styles.inputTitle}>
+                  {"タイトル（" + CHAR_LEN_TITLE + "文字以内）"}
+                </Text>
+                <TextInput
+                  style={styles.inputText}
+                  value={this.state.title}
+                  onChangeText={(text) => {
+                    this.setState({ title: text });
+                  }}
+                />
+              </View>
+              <View>
+                {/* ハッシュタグ */}
+                <Text style={styles.inputTitle}>
+                  {"タグ（1タグ" +
+                    CHAR_LEN_HASHTAG +
+                    "文字以内、スペース区切りで" +
+                    HASHTAG_UPPER_LIMIT +
+                    "つまで #は不要）"}
+                </Text>
+                <TextInput
+                  style={styles.inputText}
+                  value={this.state.hashtag_str}
+                  onChangeText={(text) => {
+                    this.setState({ hashtag_str: text });
+                  }}
+                />
+              </View>
+              <View style={{ marginTop: 10, marginButtom: 10 }}>
+                {/* 記事内容 */}
+                <Text style={styles.inputTitle}>
+                  {"記事（" + CHAR_LEN_CONTENTS + "文字以内）"}
+                </Text>
+                <TextInput
+                  multiline={true}
+                  numberOfLines={8}
+                  scrollEnabled={false}
+                  style={[styles.inputText, { textAlignVertical: "top" }]}
+                  value={this.state.contents}
+                  onChangeText={(text) => {
+                    this.setState({ contents: text });
+                  }}
+                />
+              </View>
+              {/* 画像 */}
+              <View>
+                <Text style={styles.inputTitle}>画像</Text>
+                {this.state.file_path !== "" &&
+                  this.state.imageData.uri === "" && (
                     <View style={{ marginTop: 10 }}>
                       <Image
-                        source={{ uri: restdomain + `/uploads/article/${this.state.file_path}` }}
-                        style={{ width: articleImageWidth, height: articleImageWidth }}
-                        resizeMode='contain' />
-                    </View>
-                  )}
-                  {this.state.imageData.uri !== "" && (
-                    <View>
-                      <Image
-                        source={{ uri: this.state.imageData.uri }}
+                        source={{
+                          uri:
+                            restdomain +
+                            `/uploads/article/${this.state.file_path}`,
+                        }}
                         style={{
                           width: articleImageWidth,
                           height: articleImageWidth,
-                          marginTop: 30,
-                          marginBottom: 30
                         }}
-                        resizeMode='contain'
+                        resizeMode="contain"
                       />
                     </View>
                   )}
-                  <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                    {/* 画像選択ボタン */}
-                    <View style={{ flex: 1, alignItems: 'flex-start', marginLeft: 10 }}>
-                      <TouchableHighlight onPress={() => this.onClickPickImage()}>
-                        <View style={styles.selectButtonView}>
-                          <View style={styles.selectButtonTitleView}>
-                            <Text style={styles.selectButtonTitleText}>画像選択</Text>
-                          </View>
+                {this.state.imageData.uri !== "" && (
+                  <View>
+                    <Image
+                      source={{ uri: this.state.imageData.uri }}
+                      style={{
+                        width: articleImageWidth,
+                        height: articleImageWidth,
+                        marginTop: 30,
+                        marginBottom: 30,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
+                <View style={{ flexDirection: "row", marginTop: 10 }}>
+                  {/* 画像選択ボタン */}
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "flex-start",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <TouchableHighlight onPress={() => this.onClickPickImage()}>
+                      <View style={styles.selectButtonView}>
+                        <View style={styles.selectButtonTitleView}>
+                          <Text style={styles.selectButtonTitleText}>
+                            画像選択
+                          </Text>
                         </View>
-                      </TouchableHighlight>
-                    </View>
-                    {/* 画像削除アイコン */}
-                    <View style={{ flex: 1, alignItems: 'flex-end', marginRight: 10 }}>
-                      <Icon name="times-circle" type="font-awesome" color="black" size={30}
-                        onPress={() => { this.setState({ imageData: { uri: "" }, file_path: "" }) }}
-                      />
-                    </View>
+                      </View>
+                    </TouchableHighlight>
+                  </View>
+                  {/* 画像削除アイコン */}
+                  <View
+                    style={{ flex: 1, alignItems: "flex-end", marginRight: 10 }}
+                  >
+                    <Icon
+                      name="times-circle"
+                      type="font-awesome"
+                      color="black"
+                      size={30}
+                      onPress={() => {
+                        this.setState({
+                          imageData: { uri: "" },
+                          file_path: "",
+                        });
+                      }}
+                    />
                   </View>
                 </View>
               </View>
+            </View>
 
-              {/* -- 投稿ボタン -- */}
-              <View style={{ flexDirection: 'row' }}>
-                <View style={{ flex: 1 }}>
-                  <TouchableHighlight onPress={() => this.onClickEntry()}>
-                    <View style={styles.saveButtonView}>
-                      <View style={styles.saveButtonTitleView}>
-                        <Text style={styles.saveButtonTitleText}>投稿する</Text>
-                      </View>
+            {/* -- 投稿ボタン -- */}
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flex: 1 }}>
+                <TouchableHighlight onPress={() => this.onClickEntry()}>
+                  <View style={styles.saveButtonView}>
+                    <View style={styles.saveButtonTitleView}>
+                      <Text style={styles.saveButtonTitleText}>投稿する</Text>
                     </View>
-                  </TouchableHighlight>
-                </View>
+                  </View>
+                </TouchableHighlight>
               </View>
-            </ScrollView>
-          </View>
+            </View>
+          </ScrollView>
+        </View>
         {/* </KeyboardAvoidingView> */}
 
         {/* -- 確認ダイアログ -- */}
@@ -414,49 +484,55 @@ export default class ArticleEntry extends BaseComponent {
           modalVisible={this.state.confirmDialogVisible}
           message={this.state.confirmDialogMessage}
           handleYes={this.entry.bind(this)}
-          handleNo={() => { this.setState({ confirmDialogVisible: false }) }}
-          handleClose={() => { this.setState({ confirmDialogVisible: false }) }}
+          handleNo={() => {
+            this.setState({ confirmDialogVisible: false });
+          }}
+          handleClose={() => {
+            this.setState({ confirmDialogVisible: false });
+          }}
         />
         {/* -- メッセージダイアログ -- */}
         <AlertDialog
           modalVisible={this.state.alertDialogVisible}
           message={this.state.alertDialogMessage}
-          handleClose={() => { this.setState({ alertDialogVisible: false }) }}
+          handleClose={() => {
+            this.setState({ alertDialogVisible: false });
+          }}
         />
         <AlertDialog
           modalVisible={this.state.finDialogVisible}
           message={this.state.getCoin + "コインを獲得しました"}
           handleClose={() => {
             // 記事照会画面に戻る
-            this.props.navigation.navigate('ArticleRefer', {
+            this.props.navigation.navigate("ArticleRefer", {
               mode: this.state.mode,
-              selectCategory: this.state.selectCategory
-            })
+              selectCategory: this.state.selectCategory,
+            });
           }}
         />
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   saveButtonView: {
     borderRadius: 20,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 30,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: 'rgba(255, 136, 0, 0.92)',
-    flexDirection: 'row'
+    backgroundColor: "rgba(255, 136, 0, 0.92)",
+    flexDirection: "row",
   },
   saveButtonTitleView: {
     flex: 8,
-    alignItems: 'center'
+    alignItems: "center",
   },
   saveButtonTitleText: {
     fontSize: 26,
-    color: 'white',
-    padding: 10
+    color: "white",
+    padding: 10,
   },
   selectButtonView: {
     borderRadius: 20,
@@ -465,37 +541,37 @@ const styles = StyleSheet.create({
     // marginLeft: 10,
     // marginRight: 10,
     width: 100,
-    backgroundColor: '#FFB300',
+    backgroundColor: "#FFB300",
     // flexDirection: 'row'
   },
   selectButtonTitleView: {
     // flex: 1,
-    alignItems: 'center'
+    alignItems: "center",
   },
   selectButtonTitleText: {
     fontSize: 16,
-    color: 'white',
-    padding: 10
+    color: "white",
+    padding: 10,
   },
   dateTimeText: {
     fontSize: 14,
-    color: 'gray'
+    color: "gray",
   },
   inputTitle: {
     marginTop: 10,
     fontSize: 16,
-    color: 'gray'
+    color: "gray",
   },
   inputText: {
     fontSize: 16,
-    color: 'black',
+    color: "black",
     padding: 5,
-    borderColor: 'gray',
-    backgroundColor: 'white',
-    borderWidth: 1
+    borderColor: "gray",
+    backgroundColor: "white",
+    borderWidth: 1,
   },
   spinnerTextStyle: {
-    color: '#FFF',
-    fontSize: 18
-  }
-})
+    color: "#FFF",
+    fontSize: 18,
+  },
+});

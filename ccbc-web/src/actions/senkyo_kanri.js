@@ -2,7 +2,7 @@
 
 export function setSenkyoKanriData(pSenkyoPk) {
   return {
-    type: 'SETSENKYOKANRIDATA',
-    pSenkyoPk: pSenkyoPk
-  }
+    type: "SETSENKYOKANRIDATA",
+    pSenkyoPk: pSenkyoPk,
+  };
 }

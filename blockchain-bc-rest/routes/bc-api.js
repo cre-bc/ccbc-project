@@ -69,7 +69,7 @@ router.post("/login", async function (req, res, err) {
     // アカウントなしとパスワード違いのエラーについては、業務エラーとして結果をfalseで返却
     var okEerrors = [
       "Error: invalid address",
-      "Error: could not decrypt key with given passphrase"
+      "Error: could not decrypt key with given passphrase",
     ];
     if (okEerrors.indexOf(String(e)) != -1) {
       res.json({ result: false });
@@ -173,38 +173,47 @@ router.post("/send_coin", async function (req, res, err) {
 
       if (toAccounts.length === 1) {
         // １件のコイン送金では、同時実行によりコイン不足になる場面があるため、トランザクションがブロックに取り込まれるまで処理を待機する
-        await contract.methods.transfer(toAccounts[i], coins[i]).send({ from: fromAccount })
-          .on('transactionHash', function (hash) {
+        await contract.methods
+          .transfer(toAccounts[i], coins[i])
+          .send({ from: fromAccount })
+          .on("transactionHash", function (hash) {
             resTransId = hash;
-            console.log(methodNm + ":transfer:transactionHash", hash)
+            console.log(methodNm + ":transfer:transactionHash", hash);
           })
-          .on('receipt', function (receipt) {
-            console.log(methodNm + ":transfer:receipt", receipt)
+          .on("receipt", function (receipt) {
+            console.log(methodNm + ":transfer:receipt", receipt);
           })
-          .on('error', function (error, receipt) {
-            console.log(methodNm + ":transfer:error", error, receipt)
-            throw error
+          .on("error", function (error, receipt) {
+            console.log(methodNm + ":transfer:error", error, receipt);
+            throw error;
           })
           .then(async function (receipt) {
-            console.log(methodNm + ":transfer:fin", receipt)
-            var result = await web3.eth.getTransactionReceipt(receipt.transactionHash);
-            console.log(methodNm + ":transfer:fin:getTransactionReceipt", result)
+            console.log(methodNm + ":transfer:fin", receipt);
+            var result = await web3.eth.getTransactionReceipt(
+              receipt.transactionHash
+            );
+            console.log(
+              methodNm + ":transfer:fin:getTransactionReceipt",
+              result
+            );
             if (result !== null) {
               if (result.status === false) {
-                throw "An error occurred when storing a transaction in a block."
+                throw "An error occurred when storing a transaction in a block.";
               }
             }
           });
       } else {
         // 複数件のコイン送金では、同時実行によりコイン不足になる場面がないため、トランザクションが生成された時点で処理を次に進める
-        await contract.methods.transfer(toAccounts[i], coins[i]).send({ from: fromAccount })
-          .on('transactionHash', function (hash) {
+        await contract.methods
+          .transfer(toAccounts[i], coins[i])
+          .send({ from: fromAccount })
+          .on("transactionHash", function (hash) {
             resTransId = hash;
-            console.log(methodNm + ":transfer:transactionHash", hash)
+            console.log(methodNm + ":transfer:transactionHash", hash);
           })
-          .on('error', function (error, receipt) {
-            console.log(methodNm + ":transfer:error", error, receipt)
-            throw error
+          .on("error", function (error, receipt) {
+            console.log(methodNm + ":transfer:error", error, receipt);
+            throw error;
           });
       }
 
@@ -222,7 +231,7 @@ router.post("/send_coin", async function (req, res, err) {
     res.json({
       transaction: resTransactions,
       result: false,
-      message: String(e)
+      message: String(e),
     });
   }
 });
@@ -410,7 +419,7 @@ router.post("/get_transaction", async function (req, res, err) {
         sender: fromAccount,
         receiver: toAccount,
         coin: coin,
-        result: true
+        result: true,
       });
     } else {
       console.log("### trans null");
@@ -419,7 +428,7 @@ router.post("/get_transaction", async function (req, res, err) {
         sender: "",
         receiver: "",
         coin: 0,
-        result: true
+        result: true,
       });
     }
   } catch (e) {
@@ -430,7 +439,7 @@ router.post("/get_transaction", async function (req, res, err) {
       receiver: null,
       coin: 0,
       result: false,
-      message: String(e)
+      message: String(e),
     });
   }
 });
@@ -465,7 +474,7 @@ router.post("/get_transactions", function (req, res, err) {
         jsonrpc: "2.0",
         id: i,
         method: "eth_getTransactionByHash",
-        params: [transaction[i]]
+        params: [transaction[i]],
       };
       i++;
     }
@@ -503,7 +512,7 @@ router.post("/get_transactions", function (req, res, err) {
             resTrans[index] = {
               sender: fromAccount,
               receiver: toAccount,
-              coin: coin
+              coin: coin,
             };
           } else {
             console.log("### trans null");
@@ -511,7 +520,7 @@ router.post("/get_transactions", function (req, res, err) {
             resTrans[index] = {
               sender: "",
               receiver: "",
-              coin: 0
+              coin: 0,
             };
           }
           i++;

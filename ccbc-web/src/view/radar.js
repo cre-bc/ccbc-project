@@ -1,8 +1,14 @@
-import React, { Component } from 'react'
-import request from 'superagent'
-import { Redirect } from 'react-router-dom'
+import React, { Component } from "react";
+import request from "superagent";
+import { Redirect } from "react-router-dom";
 
-import { RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip } from 'recharts'
+import {
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  Radar,
+  Tooltip,
+} from "recharts";
 
 /**
  * テスト
@@ -11,12 +17,12 @@ export default class RadarChartForm extends Component {
   render() {
     // 表示させたいデータ群
     const dataRadar = [
-      { rank: '国語', value: 120 },
-      { rank: '数学', value: 85 },
-      { rank: '理科', value: 65 },
-      { rank: '社会', value: 35 },
-      { rank: '英語', value: 35 }
-    ]
+      { rank: "国語", value: 120 },
+      { rank: "数学", value: 85 },
+      { rank: "理科", value: 65 },
+      { rank: "社会", value: 35 },
+      { rank: "英語", value: 35 },
+    ];
     return (
       <div>
         <RadarChart // レーダーチャートのサイズや位置、データを指定
@@ -40,6 +46,6 @@ export default class RadarChartForm extends Component {
           <Tooltip /> //hoverすると各パラメーターの値が表示される
         </RadarChart>
       </div>
-    )
+    );
   }
 }

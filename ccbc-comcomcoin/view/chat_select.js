@@ -16,7 +16,7 @@ export default class ChatSelectForm extends BaseComponent {
     super();
     this.state = {
       resultList: [],
-      screenNo: 10
+      screenNo: 10,
     };
   }
 
@@ -67,7 +67,7 @@ export default class ChatSelectForm extends BaseComponent {
     socket.emit("join", this.state.loginShainPk);
     // チャットルーム（グループPK）に接続)
     socket.emit("join", this.state.chatGroupPk);
-    
+
     // 初期表示情報取得
     this.findChatUser();
   };

@@ -5,7 +5,7 @@ import {
   View,
   Image,
   ScrollView,
-  TouchableHighlight
+  TouchableHighlight,
 } from "react-native";
 import { Card, Divider } from "react-native-elements";
 import * as Permissions from "expo-permissions";
@@ -16,7 +16,7 @@ import AlertDialog from "./components/AlertDialog";
 import ConfirmDialog from "./components/ConfirmDialog";
 import RNPickerSelect from "react-native-picker-select";
 import Spinner from "react-native-loading-spinner-overlay";
-import * as Speech from 'expo-speech';
+import * as Speech from "expo-speech";
 
 const restdomain = require("./common/constans.js").restdomain;
 
@@ -42,7 +42,7 @@ export default class Shopping extends BaseComponent {
       isProcessing: false,
       screenNo: 13,
       displayCoin: 0,
-      displayTotalCoin: 0
+      displayTotalCoin: 0,
     };
     this.props = props;
   }
@@ -56,7 +56,7 @@ export default class Shopping extends BaseComponent {
     // カメラの使用許可
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
-      hasCameraPermission: status === "granted"
+      hasCameraPermission: status === "granted",
     });
 
     //アクセス情報登録
@@ -87,7 +87,7 @@ export default class Shopping extends BaseComponent {
     await fetch(restdomain + "/shopping/find", {
       method: "POST",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
         return response.json();
@@ -107,23 +107,23 @@ export default class Shopping extends BaseComponent {
             bokinList.push({
               label: dataList[i].bokin_nm,
               value: dataList[i].m_bokin_pk,
-              key: dataList[i].m_bokin_pk
+              key: dataList[i].m_bokin_pk,
             });
           }
           // コイン数を3桁カンマ区切り
-          var s = String(coin).split('.');
-          var retCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+          var s = String(coin).split(".");
+          var retCoin = String(s[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
           if (s.length > 1) {
-            retCoin += '.' + s[1];
+            retCoin += "." + s[1];
           }
           this.setState({
             bokinList: bokinList,
             haveCoin: coin,
-            displayCoin: retCoin
+            displayCoin: retCoin,
           });
         }.bind(this)
       )
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   /** QRコードのスキャン処理 */
@@ -137,7 +137,7 @@ export default class Shopping extends BaseComponent {
     await fetch(restdomain + "/shopping/checkQRCode", {
       method: "POST",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
         return response.json();
@@ -163,7 +163,7 @@ export default class Shopping extends BaseComponent {
             shohin_nm1: json.shohinInfo.shohin_nm1,
             shohin_nm2: json.shohinInfo.shohin_nm2,
             coin: json.shohinInfo.coin,
-            quantity: 1
+            quantity: 1,
           };
           var buyList = this.state.buyList;
           buyList.push(shohinInfo);
@@ -173,10 +173,13 @@ export default class Shopping extends BaseComponent {
           // 合計コイン数を算出
           var totalCoin = this.calcTotalCoin(buyList);
           // コインを3桁の桁区切りで表記する
-          var s = String(totalCoin).split('.');
-          var retTotalCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+          var s = String(totalCoin).split(".");
+          var retTotalCoin = String(s[0]).replace(
+            /(\d)(?=(\d\d\d)+(?!\d))/g,
+            "$1,"
+          );
           if (s.length > 1) {
-            retTotalCoin += '.' + s[1];
+            retTotalCoin += "." + s[1];
           }
 
           // ショッピングカートに戻る
@@ -185,11 +188,11 @@ export default class Shopping extends BaseComponent {
             totalCoin: totalCoin,
             itemCnt: itemCnt,
             mode: "cart",
-            displayTotalCoin: retTotalCoin
+            displayTotalCoin: retTotalCoin,
           });
         }.bind(this)
       )
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   /** 合計コイン数を算出 */
@@ -204,14 +207,14 @@ export default class Shopping extends BaseComponent {
   cancelCamera() {
     // ショッピングカートに戻る
     this.setState({
-      mode: "cart"
+      mode: "cart",
     });
   }
 
   moveCamera() {
     // スキャナを表示
     this.setState({
-      mode: "camera"
+      mode: "camera",
     });
   }
 
@@ -225,7 +228,7 @@ export default class Shopping extends BaseComponent {
       alertMessage = "コインが不足しています";
       this.setState({
         alertDialogVisible: true,
-        alertDialogMessage: alertMessage
+        alertDialogMessage: alertMessage,
       });
     } else if (
       // 寄付先未入力チェック
@@ -237,13 +240,13 @@ export default class Shopping extends BaseComponent {
       alertMessage = "寄付先が未入力です";
       this.setState({
         alertDialogVisible: true,
-        alertDialogMessage: alertMessage
+        alertDialogMessage: alertMessage,
       });
     } else {
       // 確認ダイアログを表示（YESの場合、pay()を実行）
       this.setState({
         confirmDialogVisible: true,
-        confirmDialogMessage: "支払いを確定します。よろしいですか？"
+        confirmDialogMessage: "支払いを確定します。よろしいですか？",
       });
     }
   };
@@ -257,7 +260,7 @@ export default class Shopping extends BaseComponent {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
         return response.json();
@@ -274,21 +277,21 @@ export default class Shopping extends BaseComponent {
             }
             this.setState({
               alertDialogVisible: true,
-              alertDialogMessage: alertMessage
+              alertDialogMessage: alertMessage,
             });
           } else {
             // 支払い完了ダイアログを表示し、閉じるとホーム画面に戻る
             this.setState({
               isProcessing: false,
-              finDialogVisible: true
+              finDialogVisible: true,
             });
             Speech.speak("com com coin", {
-              language: "en"
+              language: "en",
             });
           }
         }.bind(this)
       )
-      .catch(error => alert(error));
+      .catch((error) => alert(error));
   };
 
   /** 購入リストより１件削除 */
@@ -297,17 +300,17 @@ export default class Shopping extends BaseComponent {
     buyList.splice(i, 1);
     var totalCoin = this.calcTotalCoin(buyList);
     // コインを3桁の桁区切りで表記する
-    var s = String(totalCoin).split('.');
-    var retTotalCoin = String(s[0]).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+    var s = String(totalCoin).split(".");
+    var retTotalCoin = String(s[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
     if (s.length > 1) {
-      retTotalCoin += '.' + s[1];
+      retTotalCoin += "." + s[1];
     }
-    
+
     this.setState({
       buyList: buyList,
       itemCnt: this.state.itemCnt - 1,
       totalCoin: totalCoin,
-      displayTotalCoin: retTotalCoin
+      displayTotalCoin: retTotalCoin,
     });
   }
 
@@ -319,7 +322,7 @@ export default class Shopping extends BaseComponent {
           style={{
             flex: 1,
             flexDirection: "row",
-            marginTop: 100
+            marginTop: 100,
           }}
         >
           <Text style={{ fontSize: 22, color: "gray" }}>
@@ -335,7 +338,7 @@ export default class Shopping extends BaseComponent {
           style={{
             flex: 1,
             flexDirection: "row",
-            marginTop: 100
+            marginTop: 100,
           }}
         >
           <Text style={{ fontSize: 22, color: "gray" }}>
@@ -383,7 +386,7 @@ export default class Shopping extends BaseComponent {
     } else if (this.state.mode == "cart" || this.state.mode == "input") {
       // --- ショッピングカートモード ---
       return (
-        <View style={{ flex: 1, backgroundColor: 'ivory' }}>
+        <View style={{ flex: 1, backgroundColor: "ivory" }}>
           {/* -- 処理中アニメーション -- */}
           <Spinner
             visible={this.state.isProcessing}
@@ -488,7 +491,7 @@ export default class Shopping extends BaseComponent {
                                 flex: 1,
                                 flexDirection: "column",
                                 justifyContent: "center",
-                                alignItems: "center"
+                                alignItems: "center",
                               }}
                             >
                               <Image
@@ -516,12 +519,12 @@ export default class Shopping extends BaseComponent {
             <RNPickerSelect
               placeholder={{
                 label: "【寄付先を選択してください】",
-                value: null
+                value: null,
               }}
               items={this.state.bokinList}
-              onValueChange={value => {
+              onValueChange={(value) => {
                 this.setState({
-                  m_bokin_pk: value
+                  m_bokin_pk: value,
                 });
               }}
               //onUpArrow={() => {
@@ -532,7 +535,7 @@ export default class Shopping extends BaseComponent {
               //}}
               style={{ ...pickerSelectStyles }}
               value={this.state.m_bokin_pk}
-              ref={el => {
+              ref={(el) => {
                 this.inputRefs.picker = el;
               }}
             />
@@ -620,7 +623,7 @@ const pickerSelectStyles = StyleSheet.create({
     borderColor: "gray",
     borderRadius: 4,
     backgroundColor: "white",
-    color: "black"
+    color: "black",
   },
   inputAndroid: {
     fontSize: 22,
@@ -631,60 +634,60 @@ const pickerSelectStyles = StyleSheet.create({
     borderColor: "gray",
     borderRadius: 4,
     backgroundColor: "white",
-    color: "black"
-  }
+    color: "black",
+  },
 });
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   layerTop: {
     flex: 1,
-    backgroundColor: opacity
+    backgroundColor: opacity,
   },
   layerCenter: {
     flex: 1,
-    flexDirection: "row"
+    flexDirection: "row",
   },
   layerLeft: {
     flex: 1,
-    backgroundColor: opacity
+    backgroundColor: opacity,
   },
   focused: {
-    flex: 8
+    flex: 8,
   },
   layerRight: {
     flex: 1,
-    backgroundColor: opacity
+    backgroundColor: opacity,
   },
   layerBottom: {
     flex: 1,
-    backgroundColor: opacity
+    backgroundColor: opacity,
   },
   description: {
     fontSize: 25,
     marginTop: "40%",
     textAlign: "center",
-    color: "white"
+    color: "white",
   },
   cancel: {
     fontSize: 20,
     textAlign: "center",
     color: "white",
-    marginTop: "30%"
+    marginTop: "30%",
   },
   screenTitleView: {
     alignItems: "center",
     marginTop: 25,
-    backgroundColor: "#ff5622"
+    backgroundColor: "#ff5622",
   },
   screenTitleText: {
     fontSize: 26,
     color: "white",
     padding: 10,
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   itemLine: {
     borderRadius: 10,
@@ -693,7 +696,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     marginRight: 0,
     backgroundColor: "cornflowerblue",
-    flexDirection: "row"
+    flexDirection: "row",
   },
   paybtnLine: {
     borderRadius: 10,
@@ -703,16 +706,16 @@ const styles = StyleSheet.create({
     marginRight: 5,
     backgroundColor: "#ff5622",
     flexDirection: "row",
-    height: 65
+    height: 65,
   },
   paybtnTitleView: {
     flex: 3,
-    alignItems: "center"
+    alignItems: "center",
   },
   paybtnTitleText: {
     fontSize: 22,
     color: "white",
-    padding: 5
+    padding: 5,
   },
   shopbtnLine: {
     borderRadius: 10,
@@ -722,15 +725,15 @@ const styles = StyleSheet.create({
     marginRight: 5,
     backgroundColor: "#FFB300",
     flexDirection: "row",
-    height: 65
+    height: 65,
   },
   shopbtnTitleView: {
     flex: 3,
-    alignItems: "center"
+    alignItems: "center",
   },
   shopbtnTitleText: {
     fontSize: 22,
     color: "white",
-    padding: 5
-  }
+    padding: 5,
+  },
 });

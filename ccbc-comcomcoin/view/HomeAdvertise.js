@@ -1,61 +1,61 @@
-import React from 'react'
-import { StyleSheet, View, Image, ScrollView, Dimensions } from 'react-native'
-import { Text } from 'react-native-elements'
-import Hyperlink from 'react-native-hyperlink'
-import BaseComponent from './components/BaseComponent'
-import InAppHeader from './components/InAppHeader'
+import React from "react";
+import { StyleSheet, View, Image, ScrollView, Dimensions } from "react-native";
+import { Text } from "react-native-elements";
+import Hyperlink from "react-native-hyperlink";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
 
-const restdomain = require('./common/constans.js').restdomain
-const windowWidth = Dimensions.get('window').width
+const restdomain = require("./common/constans.js").restdomain;
+const windowWidth = Dimensions.get("window").width;
 
 export default class HomeAdvertise extends BaseComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       renban: "",
       file_path: "",
       comment: "",
-      screenNo: 5
-    }
+      screenNo: 5,
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
+    await this.getLoginInfo();
 
     //アクセス情報登録
-    this.setAccessLog()
+    this.setAccessLog();
 
     // 引き継ぎパラメータの取得
-    const renban = this.props.navigation.getParam("renban")
-    this.state.renban = renban
+    const renban = this.props.navigation.getParam("renban");
+    this.state.renban = renban;
 
     // ホームAPI.ComComCoinホーム広告情報取得処理の呼び出し
-    await fetch(restdomain + '/comcomcoin_home/findHomeAdvertise', {
-      method: 'POST',
-      mode: 'cors',
+    await fetch(restdomain + "/comcomcoin_home/findHomeAdvertise", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
           // 結果が取得できない場合は終了
-          if (typeof json.data === 'undefined') {
-            return
+          if (typeof json.data === "undefined") {
+            return;
           }
           // 取得したデータをStateに格納
           this.setState({
             file_path: json.data.file_path,
-            comment: json.data.comment
-          })
+            comment: json.data.comment,
+          });
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch((error) => console.error(error));
+  };
 
   /** アクセス情報登録 */
   setAccessLog = async () => {
@@ -69,7 +69,7 @@ export default class HomeAdvertise extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   render() {
     return (
@@ -80,16 +80,35 @@ export default class HomeAdvertise extends BaseComponent {
         {/* -- 広告 -- */}
         <View style={{ height: "90%" }}>
           <ScrollView maximumZoomScale={2}>
-            <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+            <View
+              style={{
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               {/* 画像 */}
-              <Image resizeMode="contain" flexDirection="row" alignItems="center"
-                source={{ uri: restdomain + `/uploads/advertise/${this.state.file_path}` }}
+              <Image
+                resizeMode="contain"
+                flexDirection="row"
+                alignItems="center"
+                source={{
+                  uri:
+                    restdomain + `/uploads/advertise/${this.state.file_path}`,
+                }}
                 resizeMode="cover"
-                style={{ height: windowWidth * 9 / 16, width: windowWidth }} />
+                style={{ height: (windowWidth * 9) / 16, width: windowWidth }}
+              />
             </View>
             <View style={{ marginTop: 10, padding: 10 }}>
               {/* コメント */}
-              <Hyperlink linkDefault={true} linkStyle={{ color: '#2980b9', textDecorationLine: 'underline' }}>
+              <Hyperlink
+                linkDefault={true}
+                linkStyle={{
+                  color: "#2980b9",
+                  textDecorationLine: "underline",
+                }}
+              >
                 <Text selectable style={{ fontSize: 18, lineHeight: 18 * 1.5 }}>
                   {this.state.comment}
                 </Text>
@@ -100,7 +119,7 @@ export default class HomeAdvertise extends BaseComponent {
           </ScrollView>
         </View>
       </View>
-    )
+    );
   }
 }
 
@@ -108,6 +127,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: '#F5FCFF'
-    backgroundColor: "ivory"
-  }
-})
+    backgroundColor: "ivory",
+  },
+});

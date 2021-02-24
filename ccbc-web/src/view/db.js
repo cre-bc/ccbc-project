@@ -1,35 +1,35 @@
-import React, { Component } from 'react'
-import request from 'superagent'
-import { Redirect } from 'react-router-dom'
+import React, { Component } from "react";
+import request from "superagent";
+import { Redirect } from "react-router-dom";
 
-const restdomain = require('../common/constans.js').restdomain
+const restdomain = require("../common/constans.js").restdomain;
 
 export default class DbForm extends Component {
   constructor(props) {
-    super(props)
-    const params = this.props.match
+    super(props);
+    const params = this.props.match;
     this.state = {
       status: true,
       loaded: false,
       mode: params.params.mode,
       readonly: false,
-      resultList: []
-    }
+      resultList: [],
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     // プルダウン用のマスタ読み込み
-    request.get(restdomain + '/server/find').end((err, res) => {
-      if (err) return
+    request.get(restdomain + "/server/find").end((err, res) => {
+      if (err) return;
       // 検索結果表示
-      this.setState({ resultList: res.body.data })
-    })
+      this.setState({ resultList: res.body.data });
+    });
   }
 
   render() {
     // 検索結果リスト
-    const resultList = this.state.resultList.map(data => (
+    const resultList = this.state.resultList.map((data) => (
       <div>
         ID ： {data.id}
         <br />
@@ -38,8 +38,8 @@ export default class DbForm extends Component {
         パスワード ： {data.pass}
         <hr />
       </div>
-    ))
+    ));
 
-    return <div>{resultList}</div>
+    return <div>{resultList}</div>;
   }
 }

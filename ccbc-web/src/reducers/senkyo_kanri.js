@@ -1,12 +1,12 @@
 const initialState = {
-  pSenkyoPk: null
-}
+  pSenkyoPk: null,
+};
 
 export function senkyoKanriReducer(state = initialState, action) {
-  if (action.type === 'SETSENKYOKANRIDATA') {
+  if (action.type === "SETSENKYOKANRIDATA") {
     return {
-      pSenkyoPk: action.pSenkyoPk
-    }
+      pSenkyoPk: action.pSenkyoPk,
+    };
   }
-  return state
+  return state;
 }

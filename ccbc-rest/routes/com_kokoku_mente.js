@@ -67,7 +67,7 @@ router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
       await tkokokuInsert(tx, resdatas, req);
     } else {
       await tkokokuUpdate(tx, resdatas, req);
-    }    
+    }
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {

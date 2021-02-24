@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import { AsyncStorage, StyleSheet, View, Image } from 'react-native'
-import { Header, Icon, Text } from 'react-native-elements'
-import InAppHeader from './components/InAppHeader'
+import React, { Component } from "react";
+import { AsyncStorage, StyleSheet, View, Image } from "react-native";
+import { Header, Icon, Text } from "react-native-elements";
+import InAppHeader from "./components/InAppHeader";
 
 export default class MenuPh2 extends Component {
   state = {
-    open: false
-  }
+    open: false,
+  };
 
   constructor(props) {
-    super(props)
-    this.state = {}
+    super(props);
+    this.state = {};
   }
 
   async componentWillMount() {
@@ -18,8 +18,8 @@ export default class MenuPh2 extends Component {
       saveFlg: "1",
       group_id: "Cre-demo001",
       db_name: "harvest-demo",
-      bc_addr: "0x001b2987b25d0111fb1f351178fa0e1ac642a930"
-    }
+      bc_addr: "0x001b2987b25d0111fb1f351178fa0e1ac642a930",
+    };
     let loginInfo = {
       userid: "ishii",
       password: "pass",
@@ -28,71 +28,69 @@ export default class MenuPh2 extends Component {
       shimei: "石井大翔",
       kengenCd: "2",
       tokenId: "*****",
-      bcAccount: "0x81efd009ee6a48a05669536b976439918b595b97"
-    }
+      bcAccount: "0x81efd009ee6a48a05669536b976439918b595b97",
+    };
     try {
       // alert(JSON.stringify(loginInfo))
-      await AsyncStorage.setItem('groupInfo', JSON.stringify(groupInfo))
-      await AsyncStorage.setItem('loginInfo', JSON.stringify(loginInfo))
+      await AsyncStorage.setItem("groupInfo", JSON.stringify(groupInfo));
+      await AsyncStorage.setItem("loginInfo", JSON.stringify(loginInfo));
     } catch (error) {
-      return
+      return;
     }
   }
 
   onPressLogoutButton = () => {
-    this.props.navigation.navigate('MenuPh2')
-  }
+    this.props.navigation.navigate("MenuPh2");
+  };
   onPressMenuButton = () => {
-    this.props.navigation.navigate('MenuPh2')
-  }
+    this.props.navigation.navigate("MenuPh2");
+  };
   onPressChatButton = () => {
-    this.props.navigation.navigate('Chat')
-  }
+    this.props.navigation.navigate("Chat");
+  };
   onPressChatSelectButton = () => {
-    this.props.navigation.navigate('ChatSelect')
-  }
+    this.props.navigation.navigate("ChatSelect");
+  };
   onPressChatMsgButton = () => {
-    this.props.navigation.navigate('ChatMsg')
-  }
+    this.props.navigation.navigate("ChatMsg");
+  };
   onPressChatCoinButton = () => {
-    this.props.navigation.navigate('ChatCoin')
-  }
+    this.props.navigation.navigate("ChatCoin");
+  };
   onPressKijiButton = () => {
-    this.props.navigation.navigate('ArticleSelect')
-  }
+    this.props.navigation.navigate("ArticleSelect");
+  };
   onPressShoppingButton = () => {
-    this.props.navigation.navigate('Shopping')
-  }
+    this.props.navigation.navigate("Shopping");
+  };
   onPressGroupButton = () => {
-    this.props.navigation.navigate('LoginGroup')
-  }
+    this.props.navigation.navigate("LoginGroup");
+  };
   onPressLoginButton = () => {
-    this.props.navigation.navigate('Login')
-  }
+    this.props.navigation.navigate("Login");
+  };
   onPressHomeButton = () => {
-    this.props.navigation.navigate('Home')
-  }
+    this.props.navigation.navigate("Home");
+  };
   onPressKokokuButton = () => {
-    this.props.navigation.navigate('HomeAdvertise')
-  }
+    this.props.navigation.navigate("HomeAdvertise");
+  };
   onPressOshiraseButton = () => {
-    this.props.navigation.navigate('HomeInfoList')
-  }
+    this.props.navigation.navigate("HomeInfoList");
+  };
   onPressOshiraseShosaiButton = () => {
-    this.props.navigation.navigate('HomeInformation')
-  }
+    this.props.navigation.navigate("HomeInformation");
+  };
   onPressSaishinKijiButton = () => {
-    this.props.navigation.navigate('HomeArticleList', { mode: "new" })
-  }
+    this.props.navigation.navigate("HomeArticleList", { mode: "new" });
+  };
   onPressNinkiKijiButton = () => {
-    this.props.navigation.navigate('HomeArticleList', { mode: "popular" })
-  }
+    this.props.navigation.navigate("HomeArticleList", { mode: "popular" });
+  };
   render() {
     return (
       <View style={styles.container}>
-        <InAppHeader
-          navigate={this.props.navigation.navigate}
-        />
+        <InAppHeader navigate={this.props.navigation.navigate} />
         <View style={{ marginTop: 20, marginLeft: 10 }}>
           <Text h4 onPress={this.onPressChatButton}>
             画面モックアップメニュー
@@ -164,37 +162,37 @@ export default class MenuPh2 extends Component {
           </Text>
         </View>
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F5FCFF'
+    backgroundColor: "#F5FCFF",
   },
   header: {},
   font_view: {
     marginTop: 20,
-    marginLeft: 30
+    marginLeft: 30,
   },
   font: {
-    fontSize: 20
+    fontSize: 20,
   },
   menu_item: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 30,
     marginLeft: 30,
-    marginRight: 30
+    marginRight: 30,
   },
   menu_icon: {
     width: 50,
-    height: 50
+    height: 50,
   },
   menu_button: {},
   menu_icon_view: {},
   menu_button_view: {
     flex: 1,
-    flexDirection: 'column',
-    marginLeft: 10
-  }
-})
+    flexDirection: "column",
+    marginLeft: 10,
+  },
+});

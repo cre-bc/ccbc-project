@@ -19,7 +19,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 /**
  \* Cross-Origin Resource Sharingを有効にする記述（HTTPレスポンスヘッダの追加）
  \*/
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header(
     "Access-Control-Allow-Headers",
@@ -34,7 +34,7 @@ app.use(function(req, res, next) {
 /**
  \* OPTIONSメソッドの実装
  \*/
-app.options("*", function(req, res) {
+app.options("*", function (req, res) {
   res.sendStatus(200);
 });
 
@@ -57,14 +57,14 @@ app.use("/bc-api", api);
 // app.use("/bc-api", api_stub);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   var err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};

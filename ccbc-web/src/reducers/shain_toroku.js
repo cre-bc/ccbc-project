@@ -1,12 +1,12 @@
 const initialState = {
-  pShainPk: 0
-}
+  pShainPk: 0,
+};
 
 export function shainTorokuReducer(state = initialState, action) {
-  if (action.type === 'SETSHAINTOROKUDATA') {
+  if (action.type === "SETSHAINTOROKUDATA") {
     return {
-      pShainPk: action.pShainPk
-    }
+      pShainPk: action.pShainPk,
+    };
   }
-  return state
+  return state;
 }

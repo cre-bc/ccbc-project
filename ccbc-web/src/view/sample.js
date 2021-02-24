@@ -1,20 +1,20 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import classNames from 'classnames'
-import { withStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import List from '@material-ui/core/List'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import Button from '@material-ui/core/Button'
+import React from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import { withStyles } from "@material-ui/core/styles";
+import Drawer from "@material-ui/core/Drawer";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import List from "@material-ui/core/List";
+import MenuItem from "@material-ui/core/MenuItem";
+import Typography from "@material-ui/core/Typography";
+import TextField from "@material-ui/core/TextField";
+import Divider from "@material-ui/core/Divider";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+import Button from "@material-ui/core/Button";
 import {
   mailFolderListItems,
   otherMailFolderListItems,
@@ -22,154 +22,154 @@ import {
   ippanListItems,
   kojiListItems,
   systemName,
-  restUrl
-} from './tileData'
-import Menu from '@material-ui/core/Menu'
-import Avatar from '@material-ui/core/Avatar'
-import { Link } from 'react-router-dom'
-import Chip from '@material-ui/core/Chip'
-import { Manager, Target, Popper } from 'react-popper'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import MenuList from '@material-ui/core/MenuList'
-import Collapse from '@material-ui/core/Collapse'
-import Portal from '@material-ui/core/Portal'
+  restUrl,
+} from "./tileData";
+import Menu from "@material-ui/core/Menu";
+import Avatar from "@material-ui/core/Avatar";
+import { Link } from "react-router-dom";
+import Chip from "@material-ui/core/Chip";
+import { Manager, Target, Popper } from "react-popper";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import MenuList from "@material-ui/core/MenuList";
+import Collapse from "@material-ui/core/Collapse";
+import Portal from "@material-ui/core/Portal";
 
-const drawerWidth = 240
+const drawerWidth = 240;
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   appFrame: {
     zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%'
+    overflow: "hidden",
+    position: "relative",
+    display: "flex",
+    width: "100%",
   },
   buttonFrame: {
-    position: 'static',
-    marginRight: 24
+    position: "static",
+    marginRight: 24,
   },
   buttonFrame2: {
-    position: 'static',
-    marginRight: 0
+    position: "static",
+    marginRight: 0,
   },
   appBar: {
-    position: 'absolute',
-    transition: theme.transitions.create(['margin', 'width'], {
+    position: "absolute",
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
   appBarShift: {
     width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'appBarShift-left': {
-    marginLeft: drawerWidth
+  "appBarShift-left": {
+    marginLeft: drawerWidth,
   },
-  'appBarShift-right': {
-    marginRight: drawerWidth
+  "appBarShift-right": {
+    marginRight: drawerWidth,
   },
   menuButton: {
     marginLeft: 12,
-    marginRight: 20
+    marginRight: 20,
   },
   hide: {
-    display: 'none'
+    display: "none",
   },
   drawerPaper: {
-    position: 'relative',
-    width: drawerWidth
+    position: "relative",
+    width: drawerWidth,
   },
   drawerHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: "0 8px",
+    ...theme.mixins.toolbar,
   },
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing.unit * 3,
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen
-    })
+      duration: theme.transitions.duration.leavingScreen,
+    }),
   },
-  'content-left': {
-    marginLeft: -drawerWidth
+  "content-left": {
+    marginLeft: -drawerWidth,
   },
-  'content-right': {
-    marginRight: -drawerWidth
+  "content-right": {
+    marginRight: -drawerWidth,
   },
   contentShift: {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
-    })
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
-  'contentShift-left': {
-    marginLeft: 0
+  "contentShift-left": {
+    marginLeft: 0,
   },
-  'contentShift-right': {
-    marginRight: 0
-  }
-})
+  "contentShift-right": {
+    marginRight: 0,
+  },
+});
 
 class PersistentDrawer extends React.Component {
   state = {
     open: false,
     open2: false,
-    anchor: 'left'
-  }
+    anchor: "left",
+  };
 
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
-    var loginInfos = JSON.parse(sessionStorage.getItem('loginInfo'))
+    var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
     for (var i in loginInfos) {
-      var loginInfo = loginInfos[i]
-      this.setState({ userid: loginInfo['userid'] })
-      this.setState({ password: loginInfo['password'] })
-      this.setState({ tShainPk: loginInfo['tShainPk'] })
-      this.setState({ imageFileName: loginInfo['imageFileName'] })
-      this.setState({ shimei: loginInfo['shimei'] })
-      this.setState({ kengenCd: loginInfo['kengenCd'] })
+      var loginInfo = loginInfos[i];
+      this.setState({ userid: loginInfo["userid"] });
+      this.setState({ password: loginInfo["password"] });
+      this.setState({ tShainPk: loginInfo["tShainPk"] });
+      this.setState({ imageFileName: loginInfo["imageFileName"] });
+      this.setState({ shimei: loginInfo["shimei"] });
+      this.setState({ kengenCd: loginInfo["kengenCd"] });
     }
     // サンプル用に認証を許可
-    sessionStorage.setItem('sessionId', true)
+    sessionStorage.setItem("sessionId", true);
   }
 
   handleDrawerOpen = () => {
-    this.setState({ open: true })
-  }
+    this.setState({ open: true });
+  };
 
   handleDrawerClose = () => {
-    this.setState({ open: false })
-  }
+    this.setState({ open: false });
+  };
 
   handleLogoutClick = () => {
     // ログアウト時にsessionStorageをクリアする
-    sessionStorage.clear()
-  }
+    sessionStorage.clear();
+  };
 
   handleToggle = () => {
-    this.setState({ open2: !this.state.open2 })
-  }
+    this.setState({ open2: !this.state.open2 });
+  };
 
-  handleToggleClose = event => {
+  handleToggleClose = (event) => {
     if (this.target1.contains(event.target)) {
-      return
+      return;
     }
 
-    this.setState({ open2: false })
-  }
+    this.setState({ open2: false });
+  };
 
   update = () => {
     var loginInfo = [
@@ -179,18 +179,18 @@ class PersistentDrawer extends React.Component {
         tShainPk: document.js.tShainPk.value,
         imageFileName: document.js.imageFileName.value,
         shimei: document.js.shimei.value,
-        kengenCd: document.js.kengenCd.value
-      }
-    ]
-    sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
-    alert('セッションストレージに反映しました')
-  }
+        kengenCd: document.js.kengenCd.value,
+      },
+    ];
+    sessionStorage.setItem("loginInfo", JSON.stringify(loginInfo));
+    alert("セッションストレージに反映しました");
+  };
 
   render() {
-    const { classes, theme } = this.props
-    const { anchor, open, open2 } = this.state
-    const { anchorEl } = this.state
-    const loginLink = props => <Link to="../" {...props} />
+    const { classes, theme } = this.props;
+    const { anchor, open, open2 } = this.state;
+    const { anchorEl } = this.state;
+    const loginLink = (props) => <Link to="../" {...props} />;
 
     const drawer = (
       <Drawer
@@ -198,12 +198,12 @@ class PersistentDrawer extends React.Component {
         anchor={anchor}
         open={open}
         classes={{
-          paper: classes.drawerPaper
+          paper: classes.drawerPaper,
         }}
       >
         <div className={classes.drawerHeader}>
           <IconButton onClick={this.handleDrawerClose}>
-            {theme.direction === 'rtl' ? (
+            {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
               <ChevronLeftIcon />
@@ -213,15 +213,15 @@ class PersistentDrawer extends React.Component {
         <Divider />
         <List>{kanriListItems()}</List>
       </Drawer>
-    )
+    );
 
-    let before = null
-    let after = null
+    let before = null;
+    let after = null;
 
-    if (anchor === 'left') {
-      before = drawer
+    if (anchor === "left") {
+      before = drawer;
     } else {
-      after = drawer
+      after = drawer;
     }
 
     return (
@@ -230,7 +230,7 @@ class PersistentDrawer extends React.Component {
           <AppBar
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
-              [classes[`appBarShift-${anchor}`]]: open
+              [classes[`appBarShift-${anchor}`]]: open,
             })}
           >
             <Toolbar disableGutters={!open}>
@@ -250,8 +250,8 @@ class PersistentDrawer extends React.Component {
               <Manager>
                 <Target>
                   <div
-                    ref={node => {
-                      this.target1 = node
+                    ref={(node) => {
+                      this.target1 = node;
                     }}
                   >
                     <Chip
@@ -269,7 +269,7 @@ class PersistentDrawer extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: '100%' }}
+                      style={{ fontSize: "100%" }}
                     />
                   </div>
                 </Target>
@@ -281,7 +281,7 @@ class PersistentDrawer extends React.Component {
                   <Grow
                     in={open2}
                     id="menu-list-grow"
-                    style={{ transformOrigin: '0 0 0' }}
+                    style={{ transformOrigin: "0 0 0" }}
                   >
                     <Paper>
                       <MenuList role="menu">
@@ -305,7 +305,7 @@ class PersistentDrawer extends React.Component {
               classes[`content-${anchor}`],
               {
                 [classes.contentShift]: open,
-                [classes[`contentShift-${anchor}`]]: open
+                [classes[`contentShift-${anchor}`]]: open,
               }
             )}
           >
@@ -337,25 +337,33 @@ class PersistentDrawer extends React.Component {
                 </ul>
                 <h3>テスト用セッションストレージ登録</h3>
                 <label>
-                  ここで入力したものがセッションストレージに格納されますのでテスト用に使ってください。<br />
-                  ブラウザを閉じる、またはログアウトしたタイミングでセッションストレージは破棄されます。<br />
+                  ここで入力したものがセッションストレージに格納されますのでテスト用に使ってください。
+                  <br />
+                  ブラウザを閉じる、またはログアウトしたタイミングでセッションストレージは破棄されます。
+                  <br />
                   イメージファイル名（imageFileName）については、上記「部品サンプル【04】イメージ」で登録したファイル名を指定してください。
                 </label>
                 <br />
                 <form name="js">
                   <label>userid：</label>
-                  <input type="text" name="userid" />&nbsp;
+                  <input type="text" name="userid" />
+                  &nbsp;
                   <label>password：</label>
-                  <input type="text" name="password" />&nbsp;
+                  <input type="text" name="password" />
+                  &nbsp;
                   <label>tShainPk：</label>
-                  <input type="text" name="tShainPk" />&nbsp;
+                  <input type="text" name="tShainPk" />
+                  &nbsp;
                   <br />
                   <label>imageFileName：</label>
-                  <input type="text" name="imageFileName" />&nbsp;
+                  <input type="text" name="imageFileName" />
+                  &nbsp;
                   <label>shimei：</label>
-                  <input type="text" name="shimei" />&nbsp;
+                  <input type="text" name="shimei" />
+                  &nbsp;
                   <label>kengenCd：</label>
-                  <input type="text" name="kengenCd" />&nbsp;
+                  <input type="text" name="kengenCd" />
+                  &nbsp;
                   <br />
                   <input type="button" value="反映" onClick={this.update} />
                 </form>
@@ -444,13 +452,13 @@ class PersistentDrawer extends React.Component {
           {after}
         </div>
       </div>
-    )
+    );
   }
 }
 
 PersistentDrawer.propTypes = {
   classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired
-}
+  theme: PropTypes.object.isRequired,
+};
 
-export default withStyles(styles, { withTheme: true })(PersistentDrawer)
+export default withStyles(styles, { withTheme: true })(PersistentDrawer);

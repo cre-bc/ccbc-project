@@ -1,54 +1,54 @@
-import React from 'react'
-import { StyleSheet, View, ScrollView, Text } from 'react-native'
-import { Divider, ListItem } from 'react-native-elements'
-import moment from 'moment'
-import 'moment/locale/ja'
-import BaseComponent from './components/BaseComponent'
-import InAppHeader from './components/InAppHeader'
+import React from "react";
+import { StyleSheet, View, ScrollView, Text } from "react-native";
+import { Divider, ListItem } from "react-native-elements";
+import moment from "moment";
+import "moment/locale/ja";
+import BaseComponent from "./components/BaseComponent";
+import InAppHeader from "./components/InAppHeader";
 
-const restdomain = require('./common/constans.js').restdomain
+const restdomain = require("./common/constans.js").restdomain;
 
 export default class HomeInfoList extends BaseComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       inforList: [],
-      screenNo: 6
-    }
+      screenNo: 6,
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
     // ログイン情報の取得（BaseComponent）
-    await this.getLoginInfo()
+    await this.getLoginInfo();
 
     //アクセス情報登録
     this.setAccessLog();
-    
+
     // ホームAPI.ComComCoinホームお知らせ一覧取得処理の呼び出し
-    await fetch(restdomain + '/comcomcoin_home/findHomeInfoList', {
-      method: 'POST',
-      mode: 'cors',
+    await fetch(restdomain + "/comcomcoin_home/findHomeInfoList", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
           // 結果が取得できない場合は終了
-          if (typeof json.data === 'undefined') {
-            return
+          if (typeof json.data === "undefined") {
+            return;
           }
           // 取得したデータをStateに格納
           this.setState({
-            inforList: json.data
-          })
+            inforList: json.data,
+          });
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch((error) => console.error(error));
+  };
 
   /** アクセス情報登録 */
   setAccessLog = async () => {
@@ -62,7 +62,7 @@ export default class HomeInfoList extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   render() {
     return (
@@ -72,13 +72,13 @@ export default class HomeInfoList extends BaseComponent {
 
         {/* -- お知らせ -- */}
         <View style={{ height: "90%" }}>
-          <View style={{ alignItems: 'center', marginTop: 10 }}>
-            <Text style={{ fontSize: 22 }}>
-              {"お知らせ"}
-            </Text>
+          <View style={{ alignItems: "center", marginTop: 10 }}>
+            <Text style={{ fontSize: 22 }}>{"お知らせ"}</Text>
           </View>
           <ScrollView>
-            <Divider style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }} />
+            <Divider
+              style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }}
+            />
             {this.state.inforList.map((item, i) => {
               return (
                 <ListItem
@@ -87,24 +87,29 @@ export default class HomeInfoList extends BaseComponent {
                   title={item.title}
                   titleNumberOfLines={2}
                   subtitleStyle={{ fontSize: 16, marginLeft: 0 }}
-                  subtitle={moment(new Date(item.notice_dt)).format('YYYY/MM/DD')}
-                  onPress={() => this.props.navigation.navigate('HomeInformation', {
-                    renban: item.renban
-                  })} />
-              )
+                  subtitle={moment(new Date(item.notice_dt)).format(
+                    "YYYY/MM/DD"
+                  )}
+                  onPress={() =>
+                    this.props.navigation.navigate("HomeInformation", {
+                      renban: item.renban,
+                    })
+                  }
+                />
+              );
             })}
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 80 }} />
           </ScrollView>
         </View>
-      </View >
-    )
+      </View>
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'ivory'
-  }
-})
+    backgroundColor: "ivory",
+  },
+});

@@ -1,91 +1,93 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
   View,
   ImageBackground,
   AsyncStorage,
-  Image
-} from 'react-native'
-import { Button, FormLabel, FormInput, Card } from 'react-native-elements'
+  Image,
+} from "react-native";
+import { Button, FormLabel, FormInput, Card } from "react-native-elements";
 
-const restdomain = require('./common/constans.js').restdomain
+const restdomain = require("./common/constans.js").restdomain;
 
 export default class Login extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      id: '',
-      passwordInput: '',
-      bc_account: '',
-      image_file_nm: '',
-      shimei: '',
-      kengen_cd: '',
-      msg: '',
+      id: "",
+      passwordInput: "",
+      bc_account: "",
+      image_file_nm: "",
+      shimei: "",
+      kengen_cd: "",
+      msg: "",
       saveFlg: false,
-      group_id: '',
-      db_name: '',
-      bc_addr: '',
-      expo_push_token: ''
-    }
+      group_id: "",
+      db_name: "",
+      bc_addr: "",
+      expo_push_token: "",
+    };
   }
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    this.removeLoginInfo()
+    this.removeLoginInfo();
 
-    var groupInfo = await this.getGroupInfo()
+    var groupInfo = await this.getGroupInfo();
 
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
-    this.setState({ expo_push_token: await AsyncStorage.getItem('expo_push_token') })
+    this.setState({ saveFlg: groupInfo["saveFlg"] });
+    this.setState({ group_id: groupInfo["group_id"] });
+    this.setState({ db_name: groupInfo["db_name"] });
+    this.setState({ bc_addr: groupInfo["bc_addr"] });
+    this.setState({
+      expo_push_token: await AsyncStorage.getItem("expo_push_token"),
+    });
   }
 
   getGroupInfo = async () => {
     try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
+      return JSON.parse(await AsyncStorage.getItem("groupInfo"));
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
   removeLoginInfo = async () => {
     try {
-      await AsyncStorage.removeItem('loginInfo')
+      await AsyncStorage.removeItem("loginInfo");
     } catch (error) {
-      return
+      return;
     }
-  }
+  };
 
-  setLoginInfo = async loginInfo => {
+  setLoginInfo = async (loginInfo) => {
     try {
-      await AsyncStorage.setItem('loginInfo', loginInfo)
+      await AsyncStorage.setItem("loginInfo", loginInfo);
     } catch (error) {
       //alert(error)
-      return
+      return;
     }
-  }
+  };
 
   onPressButton = () => {
-    fetch(restdomain + '/login/find', {
-      method: 'POST',
-      mode: 'cors',
+    fetch(restdomain + "/login/find", {
+      method: "POST",
+      mode: "cors",
       body: JSON.stringify(this.state),
-      headers: new Headers({ 'Content-type': 'application/json' })
+      headers: new Headers({ "Content-type": "application/json" }),
     })
       .then(function (response) {
-        return response.json()
+        return response.json();
       })
       .then(
         function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
-            if (typeof json.data === 'undefined') {
-              return
+            if (typeof json.data === "undefined") {
+              return;
             }
-            var resList = json.data[0]
+            var resList = json.data[0];
             let loginInfo = {
               userid: this.state.id,
               password: this.state.passwordInput,
@@ -95,31 +97,31 @@ export default class Login extends Component {
               shimei: resList.shimei,
               kengenCd: resList.kengen_cd,
               tokenId: json.token,
-              chatGroupPk: resList.t_chat_group_pk
-            }
-            this.setLoginInfo(JSON.stringify(loginInfo))
+              chatGroupPk: resList.t_chat_group_pk,
+            };
+            this.setLoginInfo(JSON.stringify(loginInfo));
 
-            this.props.navigation.navigate('Home')
+            this.props.navigation.navigate("Home");
           } else {
             this.setState({
-              msg: 'ユーザ名またはパスワードを確認してください'
-            })
-            return
+              msg: "ユーザ名またはパスワードを確認してください",
+            });
+            return;
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
-  }
+      .catch((error) => console.error(error));
+  };
 
   onPressButton2 = () => {
-    this.props.navigation.navigate('MenuPh2')
-  }
+    this.props.navigation.navigate("MenuPh2");
+  };
 
   render() {
     return (
       <View style={styles.container}>
         <ImageBackground
-          source={require('./../images/title2.jpg')}
+          source={require("./../images/title2.jpg")}
           style={styles.backgroud_image}
         >
           <View
@@ -127,19 +129,19 @@ export default class Login extends Component {
               height: 30,
               minWidth: 100,
               marginTop: 100,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center'
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <View>
               <Image
                 style={{
                   height: 40,
-                  width: 350
+                  width: 350,
                 }}
                 resizeMode="contain"
-                source={require('./../images/ComComCoin_logo.png')}
+                source={require("./../images/ComComCoin_logo.png")}
               />
             </View>
           </View>
@@ -147,29 +149,29 @@ export default class Login extends Component {
             <View>
               <FormLabel>ID</FormLabel>
               <FormInput
-                onChangeText={text => this.setState({ id: text })}
+                onChangeText={(text) => this.setState({ id: text })}
                 value={this.state.id}
               />
               <FormLabel>Password</FormLabel>
               <FormInput
-                onChangeText={text => this.setState({ passwordInput: text })}
+                onChangeText={(text) => this.setState({ passwordInput: text })}
                 value={this.state.passwordInput}
                 secureTextEntry={true}
               />
               <Button
                 title="login"
                 onPress={this.onPressButton}
-                icon={{ name: 'sign-in', type: 'font-awesome' }}
+                icon={{ name: "sign-in", type: "font-awesome" }}
                 buttonStyle={{
-                  borderColor: 'transparent',
+                  borderColor: "transparent",
                   borderWidth: 0,
-                  borderRadius: 5
+                  borderRadius: 5,
                 }}
               />
-              <Text style={{ color: 'red' }}>{this.state.msg}</Text>
+              <Text style={{ color: "red" }}>{this.state.msg}</Text>
             </View>
             <View>
-              <Text style={{ textAlign: 'right' }}>
+              <Text style={{ textAlign: "right" }}>
                 ※ID、パスワード紛失時は管理者に連絡してください
               </Text>
             </View>
@@ -186,19 +188,19 @@ export default class Login extends Component {
           /> */}
         </ImageBackground>
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF'
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
   },
   backgroud_image: {
-    width: '100%',
-    height: '100%'
-  }
-})
+    width: "100%",
+    height: "100%",
+  },
+});

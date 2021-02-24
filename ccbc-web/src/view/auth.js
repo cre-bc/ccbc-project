@@ -1,21 +1,21 @@
-import React, { Component } from 'react'
-import { Route, Redirect, withRouter } from 'react-router-dom'
-import PropTypes from 'prop-types'
+import React, { Component } from "react";
+import { Route, Redirect, withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
 
 class Auth extends Component {
   static PropTypes = {
-    user: PropTypes.string
-  }
+    user: PropTypes.string,
+  };
 
   componentWillMount() {
-    this.userWillTransfer()
+    this.userWillTransfer();
   }
 
   userWillTransfer() {
-    if (!sessionStorage.getItem('sessionId')) {
-      this.setState({ isAuthenticated: false })
+    if (!sessionStorage.getItem("sessionId")) {
+      this.setState({ isAuthenticated: false });
     } else {
-      this.setState({ isAuthenticated: true })
+      this.setState({ isAuthenticated: true });
     }
   }
 
@@ -23,9 +23,9 @@ class Auth extends Component {
     return this.state.isAuthenticated ? (
       <Route children={this.props.children} />
     ) : (
-      <Redirect to={'/'} />
-    )
+      <Redirect to={"/"} />
+    );
   }
 }
 
-export default withRouter(Auth)
+export default withRouter(Auth);

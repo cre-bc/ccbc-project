@@ -6,7 +6,7 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
 const jimuAccount = require("./common/constans.js").jimuAccount;
-const jimuPassword = require('./common/constans.js').jimuPassword
+const jimuPassword = require("./common/constans.js").jimuPassword;
 const jimuShainPk = require("./common/constans.js").jimuShainPk;
 
 /**
@@ -66,14 +66,14 @@ async function find(req, res) {
   // BCコイン数を取得
   const param = {
     account: req.body.bcAccount,
-    bc_addr: req.body.bc_addr
+    bc_addr: req.body.bc_addr,
   };
   availableCoin = await bccoinget(param);
 
   res.json({
     status: true,
     coin: availableCoin,
-    bokinList: resdatas
+    bokinList: resdatas,
   });
 }
 
@@ -119,7 +119,7 @@ async function checkQRCode(req, res) {
 
   res.json({
     status: true,
-    shohinInfo: resdatas[0]
+    shohinInfo: resdatas[0],
   });
 }
 
@@ -141,7 +141,7 @@ async function pay(req, res) {
   // BCコイン数を取得
   const param = {
     account: req.body.bcAccount,
-    bc_addr: req.body.bc_addr
+    bc_addr: req.body.bc_addr,
   };
   availableCoin = await bccoinget(param);
   var bokinCoin = totalCoin;
@@ -155,55 +155,66 @@ async function pay(req, res) {
     return;
   }
 
-  db
-    .transaction(async function (tx) {
-      // 支払テーブルの追加
-      var ret = await insertShiharai(db, tx, req, totalCoin);
-      var shiharaiPk = ret[0].t_shiharai_pk;
-      // console.log("shiharaiPk:", shiharaiPk);
+  db.transaction(async function (tx) {
+    // 支払テーブルの追加
+    var ret = await insertShiharai(db, tx, req, totalCoin);
+    var shiharaiPk = ret[0].t_shiharai_pk;
+    // console.log("shiharaiPk:", shiharaiPk);
 
-      // 支払明細テーブルの追加
-      var seq = 0;
-      for (var i = 0; i < buyList.length; i++) {
-        var shiharaiM = {
-          seq_no: seq++,
-          m_shohin_pk: buyList[i].m_shohin_pk,
-          quantity: buyList[i].quantity,
-          coin: buyList[i].coin
-        };
-        await insertShiharaiMeisai(db, tx, req, shiharaiPk, shiharaiM);
+    // 支払明細テーブルの追加
+    var seq = 0;
+    for (var i = 0; i < buyList.length; i++) {
+      var shiharaiM = {
+        seq_no: seq++,
+        m_shohin_pk: buyList[i].m_shohin_pk,
+        quantity: buyList[i].quantity,
+        coin: buyList[i].coin,
+      };
+      await insertShiharaiMeisai(db, tx, req, shiharaiPk, shiharaiM);
+    }
+
+    const transactionId = await bcrequest(
+      req,
+      totalCoin,
+      req.body.bcAccount,
+      jimuAccount,
+      req.body.password
+    );
+    // const transactionId = "test";
+
+    // 贈与テーブルの追加
+    var ret = await insertZoyo(db, tx, req, transactionId);
+    const zoyoPk = ret[0].t_zoyo_pk;
+
+    // 出品者にコインを半分還元
+    for (var i = 0; i < buyList.length; i++) {
+      const resdatas = await selectSellerShain(db, buyList[i].shohin_code);
+      var seller_bc_account = null;
+      if (resdatas.length !== 0) {
+        seller_bc_account = resdatas[0].bc_account;
       }
-
-      const transactionId = await bcrequest(req, totalCoin, req.body.bcAccount, jimuAccount, req.body.password);
-      // const transactionId = "test";
-
-      // 贈与テーブルの追加
-      var ret = await insertZoyo(db, tx, req, transactionId);
-      const zoyoPk = ret[0].t_zoyo_pk;
-
-      // 出品者にコインを半分還元
-      for (var i = 0; i < buyList.length; i++) {
-        const resdatas = await selectSellerShain(db, buyList[i].shohin_code);
-        var seller_bc_account = null;
-        if (resdatas.length !== 0) {
-          seller_bc_account = resdatas[0].bc_account;
-        }
-        if (seller_bc_account !== null) {
-          const sellerCoin = Math.round(buyList[i].coin * 0.5);
-          await bcrequest(req, sellerCoin, jimuAccount, seller_bc_account, jimuPassword);
-          bokinCoin -= sellerCoin;
-        }
+      if (seller_bc_account !== null) {
+        const sellerCoin = Math.round(buyList[i].coin * 0.5);
+        await bcrequest(
+          req,
+          sellerCoin,
+          jimuAccount,
+          seller_bc_account,
+          jimuPassword
+        );
+        bokinCoin -= sellerCoin;
       }
+    }
 
-      // 支払テーブルに贈与PKを更新
-      await updateShiharaiAfterZoyo(db, tx, req, shiharaiPk, zoyoPk, bokinCoin);
-    })
-    .then(result => {
+    // 支払テーブルに贈与PKを更新
+    await updateShiharaiAfterZoyo(db, tx, req, shiharaiPk, zoyoPk, bokinCoin);
+  })
+    .then((result) => {
       // コミットしたらこっち
       console.log("正常");
       res.json({ status: true });
     })
-    .catch(e => {
+    .catch((e) => {
       // ロールバックしたらこっち
       console.log("異常");
       console.log(e);
@@ -245,13 +256,11 @@ function selectBokin(db, req) {
   return new Promise((resolve, reject) => {
     var sql =
       "select m_bokin_pk, bokin_nm from m_bokin where delete_flg = '0' order by m_bokin_pk";
-    db
-      .query(sql, {
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -265,14 +274,12 @@ function selectShohin(db, shohin_code) {
     var sql =
       "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin from m_shohin where shohin_code = :shohin_code and delete_flg = '0'";
 
-    db
-      .query(sql, {
-        replacements: { shohin_code: shohin_code },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: { shohin_code: shohin_code },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -290,19 +297,17 @@ function insertShiharai(db, tx, req, totalCoin) {
       " values (:t_shain_pk, current_timestamp, current_timestamp, :total_coin, :m_bokin_pk, '0', :insert_user_id, current_timestamp) " +
       " returning t_shiharai_pk";
 
-    db
-      .query(sql, {
-        transaction: tx,
-        replacements: {
-          t_shain_pk: req.body.loginShainPk,
-          total_coin: totalCoin,
-          m_bokin_pk: req.body.m_bokin_pk,
-          insert_user_id: req.body.userid
-        }
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      transaction: tx,
+      replacements: {
+        t_shain_pk: req.body.loginShainPk,
+        total_coin: totalCoin,
+        m_bokin_pk: req.body.m_bokin_pk,
+        insert_user_id: req.body.userid,
+      },
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -320,21 +325,19 @@ function insertShiharaiMeisai(db, tx, req, shiharaiPk, tShiharaiMeisai) {
       "insert into t_shiharai_meisai (t_shiharai_pk, seq_no, m_shohin_pk, quantity, coin, delete_flg, insert_user_id, insert_tm) " +
       " values (:t_shiharai_pk, :seq_no, :m_shohin_pk, :quantity, :coin, '0', :user_id, current_timestamp) ";
 
-    db
-      .query(sql, {
-        transaction: tx,
-        replacements: {
-          t_shiharai_pk: shiharaiPk,
-          seq_no: tShiharaiMeisai.seq_no,
-          m_shohin_pk: tShiharaiMeisai.m_shohin_pk,
-          quantity: tShiharaiMeisai.quantity,
-          coin: tShiharaiMeisai.coin,
-          user_id: req.body.userid
-        }
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      transaction: tx,
+      replacements: {
+        t_shiharai_pk: shiharaiPk,
+        seq_no: tShiharaiMeisai.seq_no,
+        m_shohin_pk: tShiharaiMeisai.m_shohin_pk,
+        quantity: tShiharaiMeisai.quantity,
+        coin: tShiharaiMeisai.coin,
+        user_id: req.body.userid,
+      },
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -352,21 +355,19 @@ function insertZoyo(db, tx, req, transactionId) {
       " values (:zoyo_moto_shain_pk, :zoyo_saki_shain_pk, :transaction_id, :zoyo_comment, :nenji_flg, '0', :insert_user_id, current_timestamp) " +
       " returning t_zoyo_pk";
 
-    db
-      .query(sql, {
-        transaction: tx,
-        replacements: {
-          zoyo_moto_shain_pk: req.body.loginShainPk,
-          zoyo_saki_shain_pk: jimuShainPk,
-          transaction_id: transactionId,
-          zoyo_comment: "買い物",
-          nenji_flg: "4",
-          insert_user_id: req.body.userid
-        }
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      transaction: tx,
+      replacements: {
+        zoyo_moto_shain_pk: req.body.loginShainPk,
+        zoyo_saki_shain_pk: jimuShainPk,
+        transaction_id: transactionId,
+        zoyo_comment: "買い物",
+        nenji_flg: "4",
+        insert_user_id: req.body.userid,
+      },
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -379,7 +380,14 @@ function insertZoyo(db, tx, req, transactionId) {
  * @param t_zoyo_pk 贈与テーブルPK
  * @param bokin_coin 募金コイン
  */
-function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk, bokin_coin) {
+function updateShiharaiAfterZoyo(
+  db,
+  tx,
+  req,
+  t_shiharai_pk,
+  t_zoyo_pk,
+  bokin_coin
+) {
   return new Promise((resolve, reject) => {
     var sql =
       "update t_shiharai set " +
@@ -387,18 +395,16 @@ function updateShiharaiAfterZoyo(db, tx, req, t_shiharai_pk, t_zoyo_pk, bokin_co
       " bokin_coin = :bokin_coin" +
       " where t_shiharai_pk = :t_shiharai_pk";
 
-    db
-      .query(sql, {
-        transaction: tx,
-        replacements: {
-          t_shiharai_pk: t_shiharai_pk,
-          t_zoyo_pk: t_zoyo_pk,
-          bokin_coin: bokin_coin
-        }
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      transaction: tx,
+      replacements: {
+        t_shiharai_pk: t_shiharai_pk,
+        t_zoyo_pk: t_zoyo_pk,
+        bokin_coin: bokin_coin,
+      },
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -412,14 +418,12 @@ function selectSellerShain(db, shohin_code) {
     var sql =
       "select a.coin, a.seller_shain_pk, b.bc_account from m_shohin a inner join t_shain b on a.seller_shain_pk = b.t_shain_pk where a.shohin_code = :shohin_code and a.delete_flg = '0'";
 
-    db
-      .query(sql, {
-        replacements: { shohin_code: shohin_code },
-        type: db.QueryTypes.RAW
-      })
-      .spread((datas, metadata) => {
-        return resolve(datas);
-      });
+    db.query(sql, {
+      replacements: { shohin_code: shohin_code },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
   });
 }
 
@@ -438,7 +442,7 @@ function bcrequest(req, coin, fromAccount, toAccount, password) {
       to_account: [toAccount],
       password: [password],
       coin: [coin],
-      bc_addr: req.body.bc_addr
+      bc_addr: req.body.bc_addr,
     };
     console.log("bcrequest.param:", param);
     request

@@ -7,10 +7,10 @@ export function setTohyoShokaiShosaiData(
   tTotalcoin
 ) {
   return {
-    type: 'SETTOHYOSHOKAISHOSAIDATA',
+    type: "SETTOHYOSHOKAISHOSAIDATA",
     t_presenter_pk: tPresenterPk,
     t_senkyo_pk: tSenkyoPk,
     t_rank: tRank,
-    t_totalcoin: tTotalcoin
-  }
+    t_totalcoin: tTotalcoin,
+  };
 }

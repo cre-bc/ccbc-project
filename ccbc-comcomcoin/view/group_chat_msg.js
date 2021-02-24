@@ -12,7 +12,6 @@ import { GiftedChat } from "react-native-gifted-chat";
 import io from "socket.io-client";
 import Spinner from "react-native-loading-spinner-overlay";
 
-
 import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
 
@@ -36,7 +35,7 @@ export default class GroupChatMsgForm extends BaseComponent {
       message: [],
       isProcessing: false,
       count: 0,
-      screenNo: 18
+      screenNo: 18,
     };
   }
 
@@ -49,8 +48,10 @@ export default class GroupChatMsgForm extends BaseComponent {
       function (message) {
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
         if (
-          Number(JSON.parse(message).chatGroupPk) === Number(this.state.chatGroupPk) &&
-          Number(JSON.parse(message).to_shain_pk) !== Number(this.state.loginShainPk)
+          Number(JSON.parse(message).chatGroupPk) ===
+            Number(this.state.chatGroupPk) &&
+          Number(JSON.parse(message).to_shain_pk) !==
+            Number(this.state.loginShainPk)
         ) {
           this.getChatMessage(message);
         }
@@ -81,7 +82,7 @@ export default class GroupChatMsgForm extends BaseComponent {
     await this.getLoginInfo();
 
     //アクセス情報登録
-    this.setAccessLog()
+    this.setAccessLog();
 
     // 前画面情報取得
     // チャットグループ
@@ -133,7 +134,7 @@ export default class GroupChatMsgForm extends BaseComponent {
         return response.json();
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   /** 画面初期表示情報取得 */
   findChat = async () => {

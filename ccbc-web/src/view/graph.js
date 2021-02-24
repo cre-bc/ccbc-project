@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
-import request from 'superagent'
-import { Redirect } from 'react-router-dom'
+import React, { Component } from "react";
+import request from "superagent";
+import { Redirect } from "react-router-dom";
 
 import {
   ComposedChart,
@@ -10,20 +10,20 @@ import {
   Legend,
   CartesianGrid,
   Area,
-  Bar
-} from 'recharts'
+  Bar,
+} from "recharts";
 
 export default class GraphForm extends Component {
   render() {
     //表示させたいデータ群
     const dataGraph = [
-      { month: '1月', 売上: 800, 総売上: 1400 },
-      { month: '2月', 売上: 967, 総売上: 1506 },
-      { month: '3月', 売上: 1098, 総売上: 989 },
-      { month: '4月', 売上: 1200, 総売上: 1228 },
-      { month: '5月', 売上: 1108, 総売上: 1100 },
-      { month: '6月', 売上: 680, 総売上: 1700 }
-    ]
+      { month: "1月", 売上: 800, 総売上: 1400 },
+      { month: "2月", 売上: 967, 総売上: 1506 },
+      { month: "3月", 売上: 1098, 総売上: 989 },
+      { month: "4月", 売上: 1200, 総売上: 1228 },
+      { month: "5月", 売上: 1108, 総売上: 1100 },
+      { month: "6月", 売上: 680, 総売上: 1700 },
+    ];
     return (
       <div>
         <ComposedChart //グラフ全体のサイズや位置、データを指定。場合によってmarginで上下左右の位置を指定する必要あり。
@@ -57,6 +57,6 @@ export default class GraphForm extends Component {
           />
         </ComposedChart>
       </div>
-    )
+    );
   }
 }
