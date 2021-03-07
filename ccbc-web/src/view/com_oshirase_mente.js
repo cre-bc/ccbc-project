@@ -1166,6 +1166,7 @@ class ComOshiraseMenteForm extends React.Component {
                 open={this.state.openAdd}
                 onClose={this.handleCloseAdd}
                 aria-labelledby="form-dialog-title"
+                onBackdropClick="false"
               >
                 <DialogTitle id="form-dialog-title">おしらせの追加</DialogTitle>
                 <DialogContent>
@@ -1231,6 +1232,7 @@ class ComOshiraseMenteForm extends React.Component {
                 open={this.state.openEdit}
                 onClose={this.handleCloseEdit}
                 aria-labelledby="form-dialog-title2"
+                onBackdropClick="false"
               >
                 <DialogTitle id="form-dialog-title2">
                   おしらせの編集

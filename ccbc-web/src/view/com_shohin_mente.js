@@ -181,13 +181,13 @@ const toolbarStyles = (theme) => ({
   highlight:
     theme.palette.type === "light"
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
   spacer: {
     flex: "1 1 100%",
   },
@@ -214,10 +214,10 @@ let EnhancedTableToolbar = (props) => {
             {numSelected} 件選択
           </Typography>
         ) : (
-          <Typography variant="title" id="tableTitle">
-            商品一覧
-          </Typography>
-        )}
+            <Typography variant="title" id="tableTitle">
+              商品一覧
+            </Typography>
+          )}
       </div>
       <div className={classes.spacer} />
     </Toolbar>
@@ -379,9 +379,8 @@ const styles = (theme) => ({
   },
   imageTitle: {
     position: "relative",
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
-      theme.spacing.unit + 6
-    }px`,
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme.spacing.unit + 6
+      }px`,
     fontSize: "300%",
   },
   imageMarked: {
@@ -562,11 +561,11 @@ class ComShohinMenteForm extends React.Component {
     const resultList =
       order === "desc"
         ? this.state.resultList.sort((a, b) =>
-            b[orderBy] < a[orderBy] ? -1 : 1
-          )
+          b[orderBy] < a[orderBy] ? -1 : 1
+        )
         : this.state.resultList.sort((a, b) =>
-            a[orderBy] < b[orderBy] ? -1 : 1
-          );
+          a[orderBy] < b[orderBy] ? -1 : 1
+        );
 
     this.setState({ resultList, order, orderBy });
     this.setState({ selected: [] });
@@ -667,7 +666,7 @@ class ComShohinMenteForm extends React.Component {
     this.setState({ seller_shain_pk: null });
   }
 
-  checkInput = () => {  
+  checkInput = () => {
     if (this.state.shohin_code == "") {
       alert("商品コードを入力してください。");
       return false;
@@ -827,8 +826,8 @@ class ComShohinMenteForm extends React.Component {
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
-              <ChevronLeftIcon />
-            )}
+                <ChevronLeftIcon />
+              )}
           </IconButton>
         </div>
         <Divider />
@@ -854,8 +853,8 @@ class ComShohinMenteForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open,
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -1005,8 +1004,8 @@ class ComShohinMenteForm extends React.Component {
                       // onSelectAllClick={this.handleSelectAllClick}
                       onRequestSort={this.handleRequestSort}
                       rowCount={this.state.resultList.length}
-                      // モックデータの場合以下を使用する
-                      //rowCount={data.length}
+                    // モックデータの場合以下を使用する
+                    //rowCount={data.length}
                     />
                     <TableBody>
                       {this.state.resultList
@@ -1141,6 +1140,7 @@ class ComShohinMenteForm extends React.Component {
                 open={this.state.openAdd}
                 onClose={this.handleCloseAdd}
                 aria-labelledby="form-dialog-title"
+                onBackdropClick="false"
               >
                 <DialogTitle id="form-dialog-title">商品の追加</DialogTitle>
                 <DialogContent>
@@ -1152,7 +1152,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_code"
                     label="商品コード"
                     fullWidth
-                    inputProps={{maxLength: "4"}}
+                    inputProps={{ maxLength: "4" }}
                     onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
@@ -1185,7 +1185,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_nm1"
                     label="商品名1段目(11文字)"
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
@@ -1193,7 +1193,7 @@ class ComShohinMenteForm extends React.Component {
                     id="shohin_nm2"
                     label="商品名2段目(11文字)"
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
@@ -1202,7 +1202,7 @@ class ComShohinMenteForm extends React.Component {
                     type="number"
                     label="コイン"
                     fullWidth
-                    inputProps={{maxLength: "6"}}
+                    inputProps={{ maxLength: "6" }}
                     onChange={this.handleChange_coin.bind(this)}
                   />
                   {/* 直接コードを入力する場合*/}
@@ -1265,6 +1265,7 @@ class ComShohinMenteForm extends React.Component {
                 open={this.state.openEdit}
                 onClose={this.handleCloseEdit}
                 aria-labelledby="form-dialog-title2"
+                onBackdropClick="false"
               >
                 <DialogTitle id="form-dialog-title2">商品の編集</DialogTitle>
                 <DialogContent>
@@ -1277,7 +1278,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品コード"
                     defaultValue={this.state.shohin_code}
                     fullWidth
-                    inputProps={{maxLength: "4"}}
+                    inputProps={{ maxLength: "4" }}
                     onChange={this.handleChange_shohin_code.bind(this)}
                   />
                   <FormControl>
@@ -1309,7 +1310,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品名1段目(11文字)"
                     defaultValue={this.state.shohin_nm1}
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm1.bind(this)}
                   />
                   <TextField
@@ -1318,7 +1319,7 @@ class ComShohinMenteForm extends React.Component {
                     label="商品名2段目(11文字)"
                     defaultValue={this.state.shohin_nm2}
                     fullWidth
-                    inputProps={{maxLength: "11"}}
+                    inputProps={{ maxLength: "11" }}
                     onChange={this.handleChange_shohin_nm2.bind(this)}
                   />
                   <TextField
@@ -1328,7 +1329,7 @@ class ComShohinMenteForm extends React.Component {
                     label="コイン"
                     defaultValue={this.state.coin}
                     fullWidth
-                    inputProps={{maxLength: "6"}}
+                    inputProps={{ maxLength: "6" }}
                     onChange={this.handleChange_coin.bind(this)}
                   />
                   {/* 直接コードを入力する場合*/}

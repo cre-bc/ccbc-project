@@ -876,6 +876,7 @@ class ArticleForm extends React.Component {
               onClose={this.handleCloseSearch}
               aria-labelledby="form-dialog-title"
               fullWidth={true}
+              onBackdropClick="false"
             >
               <DialogTitle id="form-dialog-title">記事検索</DialogTitle>
               <DialogContent>
@@ -939,6 +940,7 @@ class ArticleForm extends React.Component {
               aria-labelledby="form-dialog-title"
               fullWidth={true}
               maxWidth="md"
+              onBackdropClick="false"
             >
               <DialogTitle id="form-dialog-title">記事投稿</DialogTitle>
               <DialogContent>
