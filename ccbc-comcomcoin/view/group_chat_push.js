@@ -192,14 +192,16 @@ export default class ChatCoinForm extends BaseComponent {
           <View style={{ flex: 1, alignItems: "flex-start" }} />
           {/* チャット相手 */}
           <View style={{ alignItems: "center" }}>
-            <Text style={styles.screenTitleText}>{this.state.chatGroupNm}</Text>
+            <Text style={styles.screenTitleText}>
+              {this.props.navigation.getParam("chatGroupNm")}
+            </Text>
           </View>
           {/* 空項目 */}
           <View style={{ flex: 1, alignItems: "flex-end" }} />
         </View>
 
         {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <Text style={{ fontSize: 16 }} />
           <Text
             style={{

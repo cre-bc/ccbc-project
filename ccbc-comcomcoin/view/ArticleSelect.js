@@ -87,7 +87,7 @@ export default class ArticleSelect extends BaseComponent {
 
         {/* -- 記事カテゴリ（繰り返し） -- */}
         <View style={{ marginTop: 20 }} />
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           {this.state.categoryList.map((item, i) => {
             const btnMargin = item.spe_category_flg === "0" ? 0 : 20;
             const btnColor =

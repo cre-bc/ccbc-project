@@ -355,153 +355,157 @@ export default class ChatCoinForm extends BaseComponent {
           <View style={{ flex: 1, alignItems: "flex-end" }} />
         </View>
 
-        {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
-        <ScrollView>
-          <View style={{ flexDirection: "row", flexWrap: "nowrap" }}>
-            <View style={{ flexDirection: "column", flexWrap: "nowrap" }}>
-              <Text
-                style={{
-                  fontSize: 16,
-                  marginLeft: 16,
-                  marginTop: 20,
-                  color: "gray",
-                }}
-              >
-                所持コイン
-              </Text>
-              <Text
-                style={{
-                  fontSize: 22,
-                  marginLeft: 16,
-                  textAlign: "center",
-                  color: "#FF683A",
-                  fontWeight: "bold",
-                }}
-              >
-                {this.state.displayCoin}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 16,
-                  marginLeft: 16,
-                  marginTop: 20,
-                  color: "gray",
-                }}
-              >
-                送付相手
-              </Text>
-              <View style={{ flexDirection: "row", marginLeft: 16 }}>
-                <Avatar
-                  rounded
-                  medium
-                  source={{
-                    uri: restdomain + `/uploads/${this.state.fromImageFileNm}`,
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS == "ios" ? "padding" : ""}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={{ flexDirection: "row", flexWrap: "nowrap" }}>
+              <View style={{ flexDirection: "column", flexWrap: "nowrap" }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    marginLeft: 16,
+                    marginTop: 20,
+                    color: "gray",
                   }}
-                />
-                <Text style={{ fontSize: 22, marginLeft: 16, marginTop: 20 }}>
-                  {this.state.fromShimei}
+                >
+                  所持コイン
                 </Text>
+                <Text
+                  style={{
+                    fontSize: 22,
+                    marginLeft: 16,
+                    textAlign: "center",
+                    color: "#FF683A",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {this.state.displayCoin}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    marginLeft: 16,
+                    marginTop: 20,
+                    color: "gray",
+                  }}
+                >
+                  送付相手
+                </Text>
+                <View style={{ flexDirection: "row", marginLeft: 16 }}>
+                  <Avatar
+                    rounded
+                    medium
+                    source={{
+                      uri:
+                        restdomain + `/uploads/${this.state.fromImageFileNm}`,
+                    }}
+                  />
+                  <Text style={{ fontSize: 22, marginLeft: 16, marginTop: 20 }}>
+                    {this.state.fromShimei}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <Text
-            style={{
-              fontSize: 16,
-              marginLeft: 16,
-              marginTop: 20,
-              color: "gray",
-            }}
-          >
-            コイン
-          </Text>
-          <RNPickerSelect
-            placeholder={{
-              label: "送付するコイン数を選択してください",
-              value: "",
-            }}
-            items={this.state.coinList}
-            onValueChange={(value) => {
-              this.setState({
-                target_manager: value,
-              });
-            }}
-            style={{ ...pickerSelectStyles }}
-            value={this.state.target_manager}
-            ref={(el) => {
-              this.inputRefs.picker = el;
-            }}
-          />
+            <Text
+              style={{
+                fontSize: 16,
+                marginLeft: 16,
+                marginTop: 20,
+                color: "gray",
+              }}
+            >
+              コイン
+            </Text>
+            <RNPickerSelect
+              placeholder={{
+                label: "送付するコイン数を選択してください",
+                value: "",
+              }}
+              items={this.state.coinList}
+              onValueChange={(value) => {
+                this.setState({
+                  target_manager: value,
+                });
+              }}
+              style={{ ...pickerSelectStyles }}
+              value={this.state.target_manager}
+              ref={(el) => {
+                this.inputRefs.picker = el;
+              }}
+            />
 
-          <Text style={{ fontSize: 16 }} />
-          <Text
-            style={{
-              fontSize: 16,
-              marginLeft: 16,
-              marginTop: 20,
-              color: "gray",
-            }}
-          >
-            承認ポイント
-          </Text>
-          <RNPickerSelect
-            placeholder={{
-              label: "承認ポイントを選択してください",
-              value: null,
-            }}
-            items={this.state.shoninList}
-            onValueChange={(value) => {
-              this.setState({
-                shoninCd: value,
-              });
-            }}
-            style={{ ...pickerSelectStyles }}
-            value={this.state.shoninCd}
-            ref={(el) => {
-              this.inputRefs.picker = el;
-            }}
-          />
+            <Text style={{ fontSize: 16 }} />
+            <Text
+              style={{
+                fontSize: 16,
+                marginLeft: 16,
+                marginTop: 20,
+                color: "gray",
+              }}
+            >
+              承認ポイント
+            </Text>
+            <RNPickerSelect
+              placeholder={{
+                label: "承認ポイントを選択してください",
+                value: null,
+              }}
+              items={this.state.shoninList}
+              onValueChange={(value) => {
+                this.setState({
+                  shoninCd: value,
+                });
+              }}
+              style={{ ...pickerSelectStyles }}
+              value={this.state.shoninCd}
+              ref={(el) => {
+                this.inputRefs.picker = el;
+              }}
+            />
 
-          <Text style={{ fontSize: 16 }} />
-          <Text
-            style={{
-              fontSize: 16,
-              marginLeft: 16,
-              marginTop: 20,
-              color: "gray",
-            }}
-          >
-            コメント
-          </Text>
-          <TextInput
-            multiline={true}
-            numberOfLines={8}
-            scrollEnabled={false}
-            style={[styles.inputText, { textAlignVertical: "top" }]}
-            value={this.state.comment}
-            onChangeText={(text) => {
-              this.setState({ comment: text });
-            }}
-          />
+            <Text style={{ fontSize: 16 }} />
+            <Text
+              style={{
+                fontSize: 16,
+                marginLeft: 16,
+                marginTop: 20,
+                color: "gray",
+              }}
+            >
+              コメント
+            </Text>
+            <TextInput
+              multiline={true}
+              numberOfLines={8}
+              scrollEnabled={false}
+              style={[styles.inputText, { textAlignVertical: "top" }]}
+              value={this.state.comment}
+              onChangeText={(text) => {
+                this.setState({ comment: text });
+              }}
+            />
 
-          <Text style={{ fontSize: 16 }} />
-          <View style={{ flexDirection: "row" }}>
-            <View style={{ flex: 1 }}>
-              <TouchableHighlight onPress={() => this.onClickSend()}>
-                <View style={styles.saveButton}>
-                  <Image
-                    source={require("./../images/coin_icon.png")}
-                    style={styles.menu_icon}
-                  />
-                  <View style={styles.articleTitleView}>
-                    <Text style={styles.articleTitleText}>送付する</Text>
+            <Text style={{ fontSize: 16 }} />
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flex: 1 }}>
+                <TouchableHighlight onPress={() => this.onClickSend()}>
+                  <View style={styles.saveButton}>
+                    <Image
+                      source={require("./../images/coin_icon.png")}
+                      style={styles.menu_icon}
+                    />
+                    <View style={styles.articleTitleView}>
+                      <Text style={styles.articleTitleText}>送付する</Text>
+                    </View>
                   </View>
-                </View>
-              </TouchableHighlight>
+                </TouchableHighlight>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-        {/* </KeyboardAvoidingView> */}
+          </ScrollView>
+        </KeyboardAvoidingView>
 
         {/* -- 確認ダイアログ -- */}
         <ConfirmDialog

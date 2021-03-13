@@ -10,7 +10,8 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
+import { Icon } from "react-native-elements";
+import { GiftedChat, Send } from "react-native-gifted-chat";
 import io from "socket.io-client";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -316,6 +317,13 @@ export default class ChatMsgForm extends BaseComponent {
 
         {/* チャット内容 */}
         <GiftedChat
+          renderSend={(props) => {
+            return (
+              <Send {...props} containerStyle={styles.sendContainer}>
+                <Icon name="send" type="font-awesome" color="blue" />
+              </Send>
+            );
+          }}
           dateFormat={"YYYY/MM/DD"}
           timeFormat={"HH:mm"}
           messages={this.state.messages} //stateで管理しているメッセージ
@@ -349,5 +357,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "white",
     padding: 10,
+  },
+  sendContainer: {
+    justifyContent: Platform.OS == "ios" ? "flex-start" : "center",
+    alignItems: "center",
+    alignSelf: "center",
+    marginRight: 15,
   },
 });

@@ -244,6 +244,7 @@ export default class Home extends BaseComponent {
         {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: "row" }}>
           <ScrollView
+            showsVerticalScrollIndicator={false}
             maximumZoomScale={2}
             refreshControl={
               <RefreshControl
@@ -533,7 +534,7 @@ export default class Home extends BaseComponent {
 
         {/* -- 各機能アイコン -- */}
         <View style={[{ flex: 1, flexDirection: "row" }]}>
-          <ScrollView horizontal={true}>
+          <ScrollView showsHorizontalScrollIndicator={false} horizontal={true}>
             {/* チャット */}
             <View
               style={{

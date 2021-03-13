@@ -79,7 +79,7 @@ export default class HomeAdvertise extends BaseComponent {
 
         {/* -- 広告 -- */}
         <View style={{ height: "90%" }}>
-          <ScrollView maximumZoomScale={2}>
+          <ScrollView showsVerticalScrollIndicator={false} maximumZoomScale={2}>
             <View
               style={{
                 flexDirection: "column",

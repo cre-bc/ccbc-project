@@ -330,154 +330,163 @@ export default class ArticleEntry extends BaseComponent {
         <InAppHeader navigate={this.props.navigation.navigate} />
 
         {/* -- 入力部 -- */}
-        {/* <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}> */}
-        <View style={{ height: "90%" }}>
-          <ScrollView>
-            <View style={{ padding: 10 }}>
-              <View>
-                {/* 投稿先カテゴリ（表示のみ） */}
-                <Text style={styles.inputTitle}>投稿先</Text>
-                <TextInput
-                  style={{ fontSize: 16, color: "black", padding: 5 }}
-                  value={this.state.categoryNm}
-                  editable={false}
-                />
-              </View>
-              <View>
-                {/* タイトル */}
-                <Text style={styles.inputTitle}>
-                  {"タイトル（" + CHAR_LEN_TITLE + "文字以内）"}
-                </Text>
-                <TextInput
-                  style={styles.inputText}
-                  value={this.state.title}
-                  onChangeText={(text) => {
-                    this.setState({ title: text });
-                  }}
-                />
-              </View>
-              <View>
-                {/* ハッシュタグ */}
-                <Text style={styles.inputTitle}>
-                  {"タグ（1タグ" +
-                    CHAR_LEN_HASHTAG +
-                    "文字以内、スペース区切りで" +
-                    HASHTAG_UPPER_LIMIT +
-                    "つまで #は不要）"}
-                </Text>
-                <TextInput
-                  style={styles.inputText}
-                  value={this.state.hashtag_str}
-                  onChangeText={(text) => {
-                    this.setState({ hashtag_str: text });
-                  }}
-                />
-              </View>
-              <View style={{ marginTop: 10, marginButtom: 10 }}>
-                {/* 記事内容 */}
-                <Text style={styles.inputTitle}>
-                  {"記事（" + CHAR_LEN_CONTENTS + "文字以内）"}
-                </Text>
-                <TextInput
-                  multiline={true}
-                  numberOfLines={8}
-                  scrollEnabled={false}
-                  style={[styles.inputText, { textAlignVertical: "top" }]}
-                  value={this.state.contents}
-                  onChangeText={(text) => {
-                    this.setState({ contents: text });
-                  }}
-                />
-              </View>
-              {/* 画像 */}
-              <View>
-                <Text style={styles.inputTitle}>画像</Text>
-                {this.state.file_path !== "" &&
-                  this.state.imageData.uri === "" && (
-                    <View style={{ marginTop: 10 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS == "ios" ? "padding" : ""}
+        >
+          <View style={{ height: "90%" }}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <View style={{ padding: 10 }}>
+                <View>
+                  {/* 投稿先カテゴリ（表示のみ） */}
+                  <Text style={styles.inputTitle}>投稿先</Text>
+                  <TextInput
+                    style={{ fontSize: 16, color: "black", padding: 5 }}
+                    value={this.state.categoryNm}
+                    editable={false}
+                  />
+                </View>
+                <View>
+                  {/* タイトル */}
+                  <Text style={styles.inputTitle}>
+                    {"タイトル（" + CHAR_LEN_TITLE + "文字以内）"}
+                  </Text>
+                  <TextInput
+                    style={styles.inputText}
+                    value={this.state.title}
+                    onChangeText={(text) => {
+                      this.setState({ title: text });
+                    }}
+                  />
+                </View>
+                <View>
+                  {/* ハッシュタグ */}
+                  <Text style={styles.inputTitle}>
+                    {"タグ（1タグ" +
+                      CHAR_LEN_HASHTAG +
+                      "文字以内、スペース区切りで" +
+                      HASHTAG_UPPER_LIMIT +
+                      "つまで #は不要）"}
+                  </Text>
+                  <TextInput
+                    style={styles.inputText}
+                    value={this.state.hashtag_str}
+                    onChangeText={(text) => {
+                      this.setState({ hashtag_str: text });
+                    }}
+                  />
+                </View>
+                <View style={{ marginTop: 10, marginButtom: 10 }}>
+                  {/* 記事内容 */}
+                  <Text style={styles.inputTitle}>
+                    {"記事（" + CHAR_LEN_CONTENTS + "文字以内）"}
+                  </Text>
+                  <TextInput
+                    multiline={true}
+                    numberOfLines={8}
+                    scrollEnabled={false}
+                    style={[styles.inputText, { textAlignVertical: "top" }]}
+                    value={this.state.contents}
+                    onChangeText={(text) => {
+                      this.setState({ contents: text });
+                    }}
+                  />
+                </View>
+                {/* 画像 */}
+                <View>
+                  <Text style={styles.inputTitle}>画像</Text>
+                  {this.state.file_path !== "" &&
+                    this.state.imageData.uri === "" && (
+                      <View style={{ marginTop: 10 }}>
+                        <Image
+                          source={{
+                            uri:
+                              restdomain +
+                              `/uploads/article/${this.state.file_path}`,
+                          }}
+                          style={{
+                            width: articleImageWidth,
+                            height: articleImageWidth,
+                          }}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                  {this.state.imageData.uri !== "" && (
+                    <View>
                       <Image
-                        source={{
-                          uri:
-                            restdomain +
-                            `/uploads/article/${this.state.file_path}`,
-                        }}
+                        source={{ uri: this.state.imageData.uri }}
                         style={{
                           width: articleImageWidth,
                           height: articleImageWidth,
+                          marginTop: 30,
+                          marginBottom: 30,
                         }}
                         resizeMode="contain"
                       />
                     </View>
                   )}
-                {this.state.imageData.uri !== "" && (
-                  <View>
-                    <Image
-                      source={{ uri: this.state.imageData.uri }}
+                  <View style={{ flexDirection: "row", marginTop: 10 }}>
+                    {/* 画像選択ボタン */}
+                    <View
                       style={{
-                        width: articleImageWidth,
-                        height: articleImageWidth,
-                        marginTop: 30,
-                        marginBottom: 30,
+                        flex: 1,
+                        alignItems: "flex-start",
+                        marginLeft: 10,
                       }}
-                      resizeMode="contain"
-                    />
-                  </View>
-                )}
-                <View style={{ flexDirection: "row", marginTop: 10 }}>
-                  {/* 画像選択ボタン */}
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: "flex-start",
-                      marginLeft: 10,
-                    }}
-                  >
-                    <TouchableHighlight onPress={() => this.onClickPickImage()}>
-                      <View style={styles.selectButtonView}>
-                        <View style={styles.selectButtonTitleView}>
-                          <Text style={styles.selectButtonTitleText}>
-                            画像選択
-                          </Text>
+                    >
+                      <TouchableHighlight
+                        onPress={() => this.onClickPickImage()}
+                      >
+                        <View style={styles.selectButtonView}>
+                          <View style={styles.selectButtonTitleView}>
+                            <Text style={styles.selectButtonTitleText}>
+                              画像選択
+                            </Text>
+                          </View>
                         </View>
-                      </View>
-                    </TouchableHighlight>
-                  </View>
-                  {/* 画像削除アイコン */}
-                  <View
-                    style={{ flex: 1, alignItems: "flex-end", marginRight: 10 }}
-                  >
-                    <Icon
-                      name="times-circle"
-                      type="font-awesome"
-                      color="black"
-                      size={30}
-                      onPress={() => {
-                        this.setState({
-                          imageData: { uri: "" },
-                          file_path: "",
-                        });
+                      </TouchableHighlight>
+                    </View>
+                    {/* 画像削除アイコン */}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "flex-end",
+                        marginRight: 10,
                       }}
-                    />
+                    >
+                      <Icon
+                        name="times-circle"
+                        type="font-awesome"
+                        color="black"
+                        size={30}
+                        onPress={() => {
+                          this.setState({
+                            imageData: { uri: "" },
+                            file_path: "",
+                          });
+                        }}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
-            </View>
 
-            {/* -- 投稿ボタン -- */}
-            <View style={{ flexDirection: "row" }}>
-              <View style={{ flex: 1 }}>
-                <TouchableHighlight onPress={() => this.onClickEntry()}>
-                  <View style={styles.saveButtonView}>
-                    <View style={styles.saveButtonTitleView}>
-                      <Text style={styles.saveButtonTitleText}>投稿する</Text>
+              {/* -- 投稿ボタン -- */}
+              <View style={{ flexDirection: "row" }}>
+                <View style={{ flex: 1 }}>
+                  <TouchableHighlight onPress={() => this.onClickEntry()}>
+                    <View style={styles.saveButtonView}>
+                      <View style={styles.saveButtonTitleView}>
+                        <Text style={styles.saveButtonTitleText}>投稿する</Text>
+                      </View>
                     </View>
-                  </View>
-                </TouchableHighlight>
+                  </TouchableHighlight>
+                </View>
               </View>
-            </View>
-          </ScrollView>
-        </View>
-        {/* </KeyboardAvoidingView> */}
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
 
         {/* -- 確認ダイアログ -- */}
         <ConfirmDialog

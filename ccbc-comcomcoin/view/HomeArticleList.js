@@ -115,7 +115,7 @@ export default class HomeArticleList extends BaseComponent {
           <View style={{ alignItems: "center", marginTop: 10 }}>
             <Text style={{ fontSize: 22 }}>{this.state.screenTitle}</Text>
           </View>
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
             <Divider
               style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }}
             />

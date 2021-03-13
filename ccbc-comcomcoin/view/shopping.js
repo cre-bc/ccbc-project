@@ -43,6 +43,7 @@ export default class Shopping extends BaseComponent {
       screenNo: 13,
       displayCoin: 0,
       displayTotalCoin: 0,
+      displayItemCount: 0,
     };
     this.props = props;
   }
@@ -156,6 +157,15 @@ export default class Shopping extends BaseComponent {
             return;
           }
 
+          // 商品コインを3桁の桁区切りで表記する
+          var shohinCoin = String(json.shohinInfo.coin).split(".");
+          var retShohinCoin = String(shohinCoin[0]).replace(
+            /(\d)(?=(\d\d\d)+(?!\d))/g,
+            "$1,"
+          );
+          if (shohinCoin.length > 1) {
+            retShohinCoin += "." + shohinCoin[1];
+          }
           // 購入リストに商品マスタのデータを追加
           var shohinInfo = {
             m_shohin_pk: json.shohinInfo.m_shohin_pk,
@@ -163,12 +173,23 @@ export default class Shopping extends BaseComponent {
             shohin_nm1: json.shohinInfo.shohin_nm1,
             shohin_nm2: json.shohinInfo.shohin_nm2,
             coin: json.shohinInfo.coin,
+            displayShohinCoin: retShohinCoin,
             quantity: 1,
           };
           var buyList = this.state.buyList;
           buyList.push(shohinInfo);
 
           var itemCnt = this.state.itemCnt + 1;
+
+          // 個数を3桁の桁区切りで表記する
+          var count = String(itemCnt).split(".");
+          var retCount = String(count[0]).replace(
+            /(\d)(?=(\d\d\d)+(?!\d))/g,
+            "$1,"
+          );
+          if (count.length > 1) {
+            retCount += "." + count[1];
+          }
 
           // 合計コイン数を算出
           var totalCoin = this.calcTotalCoin(buyList);
@@ -189,6 +210,7 @@ export default class Shopping extends BaseComponent {
             itemCnt: itemCnt,
             mode: "cart",
             displayTotalCoin: retTotalCoin,
+            displayItemCount: retCount,
           });
         }.bind(this)
       )
@@ -306,11 +328,19 @@ export default class Shopping extends BaseComponent {
       retTotalCoin += "." + s[1];
     }
 
+    // 個数を3桁の桁区切りで表記する
+    var count = String(this.state.itemCnt - 1).split(".");
+    var retCount = String(count[0]).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+    if (count.length > 1) {
+      retCount += "." + count[1];
+    }
+
     this.setState({
       buyList: buyList,
       itemCnt: this.state.itemCnt - 1,
       totalCoin: totalCoin,
       displayTotalCoin: retTotalCoin,
+      displayItemCount: retCount,
     });
   }
 
@@ -439,7 +469,7 @@ export default class Shopping extends BaseComponent {
                     </View>
                     <View style={{ flex: 0.5 }}>
                       <Text style={{ textAlign: "right", fontSize: 24 }}>
-                        {Number(this.state.itemCnt).toLocaleString()}
+                        {this.state.displayItemCount}
                       </Text>
                     </View>
                     <View style={{ flex: 0.5 }}>
@@ -464,7 +494,7 @@ export default class Shopping extends BaseComponent {
                 </View>
               </View>
             </View>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
               <View>
                 <Card containerStyle={{ padding: 0 }}>
                   {this.state.buyList.map((slist, i) => {
@@ -479,7 +509,7 @@ export default class Shopping extends BaseComponent {
                               {slist.shohin_nm2}
                             </Text>
                             <Text style={{ fontSize: 22 }}>
-                              {slist.coin} コイン
+                              {slist.displayShohinCoin} コイン
                             </Text>
                           </View>
 

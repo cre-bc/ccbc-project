@@ -153,7 +153,7 @@ export default class ChatSelectForm extends BaseComponent {
         {/* -- 共有ヘッダ -- */}
         <InAppHeader navigate={this.props.navigation.navigate} />
 
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           {/* -- リスト -- */}
           {/* 未読が0件の場合はバッジを非表示にする */}
           {this.state.resultList.map((n) => {
