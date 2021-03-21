@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "593041411335",
+    "project_id": "comcomcoin-1c8ec",
+    "storage_bucket": "comcomcoin-1c8ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593041411335:android:5fca23fa526776348389a2",
+        "android_client_info": {
+          "package_name": "com.creativeconsultant.comcomcoin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593041411335-4s88p8o362l1g0sehud0jkag7a6befi4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVHFQ6FvS1OOx_Jm-TE0b44Kcj24J88NY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593041411335-4s88p8o362l1g0sehud0jkag7a6befi4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

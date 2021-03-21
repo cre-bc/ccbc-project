@@ -2,7 +2,7 @@
   "expo": {
     "name": "ComComCoin",
     "icon": "./images/app-icon.png",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "slug": "comcomcoin",
     "sdkVersion": "39.0.0",
     "ios": {
@@ -13,10 +13,11 @@
       }
     },
     "android": {
-      "versionCode": 13,
+      "versionCode": 14,
       "package": "com.creativeconsultant.comcomcoin",
       "permissions": ["CAMERA"],
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "googleServicesFile": "./google-services.json"
     },
     "platforms": ["android", "ios"],
     "notification": {
