@@ -10,7 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { Button, FormInput, Card } from "react-native-elements";
-import { Notifications } from "expo";
+import * as Notifications from "expo-notifications";
 
 const restdomain = require("./common/constans.js").restdomain;
 
@@ -33,12 +33,17 @@ export default class LoginGroupForm extends Component {
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
     // Push通知のリスナー登録
-    Notifications.addListener(this.handleNotification);
+    // Notifications.addNotificationReceivedListener((notification) => {
+    //   this.handleNotification(notification);
+    // });
+    Notifications.addNotificationResponseReceivedListener((response) => {
+      this.handleNotification(response.notification.request.content.data);
+    });
 
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
   }
@@ -108,11 +113,11 @@ export default class LoginGroupForm extends Component {
     }
   };
 
-  handleNotification = async (notification) => {
+  handleNotification = async (data) => {
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
 
@@ -122,26 +127,26 @@ export default class LoginGroupForm extends Component {
       return;
     }
 
-    if (notification.origin == "selected" || Platform.OS === "ios") {
-      // バックグラウンドでプッシュ通知をタップした時
-      if (notification.data && "chatGroupPk" in notification.data) {
-        // alert(JSON.stringify(notification))
-        // チャット画面に遷移
-        this.props.navigation.navigate("GroupChatMsg", {
-          chatGroupPk: notification.data.chatGroupPk,
-          chatGroupNm: notification.data.chatGroupNm,
-        });
-      } else if (notification.data && "fromShainPk" in notification.data) {
-        // alert(JSON.stringify(notification))
-        // チャット画面に遷移
-        this.props.navigation.navigate("ChatMsg", {
-          fromShainPk: notification.data.fromShainPk,
-          fromShimei: notification.data.fromShimei,
-          fromImageFileNm: notification.data.fromImageFileNm,
-          fromExpoPushToken: notification.data.fromExpoPushToken,
-        });
-      }
+    // if (notification.origin == "selected" || Platform.OS === "ios") {
+    // バックグラウンドでプッシュ通知をタップした時
+    if (data && "chatGroupPk" in data) {
+      // alert(JSON.stringify(notification))
+      // チャット画面に遷移
+      this.props.navigation.navigate("GroupChatMsg", {
+        chatGroupPk: data.chatGroupPk,
+        chatGroupNm: data.chatGroupNm,
+      });
+    } else if (data && "fromShainPk" in data) {
+      // alert(JSON.stringify(notification))
+      // チャット画面に遷移
+      this.props.navigation.navigate("ChatMsg", {
+        fromShainPk: data.fromShainPk,
+        fromShimei: data.fromShimei,
+        fromImageFileNm: data.fromImageFileNm,
+        fromExpoPushToken: data.fromExpoPushToken,
+      });
     }
+    // }
   };
 
   openModal() {

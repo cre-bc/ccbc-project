@@ -1,5 +1,5 @@
 import React from "react";
-import { Notifications } from "expo";
+import * as Notifications from "expo-notifications";
 import { StyleSheet, View, ScrollView } from "react-native";
 import { ListItem, Avatar } from "react-native-elements";
 import io from "socket.io-client";
@@ -48,9 +48,9 @@ export default class ChatSelectForm extends BaseComponent {
     this.setAccessLog();
 
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
 

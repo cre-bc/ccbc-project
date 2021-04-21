@@ -1,5 +1,5 @@
 import React from "react";
-import { Notifications } from "expo";
+import * as Notifications from "expo-notifications";
 import {
   Platform,
   Dimensions,
@@ -91,9 +91,9 @@ export default class Home extends BaseComponent {
     await this.getLoginInfo();
 
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
 

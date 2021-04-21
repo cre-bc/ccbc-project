@@ -3,7 +3,7 @@ import { AsyncStorage, AppState } from "react-native";
 import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import * as Permissions from "expo-permissions";
-import { Notifications } from "expo";
+import * as Notifications from "expo-notifications";
 
 // テスト用メニュー画面
 import MenuForm from "./view/Menu";
@@ -92,23 +92,38 @@ export default class App extends Component {
 
   async componentWillMount() {
     // Push通知のトークンを取得
-    const { status: existingStatus } = await Permissions.getAsync(
-      Permissions.NOTIFICATIONS
-    );
+    const {
+      status: existingStatus,
+    } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== "granted") {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
     if (finalStatus === "granted") {
-      let token = await Notifications.getExpoPushTokenAsync();
+      let token = (await Notifications.getExpoPushTokenAsync()).data;
       await AsyncStorage.setItem("expo_push_token", token);
     }
 
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+      }),
+    });
+
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
 
@@ -119,9 +134,9 @@ export default class App extends Component {
   /** バックグラウンド→フォアグラウンドの切り替え */
   handleAppStateChange = (nextAppState) => {
     // アプリの未読件数をクリア
-    Notifications.getBadgeNumberAsync().then((badgeNumber) => {
+    Notifications.getBadgeCountAsync().then((badgeNumber) => {
       if (badgeNumber !== 0) {
-        Notifications.setBadgeNumberAsync(0);
+        Notifications.setBadgeCountAsync(0);
       }
     });
   };
