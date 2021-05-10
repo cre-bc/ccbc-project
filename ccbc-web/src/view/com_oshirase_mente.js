@@ -53,6 +53,8 @@ import "moment/locale/ja";
 import request from "superagent";
 
 const restdomain = require("../common/constans.js").restdomain;
+var createObjectURL =
+  (window.URL || window.webkitURL).createObjectURL || window.createObjectURL;
 
 function getNendo(val) {
   var result = "日付文字列が不正です。"; //日付不正時のメッセージ
@@ -161,13 +163,13 @@ const toolbarStyles = (theme) => ({
   highlight:
     theme.palette.type === "light"
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
+        color: theme.palette.secondary.main,
+        backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+      }
       : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.secondary.dark,
+      },
   spacer: {
     flex: "1 1 100%",
   },
@@ -332,9 +334,8 @@ const styles = (theme) => ({
   },
   imageTitle: {
     position: "relative",
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
-      theme.spacing.unit + 6
-    }px`,
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme.spacing.unit + 6
+      }px`,
     fontSize: "300%",
   },
   imageMarked: {
@@ -371,6 +372,11 @@ const styles = (theme) => ({
   },
   extendedIcon: {
     marginRight: theme.spacing.unit,
+  },
+  inputFileBtnHide: {
+    opacity: 0,
+    appearance: "none",
+    position: "absolute",
   },
 });
 
@@ -427,6 +433,9 @@ class ComOshiraseMenteForm extends React.Component {
       notice_dt: "",
       title: "",
       comment: "",
+      file_path: "",
+      inputImage: null,
+      gazo: null,
     };
   }
 
@@ -512,6 +521,7 @@ class ComOshiraseMenteForm extends React.Component {
   };
 
   handleClickOpenAdd = () => {
+    this.setState({ inputImage: null, file_path: "" });
     this.setState({ openAdd: true });
   };
 
@@ -520,6 +530,7 @@ class ComOshiraseMenteForm extends React.Component {
   };
 
   handleClickOpenEdit = () => {
+    this.setState({ inputImage: null });
     this.setState({ openEdit: true });
   };
 
@@ -546,11 +557,11 @@ class ComOshiraseMenteForm extends React.Component {
     const resultList =
       order === "desc"
         ? this.state.resultList.sort((a, b) =>
-            b[orderBy] < a[orderBy] ? -1 : 1
-          )
+          b[orderBy] < a[orderBy] ? -1 : 1
+        )
         : this.state.resultList.sort((a, b) =>
-            a[orderBy] < b[orderBy] ? -1 : 1
-          );
+          a[orderBy] < b[orderBy] ? -1 : 1
+        );
 
     this.setState({ resultList, order, orderBy });
     this.setState({ selected: [] });
@@ -558,6 +569,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ notice_dt: null });
     this.setState({ title: null });
     this.setState({ comment: null });
+    this.setState({ file_path: null });
   };
 
   handleClick = (event, id) => {
@@ -588,6 +600,7 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ notice_dt: null });
       this.setState({ title: null });
       this.setState({ comment: null });
+      this.setState({ file_path: null });
     } else {
       if (this.state.page == 1) id = id + 5;
       if (this.state.page == 2) id = id + 10;
@@ -595,6 +608,7 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ notice_dt: this.state.resultList[id].notice_dt });
       this.setState({ title: this.state.resultList[id].title });
       this.setState({ comment: this.state.resultList[id].comment });
+      this.setState({ file_path: this.state.resultList[id].file_path });
     }
   };
 
@@ -605,6 +619,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ notice_dt: null });
     this.setState({ title: null });
     this.setState({ comment: null });
+    this.setState({ file_path: null });
   };
 
   handleChangeRowsPerPage = (event) => {
@@ -627,9 +642,11 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ notice_dt: null });
     this.setState({ title: null });
     this.setState({ comment: null });
+    this.setState({ file_path: null });
   };
 
   handleSubmit = async () => {
+    await this.fileUpload();
     await fetch(restdomain + "/com_oshirase_mente/create", {
       // request
       //   .post(restdomain + '/com_oshirase_mente/create')
@@ -698,12 +715,14 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ notice_dt: null });
           this.setState({ title: null });
           this.setState({ comment: null });
+          this.setState({ file_path: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
   };
 
   handleSubmitEdit = async () => {
+    await this.fileUpload();
     await fetch(restdomain + "/com_oshirase_mente/edit", {
       // request
       //   .post(restdomain + '/com_oshirase_mente/edit')
@@ -769,6 +788,7 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ notice_dt: null });
           this.setState({ title: null });
           this.setState({ comment: null });
+          this.setState({ file_path: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -840,6 +860,7 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ notice_dt: null });
           this.setState({ title: null });
           this.setState({ comment: null });
+          this.setState({ file_path: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -858,6 +879,38 @@ class ComOshiraseMenteForm extends React.Component {
   }
 
   isSelected = (id) => this.state.selected.indexOf(id) !== -1;
+
+  handleSelectFile = (event) => {
+    var files = event.target.files;
+    this.setState({ gazo: files[0] });
+    this.setState({ file_path: files[0].name });
+    var image_url = createObjectURL(files[0]);
+    this.setState({ inputImage: image_url });
+  };
+
+  handleDeleteImage = () => {
+    this.setState({ inputImage: null, file_path: "" });
+  };
+
+  fileUpload = async () => {
+    if (this.state.inputImage == null) {
+      return;
+    }
+
+    let data = new FormData();
+    data.append("image", this.state.gazo);
+
+    request
+      .post(restdomain + "/com_oshirase_mente/upload")
+      .send(data)
+      .end((err, res) => {
+        if (err) {
+          console.log("Error:", err);
+          alert("画像ファイルのアップロードに失敗しました");
+          return;
+        }
+      });
+  }
 
   render() {
     const { classes, theme } = this.props;
@@ -918,8 +971,8 @@ class ComOshiraseMenteForm extends React.Component {
               [classes[`appBarShift-${anchor}`]]: open,
             })}
             classes={{ colorPrimary: this.props.classes.appBarColorDefault }}
-            //colorPrimary="rgba(200, 200, 200, 0.92)"
-            //color="secondary"
+          //colorPrimary="rgba(200, 200, 200, 0.92)"
+          //color="secondary"
           >
             <Toolbar disableGutters={!open}>
               <IconButton
@@ -1206,6 +1259,49 @@ class ComOshiraseMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_comment.bind(this)}
                   />
+                  <Button color="primary" style={{ marginTop: 20 }}>
+                    画像選択
+                  <input
+                      type="file"
+                      accept="image/*"
+                      className={classes.inputFileBtnHide}
+                      onChange={this.handleSelectFile}
+                    />
+                  </Button>
+                  <Button
+                    onClick={this.handleDeleteImage}
+                    color="secondary"
+                    style={{ marginTop: 20 }}
+                  >
+                    画像削除
+                  </Button>
+                  <div style={{ width: 350, float: "left", padding: 10 }}>
+                    {this.state.file_path !== "" && !this.state.inputImage && (
+                      <img
+                        style={{
+                          maxWidth: "90%",
+                          border: "solid",
+                          borderColor: "lightgray",
+                          // width: 300,
+                        }}
+                        src={
+                          restdomain +
+                          `/uploads/news/${this.state.file_path}`
+                        }
+                      />
+                    )}
+                    {this.state.inputImage && (
+                      <img
+                        style={{
+                          maxWidth: "90%",
+                          border: "solid",
+                          borderColor: "lightgray",
+                          // width: 300,
+                        }}
+                        src={this.state.inputImage}
+                      />
+                    )}
+                  </div>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseAdd} color="primary">
@@ -1273,6 +1369,49 @@ class ComOshiraseMenteForm extends React.Component {
                     fullWidth
                     onChange={this.handleChange_comment.bind(this)}
                   />
+                  <Button color="primary" style={{ marginTop: 20 }}>
+                    画像選択
+                  <input
+                      type="file"
+                      accept="image/*"
+                      className={classes.inputFileBtnHide}
+                      onChange={this.handleSelectFile}
+                    />
+                  </Button>
+                  <Button
+                    onClick={this.handleDeleteImage}
+                    color="secondary"
+                    style={{ marginTop: 20 }}
+                  >
+                    画像削除
+                  </Button>
+                  <div style={{ width: 350, float: "left", padding: 10 }}>
+                    {this.state.file_path !== "" && !this.state.inputImage && (
+                      <img
+                        style={{
+                          maxWidth: "90%",
+                          border: "solid",
+                          borderColor: "lightgray",
+                          // width: 300,
+                        }}
+                        src={
+                          restdomain +
+                          `/uploads/news/${this.state.file_path}`
+                        }
+                      />
+                    )}
+                    {this.state.inputImage && (
+                      <img
+                        style={{
+                          maxWidth: "90%",
+                          border: "solid",
+                          borderColor: "lightgray",
+                          // width: 300,
+                        }}
+                        src={this.state.inputImage}
+                      />
+                    )}
+                  </div>
                 </DialogContent>
                 <DialogActions>
                   <Button onClick={this.handleCloseEdit} color="primary">

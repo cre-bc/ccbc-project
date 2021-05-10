@@ -226,7 +226,7 @@ export default class ArticleRefer extends BaseComponent {
       .then(function (response) {
         return response.json();
       })
-      .then(function (json) {}.bind(this))
+      .then(function (json) { }.bind(this))
       .catch((error) => console.error(error));
   };
 
@@ -255,7 +255,7 @@ export default class ArticleRefer extends BaseComponent {
       .then(function (response) {
         return response.json();
       })
-      .then(function (json) {}.bind(this))
+      .then(function (json) { }.bind(this))
       .catch((error) => console.error(error));
   };
 

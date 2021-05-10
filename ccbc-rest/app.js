@@ -42,6 +42,7 @@ const chatCoinRouter = require("./routes/chat_coin");
 const groupChatMsgRouter = require("./routes/group_chat_msg");
 const groupChatPushRouter = require("./routes/group_chat_push");
 const accessLogRouter = require("./routes/access_log");
+const articlePushRouter = require("./routes/article_push");
 
 const sampleRouter = require("./routes/sample");
 const comcomcoinMainteRouter = require("./routes/comcomcoin_mainte");
@@ -127,6 +128,7 @@ app.use("/chat_coin", chatCoinRouter);
 app.use("/group_chat_msg", groupChatMsgRouter);
 app.use("/group_chat_push", groupChatPushRouter);
 app.use("/access_log", accessLogRouter);
+app.use("/article_push", articlePushRouter);
 
 // sample
 app.use("/sample", sampleRouter);

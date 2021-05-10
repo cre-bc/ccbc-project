@@ -127,17 +127,14 @@ export default class LoginGroupForm extends Component {
       return;
     }
 
-    // if (notification.origin == "selected" || Platform.OS === "ios") {
     // バックグラウンドでプッシュ通知をタップした時
     if (data && "chatGroupPk" in data) {
-      // alert(JSON.stringify(notification))
       // チャット画面に遷移
       this.props.navigation.navigate("GroupChatMsg", {
         chatGroupPk: data.chatGroupPk,
         chatGroupNm: data.chatGroupNm,
       });
     } else if (data && "fromShainPk" in data) {
-      // alert(JSON.stringify(notification))
       // チャット画面に遷移
       this.props.navigation.navigate("ChatMsg", {
         fromShainPk: data.fromShainPk,
@@ -145,8 +142,12 @@ export default class LoginGroupForm extends Component {
         fromImageFileNm: data.fromImageFileNm,
         fromExpoPushToken: data.fromExpoPushToken,
       });
+    } else if (data && "infoRenban" in data) {
+      // お知らせ詳細画面に遷移
+      this.props.navigation.navigate("HomeInformation", {
+        renban: data.infoRenban,
+      });
     }
-    // }
   };
 
   openModal() {

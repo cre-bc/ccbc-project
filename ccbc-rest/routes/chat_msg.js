@@ -5,6 +5,18 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 
+var multer = require('multer')
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // forever起動時にuploadが正常に動作しないため、暫定対応
+    cb(null, '/home/BLOCKCHAIN/ccbc-rest/public/uploads/chat')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+var upload = multer({ storage: storage })
+
 /**
  * チャット_初期表示
  */
@@ -54,23 +66,45 @@ router.post("/create", (req, res) => {
         req.body.fromExpoPushToken !== "" &&
         req.body.fromExpoPushToken !== null
       ) {
-        const pushData = [
-          {
-            to: req.body.fromExpoPushToken,
-            title: req.body.shimei,
-            body: req.body.message,
-            sound: "default",
-            badge: 1,
-            data: {
+        var pushData = [];
+        console.log("ファイルパス：" + req.body.filePath)
+        if(req.body.filePath != null && req.body.filePath != ""){
+          pushData.push({
+              to: req.body.fromExpoPushToken,
               title: req.body.shimei,
-              message: req.body.message,
-              fromShainPk: req.body.loginShainPk,
-              fromShimei: req.body.shimei,
-              fromImageFileNm: req.body.imageFileName,
-              fromExpoPushToken: req.body.expo_push_token,
+              body: "写真が送信されました",
+              sound: "default",
+              badge: 1,
+              data: {
+                title: req.body.shimei,
+                message: "写真が送信されました",
+                fromShainPk: req.body.loginShainPk,
+                fromShimei: req.body.shimei,
+                fromImageFileNm: req.body.imageFileName,
+                fromExpoPushToken: req.body.expo_push_token,
+              },
             },
-          },
-        ];
+          );
+        }else{
+          pushData = [
+            {
+              to: req.body.fromExpoPushToken,
+              title: req.body.shimei,
+              body: req.body.message,
+              sound: "default",
+              badge: 1,
+              data: {
+                title: req.body.shimei,
+                message: req.body.message,
+                fromShainPk: req.body.loginShainPk,
+                fromShimei: req.body.shimei,
+                fromImageFileNm: req.body.imageFileName,
+                fromExpoPushToken: req.body.expo_push_token,
+              },
+            },
+          ];
+        }
+
         request
           .post("https://exp.host/--/api/v2/push/send")
           .send(pushData)
@@ -90,6 +124,18 @@ router.post("/create", (req, res) => {
       console.log(e);
     });
 });
+
+/**
+ * API : upload
+ * チャット画像のファイルをアップロード
+ */
+ router.post('/upload', upload.fields([{ name: 'image' }]), (req, res) => {
+  console.log('API : upload - start')
+  res.json({
+    status: true
+  })
+  console.log('API : upload - end')
+})
 
 /**
  * データ取得用関数
@@ -202,7 +248,7 @@ async function chatMsgGet(req) {
   return new Promise((resolve, reject) => {
     console.log("★ start chatMsgGet★");
     var sql =
-      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk from t_chat c where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) and c.t_chat_group_pk = 0 order by post_dt + post_tm desc";
+      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk, file_path from t_chat c where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) and c.t_chat_group_pk = 0 order by post_dt + post_tm desc";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
@@ -339,18 +385,42 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
  */
 function insertChat(tx, req) {
   return new Promise((resolve, reject) => {
-    var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk) " +
-      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?) RETURNING t_chat_pk";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-
-    db.query(sql, {
-      transaction: tx,
-      replacements: [
+    // 画像を送信する場合
+    if(req.body.filePath != null && req.body.filePath != ""){
+      var sql =
+      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
+      "VALUES (?, ?, ?, current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
+      db.query(sql, {
+        transaction: tx,
+        replacements: [
+        req.body.loginShainPk,
+        req.body.fromShainPk,
+        null,
+        0,
+        0,
+        req.body.userid,
+        null,
+        null,
+        null,
+        0,
+        req.body.filePath
+        ],
+      }).spread((datas, metadata) => {
+        return resolve(datas[0].t_chat_pk);
+      });
+    // 通常のチャットメッセージ送信
+    } else {
+      var sql =
+      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
+      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
+      db.query(sql, {
+        transaction: tx,
+        replacements: [
         req.body.loginShainPk,
         req.body.fromShainPk,
         req.body.message,
@@ -361,11 +431,12 @@ function insertChat(tx, req) {
         null,
         null,
         0,
-      ],
-    }).spread((datas, metadata) => {
-      // console.log(datas);
-      return resolve(datas[0].t_chat_pk);
-    });
+        null
+        ],
+      }).spread((datas, metadata) => {
+        return resolve(datas[0].t_chat_pk);
+      });
+    }
   });
 }
 module.exports = router;

@@ -199,6 +199,7 @@ async function findHomeInformation(req, res) {
     title: result[0].title,
     comment: result[0].comment,
     notice_dt: result[0].notice_dt,
+    file_path: result[0].file_path,
   };
 
   res.json({
@@ -418,7 +419,7 @@ function getOshirase(db, req) {
   return new Promise((resolve, reject) => {
     // 直近1ヶ月を取得
     var sql =
-      "select renban, notice_dt, title, comment" +
+      "select renban, notice_dt, title, comment, file_path" +
       " from t_oshirase" +
       " where renban = :renban";
     db.query(sql, {

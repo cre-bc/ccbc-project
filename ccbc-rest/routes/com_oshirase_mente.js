@@ -5,6 +5,18 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 
+var multer = require("multer");
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // forever起動時にuploadが正常に動作しないため、暫定対応
+    cb(null, "/home/BLOCKCHAIN/ccbc-rest/public/uploads/news");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+var upload = multer({ storage: storage });
+
 const query = (sql, params, res, req) => {
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
@@ -45,7 +57,7 @@ router.post("/find", (req, res) => {
   console.log("req.body.targetYear:" + req.body.targetYear);
   const params = [];
   const sql =
-    "select renban, title, comment, notice_dt from t_oshirase where delete_flg = '0' and notice_dt between '" +
+    "select renban, title, comment, notice_dt, file_path from t_oshirase where delete_flg = '0' and notice_dt between '" +
     req.body.targetYear +
     "0401' and '" +
     (req.body.targetYear + 1) +
@@ -86,10 +98,13 @@ router.post("/create", (req, res) => {
   //         }
   //     })
 
+  var renban = "";
+
   db.transaction(async function (tx) {
     var resdatas = [];
     console.log(req);
-    await tOshiraseInsert(tx, resdatas, req);
+    var ret = await tOshiraseInsert(tx, resdatas, req);
+    renban = ret[0].renban;
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
@@ -109,6 +124,9 @@ router.post("/create", (req, res) => {
             body: req.body.title,
             sound: "default",
             badge: 1,
+            data: {
+              infoRenban: renban,
+            },
           };
           request
             .post("https://exp.host/--/api/v2/push/send")
@@ -116,6 +134,7 @@ router.post("/create", (req, res) => {
             .end((err, res) => {
               if (err) {
                 console.log("com_oshirase_mente:", "Push send error:", err);
+              } else {
                 console.log("com_oshirase_mente:", "Push send data:", pushData);
               }
             });
@@ -127,6 +146,17 @@ router.post("/create", (req, res) => {
       console.log("異常");
       console.log(e);
     });
+});
+
+/**
+ * ファイルをアップロード
+ */
+router.post("/upload", upload.fields([{ name: "image" }]), (req, res) => {
+  console.log("API : upload - start");
+  res.json({
+    status: true,
+  });
+  console.log("API : upload - end");
 });
 
 /**
@@ -196,8 +226,8 @@ router.post("/delete", (req, res) => {
 function tOshiraseInsert(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "insert into t_oshirase (title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
-      "VALUES (?, ?, ?, ?, ?, current_timestamp, ?, ?) ";
+      "insert into t_oshirase (title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, file_path) " +
+      "VALUES (?, ?, ?, ?, ?, current_timestamp, ?, ?, ?) returning renban";
 
     db.query(sql, {
       transaction: tx,
@@ -209,6 +239,7 @@ function tOshiraseInsert(tx, resdatas, req) {
         req.body.userid,
         null,
         null,
+        req.body.file_path,
       ],
     }).spread((datas, metadata) => {
       console.log("◆◆◆");
@@ -229,7 +260,7 @@ function tOshiraseUpdate(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
       "update t_oshirase set title = ?, comment = ?, notice_dt = ?," +
-      "update_user_id = ?, update_tm = current_timestamp WHERE renban = ?";
+      "update_user_id = ?, update_tm = current_timestamp, file_path = ? WHERE renban = ?";
 
     db.query(sql, {
       transaction: tx,
@@ -238,6 +269,7 @@ function tOshiraseUpdate(tx, resdatas, req) {
         req.body.comment,
         req.body.notice_dt,
         req.body.userid,
+        req.body.file_path,
         req.body.renban,
       ],
     }).spread((datas, metadata) => {

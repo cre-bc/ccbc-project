@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, Dimensions, Image } from "react-native";
 import { Text } from "react-native-elements";
 import Hyperlink from "react-native-hyperlink";
 import moment from "moment";
@@ -8,6 +8,7 @@ import BaseComponent from "./components/BaseComponent";
 import InAppHeader from "./components/InAppHeader";
 
 const restdomain = require("./common/constans.js").restdomain;
+const windowWidth = Dimensions.get("window").width;
 
 export default class HomeInformation extends BaseComponent {
   constructor(props) {
@@ -16,8 +17,11 @@ export default class HomeInformation extends BaseComponent {
       renban: "",
       title: "",
       comment: "",
+      file_path: "",
       notice_dt: null,
       screenNo: 7,
+      imageViewHeight: 0,
+      imageViewWidth: 0,
     };
   }
 
@@ -55,6 +59,7 @@ export default class HomeInformation extends BaseComponent {
             title: json.data.title,
             comment: json.data.comment,
             notice_dt: json.data.notice_dt,
+            file_path: json.data.file_path,
           });
         }.bind(this)
       )
@@ -76,6 +81,19 @@ export default class HomeInformation extends BaseComponent {
   };
 
   render() {
+    // オリジナル画像よりサイズを取得
+    if (this.state.file_path !== "" && this.state.file_path !== null) {
+      Image.getSize(restdomain + `/uploads/news/${this.state.file_path}`, (width, height) => {
+        var imageViewWidth = width;
+        var imageViewHeight = height;
+        if (windowWidth < width) {
+          imageViewWidth = width;
+          imageViewHeight = windowWidth / width * height;
+        }
+        this.setState({ imageViewWidth: imageViewWidth, imageViewHeight: imageViewHeight })
+      });
+    }
+
     return (
       <View style={styles.container}>
         {/* -- 共有ヘッダ -- */}
@@ -114,6 +132,28 @@ export default class HomeInformation extends BaseComponent {
                 </Text>
               </Hyperlink>
             </View>
+            {/* 画像 */}
+            {this.state.file_path !== "" && this.state.file_path !== null && (
+              <View
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 10,
+                }}
+              >
+                <Image
+                  resizeMode="contain"
+                  flexDirection="row"
+                  alignItems="center"
+                  source={{
+                    uri:
+                      restdomain + `/uploads/news/${this.state.file_path}`,
+                  }}
+                  style={{ height: this.state.imageViewHeight, width: this.state.imageViewWidth }}
+                />
+              </View>
+            )}
             {/* スクロールが最下部まで表示されないことの暫定対応... */}
             <View style={{ marginBottom: 50 }} />
           </ScrollView>
