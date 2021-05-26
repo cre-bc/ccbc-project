@@ -7,6 +7,7 @@ import {
   Text,
   TouchableHighlight,
   AppState,
+  AsyncStorage,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { GiftedChat, Send } from "react-native-gifted-chat";
@@ -37,6 +38,7 @@ export default class GroupChatMsgForm extends BaseComponent {
       isProcessing: false,
       count: 0,
       screenNo: 18,
+      customText: "",
     };
   }
 
@@ -79,6 +81,7 @@ export default class GroupChatMsgForm extends BaseComponent {
 
   /** 画面遷移時処理 */
   onWillFocus = async () => {
+    this.setState({ isProcessing: true });
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
 
@@ -111,7 +114,9 @@ export default class GroupChatMsgForm extends BaseComponent {
     socket.emit("join", this.state.chatGroupPk);
 
     // 初期表示情報取得
-    this.findChat();
+    await this.findChat();
+    this.setState({ isProcessing: false });
+    this.loadItem();
   };
 
   /** 画面遷移時処理（後処理） */
@@ -232,6 +237,7 @@ export default class GroupChatMsgForm extends BaseComponent {
               chatGroupPk: this.state.chatGroupPk,
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
+            this.removeInfo();
           }
         }.bind(this)
       )
@@ -272,6 +278,53 @@ export default class GroupChatMsgForm extends BaseComponent {
   handleAppStateChange = (nextAppState) => {
     // アプリのForeground・Backgroundが変わったら、チャット内容を再読み込みする
     this.findChat();
+  };
+
+  /** AsyncStorageから入力内容を読み込み */
+  loadItem = async () => {
+    try {
+      var strageKey =
+        this.state.userid + this.state.chatGroupPk + "groupChatMsg";
+      const chatMsgStrage = await AsyncStorage.getItem(strageKey);
+      if (chatMsgStrage) {
+        const chatMsgInfo = JSON.parse(chatMsgStrage);
+        this.setState({
+          customText: chatMsgInfo["customText"],
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // メッセージの入力テキスト変更時
+  handleChatTextChange = async (customText) => {
+    if (!this.state.isProcessing) {
+      this.setState({ customText });
+      try {
+        let chatMsgInfo = {
+          customText: customText,
+        };
+        const chatMsgStrage = JSON.stringify(chatMsgInfo);
+        // keyはユーザーID（自分） + グループPK + chatMsg
+        var strageKey =
+          this.state.userid + this.state.chatGroupPk + "groupChatMsg";
+        await AsyncStorage.setItem(strageKey, chatMsgStrage);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  /** AsyncStorageから入力内容を削除 */
+  removeInfo = async () => {
+    try {
+      var strageKey =
+        this.state.userid + this.state.chatGroupPk + "groupChatMsg";
+      await AsyncStorage.removeItem(strageKey);
+    } catch (error) {
+      return;
+    }
   };
 
   render() {
@@ -320,10 +373,12 @@ export default class GroupChatMsgForm extends BaseComponent {
           messages={this.state.messages} //stateで管理しているメッセージ
           onSend={(messages) => this.onSend(messages)} //送信ボタン押した時の動作
           placeholder={"メッセージを入力"}
-          minComposerHeight={50}
+          // minComposerHeight={50}
           user={{
             _id: 1,
           }}
+          text={this.state.customText}
+          onInputTextChanged={this.handleChatTextChange}
         />
         {/* {Platform.OS === "android" ? <KeyboardSpacer /> : null} */}
       </View>
@@ -349,8 +404,14 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 10,
   },
+  // sendContainer: {
+  //   justifyContent: Platform.OS == "ios" ? "flex-start" : "center",
+  //   alignItems: "center",
+  //   alignSelf: "center",
+  //   marginRight: 15,
+  // },
   sendContainer: {
-    justifyContent: Platform.OS == "ios" ? "flex-start" : "center",
+    justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
     marginRight: 15,

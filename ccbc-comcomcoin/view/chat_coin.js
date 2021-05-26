@@ -8,6 +8,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   TouchableHighlight,
+  AsyncStorage,
 } from "react-native";
 import { Avatar, Card } from "react-native-elements";
 import RNPickerSelect from "react-native-picker-select";
@@ -107,9 +108,9 @@ export default class ChatCoinForm extends BaseComponent {
     });
 
     // 初期表示情報取得
-    this.findChatCoin();
-
+    await this.findChatCoin();
     this.setState({ isProcessing: false });
+    this.loadItem();
   };
 
   /** 画面遷移時処理（後処理） */
@@ -314,7 +315,8 @@ export default class ChatCoinForm extends BaseComponent {
               createdAt: new Date(),
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
-
+            // storageの削除
+            this.removeInfo();
             // チャット画面に遷移
             this.props.navigation.navigate("ChatMsg", {
               t_shain_Pk: this.state.fromShainPk,
@@ -328,6 +330,92 @@ export default class ChatCoinForm extends BaseComponent {
         }.bind(this)
       )
       .catch((error) => console.error(error));
+  };
+
+  /** AsyncStorageから入力内容を読み込み */
+  loadItem = async () => {
+    try {
+      var strageKey = this.state.userid + this.state.fromShainPk + "coinSofu";
+      const coinSofuStrage = await AsyncStorage.getItem(strageKey);
+      if (coinSofuStrage) {
+        const coinSofuInfo = JSON.parse(coinSofuStrage);
+        this.setState({
+          target_manager: coinSofuInfo["target_manager"],
+          shoninCd: coinSofuInfo["shoninCd"],
+          comment: coinSofuInfo["comment"],
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // 送付コインのリスト変更時
+  handleSofuCoinChange = async (target_manager) => {
+    if (!this.state.isProcessing) {
+      this.setState({ target_manager });
+      try {
+        let coinSofuInfo = {
+          target_manager: target_manager,
+          shoninCd: this.state.shoninCd,
+          comment: this.state.comment,
+        };
+        const coinSofuStrage = JSON.stringify(coinSofuInfo);
+        // keyはユーザーID（自分） + コイン送付相手の社員PK + coinSofu
+        var strageKey = this.state.userid + this.state.fromShainPk + "coinSofu";
+        await AsyncStorage.setItem(strageKey, coinSofuStrage);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  // 承認ポイントのリスト変更時
+  handleShoninCdChange = async (shoninCd) => {
+    if (!this.state.isProcessing) {
+      this.setState({ shoninCd });
+      try {
+        let coinSofuInfo = {
+          target_manager: this.state.target_manager,
+          shoninCd: shoninCd,
+          comment: this.state.comment,
+        };
+        const coinSofuStrage = JSON.stringify(coinSofuInfo);
+        // keyはユーザーID（自分） + コイン送付相手の社員PK + coinSofu
+        var strageKey = this.state.userid + this.state.fromShainPk + "coinSofu";
+        await AsyncStorage.setItem(strageKey, coinSofuStrage);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
+
+  // コメントの入力テキスト変更時
+  handleCommentTextChange = async (comment) => {
+    this.setState({ comment });
+    try {
+      let coinSofuInfo = {
+        target_manager: this.state.target_manager,
+        shoninCd: this.state.shoninCd,
+        comment: comment,
+      };
+      const coinSofuStrage = JSON.stringify(coinSofuInfo);
+      // keyはユーザーID（自分） + コイン送付相手の社員PK + coinSofu
+      var strageKey = this.state.userid + this.state.fromShainPk + "coinSofu";
+      await AsyncStorage.setItem(strageKey, coinSofuStrage);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  /** AsyncStorageから入力内容を削除 */
+  removeInfo = async () => {
+    try {
+      var strageKey = this.state.userid + this.state.fromShainPk + "coinSofu";
+      await AsyncStorage.removeItem(strageKey);
+    } catch (error) {
+      return;
+    }
   };
 
   render() {
@@ -425,11 +513,12 @@ export default class ChatCoinForm extends BaseComponent {
                 value: "",
               }}
               items={this.state.coinList}
-              onValueChange={(value) => {
+              /*onValueChange={(value) => {
                 this.setState({
                   target_manager: value,
                 });
-              }}
+              }}*/
+              onValueChange={this.handleSofuCoinChange}
               style={{ ...pickerSelectStyles }}
               value={this.state.target_manager}
               ref={(el) => {
@@ -454,11 +543,12 @@ export default class ChatCoinForm extends BaseComponent {
                 value: null,
               }}
               items={this.state.shoninList}
-              onValueChange={(value) => {
+              /*onValueChange={(value) => {
                 this.setState({
                   shoninCd: value,
                 });
-              }}
+              }}*/
+              onValueChange={this.handleShoninCdChange}
               style={{ ...pickerSelectStyles }}
               value={this.state.shoninCd}
               ref={(el) => {
@@ -483,9 +573,11 @@ export default class ChatCoinForm extends BaseComponent {
               scrollEnabled={false}
               style={[styles.inputText, { textAlignVertical: "top" }]}
               value={this.state.comment}
-              onChangeText={(text) => {
+              /*onChangeText={(text) => {
                 this.setState({ comment: text });
               }}
+              */
+              onChangeText={this.handleCommentTextChange}
             />
 
             <Text style={{ fontSize: 16 }} />

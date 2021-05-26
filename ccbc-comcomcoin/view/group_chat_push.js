@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   TouchableHighlight,
+  AsyncStorage,
 } from "react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 import io from "socket.io-client";
@@ -79,6 +80,7 @@ export default class ChatCoinForm extends BaseComponent {
     );
     // チャットグループ
     this.state.chatGroupPk = this.props.navigation.getParam("chatGroupPk");
+    this.loadItem();
   };
 
   /** 画面遷移時処理（後処理） */
@@ -161,7 +163,8 @@ export default class ChatCoinForm extends BaseComponent {
               chatGroupPk: this.state.chatGroupPk,
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
-
+            // storageの削除
+            this.removeInfo();
             // チャット画面に遷移
             this.props.navigation.navigate("GroupChatMsg", {
               chatGroupPk: this.state.chatGroupPk,
@@ -171,6 +174,52 @@ export default class ChatCoinForm extends BaseComponent {
         }.bind(this)
       )
       .catch((error) => console.error(error));
+  };
+
+  /** AsyncStorageから入力内容を読み込み */
+  loadItem = async () => {
+    try {
+      var strageKey =
+        this.state.userid + this.state.chatGroupPk + "groupChatPush";
+      console.log(strageKey);
+      const groupChatPushStrage = await AsyncStorage.getItem(strageKey);
+      if (groupChatPushStrage) {
+        const groupChatPushInfo = JSON.parse(groupChatPushStrage);
+        this.setState({
+          comment: groupChatPushInfo["comment"],
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  // コメントの入力テキスト変更時
+  handleCommentTextChange = async (comment) => {
+    this.setState({ comment });
+    try {
+      let groupChatPushInfo = {
+        comment: comment,
+      };
+      const groupChatPushStrage = JSON.stringify(groupChatPushInfo);
+      // keyはユーザーID（自分） + グループチャットPK + groupChatPush
+      var strageKey =
+        this.state.userid + this.state.chatGroupPk + "groupChatPush";
+      await AsyncStorage.setItem(strageKey, groupChatPushStrage);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  /** AsyncStorageから入力内容を削除 */
+  removeInfo = async () => {
+    try {
+      var strageKey =
+        this.state.userid + this.state.chatGroupPk + "groupChatPush";
+      await AsyncStorage.removeItem(strageKey);
+    } catch (error) {
+      return;
+    }
   };
 
   render() {
@@ -219,9 +268,7 @@ export default class ChatCoinForm extends BaseComponent {
             scrollEnabled={false}
             style={[styles.inputText, { textAlignVertical: "top" }]}
             value={this.state.comment}
-            onChangeText={(text) => {
-              this.setState({ comment: text });
-            }}
+            onChangeText={this.handleCommentTextChange}
           />
 
           <Text style={{ fontSize: 16 }} />
