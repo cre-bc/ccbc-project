@@ -122,11 +122,11 @@ export default class TohyoToroku extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -159,11 +159,11 @@ export default class TohyoToroku extends Component {
     this.setState({ loadFlg: true })
     for (var i in this.state.resultList) {
       var res = this.state.resultList[i]
-      this.state.activeStep1[i] = res.starCount1
-      this.state.activeStep2[i] = res.starCount2
-      this.state.activeStep3[i] = res.starCount3
-      this.state.activeStep4[i] = res.starCount4
-      this.state.activeStep5[i] = res.starCount5
+      this.state.activeStep1[i] = res.starCount1 - 1
+      this.state.activeStep2[i] = res.starCount2 - 1
+      this.state.activeStep3[i] = res.starCount3 - 1
+      this.state.activeStep4[i] = res.starCount4 - 1
+      this.state.activeStep5[i] = res.starCount5 - 1
       //this.state.comment[i] = res.comment
     }
     var aaa = JSON.stringify(this.state)
@@ -174,13 +174,13 @@ export default class TohyoToroku extends Component {
       headers: new Headers({ 'Content-type': 'application/json' })
     })
       .then(
-        function(response) {
+        function (response) {
           this.closeModal()
           return response.json()
         }.bind(this)
       )
       .then(
-        function(json) {
+        function (json) {
           if (!json.status) {
             this.openModal4()
           } else {
@@ -321,83 +321,83 @@ export default class TohyoToroku extends Component {
             visible={this.state.modalVisible2}
             animationType={'slide'}
             onRequestClose={() => this.closeModal2()}
-            //transparent={true}
+          //transparent={true}
           >
             <View style={styles.modal_style}>
               <ScrollView>
                 <Card title="評価ヘルプ" style={{ flex: 1 }}>
                   <Text style={{ fontSize: 18 }}>投票について</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　発表者に対して評価とコメントをつけて下さい。（配布しきれなかったコインは自動で回収されます）
+                    発表者に対して評価とコメントをつけて下さい。（配布しきれなかったコインは自動で回収されます）
                   </Text>
                   <Text style={{ fontSize: 18 }} />
                   <Text style={{ fontSize: 18 }}>資料作成</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　①資料全体を通して統一感があった。
+                    ①資料全体を通して統一感があった。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　②「見やすい」「分かりやすい」「理解しやすい」資料になっていた。
+                    ②「見やすい」「分かりやすい」「理解しやすい」資料になっていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　③話の流れを表現した構成で資料が作られていた。
+                    ③話の流れを表現した構成で資料が作られていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>　④量・質が適当だった。</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　⑤定量的・定性的な観点を意識した資料になっていた。
+                    ⑤定量的・定性的な観点を意識した資料になっていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>　等</Text>
                   <Text style={{ fontSize: 18 }} />
                   <Text style={{ fontSize: 18 }}>発表力</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　①人前に立っても、臆せずに、落ち着いて発表していた。
+                    ①人前に立っても、臆せずに、落ち着いて発表していた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　②質問などの突発事態が発生しても、臨機応変な対応が行えていた。
+                    ②質問などの突発事態が発生しても、臨機応変な対応が行えていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　③理解しやすい、聞きやすい内容だった（メリハリがあって、間の取り方が適切。発表の構成（導入・本論・終幕　等）が分かりやすい等）。
+                    ③理解しやすい、聞きやすい内容だった（メリハリがあって、間の取り方が適切。発表の構成（導入・本論・終幕　等）が分かりやすい等）。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　④適切な時間で効率よく言いたい事が伝わるわかりやすい説明ができていた。
+                    ④適切な時間で効率よく言いたい事が伝わるわかりやすい説明ができていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>　等</Text>
                   <Text style={{ fontSize: 18 }} />
                   <Text style={{ fontSize: 18 }}>表現力</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　①専門用語を使いすぎず、わかりやすい表現をしていた。
+                    ①専門用語を使いすぎず、わかりやすい表現をしていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　②表情に配慮していた。（ノンバーバルスキル）
+                    ②表情に配慮していた。（ノンバーバルスキル）
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　③声の大きさ、質、イントネーションに配慮していた。（ノンバーバルスキル）
+                    ③声の大きさ、質、イントネーションに配慮していた。（ノンバーバルスキル）
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　④ジェスチャー等を交えた動作による状況説明を配慮していた。（ノンバーバルスキル）
+                    ④ジェスチャー等を交えた動作による状況説明を配慮していた。（ノンバーバルスキル）
                   </Text>
                   <Text style={{ fontSize: 12 }}>　等</Text>
                   <Text style={{ fontSize: 18 }} />
                   <Text style={{ fontSize: 18 }}>影響力</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　①発表を聞いた後、行動したいと感じた。
+                    ①発表を聞いた後、行動したいと感じた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　②発表を聞いた後、インスピレーションを得た。
+                    ②発表を聞いた後、インスピレーションを得た。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　③資料の構成、表現を手本にしたい、真似したいと感じた。
+                    ③資料の構成、表現を手本にしたい、真似したいと感じた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>　等</Text>
                   <Text style={{ fontSize: 18 }} />
                   <Text style={{ fontSize: 18 }}>限界突破</Text>
                   <Text style={{ fontSize: 12 }}>
-                    　①過去の自分自身を一歩でも半歩でも超えていた。
+                    ①過去の自分自身を一歩でも半歩でも超えていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　②前例のないことにチャレンジしていた。
+                    ②前例のないことにチャレンジしていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>
-                    　③苦手を克服する、得意なことを更に伸ばす取り組みをしていた。
+                    ③苦手を克服する、得意なことを更に伸ばす取り組みをしていた。
                   </Text>
                   <Text style={{ fontSize: 12 }}>　等</Text>
                 </Card>
@@ -699,7 +699,7 @@ export default class TohyoToroku extends Component {
               visible={this.state.modalVisible}
               animationType={'slide'}
               onRequestClose={() => this.closeModal()}
-              //transparent={true}
+            //transparent={true}
             >
               <View style={styles.modal_style}>
                 <View style={{ flex: 1 }} />
@@ -729,7 +729,7 @@ export default class TohyoToroku extends Component {
               visible={this.state.modalVisible3}
               animationType={'slide'}
               onRequestClose={() => this.closeModal3()}
-              //transparent={true}
+            //transparent={true}
             >
               <View style={styles.modal_style}>
                 <View style={{ flex: 1 }} />
@@ -750,7 +750,7 @@ export default class TohyoToroku extends Component {
               visible={this.state.modalVisible4}
               animationType={'slide'}
               onRequestClose={() => this.closeModal4()}
-              //transparent={true}
+            //transparent={true}
             >
               <View style={styles.modal_style}>
                 <View style={{ flex: 1 }} />

@@ -77,11 +77,11 @@ export default class TohyoIchiran extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -159,11 +159,9 @@ export default class TohyoIchiran extends Component {
                 title={item.senkyo_nm}
                 subtitle={
                   moment(new Date(item.tohyo_kaishi_dt))
-                    .add(1, 'days')
                     .format('YYYY/MM/DD') +
                   ' ～ ' +
                   moment(new Date(item.tohyo_shuryo_dt))
-                    .add(1, 'days')
                     .format('YYYY/MM/DD')
                 }
                 onPress={e =>

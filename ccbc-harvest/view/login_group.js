@@ -36,7 +36,7 @@ export default class LoginGroupForm extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    this.removeLoginInfo()
+    // this.removeLoginInfo()
   }
 
   getGroupInfo = async () => {
@@ -65,12 +65,29 @@ export default class LoginGroupForm extends Component {
     }
   }
 
+  getLoginInfo = async () => {
+    try {
+      return JSON.parse(await AsyncStorage.getItem("loginInfo"))
+    } catch (error) {
+      return;
+    }
+  }
+
   onPressButton = async () => {
     var groupInfo = await this.getGroupInfo()
-    if (groupInfo != null && groupInfo['saveFlg']) {
-      this.props.navigation.navigate('Login')
-    } else {
+    var loginInfo = await this.getLoginInfo()
+    // if (groupInfo != null && groupInfo['saveFlg']) {
+    //   this.props.navigation.navigate('Login')
+    // } else {
+    //   this.openModal()
+    // }
+    if (groupInfo == null) {
       this.openModal()
+    } else if (groupInfo != null && loginInfo == null) {
+      this.props.navigation.navigate("Login")
+    } else {
+      // ログイン情報が保持されている場合は、メニュー画面に遷移する
+      this.props.navigation.navigate("Menu");
     }
   }
 
@@ -92,11 +109,11 @@ export default class LoginGroupForm extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -191,7 +208,7 @@ export default class LoginGroupForm extends Component {
             visible={this.state.modalVisible}
             animationType={'slide'}
             onRequestClose={() => this.closeModal()}
-            //transparent={true}
+          //transparent={true}
           >
             <View style={styles.modal_style}>
               <View style={{ flex: 1 }} />
@@ -200,13 +217,13 @@ export default class LoginGroupForm extends Component {
                   onChangeText={text => this.setState({ id: text })}
                   value={this.state.id}
                 />
-                <CheckBox
+                {/* <CheckBox
                   title="グループIDを保持する"
                   checked={this.state.checked}
                   onPress={() =>
                     this.setState({ checked: !this.state.checked })
                   }
-                />
+                /> */}
 
                 <Text style={{ color: 'red' }}>{this.state.msg}</Text>
               </Card>

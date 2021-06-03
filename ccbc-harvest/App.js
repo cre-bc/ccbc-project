@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { View, Text, Button } from "react-native";
 import { Provider, connect } from "react-redux"; // 5.0.6
 import { createStore, combineReducers } from "redux"; // 3.7.2
-import { createStackNavigator, createAppContainer } from "react-navigation"; // 1.0.0-beta.21
+import { createAppContainer } from "react-navigation";
+import { createStackNavigator } from "react-navigation-stack";
 import { sampleReducer } from "./reducers/sampleReducer";
 import { coinShokaiReducer } from "./reducers/coin_shokai";
 import HomeForm from "./view/Home";
