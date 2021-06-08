@@ -311,7 +311,7 @@ export default class TohyoToroku extends Component {
             コイン
           </Text>
         </View>
-        <View style={{ flex: 1, flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row' }}>
           <Icon
             name="live-help"
             onPress={() => this.openModal2()}

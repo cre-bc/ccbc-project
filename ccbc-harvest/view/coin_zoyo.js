@@ -111,11 +111,11 @@ export default class CoinZoyo extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -168,13 +168,13 @@ export default class CoinZoyo extends Component {
       // )
       // .catch(error => console.error(error))
       .then(
-        function(response) {
+        function (response) {
           this.closeModal()
           return response.json()
         }.bind(this)
       )
       .then(
-        function(json) {
+        function (json) {
           if (!json.status) {
             this.openModal3()
           } else {
@@ -432,7 +432,7 @@ export default class CoinZoyo extends Component {
                 visible={this.state.modalVisible}
                 animationType={'slide'}
                 onRequestClose={() => this.closeModal()}
-                //transparent={true}
+              //transparent={true}
               >
                 <View style={styles.modal_style}>
                   <View style={{ flex: 1 }} />
@@ -464,7 +464,7 @@ export default class CoinZoyo extends Component {
                 visible={this.state.modalVisible2}
                 animationType={'slide'}
                 onRequestClose={() => this.closeModal2()}
-                //transparent={true}
+              //transparent={true}
               >
                 <View style={styles.modal_style}>
                   <View style={{ flex: 1 }} />
@@ -488,7 +488,7 @@ export default class CoinZoyo extends Component {
                 visible={this.state.modalVisible3}
                 animationType={'slide'}
                 onRequestClose={() => this.closeModal3()}
-                //transparent={true}
+              //transparent={true}
               >
                 <View style={styles.modal_style}>
                   <View style={{ flex: 1 }} />
@@ -535,7 +535,18 @@ const pickerSelectStyles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: 'white',
     color: 'black'
-  }
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black",
+  },
 })
 
 const styles = StyleSheet.create({

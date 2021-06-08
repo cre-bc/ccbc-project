@@ -24,8 +24,8 @@ const chartConfig = {
   backgroundGradientFrom: '#FFFFFF',
   backgroundGradientTo: '#FFFFFF',
   color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-  barPercentage: 0.6,
-  // decimalPlaces: 0,
+  barPercentage: 0.4,
+  decimalPlaces: 1,
 }
 
 export default class TohyoShokaiShosai extends Component {
@@ -236,8 +236,9 @@ export default class TohyoShokaiShosai extends Component {
               </View>
               <View style={{ flex: 1 }}>
                 <BarChart
+                  style={{ marginLeft: -20, marginRight: -20 }}
                   data={this.state.sum_data}
-                  width={(width / 2) - 20}
+                  width={(width / 2)}
                   height={180}
                   chartConfig={chartConfig}
                   fromZero={true}

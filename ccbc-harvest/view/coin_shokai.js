@@ -124,11 +124,11 @@ class CoinShokai extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        function (json) {
           // 結果が取得できない場合は終了
           if (typeof json.getCoinDatas === 'undefined') {
             return
@@ -278,11 +278,11 @@ class CoinShokai extends Component {
               body: JSON.stringify(this.state),
               headers: new Headers({ 'Content-type': 'application/json' })
             })
-              .then(function(response) {
+              .then(function (response) {
                 return response.json()
               })
               .then(
-                function(json) {
+                function (json) {
                   // 結果が取得できない場合は終了
                   if (typeof json.getCoinDatas === 'undefined') {
                     return
@@ -448,11 +448,11 @@ class CoinShokai extends Component {
                 body: JSON.stringify(this.state),
                 headers: new Headers({ 'Content-type': 'application/json' })
               })
-                .then(function(response) {
+                .then(function (response) {
                   return response.json()
                 })
                 .then(
-                  function(json) {
+                  function (json) {
                     // 結果が取得できない場合は終了
                     if (typeof json.getCoinDatas === 'undefined') {
                       alert(value)
@@ -849,7 +849,18 @@ const pickerSelectStyles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: 'white',
     color: 'black'
-  }
+  },
+  inputAndroid: {
+    fontSize: 16,
+    paddingTop: 13,
+    paddingHorizontal: 10,
+    paddingBottom: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    backgroundColor: "white",
+    color: "black",
+  },
 })
 
 const tableStyles = StyleSheet.create({
