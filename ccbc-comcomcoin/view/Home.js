@@ -314,6 +314,10 @@ export default class Home extends BaseComponent {
                 if (Platform.OS === "ios") {
                   font = "Courier";
                 }
+                let new_style = "black";
+                if (item.new_flg == "new") {
+                  new_style = "blue";
+                }
                 return (
                   <View
                     style={{
@@ -325,11 +329,16 @@ export default class Home extends BaseComponent {
                     key={i}
                   >
                     <Text ellipsizeMode={"tail"} numberOfLines={1}>
-                      <Text style={{ fontSize: 18, fontFamily: font }}>
+                      <Text style={{ fontSize: 18, fontFamily: font, color: new_style }}>
                         {moment(new Date(item.notice_dt)).format("YYYY/MM/DD")}
                       </Text>
-                      <Text style={{ fontSize: 18 }}>
+                      <Text style={{ fontSize: 18, color: new_style }}>
                         {"  "}
+                        {/* {(item.new_flg == "new") && (
+                          <Text>
+                            {" [new]"}
+                          </Text>
+                        )} */}
                         {item.title}
                       </Text>
                     </Text>
@@ -390,108 +399,12 @@ export default class Home extends BaseComponent {
                           {/* 画像が未登録の場合はNo-Imageを表示 */}
                           {(item.file_path === "" ||
                             item.file_path === null) && (
-                            <Image
-                              source={require("./../images/icon-noimage.png")}
-                              style={styles.articleImage}
-                              resizeMode="cover"
-                            />
-                          )}
-                        </View>
-                        <View style={{ flex: 2 }}>
-                          {/* タイトル */}
-                          <Text style={{ fontSize: 18 }}>{item.title}</Text>
-                          {/* ハッシュタグ */}
-                          <Text style={{ fontSize: 16, color: "gray" }}>
-                            {item.hashtag_str}
-                          </Text>
-                          {/* いいね */}
-                          <View style={{ flexDirection: "row" }}>
-                            <Image
-                              source={require("./../images/good-top.png")}
-                              style={{
-                                width: 15,
-                                height: 15,
-                                marginTop: 2,
-                                marginBottom: 2,
-                              }}
-                            />
-                            <Text style={{ fontSize: 16, color: "red" }}>
-                              {" "}
-                              {item.good_cnt}
-                            </Text>
-                          </View>
-                          {/* 投稿日 */}
-                          <Text style={{ fontSize: 14, color: "gray" }}>
-                            {moment(new Date(item.post_dt)).format(
-                              "YYYY/MM/DD"
+                              <Image
+                                source={require("./../images/icon-noimage.png")}
+                                style={styles.articleImage}
+                                resizeMode="cover"
+                              />
                             )}
-                          </Text>
-                        </View>
-                      </View>
-                    </Card>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* -- 人気の記事 -- */}
-            <View style={styles.section}>
-              <Image
-                resizeMode="contain"
-                source={require("./../images/icons8-thumbs-up-24.png")}
-              />
-              <Text style={styles.sectionText}> 人気の記事</Text>
-              <Text
-                style={styles.sectionMoreText}
-                onPress={() =>
-                  this.props.navigation.navigate("HomeArticleList", {
-                    mode: "popular",
-                  })
-                }
-              >
-                {"もっと見る>"}
-              </Text>
-            </View>
-
-            <View>
-              {/* 人気の記事の件数分、繰り返し */}
-              {this.state.popularArticleList.map((item, i) => {
-                return (
-                  <TouchableOpacity
-                    key={i}
-                    activeOpacity={1}
-                    onPress={() =>
-                      this.props.navigation.navigate("ArticleRefer", {
-                        mode: "home",
-                        selectKijiPk: item.t_kiji_pk,
-                      })
-                    }
-                  >
-                    <Card containerStyle={styles.articleCard}>
-                      <View style={{ flexDirection: "row" }}>
-                        {/* 画像 */}
-                        <View style={{ flex: 1 }}>
-                          {item.file_path !== "" && item.file_path !== null && (
-                            <Image
-                              source={{
-                                uri:
-                                  restdomain +
-                                  `/uploads/article/${item.file_path}`,
-                              }}
-                              style={styles.articleImage}
-                              // resizeMode='contain'
-                              resizeMode="cover"
-                            />
-                          )}
-                          {/* 画像が未登録の場合はNo-Imageを表示 */}
-                          {(item.file_path === "" ||
-                            item.file_path === null) && (
-                            <Image
-                              source={require("./../images/icon-noimage.png")}
-                              style={styles.articleImage}
-                              resizeMode="cover"
-                            />
-                          )}
                         </View>
                         <View style={{ flex: 2 }}>
                           {/* タイトル */}

@@ -19,6 +19,12 @@ export default class HomeInfoList extends BaseComponent {
 
   /** コンポーネントのマウント時処理 */
   componentWillMount = async () => {
+    // 初期表示情報取得処理（gobackで戻る場合に呼ばれるようイベントを関連付け）
+    this.props.navigation.addListener("willFocus", () => this.onWillFocus());
+  };
+
+  /** 画面遷移時処理 */
+  onWillFocus = async () => {
     // ログイン情報の取得（BaseComponent）
     await this.getLoginInfo();
 
@@ -48,7 +54,7 @@ export default class HomeInfoList extends BaseComponent {
         }.bind(this)
       )
       .catch((error) => console.error(error));
-  };
+  }
 
   /** アクセス情報登録 */
   setAccessLog = async () => {
@@ -80,10 +86,14 @@ export default class HomeInfoList extends BaseComponent {
               style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }}
             />
             {this.state.inforList.map((item, i) => {
+              let new_style = "black";
+              if (item.new_flg == "new") {
+                new_style = "blue";
+              }
               return (
                 <ListItem
                   key={i}
-                  titleStyle={{ fontSize: 18, marginLeft: 0 }}
+                  titleStyle={{ fontSize: 18, marginLeft: 0, color: new_style }}
                   title={item.title}
                   titleNumberOfLines={2}
                   subtitleStyle={{ fontSize: 16, marginLeft: 0 }}

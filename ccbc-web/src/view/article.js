@@ -128,6 +128,14 @@ class ArticleForm extends React.Component {
     searchCondYear: "",
     searchCondKeyword: "",
     searchCondHashtag: "",
+
+    // image
+    imgHeith: 0,
+    imgWidth: 0,
+    dx: 0,
+    dy: 0,
+    dh: 0,
+    dw: 0,
   };
 
   constructor(props) {
@@ -216,7 +224,7 @@ class ArticleForm extends React.Component {
       crop: {
         unit: "%",
         width: 100,
-        aspect: 4 / 3,
+        // aspect: 4 / 3,
       },
     });
   };
@@ -291,20 +299,62 @@ class ArticleForm extends React.Component {
     const canvas = document.createElement("canvas");
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+    // canvas.width = crop.width;
+    // canvas.height = crop.height;
+    canvas.width = 300;
+    canvas.height = 225;
+
     const ctx = canvas.getContext("2d");
+    // ctx.drawImage(
+    //   image,
+    //   crop.x * scaleX,
+    //   crop.y * scaleY,
+    //   crop.width * scaleX,
+    //   crop.height * scaleY,
+    //   0,
+    //   0,
+    //   crop.width,
+    //   crop.height
+    // );
+
+    var posW = 0;
+    var posH = 0;
+    var posX = 0;
+    var posY = 0;
+    const rate = crop.width / crop.height;
+    if (rate >= 1) {
+      // 横長画像
+      posH = canvas.width / crop.width * crop.height;
+      posY = (canvas.height / 2) - (posH / 2);
+      posW = canvas.width;
+    } else {
+      // 縦長画像
+      posW = canvas.height / crop.height * crop.width;
+      posX = (canvas.width / 2) - (posW / 2);
+      posH = canvas.height;
+    }
+
+    this.setState({
+      imgHeith: crop.height,
+      imgWidth: crop.width,
+      dx: posX,
+      dy: posY,
+      dh: posH,
+      dw: posW,
+    })
+
     ctx.drawImage(
       image,
       crop.x * scaleX,
       crop.y * scaleY,
       crop.width * scaleX,
       crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
+      posX,
+      posY,
+      posW,
+      posH
     );
+
     return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => {
         if (!blob) {
@@ -1110,6 +1160,14 @@ class ArticleForm extends React.Component {
                         src={this.state.srcImageUrl}
                       />
                     )}
+                    {/* <div>
+                      {"imgHeith:"}{this.state.imgHeith}<br />
+                      {"imgWidth:"}{this.state.imgWidth}<br />
+                      {"dx:"}{this.state.dx}<br />
+                      {"dy:"}{this.state.dy}<br />
+                      {"dh:"}{this.state.dh}<br />
+                      {"dw:"}{this.state.dw}<br />
+                    </div> */}
                   </div>
                   <div style={{ float: "left", padding: 10 }}>
                     {this.state.srcImageEdit && (
@@ -1353,9 +1411,8 @@ const styles = (theme) => ({
   },
   imageTitle: {
     position: "relative",
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
-      theme.spacing.unit + 6
-    }px`,
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme.spacing.unit + 6
+      }px`,
   },
   imageMarked: {
     height: 3,

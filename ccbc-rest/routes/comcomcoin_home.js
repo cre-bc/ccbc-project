@@ -5,6 +5,7 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
 const request = require("superagent");
+const oshirase_new_start = "2021/07/30";
 
 /**
  * API : findHome
@@ -206,6 +207,47 @@ async function findHomeInformation(req, res) {
     status: true,
     data: resdatas,
   });
+
+  // お知らせ既読の更新
+  db.transaction(async function (tx) {
+    // DB更新
+    await insertOrUpdateOshiraseKidoku(db, tx, req, req.body.renban);
+  })
+    .then((result) => {
+    })
+    .catch((e) => {
+      // ロールバックしたらこっち
+      res.json({ status: false });
+    });
+}
+
+/**
+ * ComComCoinホームお知らせ詳細画面でのお知らせ既読（t_oshirase_kidoku）テーブルのinsert or update
+ * @param db SequelizeされたDBインスタンス
+ * @param tx トランザクション
+ * @param req リクエスト
+ * @param renban 連番
+ */
+function insertOrUpdateOshiraseKidoku(db, tx, req, renban) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "insert into t_oshirase_kidoku (t_shain_pk, renban, insert_user_id, insert_tm, update_user_id, update_tm) " +
+      " values (:t_shain_pk, :renban, :user_id, current_timestamp, :user_id, current_timestamp) " +
+      " on conflict (t_shain_pk, renban) do " +
+      "update set update_user_id = :user_id, update_tm = current_timestamp" +
+      " where t_oshirase_kidoku.t_shain_pk = :t_shain_pk and t_oshirase_kidoku.renban = :renban";
+
+    db.query(sql, {
+      transaction: tx,
+      replacements: {
+        t_shain_pk: req.body.loginShainPk,
+        renban: renban,
+        user_id: req.body.userid,
+      },
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
+  });
 }
 
 /**
@@ -257,12 +299,15 @@ function getHomeOshirase(db, req) {
   return new Promise((resolve, reject) => {
     // 最新の3件を取得
     var sql =
-      "select renban, notice_dt, title" +
-      " from t_oshirase" +
-      " where delete_flg = '0'" +
-      " order by notice_dt desc" +
+      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" + oshirase_new_start + "' then 'new' else '' end as new_flg" +
+      " from t_oshirase osh" +
+      " left join t_oshirase_kidoku kid" +
+      " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
+      " where osh.delete_flg = '0'" +
+      " order by osh.notice_dt desc" +
       " limit 3";
     db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getHomeOshirase result...");
@@ -291,7 +336,7 @@ function getHomeKiji(db, req, isNew) {
       " and kij.post_dt >= current_timestamp + '-1 months'";
     if (isNew) {
       sql += " order by kij.post_dt desc, kij.post_tm desc";
-      sql += " limit 5";
+      sql += " limit 8";
     } else {
       sql +=
         " order by coalesce(goo.cnt, 0) desc, kij.post_dt desc, kij.post_tm desc";
@@ -396,11 +441,14 @@ function getKokoku(db, req) {
 function getOshiraseList(db, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "select renban, notice_dt, title" +
-      " from t_oshirase" +
-      " where delete_flg = '0'" +
-      " order by notice_dt desc";
+      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" + oshirase_new_start + "' then 'new' else '' end as new_flg" +
+      " from t_oshirase osh" +
+      " left join t_oshirase_kidoku kid" +
+      " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
+      " where osh.delete_flg = '0'" +
+      " order by osh.notice_dt desc";
     db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getOshiraseList result...");
