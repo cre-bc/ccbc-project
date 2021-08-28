@@ -35,6 +35,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Typography from "@material-ui/core/Typography";
 import Checkbox from "@material-ui/core/Checkbox";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Tooltip from "@material-ui/core/Tooltip";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
@@ -85,6 +86,12 @@ function getArray(array1) {
 }
 
 const columnData = [
+  {
+    id: "kanrika_flg",
+    numeric: false,
+    disablePadding: true,
+    label: "管理課",
+  },
   {
     id: "notice_dt",
     numeric: false,
@@ -434,6 +441,7 @@ class ComOshiraseMenteForm extends React.Component {
       title: "",
       comment: "",
       file_path: "",
+      kanrika_flg: "",
       inputImage: null,
       gazo: null,
     };
@@ -521,7 +529,7 @@ class ComOshiraseMenteForm extends React.Component {
   };
 
   handleClickOpenAdd = () => {
-    this.setState({ inputImage: null, file_path: "" });
+    this.setState({ inputImage: null, file_path: "", kanrika_flg: "0" });
     this.setState({ openAdd: true });
   };
 
@@ -570,6 +578,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ title: null });
     this.setState({ comment: null });
     this.setState({ file_path: null });
+    this.setState({ kanrika_flg: null });
   };
 
   handleClick = (event, id) => {
@@ -601,6 +610,7 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ title: null });
       this.setState({ comment: null });
       this.setState({ file_path: null });
+      this.setState({ kanrika_flg: null });
     } else {
       if (this.state.page == 1) id = id + 5;
       if (this.state.page == 2) id = id + 10;
@@ -609,6 +619,7 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ title: this.state.resultList[id].title });
       this.setState({ comment: this.state.resultList[id].comment });
       this.setState({ file_path: this.state.resultList[id].file_path });
+      this.setState({ kanrika_flg: this.state.resultList[id].kanrika_flg });
     }
   };
 
@@ -620,6 +631,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ title: null });
     this.setState({ comment: null });
     this.setState({ file_path: null });
+    this.setState({ kanrika_flg: null });
   };
 
   handleChangeRowsPerPage = (event) => {
@@ -643,6 +655,7 @@ class ComOshiraseMenteForm extends React.Component {
     this.setState({ title: null });
     this.setState({ comment: null });
     this.setState({ file_path: null });
+    this.setState({ kanrika_flg: null });
   };
 
   handleSubmit = async () => {
@@ -716,6 +729,7 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ title: null });
           this.setState({ comment: null });
           this.setState({ file_path: null });
+          this.setState({ kanrika_flg: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -789,6 +803,7 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ title: null });
           this.setState({ comment: null });
           this.setState({ file_path: null });
+          this.setState({ kanrika_flg: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -861,6 +876,7 @@ class ComOshiraseMenteForm extends React.Component {
           this.setState({ title: null });
           this.setState({ comment: null });
           this.setState({ file_path: null });
+          this.setState({ kanrika_flg: null });
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -876,6 +892,10 @@ class ComOshiraseMenteForm extends React.Component {
 
   handleChange_comment(e) {
     this.setState({ comment: e.target.value });
+  }
+
+  handleChange_kanrika_flg(e) {
+    this.setState({ kanrika_flg: (e.target.checked ? "1" : "0") });
   }
 
   isSelected = (id) => this.state.selected.indexOf(id) !== -1;
@@ -1135,6 +1155,7 @@ class ComOshiraseMenteForm extends React.Component {
                         )
                         .map((n, id) => {
                           const isSelected = this.isSelected(id);
+                          const isKanrika = (n.kanrika_flg == "1") ? true : false;
                           return (
                             <TableRow
                               hover
@@ -1148,11 +1169,14 @@ class ComOshiraseMenteForm extends React.Component {
                               <TableCell padding="checkbox">
                                 <Checkbox checked={isSelected} />
                               </TableCell>
+                              <TableCell padding="checkbox">
+                                <Checkbox disabled={true} checked={isKanrika} />
+                              </TableCell>
                               <TableCell
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: "10%", fontSize: "120%" }}
+                                style={{ width: "5%", fontSize: "120%" }}
                               >
                                 {moment(new Date(n.notice_dt)).format(
                                   "YYYY/MM/DD"
@@ -1162,7 +1186,7 @@ class ComOshiraseMenteForm extends React.Component {
                                 component="th"
                                 scope="row"
                                 padding="dense"
-                                style={{ width: "30%", fontSize: "120%" }}
+                                style={{ width: "20%", fontSize: "120%" }}
                               >
                                 {n.title}
                               </TableCell>
@@ -1230,12 +1254,20 @@ class ComOshiraseMenteForm extends React.Component {
                   <DialogContentText>
                     日付、件名、内容を入力してください。
                   </DialogContentText>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={(this.state.kanrika_flg == "1") ? true : false}
+                        onChange={this.handleChange_kanrika_flg.bind(this)}
+                      />
+                    }
+                    label="管理課からのお知らせ"
+                  />
                   <TextField
                     autoFocus
                     margin="dense"
                     id="notice_dt"
                     name="notice_dt"
-                    label="日付"
                     type="date"
                     fullWidth
                     onChange={this.handleChange_notice_dt.bind(this)}
@@ -1261,7 +1293,7 @@ class ComOshiraseMenteForm extends React.Component {
                   />
                   <Button color="primary" style={{ marginTop: 20 }}>
                     画像選択
-                  <input
+                    <input
                       type="file"
                       accept="image/*"
                       className={classes.inputFileBtnHide}
@@ -1340,11 +1372,19 @@ class ComOshiraseMenteForm extends React.Component {
                   <DialogContentText>
                     日付、件名、内容を入力してください。
                   </DialogContentText>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={(this.state.kanrika_flg == "1") ? true : false}
+                        onChange={this.handleChange_kanrika_flg.bind(this)}
+                      />
+                    }
+                    label="管理課からのお知らせ"
+                  />
                   <TextField
                     autoFocus
                     margin="dense"
                     id="name2"
-                    label="日付"
                     type="date"
                     defaultValue={this.state.notice_dt}
                     fullWidth
@@ -1371,7 +1411,7 @@ class ComOshiraseMenteForm extends React.Component {
                   />
                   <Button color="primary" style={{ marginTop: 20 }}>
                     画像選択
-                  <input
+                    <input
                       type="file"
                       accept="image/*"
                       className={classes.inputFileBtnHide}

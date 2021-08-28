@@ -168,6 +168,8 @@ export default class ArticleRefer extends BaseComponent {
         post_dt: selItem.post_dt,
         post_tm: selItem.post_tm,
         file_path: selItem.file_path,
+        file_path2: selItem.file_path2,
+        file_path3: selItem.file_path3,
         hashtag_str: selItem.hashtag_str,
       };
     }
@@ -518,11 +520,11 @@ export default class ArticleRefer extends BaseComponent {
                   </Hyperlink>
                 </View>
 
-                {/* 画像 */}
+                {/* 画像（1 - メイン） */}
                 <View
                   style={{
                     marginTop: 10,
-                    marginBottom: 10,
+                    marginBottom: 5,
                     alignItems: "center",
                   }}
                 >
@@ -539,6 +541,50 @@ export default class ArticleRefer extends BaseComponent {
                     />
                   )}
                 </View>
+
+                {/* 画像（2） */}
+                {item.file_path2 !== "" && item.file_path2 !== null && (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      marginBottom: 0,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: restdomain + `/uploads/article/${item.file_path2}`,
+                      }}
+                      style={{
+                        width: articleImageWidth,
+                        height: articleImageWidth,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
+
+                {/* 画像（3） */}
+                {item.file_path3 !== "" && item.file_path3 !== null && (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      marginBottom: 0,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: restdomain + `/uploads/article/${item.file_path3}`,
+                      }}
+                      style={{
+                        width: articleImageWidth,
+                        height: articleImageWidth,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                )}
               </Card>
             );
           })}

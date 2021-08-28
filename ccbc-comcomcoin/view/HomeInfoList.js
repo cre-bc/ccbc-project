@@ -12,6 +12,8 @@ export default class HomeInfoList extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {
+      kanrika_flg: "0",
+      title: "お知らせ",
       inforList: [],
       screenNo: 6,
     };
@@ -30,6 +32,13 @@ export default class HomeInfoList extends BaseComponent {
 
     //アクセス情報登録
     this.setAccessLog();
+
+    // 引き継ぎパラメータの取得
+    const kanrika_flg = this.props.navigation.getParam("kanrika_flg");
+    this.state.kanrika_flg = kanrika_flg;
+    if (kanrika_flg == "1") {
+      this.setState({ title: "管理課より" });
+    }
 
     // ホームAPI.ComComCoinホームお知らせ一覧取得処理の呼び出し
     await fetch(restdomain + "/comcomcoin_home/findHomeInfoList", {
@@ -79,7 +88,7 @@ export default class HomeInfoList extends BaseComponent {
         {/* -- お知らせ -- */}
         <View style={{ height: "90%" }}>
           <View style={{ alignItems: "center", marginTop: 10 }}>
-            <Text style={{ fontSize: 22 }}>{"お知らせ"}</Text>
+            <Text style={{ fontSize: 22 }}>{this.state.title}</Text>
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Divider

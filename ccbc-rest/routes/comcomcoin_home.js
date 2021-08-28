@@ -112,6 +112,7 @@ async function findHomeInfo(req, res) {
   const resdatas = {
     adList: [],
     infoList: [],
+    infoKanriList: [],
     newArticleList: [],
     popularArticleList: [],
     chatCnt: 0,
@@ -122,7 +123,8 @@ async function findHomeInfo(req, res) {
   // 広告の取得
   resdatas.adList = await getHomeKokoku(db, req);
   // お知らせの取得
-  resdatas.infoList = await getHomeOshirase(db, req);
+  resdatas.infoList = await getHomeOshirase(db, req, "0");
+  resdatas.infoKanriList = await getHomeOshirase(db, req, "1");
   // 最新記事の取得
   resdatas.newArticleList = await getHomeKiji(db, req, true);
   // 人気記事の取得
@@ -294,8 +296,9 @@ function getHomeKokoku(db, req) {
  * ホーム画面に表示するお知らせ情報（最新の3件）を取得（DBアクセス）
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
+ * @param kanrika_flg 管理課フラグ
  */
-function getHomeOshirase(db, req) {
+function getHomeOshirase(db, req, kanrika_flg) {
   return new Promise((resolve, reject) => {
     // 最新の3件を取得
     var sql =
@@ -304,10 +307,11 @@ function getHomeOshirase(db, req) {
       " left join t_oshirase_kidoku kid" +
       " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
       " where osh.delete_flg = '0'" +
-      " order by osh.notice_dt desc" +
+      " and osh.kanrika_flg = :kanrika_flg" +
+      " order by osh.notice_dt desc, osh.insert_tm desc" +
       " limit 3";
     db.query(sql, {
-      replacements: { t_shain_pk: req.body.loginShainPk },
+      replacements: { t_shain_pk: req.body.loginShainPk, kanrika_flg: kanrika_flg },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getHomeOshirase result...");
@@ -446,9 +450,10 @@ function getOshiraseList(db, req) {
       " left join t_oshirase_kidoku kid" +
       " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
       " where osh.delete_flg = '0'" +
-      " order by osh.notice_dt desc";
+      " and osh.kanrika_flg = :kanrika_flg" +
+      " order by osh.notice_dt desc, osh.insert_tm desc";
     db.query(sql, {
-      replacements: { t_shain_pk: req.body.loginShainPk },
+      replacements: { t_shain_pk: req.body.loginShainPk, kanrika_flg: req.body.kanrika_flg },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getOshiraseList result...");
@@ -465,7 +470,7 @@ function getOshiraseList(db, req) {
  */
 function getOshirase(db, req) {
   return new Promise((resolve, reject) => {
-    // 直近1ヶ月を取得
+    // 指定連番を取得
     var sql =
       "select renban, notice_dt, title, comment, file_path" +
       " from t_oshirase" +

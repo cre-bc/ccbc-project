@@ -362,7 +362,7 @@ function selectKijiWithCond(db, req) {
 
     // 記事情報テーブルより条件を絞り込んで取得
     var sql =
-      "select kij.t_kiji_pk, kij.t_kiji_category_pk, kij.t_shain_pk, kij.title, kij.contents, kij.post_dt, kij.post_tm, kij.file_path," +
+      "select kij.t_kiji_pk, kij.t_kiji_category_pk, kij.t_shain_pk, kij.title, kij.contents, kij.post_dt, kij.post_tm, kij.file_path, kij.file_path2, kij.file_path3," +
       " sha.shimei as shain_nm, sha.image_file_nm as shain_image_path," +
       " case when goo.t_kiji_pk is null then '0' else '1' end as good_flg," +
       " case when fav.t_kiji_pk is null then '0' else '1' end as favorite_flg," +
@@ -419,14 +419,15 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
     var sql = "";
     if (isInsert) {
       sql =
-        "insert into t_kiji (t_kiji_category_pk, t_shain_pk, title, contents, post_dt, post_tm, file_path, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm) " +
-        " values (:t_kiji_category_pk, :t_shain_pk, :title, :contents, current_timestamp, current_timestamp, :file_path, '0', :user_id, current_timestamp, :user_id, current_timestamp) " +
+        "insert into t_kiji (t_kiji_category_pk, t_shain_pk, title, contents, post_dt, post_tm, file_path, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, file_path2, file_path3) " +
+        " values (:t_kiji_category_pk, :t_shain_pk, :title, :contents, current_timestamp, current_timestamp, :file_path, '0', :user_id, current_timestamp, :user_id, current_timestamp, :file_path2, :file_path3) " +
         " returning t_kiji_pk";
     } else {
       sql =
         "update t_kiji set " +
         " title = :title, contents = :contents, file_path = :file_path," +
-        " update_user_id = :user_id, update_tm = current_timestamp" +
+        " update_user_id = :user_id, update_tm = current_timestamp," +
+        " file_path2 = :file_path2, file_path3 = :file_path3" +
         " where t_kiji_pk = :t_kiji_pk";
     }
 
@@ -440,6 +441,8 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
         contents: req.body.contents,
         hashtag: req.body.hashtag,
         file_path: req.body.file_path,
+        file_path2: req.body.file_path2,
+        file_path3: req.body.file_path3,
         user_id: req.body.userid,
       },
     }).spread((datas, metadata) => {

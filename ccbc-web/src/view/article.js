@@ -104,6 +104,8 @@ class ArticleForm extends React.Component {
     post_dt: "",
     post_tm: "",
     file_path: "",
+    file_path2: "",
+    file_path3: "",
     hashtag_str: "",
     srcImageUrl: "",
     selectFile: null,
@@ -217,6 +219,8 @@ class ArticleForm extends React.Component {
       title: "",
       contents: "",
       file_path: "",
+      file_path2: "",
+      file_path3: "",
       hashtag_str: "",
       srcImageUrl: "",
       selectFile: null,
@@ -237,6 +241,8 @@ class ArticleForm extends React.Component {
       title: wkList.title,
       contents: wkList.contents,
       file_path: wkList.file_path,
+      file_path2: wkList.file_path2,
+      file_path3: wkList.file_path3,
       hashtag_str: wkList.hashtag_str.replace(/#/g, ""),
       srcImageUrl: "",
       selectFile: null,
@@ -244,7 +250,7 @@ class ArticleForm extends React.Component {
       crop: {
         unit: "%",
         width: 100,
-        aspect: 4 / 3,
+        // aspect: 4 / 3,
       },
     });
   };
@@ -301,8 +307,8 @@ class ArticleForm extends React.Component {
     const scaleY = image.naturalHeight / image.height;
     // canvas.width = crop.width;
     // canvas.height = crop.height;
-    canvas.width = 300;
-    canvas.height = 225;
+    canvas.width = 300 * 4;
+    canvas.height = 225 * 4;
 
     const ctx = canvas.getContext("2d");
     // ctx.drawImage(
@@ -366,7 +372,7 @@ class ArticleForm extends React.Component {
         this.fileUrl = window.URL.createObjectURL(blob);
         resolve(this.fileUrl);
         this.setState({ blob: blob });
-      }, "image/*");
+      }, "image/png", 1);
     });
   };
 
@@ -1001,6 +1007,32 @@ class ArticleForm extends React.Component {
                           <img
                             src={
                               restdomain + `/uploads/article/${item.file_path}`
+                            }
+                            align="top"
+                            width="auto"
+                            height="300"
+                            style={{ maxWidth: "90%" }}
+                          />
+                        )}
+                      </div>
+                      <div style={{ paddingTop: 30 }}>
+                        {item.file_path2 !== "" && item.file_path2 !== null && (
+                          <img
+                            src={
+                              restdomain + `/uploads/article/${item.file_path2}`
+                            }
+                            align="top"
+                            width="auto"
+                            height="300"
+                            style={{ maxWidth: "90%" }}
+                          />
+                        )}
+                      </div>
+                      <div style={{ paddingTop: 30 }}>
+                        {item.file_path3 !== "" && item.file_path3 !== null && (
+                          <img
+                            src={
+                              restdomain + `/uploads/article/${item.file_path3}`
                             }
                             align="top"
                             width="auto"

@@ -47,8 +47,20 @@ export default class ArticleEntry extends BaseComponent {
       post_dt: "",
       post_tm: "",
       file_path: "",
+      file_path2: "",
+      file_path3: "",
       hashtag_str: "",
-      imageData: {
+      imageData1: {
+        uri: "",
+        type: "",
+        name: "",
+      },
+      imageData2: {
+        uri: "",
+        type: "",
+        name: "",
+      },
+      imageData3: {
         uri: "",
         type: "",
         name: "",
@@ -212,6 +224,8 @@ export default class ArticleEntry extends BaseComponent {
         post_dt: paramArticle.post_dt,
         post_tm: paramArticle.post_tm,
         file_path: paramArticle.file_path,
+        file_path2: paramArticle.file_path2,
+        file_path3: paramArticle.file_path3,
         hashtag_str: paramArticle.hashtag_str.replace(/#/g, ""),
       });
     } else {
@@ -296,6 +310,14 @@ export default class ArticleEntry extends BaseComponent {
         this.state.contents.length +
         "文字）\n\n";
     }
+    if (this.state.imageData1.uri == "" && this.state.file_path == "") {
+      // メイン画像なしで、サブ画像ありの場合、エラー
+      if (this.state.imageData2.uri != "" || this.state.file_path2 != ""
+        || this.state.imageData3.uri != "" || this.state.file_path3 != "") {
+        alertMessage += "メインの画像を選択してください\n\n";
+      }
+    }
+
     if (alertMessage !== "") {
       this.setState({
         alertDialogVisible: true,
@@ -321,16 +343,42 @@ export default class ArticleEntry extends BaseComponent {
     }
     this.setState({ confirmDialogVisible: false });
 
-    if (this.state.imageData.uri !== "") {
+    // 画像に変更がある場合、ファイル名を取得
+    if (this.state.imageData1.uri !== "") {
+      this.state.file_path = this.getFileName(this.state.imageData1.uri, 1);
+    }
+    if (this.state.imageData2.uri !== "") {
+      this.state.file_path2 = this.getFileName(this.state.imageData2.uri, 2);
+    }
+    if (this.state.imageData3.uri !== "") {
+      this.state.file_path3 = this.getFileName(this.state.imageData3.uri, 3);
+    }
+
+    // 画像に変更がある場合、画像をアップロード
+    if (this.state.imageData1.uri !== "") {
+      await this.uploadImage(this.state.imageData1, this.state.file_path);
+    }
+    if (this.state.imageData2.uri !== "") {
+      await this.uploadImage(this.state.imageData2, this.state.file_path2);
+    }
+    if (this.state.imageData3.uri !== "") {
+      await this.uploadImage(this.state.imageData3, this.state.file_path3);
+    }
+
+    // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+    await this.edit();
+  };
+
+  /** 画像ファイルのアップロード */
+  uploadImage = async (imageData, fileName) => {
+    if (imageData.uri !== "") {
       // 画像ファイルのアップロードがある場合
-      const extension = this.getExtension(this.state.imageData.uri);
-      const fileName =
-        moment(new Date()).format("YYYYMMDDHHmmssSS") + "." + extension;
+      let extension = this.getExtension(fileName);
       let data = new FormData();
       data.append("image", {
-        uri: this.state.imageData.uri,
+        uri: imageData.uri,
         name: fileName,
-        type: this.state.imageData.type + "/" + extension,
+        type: imageData.type + "/" + extension,
       });
 
       await fetch(restdomain + "/article/upload", {
@@ -346,20 +394,20 @@ export default class ArticleEntry extends BaseComponent {
         })
         .then(
           function (json) {
-            if (json.status) {
-              // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-              this.edit(fileName);
-            } else {
+            if (!json.status) {
               alert("画像ファイルのアップロードに失敗しました");
             }
           }.bind(this)
         )
         .catch((error) => alert(error));
-    } else {
-      // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-      this.edit(this.state.file_path);
     }
-  };
+  }
+
+  /** ファイルパスよりファイル名を取得 */
+  getFileName = (uri, fileNo) => {
+    const extension = this.getExtension(uri);
+    return moment(new Date()).format("YYYYMMDDHHmmssSS") + "_" + fileNo + "." + extension;
+  }
 
   /** ファイルパスよりファイルの拡張子を取得 */
   getExtension = (fileName) => {
@@ -377,12 +425,11 @@ export default class ArticleEntry extends BaseComponent {
   };
 
   /** データ更新処理 */
-  edit = async (fileName) => {
+  edit = async () => {
     // Processingの表示は新規の場合のみ（iOSの場合に消えない問題があるため）
     if (this.state.t_kiji_pk === "") {
       this.setState({ isProcessing: true });
     }
-    this.state.file_path = fileName;
 
     await fetch(restdomain + "/article/edit", {
       method: "POST",
@@ -419,11 +466,11 @@ export default class ArticleEntry extends BaseComponent {
   };
 
   /** 画像選択処理 */
-  onClickPickImage = async () => {
+  onClickPickImage = async (fileNo) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      // aspect: [4, 3],
       quality: 0.2,
     });
     let data = {};
@@ -438,7 +485,13 @@ export default class ArticleEntry extends BaseComponent {
         type: "",
       };
     }
-    this.setState({ imageData: data });
+    if (fileNo == 1) {
+      this.setState({ imageData1: data });
+    } else if (fileNo == 2) {
+      this.setState({ imageData2: data });
+    } else {
+      this.setState({ imageData3: data });
+    }
   };
 
   render() {
@@ -514,40 +567,10 @@ export default class ArticleEntry extends BaseComponent {
                     onChangeText={this.handleContentsTextChange}
                   />
                 </View>
-                {/* 画像 */}
+
+                {/* 画像（メイン） */}
                 <View>
-                  <Text style={styles.inputTitle}>画像</Text>
-                  {this.state.file_path !== "" &&
-                    this.state.imageData.uri === "" && (
-                      <View style={{ marginTop: 10 }}>
-                        <Image
-                          source={{
-                            uri:
-                              restdomain +
-                              `/uploads/article/${this.state.file_path}`,
-                          }}
-                          style={{
-                            width: articleImageWidth,
-                            height: articleImageWidth,
-                          }}
-                          resizeMode="contain"
-                        />
-                      </View>
-                    )}
-                  {this.state.imageData.uri !== "" && (
-                    <View>
-                      <Image
-                        source={{ uri: this.state.imageData.uri }}
-                        style={{
-                          width: articleImageWidth,
-                          height: articleImageWidth,
-                          marginTop: 30,
-                          marginBottom: 30,
-                        }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  )}
+                  <Text style={styles.inputTitle}>画像（メイン）</Text>
                   <View style={{ flexDirection: "row", marginTop: 10 }}>
                     {/* 画像選択ボタン */}
                     <View
@@ -558,7 +581,7 @@ export default class ArticleEntry extends BaseComponent {
                       }}
                     >
                       <TouchableHighlight
-                        onPress={() => this.onClickPickImage()}
+                        onPress={() => this.onClickPickImage(1)}
                       >
                         <View style={styles.selectButtonView}>
                           <View style={styles.selectButtonTitleView}>
@@ -584,13 +607,202 @@ export default class ArticleEntry extends BaseComponent {
                         size={30}
                         onPress={() => {
                           this.setState({
-                            imageData: { uri: "" },
+                            imageData1: { uri: "" },
                             file_path: "",
                           });
                         }}
                       />
                     </View>
                   </View>
+                  {this.state.file_path !== "" &&
+                    this.state.imageData1.uri === "" && (
+                      <View style={{ marginTop: 10 }}>
+                        <Image
+                          source={{
+                            uri:
+                              restdomain +
+                              `/uploads/article/${this.state.file_path}`,
+                          }}
+                          style={{
+                            width: articleImageWidth,
+                            height: articleImageWidth,
+                          }}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                  {this.state.imageData1.uri !== "" && (
+                    <View>
+                      <Image
+                        source={{ uri: this.state.imageData1.uri }}
+                        style={{
+                          width: articleImageWidth,
+                          height: articleImageWidth,
+                          marginTop: 30,
+                          marginBottom: 30,
+                        }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* 画像（サブ1） */}
+                <View>
+                  <Text style={styles.inputTitle}>画像（サブ１）</Text>
+                  <View style={{ flexDirection: "row", marginTop: 10 }}>
+                    {/* 画像選択ボタン */}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "flex-start",
+                        marginLeft: 10,
+                      }}
+                    >
+                      <TouchableHighlight
+                        onPress={() => this.onClickPickImage(2)}
+                      >
+                        <View style={styles.selectButtonView}>
+                          <View style={styles.selectButtonTitleView}>
+                            <Text style={styles.selectButtonTitleText}>
+                              画像選択
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableHighlight>
+                    </View>
+                    {/* 画像削除アイコン */}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "flex-end",
+                        marginRight: 10,
+                      }}
+                    >
+                      <Icon
+                        name="times-circle"
+                        type="font-awesome"
+                        color="black"
+                        size={30}
+                        onPress={() => {
+                          this.setState({
+                            imageData2: { uri: "" },
+                            file_path2: "",
+                          });
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {this.state.file_path2 !== "" &&
+                    this.state.imageData2.uri === "" && (
+                      <View style={{ marginTop: 10 }}>
+                        <Image
+                          source={{
+                            uri:
+                              restdomain +
+                              `/uploads/article/${this.state.file_path2}`,
+                          }}
+                          style={{
+                            width: articleImageWidth,
+                            height: articleImageWidth,
+                          }}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                  {this.state.imageData2.uri !== "" && (
+                    <View>
+                      <Image
+                        source={{ uri: this.state.imageData2.uri }}
+                        style={{
+                          width: articleImageWidth,
+                          height: articleImageWidth,
+                          marginTop: 30,
+                          marginBottom: 30,
+                        }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
+                </View>
+
+                {/* 画像（サブ2） */}
+                <View>
+                  <Text style={styles.inputTitle}>画像（サブ２）</Text>
+                  <View style={{ flexDirection: "row", marginTop: 10 }}>
+                    {/* 画像選択ボタン */}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "flex-start",
+                        marginLeft: 10,
+                      }}
+                    >
+                      <TouchableHighlight
+                        onPress={() => this.onClickPickImage(3)}
+                      >
+                        <View style={styles.selectButtonView}>
+                          <View style={styles.selectButtonTitleView}>
+                            <Text style={styles.selectButtonTitleText}>
+                              画像選択
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableHighlight>
+                    </View>
+                    {/* 画像削除アイコン */}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "flex-end",
+                        marginRight: 10,
+                      }}
+                    >
+                      <Icon
+                        name="times-circle"
+                        type="font-awesome"
+                        color="black"
+                        size={30}
+                        onPress={() => {
+                          this.setState({
+                            imageData3: { uri: "" },
+                            file_path3: "",
+                          });
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {this.state.file_path3 !== "" &&
+                    this.state.imageData3.uri === "" && (
+                      <View style={{ marginTop: 10 }}>
+                        <Image
+                          source={{
+                            uri:
+                              restdomain +
+                              `/uploads/article/${this.state.file_path3}`,
+                          }}
+                          style={{
+                            width: articleImageWidth,
+                            height: articleImageWidth,
+                          }}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
+                  {this.state.imageData3.uri !== "" && (
+                    <View>
+                      <Image
+                        source={{ uri: this.state.imageData3.uri }}
+                        style={{
+                          width: articleImageWidth,
+                          height: articleImageWidth,
+                          marginTop: 30,
+                          marginBottom: 30,
+                        }}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
                 </View>
               </View>
 

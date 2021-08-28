@@ -57,12 +57,12 @@ router.post("/find", (req, res) => {
   console.log("req.body.targetYear:" + req.body.targetYear);
   const params = [];
   const sql =
-    "select renban, title, comment, notice_dt, file_path from t_oshirase where delete_flg = '0' and notice_dt between '" +
+    "select renban, title, comment, notice_dt, file_path, kanrika_flg from t_oshirase where delete_flg = '0' and notice_dt between '" +
     req.body.targetYear +
     "0401' and '" +
     (req.body.targetYear + 1) +
     "0331'" +
-    " order by notice_dt desc";
+    " order by notice_dt desc, insert_tm desc";
   query(sql, params, res, req);
 });
 
@@ -226,8 +226,8 @@ router.post("/delete", (req, res) => {
 function tOshiraseInsert(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "insert into t_oshirase (title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, file_path) " +
-      "VALUES (?, ?, ?, ?, ?, current_timestamp, ?, ?, ?) returning renban";
+      "insert into t_oshirase (title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, file_path, kanrika_flg) " +
+      "VALUES (?, ?, ?, ?, ?, current_timestamp, ?, ?, ?, ?) returning renban";
 
     db.query(sql, {
       transaction: tx,
@@ -240,6 +240,7 @@ function tOshiraseInsert(tx, resdatas, req) {
         null,
         null,
         req.body.file_path,
+        req.body.kanrika_flg,
       ],
     }).spread((datas, metadata) => {
       console.log("◆◆◆");
@@ -260,7 +261,7 @@ function tOshiraseUpdate(tx, resdatas, req) {
   return new Promise((resolve, reject) => {
     var sql =
       "update t_oshirase set title = ?, comment = ?, notice_dt = ?," +
-      "update_user_id = ?, update_tm = current_timestamp, file_path = ? WHERE renban = ?";
+      "update_user_id = ?, update_tm = current_timestamp, file_path = ?, kanrika_flg = ? WHERE renban = ?";
 
     db.query(sql, {
       transaction: tx,
@@ -270,6 +271,7 @@ function tOshiraseUpdate(tx, resdatas, req) {
         req.body.notice_dt,
         req.body.userid,
         req.body.file_path,
+        req.body.kanrika_flg,
         req.body.renban,
       ],
     }).spread((datas, metadata) => {

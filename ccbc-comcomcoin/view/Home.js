@@ -39,6 +39,7 @@ export default class Home extends BaseComponent {
       activeSlide: 0,
       adList: [],
       infoList: [],
+      infoKanriList: [],
       newArticleList: [],
       popularArticleList: [],
       confirmDialogVisible: false,
@@ -166,6 +167,7 @@ export default class Home extends BaseComponent {
               // activeSlide: 0,
               adList: json.data.adList,
               infoList: json.data.infoList,
+              infoKanriList: json.data.infoKanriList,
               newArticleList: json.data.newArticleList,
               popularArticleList: json.data.popularArticleList,
               chatCnt: json.data.chatCnt,
@@ -302,7 +304,7 @@ export default class Home extends BaseComponent {
               <Text style={styles.sectionText}> お知らせ</Text>
               <Text
                 style={styles.sectionMoreText}
-                onPress={() => this.props.navigation.navigate("HomeInfoList")}
+                onPress={() => this.props.navigation.navigate("HomeInfoList", { kanrika_flg: "0" })}
               >
                 {"もっと見る>"}
               </Text>
@@ -310,6 +312,60 @@ export default class Home extends BaseComponent {
             <View>
               {/* お知らせの件数分、繰り返し（最大3件） */}
               {this.state.infoList.map((item, i) => {
+                let font = "";
+                if (Platform.OS === "ios") {
+                  font = "Courier";
+                }
+                let new_style = "black";
+                if (item.new_flg == "new") {
+                  new_style = "blue";
+                }
+                return (
+                  <View
+                    style={{
+                      flex: 1,
+                      flexDirection: "row",
+                      marginTop: 0,
+                      marginBottom: 3,
+                    }}
+                    key={i}
+                  >
+                    <Text ellipsizeMode={"tail"} numberOfLines={1}>
+                      <Text style={{ fontSize: 18, fontFamily: font, color: new_style }}>
+                        {moment(new Date(item.notice_dt)).format("YYYY/MM/DD")}
+                      </Text>
+                      <Text style={{ fontSize: 18, color: new_style }}>
+                        {"  "}
+                        {/* {(item.new_flg == "new") && (
+                          <Text>
+                            {" [new]"}
+                          </Text>
+                        )} */}
+                        {item.title}
+                      </Text>
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* -- 管理課からのお知らせ -- */}
+            <View style={styles.section}>
+              <Image
+                resizeMode="contain"
+                source={require("./../images/icons8-post-box-24.png")}
+              />
+              <Text style={styles.sectionText}> 管理課より</Text>
+              <Text
+                style={styles.sectionMoreText}
+                onPress={() => this.props.navigation.navigate("HomeInfoList", { kanrika_flg: "1" })}
+              >
+                {"もっと見る>"}
+              </Text>
+            </View>
+            <View>
+              {/* お知らせの件数分、繰り返し（最大3件） */}
+              {this.state.infoKanriList.map((item, i) => {
                 let font = "";
                 if (Platform.OS === "ios") {
                   font = "Courier";
