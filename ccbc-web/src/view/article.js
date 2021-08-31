@@ -107,11 +107,18 @@ class ArticleForm extends React.Component {
     file_path2: "",
     file_path3: "",
     hashtag_str: "",
-    srcImageUrl: "",
-    selectFile: null,
-    srcImageEdit: null,
-    crop: {},
-    blob: null,
+    srcImageUrl1: "",
+    srcImageUrl2: "",
+    srcImageUrl3: "",
+    srcImageEdit1: null,
+    srcImageEdit2: null,
+    srcImageEdit3: null,
+    crop1: {},
+    crop2: {},
+    crop3: {},
+    blob1: null,
+    blob2: null,
+    blob3: null,
 
     // 記事投稿制御
     openEntryDialog: false,
@@ -130,14 +137,6 @@ class ArticleForm extends React.Component {
     searchCondYear: "",
     searchCondKeyword: "",
     searchCondHashtag: "",
-
-    // image
-    imgHeith: 0,
-    imgWidth: 0,
-    dx: 0,
-    dy: 0,
-    dh: 0,
-    dw: 0,
   };
 
   constructor(props) {
@@ -222,10 +221,23 @@ class ArticleForm extends React.Component {
       file_path2: "",
       file_path3: "",
       hashtag_str: "",
-      srcImageUrl: "",
-      selectFile: null,
-      srcImageEdit: null,
-      crop: {
+      srcImageUrl1: "",
+      srcImageUrl2: "",
+      srcImageUrl3: "",
+      srcImageEdit1: null,
+      srcImageEdit2: null,
+      srcImageEdit3: null,
+      crop1: {
+        unit: "%",
+        width: 100,
+        // aspect: 4 / 3,
+      },
+      crop2: {
+        unit: "%",
+        width: 100,
+        // aspect: 4 / 3,
+      },
+      crop3: {
         unit: "%",
         width: 100,
         // aspect: 4 / 3,
@@ -244,10 +256,23 @@ class ArticleForm extends React.Component {
       file_path2: wkList.file_path2,
       file_path3: wkList.file_path3,
       hashtag_str: wkList.hashtag_str.replace(/#/g, ""),
-      srcImageUrl: "",
-      selectFile: null,
-      srcImageEdit: null,
-      crop: {
+      srcImageUrl1: "",
+      srcImageUrl2: "",
+      srcImageUrl3: "",
+      srcImageEdit1: null,
+      srcImageEdit2: null,
+      srcImageEdit3: null,
+      crop1: {
+        unit: "%",
+        width: 100,
+        // aspect: 4 / 3,
+      },
+      crop2: {
+        unit: "%",
+        width: 100,
+        // aspect: 4 / 3,
+      },
+      crop3: {
         unit: "%",
         width: 100,
         // aspect: 4 / 3,
@@ -259,70 +284,122 @@ class ArticleForm extends React.Component {
     this.setState({ openEntryDialog: false });
   };
 
-  handleDeleteImage = () => {
-    this.setState({ srcImageUrl: null, srcImageEdit: null, file_path: "" });
-    this.imageRef = null;
+  handleDeleteImage1 = () => {
+    this.setState({ srcImageUrl1: null, srcImageEdit1: null, file_path: "" });
+    this.imageRef1 = null;
+  };
+  handleDeleteImage2 = () => {
+    this.setState({ srcImageUrl2: null, srcImageEdit2: null, file_path2: "" });
+    this.imageRef2 = null;
+  };
+  handleDeleteImage3 = () => {
+    this.setState({ srcImageUrl3: null, srcImageEdit3: null, file_path3: "" });
+    this.imageRef3 = null;
   };
 
   /** 画像選択 */
-  handleSelectFile = (e) => {
+  handleSelectFile1 = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const reader = new FileReader();
       reader.addEventListener("load", () =>
-        this.setState({ srcImageEdit: reader.result })
+        this.setState({ srcImageEdit1: reader.result })
       );
       reader.readAsDataURL(e.target.files[0]);
-      this.setState({ selectFile: e.target.files[0] });
+      console.log(e.target.files[0]);
+      e.target.value = "";
+    }
+  };
+  handleSelectFile2 = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener("load", () =>
+        this.setState({ srcImageEdit2: reader.result })
+      );
+      reader.readAsDataURL(e.target.files[0]);
+      console.log(e.target.files[0]);
+      e.target.value = "";
+    }
+  };
+  handleSelectFile3 = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const reader = new FileReader();
+      reader.addEventListener("load", () =>
+        this.setState({ srcImageEdit3: reader.result })
+      );
+      reader.readAsDataURL(e.target.files[0]);
       console.log(e.target.files[0]);
       e.target.value = "";
     }
   };
 
-  onImageLoaded = (image) => {
-    this.imageRef = image;
+  onImageLoaded1 = (image) => {
+    this.imageRef1 = image;
+  };
+  onImageLoaded2 = (image) => {
+    this.imageRef2 = image;
+  };
+  onImageLoaded3 = (image) => {
+    this.imageRef3 = image;
   };
 
-  onCropComplete = (crop) => {
-    this.makeClientCrop(crop);
+  onCropComplete1 = (crop) => {
+    this.makeClientCrop1(crop);
+  };
+  onCropComplete2 = (crop) => {
+    this.makeClientCrop2(crop);
+  };
+  onCropComplete3 = (crop) => {
+    this.makeClientCrop3(crop);
   };
 
-  onCropChange = (crop, percentCrop) => {
-    this.setState({ crop });
+  onCropChange1 = (crop, percentCrop) => {
+    this.setState({ crop1: crop });
+  };
+  onCropChange2 = (crop, percentCrop) => {
+    this.setState({ crop2: crop });
+  };
+  onCropChange3 = (crop, percentCrop) => {
+    this.setState({ crop3: crop });
   };
 
-  makeClientCrop = async (crop) => {
-    if (this.imageRef && crop.width && crop.height) {
-      const croppedImageUrl = await this.getCroppedImg(
-        this.imageRef,
+  makeClientCrop1 = async (crop) => {
+    if (this.imageRef1 && crop.width && crop.height) {
+      const croppedImageUrl = await this.getCroppedImg1(
+        this.imageRef1,
         crop,
         "newFile.png"
       );
-      this.setState({ srcImageUrl: croppedImageUrl });
+      this.setState({ srcImageUrl1: croppedImageUrl });
+    }
+  };
+  makeClientCrop2 = async (crop) => {
+    if (this.imageRef2 && crop.width && crop.height) {
+      const croppedImageUrl = await this.getCroppedImg2(
+        this.imageRef2,
+        crop,
+        "newFile.png"
+      );
+      this.setState({ srcImageUrl2: croppedImageUrl });
+    }
+  };
+  makeClientCrop3 = async (crop) => {
+    if (this.imageRef3 && crop.width && crop.height) {
+      const croppedImageUrl = await this.getCroppedImg3(
+        this.imageRef3,
+        crop,
+        "newFile.png"
+      );
+      this.setState({ srcImageUrl3: croppedImageUrl });
     }
   };
 
-  getCroppedImg = async (image, crop, fileName) => {
+  getCroppedImg1 = async (image, crop, fileName) => {
     const canvas = document.createElement("canvas");
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    // canvas.width = crop.width;
-    // canvas.height = crop.height;
     canvas.width = 300 * 4;
     canvas.height = 225 * 4;
-
     const ctx = canvas.getContext("2d");
-    // ctx.drawImage(
-    //   image,
-    //   crop.x * scaleX,
-    //   crop.y * scaleY,
-    //   crop.width * scaleX,
-    //   crop.height * scaleY,
-    //   0,
-    //   0,
-    //   crop.width,
-    //   crop.height
-    // );
-
     var posW = 0;
     var posH = 0;
     var posX = 0;
@@ -339,15 +416,6 @@ class ArticleForm extends React.Component {
       posX = (canvas.width / 2) - (posW / 2);
       posH = canvas.height;
     }
-
-    this.setState({
-      imgHeith: crop.height,
-      imgWidth: crop.width,
-      dx: posX,
-      dy: posY,
-      dh: posH,
-      dw: posW,
-    })
 
     ctx.drawImage(
       image,
@@ -371,7 +439,107 @@ class ArticleForm extends React.Component {
         window.URL.revokeObjectURL(this.fileUrl);
         this.fileUrl = window.URL.createObjectURL(blob);
         resolve(this.fileUrl);
-        this.setState({ blob: blob });
+        this.setState({ blob1: blob });
+      }, "image/png", 1);
+    });
+  };
+  getCroppedImg2 = async (image, crop, fileName) => {
+    const canvas = document.createElement("canvas");
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = 300 * 4;
+    canvas.height = 225 * 4;
+    const ctx = canvas.getContext("2d");
+    var posW = 0;
+    var posH = 0;
+    var posX = 0;
+    var posY = 0;
+    const rate = crop.width / crop.height;
+    if (rate >= 1) {
+      // 横長画像
+      posH = canvas.width / crop.width * crop.height;
+      posY = (canvas.height / 2) - (posH / 2);
+      posW = canvas.width;
+    } else {
+      // 縦長画像
+      posW = canvas.height / crop.height * crop.width;
+      posX = (canvas.width / 2) - (posW / 2);
+      posH = canvas.height;
+    }
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      posX,
+      posY,
+      posW,
+      posH
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Canvas is empty");
+          return;
+        }
+        blob.name = fileName;
+        window.URL.revokeObjectURL(this.fileUrl);
+        this.fileUrl = window.URL.createObjectURL(blob);
+        resolve(this.fileUrl);
+        this.setState({ blob2: blob });
+      }, "image/png", 1);
+    });
+  };
+  getCroppedImg3 = async (image, crop, fileName) => {
+    const canvas = document.createElement("canvas");
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    canvas.width = 300 * 4;
+    canvas.height = 225 * 4;
+    const ctx = canvas.getContext("2d");
+    var posW = 0;
+    var posH = 0;
+    var posX = 0;
+    var posY = 0;
+    const rate = crop.width / crop.height;
+    if (rate >= 1) {
+      // 横長画像
+      posH = canvas.width / crop.width * crop.height;
+      posY = (canvas.height / 2) - (posH / 2);
+      posW = canvas.width;
+    } else {
+      // 縦長画像
+      posW = canvas.height / crop.height * crop.width;
+      posX = (canvas.width / 2) - (posW / 2);
+      posH = canvas.height;
+    }
+
+    ctx.drawImage(
+      image,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      posX,
+      posY,
+      posW,
+      posH
+    );
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error("Canvas is empty");
+          return;
+        }
+        blob.name = fileName;
+        window.URL.revokeObjectURL(this.fileUrl);
+        this.fileUrl = window.URL.createObjectURL(blob);
+        resolve(this.fileUrl);
+        this.setState({ blob3: blob });
       }, "image/png", 1);
     });
   };
@@ -411,6 +579,15 @@ class ArticleForm extends React.Component {
       alertMessage +=
         "記事の文字数が超過しています" + "（" + lenContents + "文字）\n";
     }
+
+    if (!this.state.srcImageUrl1 && this.state.file_path == "") {
+      if (this.state.srcImageUrl2 || this.state.file_path2 != ""
+        || this.state.srcImageUrl3 || this.state.file_path3 != "") {
+        alertMessage +=
+          "メインの画像を選択してください\n";
+      }
+    }
+
     if (alertMessage !== "") {
       this.setState({
         alertDialogVisible: true,
@@ -432,44 +609,50 @@ class ArticleForm extends React.Component {
     this.setState({ loadFlg: true });
     this.setState({ confirmDialogVisible: false });
 
-    if (this.state.srcImageUrl) {
-      // 画像ファイルのアップロードがある場合
-      const fileName =
-        moment(new Date()).format("YYYYMMDDHHmmssSS") + "." + "png";
-      let data = new FormData();
-      var wkBlob = this.state.blob;
-      wkBlob.name = fileName;
-      data.append("image", wkBlob, fileName);
-      console.log(wkBlob);
-
-      request
-        .post(restdomain + "/article/upload")
-        .send(data)
-        .end((err, res) => {
-          if (err) {
-            console.log("Error:", err);
-            alert("画像ファイルのアップロードに失敗しました");
-            this.setState({ loadFlg: false });
-            return;
-          }
-          if (res.status) {
-            // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-            this.edit(fileName);
-          } else {
-            alert("画像ファイルのアップロードに失敗しました");
-            this.setState({ loadFlg: false });
-          }
-        });
-    } else {
-      // 記事API.投稿処理の呼び出し（DB登録→BC登録）
-      this.edit(this.state.file_path);
+    // 画像ファイルのアップロードがある場合
+    if (this.state.srcImageUrl1) {
+      this.state.file_path = moment(new Date()).format("YYYYMMDDHHmmssSS") + "_1.png";
+      await this.upload(this.state.blob1, this.state.file_path);
     }
+    if (this.state.srcImageUrl2) {
+      this.state.file_path2 = moment(new Date()).format("YYYYMMDDHHmmssSS") + "_2.png";
+      await this.upload(this.state.blob2, this.state.file_path2);
+    }
+    if (this.state.srcImageUrl3) {
+      this.state.file_path3 = moment(new Date()).format("YYYYMMDDHHmmssSS") + "_3.png";
+      await this.upload(this.state.blob3, this.state.file_path3);
+    }
+
+    // 記事API.投稿処理の呼び出し（DB登録→BC登録）
+    this.edit();
   };
 
-  /** データ更新処理 */
-  edit = async (fileName) => {
-    this.state.file_path = fileName;
+  upload = async (blob, fileName) => {
+    let data = new FormData();
+    var wkBlob = blob;
+    wkBlob.name = fileName;
+    data.append("image", wkBlob, fileName);
+    console.log(wkBlob);
 
+    request
+      .post(restdomain + "/article/upload")
+      .send(data)
+      .end((err, res) => {
+        if (err) {
+          console.log("Error:", err);
+          alert("画像ファイルのアップロードに失敗しました");
+          this.setState({ loadFlg: false });
+          return;
+        }
+        if (!res.status) {
+          alert("画像ファイルのアップロードに失敗しました");
+          this.setState({ loadFlg: false });
+        }
+      });
+  }
+
+  /** データ更新処理 */
+  edit = async () => {
     request
       .post(restdomain + "/article/edit")
       .send(this.state)
@@ -1148,71 +1331,192 @@ class ArticleForm extends React.Component {
                   value={this.state.contents}
                   onChange={this.handleInputChange.bind(this)}
                 />
-                <Button color="primary" style={{ marginTop: 20 }}>
-                  画像選択
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className={classes.inputFileBtnHide}
-                    onChange={this.handleSelectFile}
-                  />
-                </Button>
-                <Button
-                  onClick={this.handleDeleteImage}
-                  color="secondary"
-                  style={{ marginTop: 20 }}
-                >
-                  画像削除
-                </Button>
-                <div style={{ verticalAlign: "top" }}>
-                  <br />
-                  <div style={{ width: 350, float: "left", padding: 10 }}>
-                    {this.state.file_path !== "" && !this.state.srcImageUrl && (
-                      <img
-                        style={{
-                          maxWidth: "90%",
-                          border: "solid",
-                          borderColor: "lightgray",
-                          width: 300,
-                        }}
-                        src={
-                          restdomain +
-                          `/uploads/article/${this.state.file_path}`
-                        }
-                      />
-                    )}
-                    {this.state.srcImageUrl && (
-                      <img
-                        style={{
-                          maxWidth: "90%",
-                          border: "solid",
-                          borderColor: "lightgray",
-                          width: 300,
-                        }}
-                        src={this.state.srcImageUrl}
-                      />
-                    )}
-                    {/* <div>
-                      {"imgHeith:"}{this.state.imgHeith}<br />
-                      {"imgWidth:"}{this.state.imgWidth}<br />
-                      {"dx:"}{this.state.dx}<br />
-                      {"dy:"}{this.state.dy}<br />
-                      {"dh:"}{this.state.dh}<br />
-                      {"dw:"}{this.state.dw}<br />
-                    </div> */}
+                <div style={{ display: "table" }}>
+                  <DialogTitle id="form-dialog-title">画像（メイン）</DialogTitle>
+                  <Button color="primary" style={{ marginTop: 20 }}>
+                    画像選択
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className={classes.inputFileBtnHide}
+                      onChange={this.handleSelectFile1}
+                    />
+                  </Button>
+                  <Button
+                    onClick={this.handleDeleteImage1}
+                    color="secondary"
+                    style={{ marginTop: 20 }}
+                  >
+                    画像削除
+                  </Button>
+                  <div style={{ verticalAlign: "top" }}>
+                    <br />
+                    <div style={{ width: 350, float: "left", padding: 10 }}>
+                      {this.state.file_path !== "" && !this.state.srcImageUrl1 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={
+                            restdomain +
+                            `/uploads/article/${this.state.file_path}`
+                          }
+                        />
+                      )}
+                      {this.state.srcImageUrl1 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={this.state.srcImageUrl1}
+                        />
+                      )}
+                    </div>
+                    <div style={{ float: "left", padding: 10 }}>
+                      {this.state.srcImageEdit1 && (
+                        <ReactCrop
+                          src={this.state.srcImageEdit1}
+                          crop={this.state.crop1}
+                          style={{ maxWidth: "90%" }}
+                          ruleOfThirds
+                          onImageLoaded={this.onImageLoaded1}
+                          onComplete={this.onCropComplete1}
+                          onChange={this.onCropChange1}
+                        />
+                      )}
+                    </div>
                   </div>
-                  <div style={{ float: "left", padding: 10 }}>
-                    {this.state.srcImageEdit && (
-                      <ReactCrop
-                        src={this.state.srcImageEdit}
-                        crop={this.state.crop}
-                        style={{ maxWidth: "90%" }}
-                        ruleOfThirds
-                        onImageLoaded={this.onImageLoaded}
-                        onComplete={this.onCropComplete}
-                        onChange={this.onCropChange}
-                      />
-                    )}
+                </div>
+                <hr />
+                <div style={{ display: "table" }}>
+                  <DialogTitle id="form-dialog-title">画像（サブ１）</DialogTitle>
+                  <Button color="primary" style={{ marginTop: 20 }}>
+                    画像選択
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className={classes.inputFileBtnHide}
+                      onChange={this.handleSelectFile2}
+                    />
+                  </Button>
+                  <Button
+                    onClick={this.handleDeleteImage2}
+                    color="secondary"
+                    style={{ marginTop: 20 }}
+                  >
+                    画像削除
+                  </Button>
+                  <div style={{ verticalAlign: "top" }}>
+                    <br />
+                    <div style={{ width: 350, float: "left", padding: 10 }}>
+                      {this.state.file_path2 !== "" && !this.state.srcImageUrl2 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={
+                            restdomain +
+                            `/uploads/article/${this.state.file_path2}`
+                          }
+                        />
+                      )}
+                      {this.state.srcImageUrl2 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={this.state.srcImageUrl2}
+                        />
+                      )}
+                    </div>
+                    <div style={{ float: "left", padding: 10 }}>
+                      {this.state.srcImageEdit2 && (
+                        <ReactCrop
+                          src={this.state.srcImageEdit2}
+                          crop={this.state.crop2}
+                          style={{ maxWidth: "90%" }}
+                          ruleOfThirds
+                          onImageLoaded={this.onImageLoaded2}
+                          onComplete={this.onCropComplete2}
+                          onChange={this.onCropChange2}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <hr />
+                <div style={{ display: "table" }}>
+                  <DialogTitle id="form-dialog-title">画像（サブ２）</DialogTitle>
+                  <Button color="primary" style={{ marginTop: 20 }}>
+                    画像選択
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className={classes.inputFileBtnHide}
+                      onChange={this.handleSelectFile3}
+                    />
+                  </Button>
+                  <Button
+                    onClick={this.handleDeleteImage3}
+                    color="secondary"
+                    style={{ marginTop: 20 }}
+                  >
+                    画像削除
+                  </Button>
+                  <div style={{ verticalAlign: "top" }}>
+                    <br />
+                    <div style={{ width: 350, float: "left", padding: 10 }}>
+                      {this.state.file_path3 !== "" && !this.state.srcImageUrl3 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={
+                            restdomain +
+                            `/uploads/article/${this.state.file_path3}`
+                          }
+                        />
+                      )}
+                      {this.state.srcImageUrl3 && (
+                        <img
+                          style={{
+                            maxWidth: "90%",
+                            border: "solid",
+                            borderColor: "lightgray",
+                            width: 300,
+                          }}
+                          src={this.state.srcImageUrl3}
+                        />
+                      )}
+                    </div>
+                    <div style={{ float: "left", padding: 10 }}>
+                      {this.state.srcImageEdit3 && (
+                        <ReactCrop
+                          src={this.state.srcImageEdit3}
+                          crop={this.state.crop3}
+                          style={{ maxWidth: "90%" }}
+                          ruleOfThirds
+                          onImageLoaded={this.onImageLoaded3}
+                          onComplete={this.onCropComplete3}
+                          onChange={this.onCropChange3}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               </DialogContent>
