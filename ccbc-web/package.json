@@ -9,6 +9,7 @@
     "prop-types": "^15.6.2",
     "qrcode.react": "^1.0.1",
     "react": "^16.3.2",
+    "react-chat-elements": "^10.15.0",
     "react-dom": "^16.3.2",
     "react-image-crop": "^8.6.2",
     "react-linkify": "^1.0.0-alpha",
@@ -19,6 +20,7 @@
     "react-swipeable-views": "^0.13.3",
     "recharts": "^1.0.0-beta.10",
     "redux": "^4.0.0",
+    "socket.io-client": "^4.2.0",
     "superagent": "^3.8.3"
   },
   "scripts": {

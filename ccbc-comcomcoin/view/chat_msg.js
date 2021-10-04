@@ -65,10 +65,11 @@ export default class ChatMsgForm extends BaseComponent {
       function (message) {
         this.setState({ test: "comcomcoin_chat get message" });
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
-        if (
-          Number(JSON.parse(message).to_shain_pk) ===
-          Number(this.state.fromShainPk)
-        ) {
+        if (JSON.parse(message).chat_kbn.match("NML")
+          && (Number(JSON.parse(message).to_shain_pk) === Number(this.state.fromShainPk)
+            || (JSON.parse(message).chat_kbn === "WEB-NML"
+              && Number(JSON.parse(message).to_shain_pk) === Number(this.state.loginShainPk)
+              && Number(JSON.parse(message).chat_shain_pk) === Number(this.state.fromShainPk)))) {
           this.getChatMessage(message);
           this.setState({ test: "comcomcoin_chat set message" });
         }
@@ -202,13 +203,18 @@ export default class ChatMsgForm extends BaseComponent {
             const message = {
               room_id: this.state.fromShainPk,
               to_shain_pk: this.state.loginShainPk,
+              chat_shain_pk: this.state.fromShainPk,
               _id:
                 this.state.userid +
                 "-" +
                 moment(new Date()).format("YYYYMMDDHHmmssSS"),
               createdAt: new Date(),
               image: restdomain + `/uploads/chat/${fileName}`,
+              chat_kbn: "APP-NML",
             };
+            socket.emit("comcomcoin_chat", JSON.stringify(message));
+            // 自分向けのメッセージ
+            message.room_id = this.state.loginShainPk;
             socket.emit("comcomcoin_chat", JSON.stringify(message));
           }
         }.bind(this)
@@ -425,10 +431,15 @@ export default class ChatMsgForm extends BaseComponent {
             const message = {
               room_id: this.state.fromShainPk,
               to_shain_pk: this.state.loginShainPk,
+              chat_shain_pk: this.state.fromShainPk,
               _id: messages[0]._id,
               text: this.state.message,
               createdAt: new Date(),
+              chat_kbn: "APP-NML",
             };
+            socket.emit("comcomcoin_chat", JSON.stringify(message));
+            // 自分向けのメッセージ
+            message.room_id = this.state.loginShainPk;
             socket.emit("comcomcoin_chat", JSON.stringify(message));
             this.removeInfo();
           }
@@ -456,6 +467,10 @@ export default class ChatMsgForm extends BaseComponent {
               name: this.state.chatUser,
               avatar: restdomain + `/uploads/${this.state.fromImageFileName}`,
             };
+            // 自分（WEB）からのメッセージ
+            if (chat.to_shain_pk == this.state.loginShainPk) {
+              user._id = 1;
+            }
             chat.user = user;
             var messages = [chat];
             this.setState((previousState) => ({

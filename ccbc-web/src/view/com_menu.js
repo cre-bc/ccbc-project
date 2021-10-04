@@ -170,9 +170,8 @@ const styles = (theme) => ({
   },
   imageTitle: {
     position: "relative",
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${
-      theme.spacing.unit + 6
-    }px`,
+    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 4}px ${theme.spacing.unit + 6
+      }px`,
     fontSize: "300%",
   },
   imageMarked: {
@@ -196,17 +195,26 @@ const styles = (theme) => ({
 // 権限による表示制御のないメニューのため、constとして定義
 const images1 = [
   {
-    url: "/images/com_coin_shokai.png",
-    title: "コイン照会",
-    width: "50%",
-    path: "/com_coin_shokai",
-    disabled: false,
-  },
-  {
     url: "/images/com_kiji.png",
     title: "記事投稿",
     width: "50%",
     path: "/article",
+    disabled: false,
+  },
+  {
+    url: "/images/com_chat.png",
+    title: "チャット",
+    width: "50%",
+    path: "/chat",
+    disabled: false,
+  },
+];
+const images1_2 = [
+  {
+    url: "/images/com_coin_shokai.png",
+    title: "コイン照会",
+    width: "50%",
+    path: "/com_coin_shokai",
     disabled: false,
   },
 ];
@@ -214,6 +222,7 @@ const images1 = [
 // 管理者のみ表示するメニューのため、コンポーネントのマウント時処理で判定
 var images2 = [];
 var images3 = [];
+var images4 = [];
 
 class ComMenuForm extends React.Component {
   state = {
@@ -226,6 +235,7 @@ class ComMenuForm extends React.Component {
   componentWillMount() {
     images2 = [];
     images3 = [];
+    images4 = [];
 
     var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
 
@@ -244,12 +254,21 @@ class ComMenuForm extends React.Component {
     if (loginInfo.kengenCd === "0" || loginInfo.kengenCd === "1") {
       images2 = [
         {
+          url: "/images/com_coin_shokai.png",
+          title: "コイン照会",
+          width: "50%",
+          path: "/com_coin_shokai",
+          disabled: false,
+        },
+        {
           url: "/images/com_coin_ichiran.png",
           title: "所持コイン一覧",
           width: "50%",
           path: "/com_coin_shojicoin",
           disabled: false,
         },
+      ];
+      images3 = [
         {
           url: "/images/com_oshirase_mente2.png",
           title: "お知らせメンテンス",
@@ -257,8 +276,6 @@ class ComMenuForm extends React.Component {
           path: "/com_oshirase_mente",
           disabled: false,
         },
-      ];
-      images3 = [
         {
           url: "/images/com_kokoku_mente2.png",
           title: "広告メンテナンス",
@@ -266,11 +283,24 @@ class ComMenuForm extends React.Component {
           path: "/com_kokoku_mente",
           disabled: false,
         },
+      ];
+      images4 = [
         {
           url: "/images/com_shohin_mente4.png",
           title: "商品メンテナンス",
           width: "50%",
           path: "/com_shohin_mente",
+          disabled: false,
+        },
+      ];
+    } else {
+      // 通常権限
+      images2 = [
+        {
+          url: "/images/com_coin_shokai.png",
+          title: "コイン照会",
+          width: "50%",
+          path: "/com_coin_shokai",
           disabled: false,
         },
       ];
@@ -500,6 +530,43 @@ class ComMenuForm extends React.Component {
             <Typography noWrap>
               <div className={classes.root}>
                 {images3.map((image) => (
+                  <ButtonBase
+                    focusRipple
+                    key={image.title}
+                    className={classes.image}
+                    focusVisibleClassName={classes.focusVisible}
+                    style={{
+                      width: image.width,
+                    }}
+                    component={Link}
+                    to={image.path}
+                    disabled={image.disabled}
+                  >
+                    <span
+                      className={classes.imageSrc}
+                      style={{
+                        backgroundImage: `url(${image.url})`,
+                        height: "90%",
+                      }}
+                    />
+                    <span className={classes.imageBackdrop} />
+                    <span className={classes.imageButton}>
+                      <Typography
+                        component="span"
+                        variant="subheading"
+                        color="inherit"
+                        className={classes.imageTitle}
+                      >
+                        {image.title}
+                      </Typography>
+                    </span>
+                  </ButtonBase>
+                ))}
+              </div>
+            </Typography>
+            <Typography noWrap>
+              <div className={classes.root}>
+                {images4.map((image) => (
                   <ButtonBase
                     focusRipple
                     key={image.title}

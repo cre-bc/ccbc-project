@@ -147,6 +147,9 @@ export default class LoginGroupForm extends Component {
       this.props.navigation.navigate("HomeInformation", {
         renban: data.infoRenban,
       });
+    } else if (data) {
+      // 未読関連のプッシュ通知の場合、ホーム画面に遷移
+      this.props.navigation.navigate("Home");
     }
   };
 

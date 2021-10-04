@@ -28,7 +28,7 @@ export default class ChatSelectForm extends BaseComponent {
       "comcomcoin_chat",
       async function (message) {
         // チャットを受信した際に、一覧を再表示する
-        await this.findChatUser();
+        await this.findChatUser(false);
       }.bind(this)
     );
 
@@ -65,11 +65,9 @@ export default class ChatSelectForm extends BaseComponent {
 
     // チャットルーム（自分の社員PK）に接続
     socket.emit("join", this.state.loginShainPk);
-    // チャットルーム（グループPK）に接続)
-    socket.emit("join", this.state.chatGroupPk);
 
     // 初期表示情報取得
-    this.findChatUser();
+    this.findChatUser(true);
   };
 
   /** 画面遷移時処理（後処理） */
@@ -96,7 +94,7 @@ export default class ChatSelectForm extends BaseComponent {
   };
 
   /** 画面初期表示情報取得 */
-  findChatUser = async () => {
+  findChatUser = async (isSocketJoin) => {
     await fetch(restdomain + "/chat_select/find", {
       method: "POST",
       body: JSON.stringify(this.state),
@@ -114,6 +112,15 @@ export default class ChatSelectForm extends BaseComponent {
           // 検索結果の取得
           var dataList = json.data;
           this.setState({ resultList: dataList });
+
+          if (isSocketJoin) {
+            for (var i in dataList) {
+              if (dataList[i].t_chat_group_pk > 0) {
+                // チャットルーム（グループPK）に接続)
+                socket.emit("join", dataList[i].t_chat_group_pk);
+              }
+            }
+          }
         }.bind(this)
       )
       .catch((error) => console.error(error));
@@ -156,12 +163,12 @@ export default class ChatSelectForm extends BaseComponent {
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* -- リスト -- */}
           {/* 未読が0件の場合はバッジを非表示にする */}
-          {this.state.resultList.map((n) => {
+          {this.state.resultList.map((n, i) => {
             if (n.new_info_cnt == 0) {
               if (n.t_chat_group_pk == 0 || n.t_chat_group_pk == null) {
                 return (
                   <ListItem
-                    key={n.t_shain_pk}
+                    key={i}
                     roundAvatar
                     title={n.shimei}
                     titleStyle={{ fontSize: 20 }}
@@ -190,7 +197,7 @@ export default class ChatSelectForm extends BaseComponent {
               } else {
                 return (
                   <ListItem
-                    key={n.t_shain_pk}
+                    key={i}
                     roundAvatar
                     title={n.chat_group_nm}
                     titleStyle={{ fontSize: 20 }}
@@ -221,7 +228,7 @@ export default class ChatSelectForm extends BaseComponent {
               if (n.t_chat_group_pk == 0 || n.t_chat_group_pk == null) {
                 return (
                   <ListItem
-                    key={n.t_shain_pk}
+                    key={i}
                     roundAvatar
                     title={n.shimei}
                     titleStyle={{ fontSize: 20 }}
@@ -255,7 +262,7 @@ export default class ChatSelectForm extends BaseComponent {
               } else {
                 return (
                   <ListItem
-                    key={n.t_shain_pk}
+                    key={i}
                     roundAvatar
                     title={n.chat_group_nm}
                     titleStyle={{ fontSize: 20 }}

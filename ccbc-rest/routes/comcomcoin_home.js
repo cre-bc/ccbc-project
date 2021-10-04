@@ -117,6 +117,7 @@ async function findHomeInfo(req, res) {
     popularArticleList: [],
     chatCnt: 0,
     articleCnt: 0,
+    unreadArticleList: [],
     bccoin: 0,
   };
 
@@ -137,6 +138,9 @@ async function findHomeInfo(req, res) {
   var resArticle = await getArticleMidoku(db, req);
   resdatas.articleCnt = resArticle[0].article_cnt;
   // console.log("articleCnt:", resdatas.articleCnt)
+  // 記事レスの未読件数の取得
+  resdatas.unreadArticleList = await getUnreadArticleMidoku(db, req);
+  //console.log("unreadArticleList:", resdatas.unreadArticleList);
   // BCコイン数を取得　 - 2020/09 追加
   const param = {
     account: req.body.bcAccount,
@@ -215,8 +219,7 @@ async function findHomeInformation(req, res) {
     // DB更新
     await insertOrUpdateOshiraseKidoku(db, tx, req, req.body.renban);
   })
-    .then((result) => {
-    })
+    .then((result) => {})
     .catch((e) => {
       // ロールバックしたらこっち
       res.json({ status: false });
@@ -302,7 +305,9 @@ function getHomeOshirase(db, req, kanrika_flg) {
   return new Promise((resolve, reject) => {
     // 最新の3件を取得
     var sql =
-      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" + oshirase_new_start + "' then 'new' else '' end as new_flg" +
+      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" +
+      oshirase_new_start +
+      "' then 'new' else '' end as new_flg" +
       " from t_oshirase osh" +
       " left join t_oshirase_kidoku kid" +
       " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
@@ -311,7 +316,10 @@ function getHomeOshirase(db, req, kanrika_flg) {
       " order by osh.notice_dt desc, osh.insert_tm desc" +
       " limit 3";
     db.query(sql, {
-      replacements: { t_shain_pk: req.body.loginShainPk, kanrika_flg: kanrika_flg },
+      replacements: {
+        t_shain_pk: req.body.loginShainPk,
+        kanrika_flg: kanrika_flg,
+      },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getHomeOshirase result...");
@@ -333,9 +341,9 @@ function getHomeKiji(db, req, isNew) {
     var sql =
       "select kij.t_kiji_pk, kij.title, kij.file_path, kij.post_dt, " +
       " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
-      " coalesce(goo.cnt, 0) as good_cnt" +
+      " coalesce(res.cnt, 0) as res_cnt" +
       " from t_kiji kij" +
-      " left join (select t_kiji_pk, count(*) as cnt from t_good group by t_kiji_pk) goo on kij.t_kiji_pk = goo.t_kiji_pk" +
+      " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
       " where kij.delete_flg = '0'" +
       " and kij.post_dt >= current_timestamp + '-1 months'";
     if (isNew) {
@@ -343,7 +351,7 @@ function getHomeKiji(db, req, isNew) {
       sql += " limit 8";
     } else {
       sql +=
-        " order by coalesce(goo.cnt, 0) desc, kij.post_dt desc, kij.post_tm desc";
+        " order by coalesce(res.cnt, 0) desc, kij.post_dt desc, kij.post_tm desc";
       sql += " limit 3";
     }
 
@@ -351,7 +359,7 @@ function getHomeKiji(db, req, isNew) {
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getHomeKiji result...");
-      // console.log(datas)
+      // console.log(datas);
       return resolve(datas);
     });
   });
@@ -403,7 +411,6 @@ function getArticleMidoku(db, req) {
       " left join t_kiji_kidoku kid on kij.t_kiji_category_pk = kid.t_kiji_category_pk and kid.t_shain_pk = :t_shain_pk" +
       " where kij.delete_flg = '0'" +
       " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, 0)";
-
     db.query(sql, {
       replacements: { t_shain_pk: req.body.loginShainPk },
       type: db.QueryTypes.RAW,
@@ -445,7 +452,9 @@ function getKokoku(db, req) {
 function getOshiraseList(db, req) {
   return new Promise((resolve, reject) => {
     var sql =
-      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" + oshirase_new_start + "' then 'new' else '' end as new_flg" +
+      "select osh.renban, osh.notice_dt, osh.title, case when kid.renban is null and osh.notice_dt > '" +
+      oshirase_new_start +
+      "' then 'new' else '' end as new_flg" +
       " from t_oshirase osh" +
       " left join t_oshirase_kidoku kid" +
       " on osh.renban = kid.renban and kid.t_shain_pk = :t_shain_pk" +
@@ -453,7 +462,10 @@ function getOshiraseList(db, req) {
       " and osh.kanrika_flg = :kanrika_flg" +
       " order by osh.notice_dt desc, osh.insert_tm desc";
     db.query(sql, {
-      replacements: { t_shain_pk: req.body.loginShainPk, kanrika_flg: req.body.kanrika_flg },
+      replacements: {
+        t_shain_pk: req.body.loginShainPk,
+        kanrika_flg: req.body.kanrika_flg,
+      },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : getOshiraseList result...");
@@ -490,16 +502,16 @@ function getOshirase(db, req) {
  * 記事情報を取得（DBアクセス）
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
- * @param mode "new"：最新記事、"popular"：人気記事、"favorite"：お気に入り
+ * @param mode "new"：最新記事、"popular"：人気記事、"favorite"：お気に入り、 "unread"：未読記事
  */
 function getKijiList(db, req, mode) {
   return new Promise((resolve, reject) => {
     var sql =
       "select kij.t_kiji_pk, kij.title, kij.file_path, kij.post_dt, " +
       " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
-      " coalesce(goo.cnt, 0) as good_cnt" +
+      " coalesce(res.cnt, 0) as res_cnt" +
       " from t_kiji kij" +
-      " left join (select t_kiji_pk, count(*) as cnt from t_good group by t_kiji_pk) goo on kij.t_kiji_pk = goo.t_kiji_pk" +
+      " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
       " where kij.delete_flg = '0'";
     switch (mode) {
       case "new":
@@ -517,6 +529,21 @@ function getKijiList(db, req, mode) {
           " and exists (select * from t_favorite fav where kij.t_kiji_pk = fav.t_kiji_pk and fav.t_shain_pk = :t_shain_pk)" +
           " order by kij.post_dt desc, kij.post_tm desc";
         break;
+      case "unread":
+        sql =
+          "select * from (" +
+          " select distinct on(kij.t_kiji_pk) kij.t_kiji_pk, kij.title, kij.file_path, kij.post_dt, " +
+          " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
+          " coalesce(res.cnt, 0) as res_cnt, t_response.post_dt as res_post_dt, t_response.post_tm as res_post_tm" +
+          " from t_kiji kij" +
+          " inner join t_response_kidoku kid on kid.t_kiji_pk = kij.t_kiji_pk" +
+          " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
+          " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
+          " where (kij.t_shain_pk = :t_shain_pk" +
+          " and kid.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
+          " or (t_response.to_shain_pk = :t_shain_pk" +
+          " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = t_response.t_kiji_pk and kid.t_shain_pk = t_response.to_shain_pk), 0))) midoku" +
+          " order by res_post_dt desc, res_post_dt desc";
     }
 
     db.query(sql, {
@@ -527,6 +554,67 @@ function getKijiList(db, req, mode) {
     }).spread((datas, metadata) => {
       console.log("DBAccess : getKijiList result...");
       // console.log(datas)
+      return resolve(datas);
+    });
+  });
+}
+/**
+ * ホーム画面に表示するチャット未読件数を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getChatMidoku(db, req) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select count(*)  as chat_cnt from" +
+      "(select *  from t_chat cha" +
+      " left join t_chat_kidoku kid on cha.to_shain_pk = kid.t_shain_pk and cha.from_shain_pk = kid.from_shain_pk" +
+      " where cha.delete_flg = '0'" +
+      " and cha.to_shain_pk = :t_shain_pk" +
+      " and kid.from_chat_group_pk = 0" +
+      " and cha.t_chat_pk > coalesce(kid.t_chat_pk, 0)" +
+      " union all" +
+      " select * from  t_chat cha " +
+      " left join t_chat_kidoku kid on cha.t_chat_group_pk = kid.from_chat_group_pk" +
+      " where cha.delete_flg = '0'" +
+      " and kid.t_shain_pk = :t_shain_pk" +
+      " and kid.from_chat_group_pk <> 0" +
+      " and cha.t_chat_pk > coalesce(kid.t_chat_pk, 0)) as cnt";
+    db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      console.log("DBAccess : getChatMidoku result...");
+      // console.log(datas)
+      return resolve(datas);
+    });
+  });
+}
+
+/**
+ * ホーム画面に表示する記事レス未読件数を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function getUnreadArticleMidoku(db, req) {
+  return new Promise((resolve, reject) => {
+    sql =
+      "select distinct kij.t_kiji_pk, " +
+      " coalesce(res.cnt, 0) as res_cnt" +
+      " from t_kiji kij" +
+      " inner join t_response_kidoku kid on kid.t_kiji_pk = kij.t_kiji_pk" +
+      " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
+      " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
+      " where (kij.t_shain_pk = :t_shain_pk" +
+      " and kid.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
+      " or (t_response.to_shain_pk = :t_shain_pk" +
+      " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = t_response.t_kiji_pk and kid.t_shain_pk = t_response.to_shain_pk), 0))";
+    db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      console.log("DBAccess : getUnreadArticleMidoku result...");
+      console.log(datas);
       return resolve(datas);
     });
   });

@@ -62,6 +62,7 @@ import ComShohinMenteForm from "./view/com_shohin_mente";
 import ComKokokuMenteForm from "./view/com_kokoku_mente";
 import ComOshiraseMenteForm from "./view/com_oshirase_mente";
 import ArtcleForm from "./view/article";
+import ChatForm from "./view/chat";
 
 import AppSelectForm from "./view/app_select";
 import ComMenuForm from "./view/com_menu";
@@ -166,6 +167,7 @@ ReactDOM.render(
                 <Route path="/shain_toroku" component={ShainTorokuForm} />
                 <Route path="/coin_zoyo" component={CoinZoyoForm} />
                 <Route path="/article" component={ArtcleForm} />
+                <Route path="/chat" component={ChatForm} />
               </Switch>
             </Auth>
             <FooterForm />

@@ -39,8 +39,8 @@ export default class HomeArticleList extends BaseComponent {
     const screenTitle =
       mode === "new"
         ? "最新の記事"
-        : mode === "popular"
-        ? "人気の記事"
+        : mode === "unread"
+        ? "未読レスの記事"
         : "お気に入り";
     this.state.mode = mode;
     this.setState({
@@ -49,7 +49,7 @@ export default class HomeArticleList extends BaseComponent {
     });
     if (screenTitle === "最新の記事") {
       this.state.screenNo = 8;
-    } else if (screenTitle === "人気の記事") {
+    } else if (screenTitle === "未読レスの記事") {
       this.state.screenNo = 9;
     } else {
       this.state.screenNo = 17;
@@ -143,13 +143,14 @@ export default class HomeArticleList extends BaseComponent {
                   avatarContainerStyle={{ padding: 5, marginLeft: 5 }}
                   avatarStyle={{ width: 60, height: (60 * 3) / 4 }}
                   badge={{
-                    value: "☺︎ " + item.good_cnt,
+                    value: "レス数 " + item.res_cnt,
                     textStyle: { fontSize: 12 },
                   }}
                   onPress={() =>
                     this.props.navigation.navigate("ArticleRefer", {
                       mode: "home",
                       selectKijiPk: item.t_kiji_pk,
+                      viewMode: "multi"
                     })
                   }
                 />

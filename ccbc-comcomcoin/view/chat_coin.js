@@ -310,11 +310,17 @@ export default class ChatCoinForm extends BaseComponent {
             const message = {
               room_id: this.state.fromShainPk,
               to_shain_pk: this.state.loginShainPk,
+              chat_shain_pk: this.state.fromShainPk,
               _id: json.t_chat_pk,
               text: this.state.comment,
               createdAt: new Date(),
+              chat_kbn: "APP-NML",
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
+            // 自分向けのメッセージ
+            message.room_id = this.state.loginShainPk;
+            socket.emit("comcomcoin_chat", JSON.stringify(message));
+
             // storageの削除
             this.removeInfo();
             // チャット画面に遷移

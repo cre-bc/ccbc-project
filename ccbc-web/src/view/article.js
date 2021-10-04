@@ -38,6 +38,11 @@ import Search from "@material-ui/icons/Search";
 import EditIcon from "@material-ui/icons/Edit";
 import NoteAdd from "@material-ui/icons/NoteAdd";
 import Star from "@material-ui/icons/Star";
+import CommentIcon from "@material-ui/icons/Message";
+import RateReviewIcon from '@material-ui/icons/RateReview';
+import CreateIcon from '@material-ui/icons/Create';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 import Chip from "@material-ui/core/Chip";
 import { Manager, Target, Popper } from "react-popper";
@@ -137,6 +142,19 @@ class ArticleForm extends React.Component {
     searchCondYear: "",
     searchCondKeyword: "",
     searchCondHashtag: "",
+
+    // レスポンス制御用
+    mode: "",
+    viewMode: "",
+    resMode: "",
+    responseList:[],
+    resComment: "",
+    resTarget: 0,
+    resResponsPk: "",
+    deleteConfirmDialogVisible: false,
+    deleteConfirmDialogMessage: "",
+    // alertDialogVisible: false,
+    // alertDialogMessage: "",
   };
 
   constructor(props) {
@@ -278,6 +296,21 @@ class ArticleForm extends React.Component {
         // aspect: 4 / 3,
       },
     });
+  };
+
+  onClickResponseBtn = (index) => {
+    var wkList = this.state.articleList[index];
+    const selectKijiPk = wkList.t_kiji_pk;
+    this.state.searchCondKijiPk = selectKijiPk;
+    this.setState({ 
+      mode: "home",
+      viewMode: "only",
+      resMode: "insert"
+    });
+    // 記事リスト取得
+    this.readArticle();
+    // コメントリスト取得
+    this.readResponse();
   };
 
   handleCloseEntry = () => {
@@ -604,6 +637,119 @@ class ArticleForm extends React.Component {
     });
   };
 
+  /** 返信ボタン押下 */
+  onClickReplyBtn = async (shimei, from_shain_pk) => {
+    this.setState({resComment: ''})
+    this.setState({
+      resComment: '>' + shimei + 'さん' + "\n",
+      resTarget: from_shain_pk,
+      resMode: "insert",
+      resResponsPk: ""})
+    this.executeScroll();
+  };
+
+  /** レス編集ボタン押下 */
+  onClickReplyEditBtn = async (t_response_pk, response) => {
+    this.setState({
+      resComment: response,
+      resResponsPk: t_response_pk,
+      resMode: "edit"
+    })
+    this.executeScroll();
+  };
+
+  
+  /** レス編集キャンセルボタン押下 */
+  onClickReplyEditCancelBtn = async () => {
+    this.setState({
+      resComment: "",
+      resResponsPk: "",
+      resMode: "insert",
+    })
+    this.executeScroll();
+  };
+
+  /** レス削除ボタン押下 */
+  onClickReplyDelBtn = async (t_response_pk,response) => {
+    // 確認ダイアログを表示（YESの場合、send()を実行）
+    this.setState({
+      resResponsPk: t_response_pk,
+      resMode: "delete",
+      deleteConfirmDialogVisible: true,
+      deleteConfirmDialogMessage: "コメントを削除します。よろしいですか？",
+    });
+    this.executeScroll();
+  };
+
+  // レスコメントの入力テキスト変更時
+  handleReplyTextChange(e) {
+    const target = e.target;
+    const value = target.value;
+    this.setState({ resComment: value});
+    // レスコメントが空の場合
+    if (value == "") {
+      // レス先を空にセット
+      this.setState({resTarget: 0})
+    }
+  };
+
+  /** レス送信ボタン押下 */
+  onSendReplyBtn = async () => {
+    // 入力チェック
+    var alertMessage = "";
+
+    // レスコメントが空の場合
+    if (this.state.resComment == "") {
+      alertMessage += "コメントが未入力です";
+    }
+
+    // エラーメッセージを設定
+    if (alertMessage !== "") {
+      this.setState({
+        alertDialogVisible: true,
+        alertDialogMessage: alertMessage,
+        alertDialogTitle: "エラーメッセージ",
+      });
+      return;
+    } else {
+      // 記事API.レス送信処理の呼び出し（DB登録）
+      await this.send();
+    }
+  };
+
+  executeScroll = () => {
+    var elm = document.documentElement;
+    //scrollHeight ページの高さ clientHeight ブラウザの高さ
+    var bottom = elm.scrollHeight - elm.clientHeight;
+    //垂直方向へ移動
+    window.scroll(0, bottom);
+  }
+  
+  /** データ更新処理 */
+  send = async () => {
+    this.setState({ confirmDialogVisible: false });
+    request
+      .post(restdomain + "/article/sendReply")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          console.log("Error:", err);
+          alert("コメント送信でエラーが発生しました");
+          return;
+        }
+      // コメントリスト取得
+      this.readResponse();
+      this.setState({ 
+        resComment: "",
+        resMode: "insert",
+        resTarget: 0,
+        resResponsPk: "",
+        deleteConfirmDialogVisible: false
+      });;
+    });
+
+  };
+
   /** 記事更新処理 */
   entry = async () => {
     this.setState({ loadFlg: true });
@@ -671,7 +817,16 @@ class ArticleForm extends React.Component {
             alertDialogTitle: "",
           });
         }
-
+        // レスポンス制御
+        this.setState({
+          searchCondKijiPk: "",
+          viewMode: "multi",
+          resComment: "",
+          resMode: "insert",
+          resTarget: 0,
+          resResponsPk: "",
+          searchCondKijiPk: ""
+        })
         // 記事リスト取得
         this.readArticle();
         this.setState({ openEntryDialog: false });
@@ -690,7 +845,16 @@ class ArticleForm extends React.Component {
       readLastKijiPk: "",
     });
     this.state.readLastKijiPk = "";
-
+    // レスポンス制御
+    this.setState({
+      searchCondKijiPk: "",
+      viewMode: "multi",
+      resComment: "",
+      resMode: "insert",
+      resTarget: 0,
+      resResponsPk: "",
+      searchCondKijiPk: ""
+    })
     // 記事リスト取得（条件付与）
     this.readArticle();
   };
@@ -724,14 +888,25 @@ class ArticleForm extends React.Component {
       current_kiji_category_pk: category.t_kiji_category_pk,
       t_kiji_category_pk: category.t_kiji_category_pk,
       currentCategory: category,
-      getCoin: category.get_coin,
+      getCoin: category.get_coin
     });
     this.state.current_kiji_category_pk = category.t_kiji_category_pk;
+    this.state.searchCondKijiPk = ""
     if (category.spe_category_flg === "1") {
       this.setState({ speCategoryFlg: true });
     } else {
       this.setState({ speCategoryFlg: false });
     }
+    // レスポンス制御
+    this.setState({
+      
+      viewMode: "multi",
+      resComment: "",
+      resMode: "insert",
+      resTarget: 0,
+      resResponsPk: "",
+      responseList:[]
+    })
 
     // 記事リスト取得
     this.readArticle();
@@ -814,6 +989,23 @@ class ArticleForm extends React.Component {
             var resList = res.body.data;
             this.setState({ categoryList: resList });
           });
+      });
+  };
+
+  /** 返信リスト取得 */
+  readResponse = async () => {
+    // 記事API.記事リスト取得処理の呼び出し
+    request
+      .post(restdomain + "/article/findResponse")
+      .send(this.state)
+      .end((err, res) => {
+        if (err) {
+          console.log("Error:", err);
+          return;
+        }
+        var resList = res.body.data;
+        this.setState({ responseList: resList });
+        this.executeScroll();
       });
   };
 
@@ -1007,18 +1199,24 @@ class ArticleForm extends React.Component {
                       </span>
                     </div>
                     <div style={{ float: "right" }}>
-                      <Button
-                        onClick={this.handleOpenSearch}
-                        variant="raised"
-                        color="default"
-                        // size="large"
-                        className={classes.button2}
-                      >
-                        <Search className={classes.extendedIcon} />
-                        検索
-                      </Button>
+                      {(() => {
+                        if (this.state.viewMode == "multi") {
+                          return (
+                            <Button
+                              onClick={this.handleOpenSearch}
+                              variant="raised"
+                              color="default"
+                              // size="large"
+                              className={classes.button2}
+                            >
+                              <Search className={classes.extendedIcon} />
+                                検索
+                            </Button>
+                          );
+                        }
+                      })()}
                       {"　 "}
-                      {!this.state.speCategoryFlg && (
+                      {!this.state.speCategoryFlg && this.state.viewMode == "multi" &&(
                         <Button
                           onClick={this.handleOpenEntry}
                           variant="raised"
@@ -1105,7 +1303,7 @@ class ArticleForm extends React.Component {
                           {/* 記事編集（自分が投稿した記事のみアイコンを表示） */}
                           <div style={{ float: "left", paddingRight: 10 }}>
                             {(() => {
-                              if (item.t_shain_pk == this.state.loginShainPk) {
+                              if (item.t_shain_pk == this.state.loginShainPk && this.state.viewMode == "multi") {
                                 return (
                                   <EditIcon
                                     style={{ fontSize: 40, cursor: "pointer" }}
@@ -1119,7 +1317,7 @@ class ArticleForm extends React.Component {
                             })()}
                           </div>
                           {/* いいね */}
-                          <div style={{ float: "left", paddingRight: 10 }}>
+                          {/* <div style={{ float: "left", paddingRight: 10 }}>
                             {(() => {
                               const goodImageSrc =
                                 item.good_flg === "0"
@@ -1151,23 +1349,47 @@ class ArticleForm extends React.Component {
                                 </span>
                               </div>
                             )}
+                          </div> */}
+                          {/* コメント */}
+                          <div style={{ float: "left", paddingRight: 10 }}>
+                            {(() => {
+                              if (this.state.viewMode == "multi") {
+                                return (
+                                  <CommentIcon
+                                    style={{ fontSize: 40, cursor: "pointer" }}
+                                    onClick={this.onClickResponseBtn.bind(
+                                      this,
+                                      i
+                                    )}
+                                  />
+                                );
+                              }
+                            })()}
                           </div>
                           {/* お気に入り */}
                           <div style={{ float: "left" }}>
                             {(() => {
-                              const favoriteColor =
-                                item.favorite_flg === "0" ? "gray" : "orange";
-                              return (
-                                <Star
-                                  style={{
-                                    fontSize: 40,
-                                    color: favoriteColor,
-                                    cursor: "pointer",
-                                  }}
-                                  onClick={this.handleFavorite.bind(this, i)}
-                                />
-                              );
-                            })()}
+                              if (this.state.viewMode == "multi") {
+                                return (
+                                  <div>
+                                    {(() => {
+                                      const favoriteColor =
+                                        item.favorite_flg === "0" ? "gray" : "orange";
+                                      return (
+                                        <Star
+                                          style={{
+                                            fontSize: 40,
+                                            color: favoriteColor,
+                                            cursor: "pointer",
+                                          }}
+                                          onClick={this.handleFavorite.bind(this, i)}
+                                        />
+                                      );
+                                    })()}
+                                  </div>
+                                );
+                              }
+                             })()}
                           </div>
                         </div>
                       </div>
@@ -1227,9 +1449,170 @@ class ArticleForm extends React.Component {
                     </div>
                   </Card>
                 ))}
+                {/* -- レス表示（繰り返し） -- */}
+                {this.state.responseList.map((item, i) => {
+                  return (
+                    <Card containerStyle={{ marginTop: -1, marginBottom: 0, }}　className={classes.responseCard} key={i}>
+                      {/* 顔写真 */}
+                      <div style={{ float: "left", paddingRight: 50 }}>
+                        <div style={{ align: "center", paddingLeft: 10 }}>
+                          <Avatar
+                            src={
+                              restdomain + `/uploads/${item.image_file_nm}`
+                            }
+                            style={{ width: 50, height: 50 }}
+                          />
+                        </div>
+                      </div>
+                      {/* 名前 */}
+                      <div style={{ float: "left" }}>
+                        <div style={{ paddingBottom: 10 }}>
+                          <span style={{ fontSize: 16 }}>
+                            {item.shimei}
+                          </span>
+                        </div>
+                      </div>
+                      {/* 各種アイコン */}
+                      <div style={{ float: "right", align: "right" }}>
+                        {/* 返信アイコン（自分以外の相手の返信にのみアイコンを表示） */}
+                        <div style={{ float: "left", paddingRight: 10 }}>
+                          {(() => {
+                            if (item.from_shain_pk !== this.state.loginShainPk) {
+                              return (
+                                <RateReviewIcon
+                                  style={{ fontSize: 30, cursor: "pointer" }}
+                                  onClick={this.onClickReplyBtn.bind(
+                                    this,
+                                    item.shimei,
+                                    item.from_shain_pk
+                                  )}
+                                />
+                              );
+                            }
+                          })()}
+                        </div>
+                        {/* レスポンス編集（自分が投稿したレスポンスのみアイコンを表示） */}
+                        <div style={{ float: "left", paddingRight: 10 }}>
+                          {(() => {
+                            if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk !== item.t_response_pk) {
+                              return (
+                                <CreateIcon
+                                  style={{ fontSize: 30, cursor: "pointer" }}
+                                  onClick={this.onClickReplyEditBtn.bind(
+                                    this,
+                                    item.t_response_pk,
+                                    item.response
+                                  )}
+                                />
+                              );
+                            } else if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk == item.t_response_pk && this.state.resMode !== "delete"){
+                              return (
+                                <CancelIcon
+                                  style={{ fontSize: 30, cursor: "pointer" }}
+                                  onClick={this.onClickReplyEditCancelBtn.bind()}
+                                />
+                              );                              
+                            }
+                          })()}
+                        </div>
+                        {/* レスポンス削除（自分が投稿したレスポンスのみアイコンを表示） */}
+                        <div style={{ float: "left", paddingRight: 10 }}>
+                          {(() => {
+                            if (item.from_shain_pk == this.state.loginShainPk && this.state.resMode !== "edit") {
+                              return (
+                                <DeleteForeverIcon
+                                  style={{ fontSize: 30, cursor: "pointer" }}
+                                  onClick={this.onClickReplyDelBtn.bind(
+                                    this,
+                                    item.t_response_pk
+                                  )}
+                                />
+                              );
+                            }
+                          })()}
+                        </div>
+                        {/* 記事編集（自分が投稿した記事のみアイコンを表示） */}
+                        <div style={{ float: "left", paddingRight: 10 }}>
+                          <div
+                            style={{ textAlign: "center", paddingBottom: 10 }}
+                          >
+                            <span style={{ color: "gray", fontSize: 12 }}>
+                              {moment(new Date(item.post_dt)).format(
+                                "YYYY/MM/DD"
+                              )}
+                              <span style={{ fontSize: 20 }}>
+                                {" "}
+                              </span>
+                              {moment(item.post_tm, "HH:mm:ss").format("H:mm")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* レスポンス */}
+                      <div style={{ paddingTop: 30, clear: "both" }}>
+                        <span
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-all",
+                          }}
+                        >
+                          <Linkify properties={{ target: "_blank" }}>
+                            {item.response}
+                          </Linkify>
+                        </span>
+                      </div>
+                    </Card>
+
+                  );
+                })}
+                {(() => {
+                  if (this.state.viewMode == "only") {
+                    return (
+                        <Card containerStyle={{ marginTop: -1, marginBottom: 0, }}　className={classes.responseCard}>
+                          {(() => {
+                            if (this.state.resMode == "edit") {
+                              return (
+                                <div style={{ fontSize: 12, color: '#0000FF', paddingTop: 30, clear: "both" }}>
+                                <span
+                                  style={{
+                                    whiteSpace: "pre-wrap",
+                                    wordBreak: "break-all",
+                                  }}
+                                >
+                                  <Linkify properties={{ target: "_blank" }}>
+                                    編集モード
+                                  </Linkify>
+                                </span>
+                              </div>
+                              );
+                            }
+                          })()}
+                          <TextField
+                            id="resComment"
+                            name="resComment"
+                            margin="normal"
+                            label={`コメント（${CHAR_LEN_CONTENTS}文字以内）`}
+                            multiline
+                            rows="5"
+                            fullWidth
+                            value={this.state.resComment}
+                            onChange={this.handleInputChange.bind(this)}
+                          />
+                          <Button
+                            onClick={this.onSendReplyBtn}
+                            variant="raised"
+                            color="default"
+                            className={classes.button2}
+                          >
+                            <CreateIcon className={classes.extendedIcon} />
+                            送信
+                          </Button>
+                        </Card>                    
+                    );
+                  }
+                })()}
               </div>
             </div>
-
             {/* -- 検索ダイアログ -- */}
             <Dialog
               open={this.state.openSearchDialog}
@@ -1600,6 +1983,40 @@ class ArticleForm extends React.Component {
                 </Button>
               </DialogActions>
             </Dialog>
+            {/* コメント削除確認ダイアログ */}
+            <Dialog
+              open={this.state.deleteConfirmDialogVisible}
+              onClose={() => {
+                this.setState({ deleteConfirmDialogVisible: false });
+              }}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+              disableBackdropClick={true}
+            >
+              <DialogTitle id="alert-dialog-title">
+                {"確認メッセージ"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                  {this.state.deleteConfirmDialogMessage}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={this.send} color="primary" autoFocus>
+                  はい
+                </Button>
+                <Button
+                  onClick={() => {
+                    this.setState({ 
+                      deleteConfirmDialogVisible: false,
+                      resMode: "insert" });
+                  }}
+                  color="primary"
+                >
+                  いいえ
+                </Button>
+              </DialogActions>
+            </Dialog>
           </main>
           {after}
         </div>
@@ -1882,6 +2299,11 @@ const styles = (theme) => ({
   articleCard: {
     padding: 40,
     marginBottom: 20,
+    marginRight: 10,
+  },
+  responseCard: {
+    padding: 40,
+    marginBottom: 0,
     marginRight: 10,
   },
   inputFileBtnHide: {

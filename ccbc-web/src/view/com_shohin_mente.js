@@ -214,10 +214,10 @@ let EnhancedTableToolbar = (props) => {
             {numSelected} 件選択
           </Typography>
         ) : (
-            <Typography variant="title" id="tableTitle">
-              商品一覧
-            </Typography>
-          )}
+          <Typography variant="title" id="tableTitle">
+            商品一覧
+          </Typography>
+        )}
       </div>
       <div className={classes.spacer} />
     </Toolbar>
@@ -603,8 +603,7 @@ class ComShohinMenteForm extends React.Component {
       this.setState({ seller_shain_pk: null });
       this.setState({ shimei: null });
     } else {
-      if (this.state.page == 1) id = id + 5;
-      if (this.state.page == 2) id = id + 10;
+      id = id + (this.state.rowsPerPage * (this.state.page))
       this.setState({ m_shohin_pk: this.state.resultList[id].m_shohin_pk });
       this.setState({ shohin_code: this.state.resultList[id].shohin_code });
       this.setState({ shohin_bunrui: this.state.resultList[id].shohin_bunrui });
@@ -830,8 +829,8 @@ class ComShohinMenteForm extends React.Component {
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
-                <ChevronLeftIcon />
-              )}
+              <ChevronLeftIcon />
+            )}
           </IconButton>
         </div>
         <Divider />

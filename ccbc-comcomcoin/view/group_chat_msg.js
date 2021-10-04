@@ -50,12 +50,10 @@ export default class GroupChatMsgForm extends BaseComponent {
       "comcomcoin_chat",
       function (message) {
         // 現在開いているチャット相手からのメッセージの場合に受信処理を行う
-        if (
-          Number(JSON.parse(message).chatGroupPk) ===
-            Number(this.state.chatGroupPk) &&
-          Number(JSON.parse(message).to_shain_pk) !==
-            Number(this.state.loginShainPk)
-        ) {
+        if (Number(JSON.parse(message).chatGroupPk) === Number(this.state.chatGroupPk)
+          && (Number(JSON.parse(message).to_shain_pk) !== Number(this.state.loginShainPk)
+            || (JSON.parse(message).chat_kbn === "WEB-GRP"
+              && Number(JSON.parse(message).to_shain_pk) === Number(this.state.loginShainPk)))) {
           this.getChatMessage(message);
         }
       }.bind(this)
@@ -235,6 +233,7 @@ export default class GroupChatMsgForm extends BaseComponent {
               imageFileName: this.state.imageFileName,
               userid: this.state.userid,
               chatGroupPk: this.state.chatGroupPk,
+              chat_kbn: "APP-GRP",
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
             this.removeInfo();
@@ -263,6 +262,10 @@ export default class GroupChatMsgForm extends BaseComponent {
               name: chat.userid,
               avatar: restdomain + `/uploads/${chat.imageFileName}`,
             };
+            // 自分（WEB）からのメッセージ
+            if (chat.to_shain_pk == this.state.loginShainPk) {
+              user._id = 1;
+            }
             chat.user = user;
             var messages = [chat];
             this.setState((previousState) => ({

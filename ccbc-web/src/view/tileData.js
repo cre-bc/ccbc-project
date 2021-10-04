@@ -193,15 +193,20 @@ export var comKanriListItems = function () {
     if (loginInfo.kengenCd === "0" || loginInfo.kengenCd === "1") {
       return (
         <div>
-          <ListItem button component={Link} to="/com_coin_shokai">
-            <img src="/images/com_coin_shokai.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
-            <ListItemText primary="コイン照会" />
+          <ListItem button component={Link} to="/chat">
+            <img src="/images/com_chat.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="チャット" />
           </ListItem>
           <ListItem button component={Link} to="/article">
             <img src="/images/com_kiji.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="記事投稿" />
+          </ListItem>
+          <ListItem button component={Link} to="/com_coin_shokai">
+            <img src="/images/com_coin_shokai.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
+            <ListItemText primary="コイン照会" />
           </ListItem>
           <ListItem button component={Link} to="/com_coin_shojicoin">
             <img src="/images/com_coin_ichiran.png" width="40" />
@@ -228,15 +233,20 @@ export var comKanriListItems = function () {
     } else {
       return (
         <div>
-          <ListItem button component={Link} to="/com_coin_shokai">
-            <img src="/images/com_coin_shokai.png" width="40" />
-            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
-            <ListItemText primary="コイン照会" />
-          </ListItem>
           <ListItem button component={Link} to="/article">
             <img src="/images/com_kiji.png" width="40" />
             {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
             <ListItemText primary="記事投稿" />
+          </ListItem>
+          <ListItem button component={Link} to="/chat">
+            <img src="/images/com_chat.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_oshirase_mente.png" /> */}
+            <ListItemText primary="チャット" />
+          </ListItem>
+          <ListItem button component={Link} to="/com_coin_shokai">
+            <img src="/images/com_coin_shokai.png" width="40" />
+            {/* <Avatar alt="shain_kanri" src="/images/com_coin_shokai.png" /> */}
+            <ListItemText primary="コイン照会" />
           </ListItem>
         </div>
       );

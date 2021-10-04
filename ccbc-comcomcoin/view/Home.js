@@ -19,6 +19,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import moment from "moment";
 import "moment/locale/ja";
 import io from "socket.io-client";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 
 import BaseComponent from "./components/BaseComponent";
 import ConfirmDialog from "./components/ConfirmDialog";
@@ -46,6 +47,7 @@ export default class Home extends BaseComponent {
       confirmDialogMessage: "",
       chatCnt: 0,
       articleCnt: 0,
+      unreadArticleList: [],
       bccoin: 0,
       screenNo: 4,
     };
@@ -172,6 +174,7 @@ export default class Home extends BaseComponent {
               popularArticleList: json.data.popularArticleList,
               chatCnt: json.data.chatCnt,
               articleCnt: json.data.articleCnt,
+              unreadArticleList: json.data.unreadArticleList,
               bccoin: retCoin,
             });
           }
@@ -294,7 +297,35 @@ export default class Home extends BaseComponent {
                 </View>
               )}
             </View>
-
+            {/* -- 未読コメントあり -- */}
+            {this.state.unreadArticleList.length != 0 && (
+              <View style={styles.sectionRes}>
+                <MaterialCommunityIcons
+                  name="comment-text-multiple-outline"
+                  size={17}
+                  color="white"
+                />
+                <Text style={styles.sectionText}> 未読コメントあり</Text>
+                <Text
+                  style={styles.sectionMoreText}
+                  onPress={() => {
+                    if (this.state.unreadArticleList.length == 1) {
+                      this.props.navigation.navigate("ArticleRefer", {
+                        mode: "home",
+                        selectKijiPk: this.state.unreadArticleList[0].t_kiji_pk,
+                        viewMode: "multi"
+                      });
+                    } else {
+                      this.props.navigation.navigate("HomeArticleList", {
+                        mode: "unread",
+                      });
+                    }
+                  }}
+                >
+                  {"もっと見る>"}
+                </Text>
+              </View>
+            )}
             {/* -- お知らせ -- */}
             <View style={styles.section}>
               <Image
@@ -304,7 +335,11 @@ export default class Home extends BaseComponent {
               <Text style={styles.sectionText}> お知らせ</Text>
               <Text
                 style={styles.sectionMoreText}
-                onPress={() => this.props.navigation.navigate("HomeInfoList", { kanrika_flg: "0" })}
+                onPress={() =>
+                  this.props.navigation.navigate("HomeInfoList", {
+                    kanrika_flg: "0",
+                  })
+                }
               >
                 {"もっと見る>"}
               </Text>
@@ -331,7 +366,13 @@ export default class Home extends BaseComponent {
                     key={i}
                   >
                     <Text ellipsizeMode={"tail"} numberOfLines={1}>
-                      <Text style={{ fontSize: 18, fontFamily: font, color: new_style }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontFamily: font,
+                          color: new_style,
+                        }}
+                      >
                         {moment(new Date(item.notice_dt)).format("YYYY/MM/DD")}
                       </Text>
                       <Text style={{ fontSize: 18, color: new_style }}>
@@ -348,7 +389,6 @@ export default class Home extends BaseComponent {
                 );
               })}
             </View>
-
             {/* -- 管理課からのお知らせ -- */}
             <View style={styles.section}>
               <Image
@@ -358,7 +398,11 @@ export default class Home extends BaseComponent {
               <Text style={styles.sectionText}> 管理課より</Text>
               <Text
                 style={styles.sectionMoreText}
-                onPress={() => this.props.navigation.navigate("HomeInfoList", { kanrika_flg: "1" })}
+                onPress={() =>
+                  this.props.navigation.navigate("HomeInfoList", {
+                    kanrika_flg: "1",
+                  })
+                }
               >
                 {"もっと見る>"}
               </Text>
@@ -385,7 +429,13 @@ export default class Home extends BaseComponent {
                     key={i}
                   >
                     <Text ellipsizeMode={"tail"} numberOfLines={1}>
-                      <Text style={{ fontSize: 18, fontFamily: font, color: new_style }}>
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontFamily: font,
+                          color: new_style,
+                        }}
+                      >
                         {moment(new Date(item.notice_dt)).format("YYYY/MM/DD")}
                       </Text>
                       <Text style={{ fontSize: 18, color: new_style }}>
@@ -402,7 +452,6 @@ export default class Home extends BaseComponent {
                 );
               })}
             </View>
-
             {/* -- 最新の記事 -- */}
             <View style={styles.section}>
               <Image
@@ -421,7 +470,6 @@ export default class Home extends BaseComponent {
                 {"もっと見る>"}
               </Text>
             </View>
-
             <View>
               {/* 最新の記事の件数分、繰り返し */}
               {this.state.newArticleList.map((item, i) => {
@@ -433,6 +481,7 @@ export default class Home extends BaseComponent {
                       this.props.navigation.navigate("ArticleRefer", {
                         mode: "home",
                         selectKijiPk: item.t_kiji_pk,
+                        viewMode: "multi"
                       })
                     }
                   >
@@ -455,12 +504,12 @@ export default class Home extends BaseComponent {
                           {/* 画像が未登録の場合はNo-Imageを表示 */}
                           {(item.file_path === "" ||
                             item.file_path === null) && (
-                              <Image
-                                source={require("./../images/icon-noimage.png")}
-                                style={styles.articleImage}
-                                resizeMode="cover"
-                              />
-                            )}
+                            <Image
+                              source={require("./../images/icon-noimage.png")}
+                              style={styles.articleImage}
+                              resizeMode="cover"
+                            />
+                          )}
                         </View>
                         <View style={{ flex: 2 }}>
                           {/* タイトル */}
@@ -469,20 +518,16 @@ export default class Home extends BaseComponent {
                           <Text style={{ fontSize: 16, color: "gray" }}>
                             {item.hashtag_str}
                           </Text>
-                          {/* いいね */}
+                          {/* レスポンス */}
                           <View style={{ flexDirection: "row" }}>
-                            <Image
-                              source={require("./../images/good-top.png")}
-                              style={{
-                                width: 15,
-                                height: 15,
-                                marginTop: 2,
-                                marginBottom: 2,
-                              }}
+                            <MaterialCommunityIcons
+                              name="comment-text-multiple-outline"
+                              size={15}
+                              color="red"
                             />
                             <Text style={{ fontSize: 16, color: "red" }}>
                               {" "}
-                              {item.good_cnt}
+                              {item.res_cnt}
                             </Text>
                           </View>
                           {/* 投稿日 */}
@@ -713,6 +758,13 @@ const styles = StyleSheet.create({
   section: {
     height: 25,
     backgroundColor: "rgba(255, 136, 0, 0.92)",
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 0,
+  },
+  sectionRes: {
+    height: 25,
+    backgroundColor: "rgba(170, 0, 0, 1)",
     flexDirection: "row",
     alignItems: "center",
     marginTop: 0,

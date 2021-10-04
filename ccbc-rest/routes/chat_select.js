@@ -6,7 +6,7 @@ var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 
 router.post("/find", (req, res) => {
-  console.log(req.params);
+  // console.log(req.params);
   findData(req, res);
 });
 

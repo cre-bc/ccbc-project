@@ -612,8 +612,7 @@ class ComOshiraseMenteForm extends React.Component {
       this.setState({ file_path: null });
       this.setState({ kanrika_flg: null });
     } else {
-      if (this.state.page == 1) id = id + 5;
-      if (this.state.page == 2) id = id + 10;
+      id = id + (this.state.rowsPerPage * (this.state.page))
       this.setState({ renban: this.state.resultList[id].renban });
       this.setState({ notice_dt: this.state.resultList[id].notice_dt });
       this.setState({ title: this.state.resultList[id].title });
@@ -1285,7 +1284,7 @@ class ComOshiraseMenteForm extends React.Component {
                     name="comment"
                     label="内容(1000文字)"
                     multiline
-                    rows="4"
+                    rows="20"
                     className={classes.textField}
                     margin="normal"
                     fullWidth
@@ -1402,7 +1401,7 @@ class ComOshiraseMenteForm extends React.Component {
                     id="multiline-static2"
                     label="内容(1000文字)"
                     multiline
-                    rows="4"
+                    rows="20"
                     defaultValue={this.state.comment}
                     className={classes.textField}
                     margin="normal"

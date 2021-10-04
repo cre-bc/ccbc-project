@@ -161,6 +161,7 @@ export default class ChatCoinForm extends BaseComponent {
               imageFileName: this.state.imageFileName,
               userid: this.state.userid,
               chatGroupPk: this.state.chatGroupPk,
+              chat_kbn: "APP-GRP",
             };
             socket.emit("comcomcoin_chat", JSON.stringify(message));
             // storageの削除

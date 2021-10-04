@@ -455,6 +455,7 @@ export default class ArticleEntry extends BaseComponent {
               this.props.navigation.navigate("ArticleRefer", {
                 mode: this.state.mode,
                 selectCategory: this.state.selectCategory,
+                viewMode: "multi",
               });
             }
           }
@@ -879,16 +880,16 @@ const styles = StyleSheet.create({
   },
   selectButtonView: {
     borderRadius: 20,
-    // alignItems: 'center',
-    // marginTop: 30,
-    // marginLeft: 10,
-    // marginRight: 10,
+    alignItems: 'center',
+    marginTop: 30,
+    marginLeft: 10,
+    marginRight: 10,
     width: 100,
     backgroundColor: "#FFB300",
-    // flexDirection: 'row'
+    flexDirection: 'row'
   },
   selectButtonTitleView: {
-    // flex: 1,
+    flex: 1,
     alignItems: "center",
   },
   selectButtonTitleText: {

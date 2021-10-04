@@ -186,7 +186,7 @@ async function chatMsgGet(req, chatGroupPk) {
   return new Promise((resolve, reject) => {
     console.log("★ start chatMsgGet★");
     var sql =
-      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, s.image_file_nm, s.user_id" +
+      "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, s.image_file_nm, s.user_id, s.shimei" +
       " from t_chat c" +
       " inner join t_shain s on c.from_shain_pk = s.t_shain_pk" +
       " where t_chat_group_pk = :groupPk" +
