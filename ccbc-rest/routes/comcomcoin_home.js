@@ -219,7 +219,7 @@ async function findHomeInformation(req, res) {
     // DB更新
     await insertOrUpdateOshiraseKidoku(db, tx, req, req.body.renban);
   })
-    .then((result) => {})
+    .then((result) => { })
     .catch((e) => {
       // ロールバックしたらこっち
       res.json({ status: false });
@@ -536,11 +536,10 @@ function getKijiList(db, req, mode) {
           " array_to_string(array(select '#' || hashtag from t_kiji_hashtag has where kij.t_kiji_pk = has.t_kiji_pk order by has.seq_no), '　') as hashtag_str," +
           " coalesce(res.cnt, 0) as res_cnt, t_response.post_dt as res_post_dt, t_response.post_tm as res_post_tm" +
           " from t_kiji kij" +
-          " inner join t_response_kidoku kid on kid.t_kiji_pk = kij.t_kiji_pk" +
-          " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
+          " inner join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
           " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
           " where (kij.t_shain_pk = :t_shain_pk" +
-          " and kid.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
+          " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
           " or (t_response.to_shain_pk = :t_shain_pk" +
           " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = t_response.t_kiji_pk and kid.t_shain_pk = t_response.to_shain_pk), 0))) midoku" +
           " order by res_post_dt desc, res_post_dt desc";
@@ -602,11 +601,10 @@ function getUnreadArticleMidoku(db, req) {
       "select distinct kij.t_kiji_pk, " +
       " coalesce(res.cnt, 0) as res_cnt" +
       " from t_kiji kij" +
-      " inner join t_response_kidoku kid on kid.t_kiji_pk = kij.t_kiji_pk" +
-      " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
+      " inner join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
       " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
       " where (kij.t_shain_pk = :t_shain_pk" +
-      " and kid.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
+      " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = kij.t_kiji_pk and kid.t_shain_pk = kij.t_shain_pk), 0))" +
       " or (t_response.to_shain_pk = :t_shain_pk" +
       " and t_response.t_response_pk > coalesce((select t_response_pk from t_response_kidoku kid where kid.t_kiji_pk = t_response.t_kiji_pk and kid.t_shain_pk = t_response.to_shain_pk), 0))";
     db.query(sql, {

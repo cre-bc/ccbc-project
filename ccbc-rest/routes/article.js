@@ -48,7 +48,7 @@ router.post("/findArticle", (req, res) => {
  * API : findResponse
  * 記事リスト（条件により絞り込み可能）を取得
  */
- router.post("/findResponse", (req, res) => {
+router.post("/findResponse", (req, res) => {
   console.log("API : findResponse - start");
   findResponseList(req, res);
   console.log("API : findResponse - end");
@@ -68,7 +68,7 @@ router.post("/edit", (req, res) => {
  * API : sendReply
  * 記事情報を登録（新規登録も編集も）
  */
- router.post("/sendReply", (req, res) => {
+router.post("/sendReply", (req, res) => {
   console.log("API : edit - start");
   sendReply(req, res);
   console.log("API : edit - end");
@@ -163,7 +163,7 @@ async function findArticleList(req, res) {
  * @param req リクエスト
  * @param res レスポンス
  */
- async function findResponseList(req, res) {
+async function findResponseList(req, res) {
   db = db2.sequelizeDB(req);
 
   // 返信リストの取得
@@ -175,7 +175,7 @@ async function findArticleList(req, res) {
   // レスポンスが1件以上存在する場合
   if (resdatas.length > 0) {
     // 自身のレスポンス既読を取得
-    const responseKidoku = await selectResponseKidoku(db, req);  
+    const responseKidoku = await selectResponseKidoku(db, req);
     var countResponseKidoku = responseKidoku[0].count
     // 最大レスポンスPKを取得
     const responsePk = await selectMaxResponsePk(db, req);
@@ -224,7 +224,7 @@ async function findArticleList(req, res) {
  * @param req リクエスト
  * @param res レスポンス
  */
- async function sendReply(req, res) {
+async function sendReply(req, res) {
   db = db2.sequelizeDB(req);
 
   db.transaction(async function (tx) {
@@ -234,7 +234,7 @@ async function findArticleList(req, res) {
     if (resMode === "insert") {
       t_response_pk = ret[0].t_response_pk;
       // 自身のレスポンス既読を取得
-      const responseKidoku = await selectResponseKidoku(db, req);  
+      const responseKidoku = await selectResponseKidoku(db, req);
       var countResponseKidoku = responseKidoku[0].count
       // レスポンス既読が存在する場合
       if (countResponseKidoku != 0) {
@@ -562,7 +562,11 @@ function selectKijiWithCond(db, req) {
       sqlcond_keyword +
       " order by kij.t_kiji_pk desc";
     if (req.body.expo_push_token != null && req.body.expo_push_token != "") {
-      sql += " limit " + READ_COUNT;
+      if (req.body.readLastKijiPk !== null && req.body.readLastKijiPk !== "") {
+        sql += " limit " + READ_COUNT;
+      } else {
+        sql += " limit :read_count";
+      }
     }
 
     db.query(sql, {
@@ -574,6 +578,7 @@ function selectKijiWithCond(db, req) {
           t_kiji_pk_read_last: req.body.readLastKijiPk,
           dt_from: req.body.searchCondYear + "/01/01",
           dt_to: req.body.searchCondYear + "/12/31",
+          read_count: (req.body.readCount == "" ? READ_COUNT : req.body.readCount),
         },
         param_hashtag,
         param_keyword
@@ -637,7 +642,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param tx トランザクション
  * @param req リクエスト
  */
- function insertOrUpdateResponse(db, tx, req) {
+function insertOrUpdateResponse(db, tx, req) {
   return new Promise((resolve, reject) => {
     var sql = "";
     if (req.body.resMode === "insert") {
@@ -681,7 +686,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param isInsert 追加の場合はtrue
  * @param maxResponsePk 最大レスポンスPK
  */
- function insertOrUpdateResponseKidoku(db, tx, req, isInsert, maxResponsePk) {
+function insertOrUpdateResponseKidoku(db, tx, req, isInsert, maxResponsePk) {
   return new Promise((resolve, reject) => {
     var sql = "";
     if (isInsert) {
@@ -716,7 +721,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param req リクエスト
  * @param isInsert 追加の場合はtrue
  */
- function insertOrUpdateKiji(db, tx, req, isInsert) {
+function insertOrUpdateKiji(db, tx, req, isInsert) {
   return new Promise((resolve, reject) => {
     var sql = "";
     if (isInsert) {
@@ -758,8 +763,8 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
  */
- function selectResponse(db, req) {
-  return new Promise((resolve, reject) => {  
+function selectResponse(db, req) {
+  return new Promise((resolve, reject) => {
     // レスポンス情報テーブルより条件を絞り込んで取得
     var sql =
       "select r.t_response_pk, r.t_kiji_pk, r.from_shain_pk, r.post_dt, r.post_tm, r.response, s.shimei, s.image_file_nm from t_response r" +
@@ -768,7 +773,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
       " order by r.t_response_pk";
 
     db.query(sql, {
-      replacements: {t_kiji_pk: req.body.searchCondKijiPk },
+      replacements: { t_kiji_pk: req.body.searchCondKijiPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : selectResponse result...");
@@ -783,7 +788,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
  */
- function selectCountKiji(db, req) {
+function selectCountKiji(db, req) {
   return new Promise((resolve, reject) => {
     console.log("★ start selectCountKiji");
     var sql =
@@ -809,7 +814,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
  */
- function selectMaxResponsePk(db, req) {
+function selectMaxResponsePk(db, req) {
   return new Promise((resolve, reject) => {
     console.log("★ start selectMaxResponsePk");
     var sql =
@@ -818,7 +823,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
       " and r.delete_flg = '0'"
 
     db.query(sql, {
-      replacements: {t_kiji_pk: req.body.searchCondKijiPk },
+      replacements: { t_kiji_pk: req.body.searchCondKijiPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
       console.log("DBAccess : selectMaxResponsePk result...");
@@ -832,7 +837,7 @@ function insertOrUpdateKiji(db, tx, req, isInsert) {
  * @param db SequelizeされたDBインスタンス
  * @param req リクエスト
  */
- function selectResponseKidoku(db, req) {
+function selectResponseKidoku(db, req) {
   return new Promise((resolve, reject) => {
     console.log("★ start selectResponseKidoku");
     var sql =
