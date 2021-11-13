@@ -688,7 +688,7 @@ class ChatForm extends React.Component {
     }
 
     // コイン数チェック
-    if (this.state.target_manager > this.state.bccoin) {
+    if (Number(this.state.target_manager) > Number(this.state.bccoin)) {
       window.alert("コインが不足しています");
       return;
     }
