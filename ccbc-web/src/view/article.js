@@ -147,7 +147,7 @@ class ArticleForm extends React.Component {
     mode: "",
     viewMode: "",
     resMode: "",
-    responseList:[],
+    responseList: [],
     resComment: "",
     resTarget: 0,
     resResponsPk: "",
@@ -302,7 +302,7 @@ class ArticleForm extends React.Component {
     var wkList = this.state.articleList[index];
     const selectKijiPk = wkList.t_kiji_pk;
     this.state.searchCondKijiPk = selectKijiPk;
-    this.setState({ 
+    this.setState({
       mode: "home",
       viewMode: "only",
       resMode: "insert"
@@ -639,12 +639,13 @@ class ArticleForm extends React.Component {
 
   /** 返信ボタン押下 */
   onClickReplyBtn = async (shimei, from_shain_pk) => {
-    this.setState({resComment: ''})
+    this.setState({ resComment: '' })
     this.setState({
       resComment: '>' + shimei + 'さん' + "\n",
       resTarget: from_shain_pk,
       resMode: "insert",
-      resResponsPk: ""})
+      resResponsPk: ""
+    })
     this.executeScroll();
   };
 
@@ -658,7 +659,7 @@ class ArticleForm extends React.Component {
     this.executeScroll();
   };
 
-  
+
   /** レス編集キャンセルボタン押下 */
   onClickReplyEditCancelBtn = async () => {
     this.setState({
@@ -670,7 +671,7 @@ class ArticleForm extends React.Component {
   };
 
   /** レス削除ボタン押下 */
-  onClickReplyDelBtn = async (t_response_pk,response) => {
+  onClickReplyDelBtn = async (t_response_pk, response) => {
     // 確認ダイアログを表示（YESの場合、send()を実行）
     this.setState({
       resResponsPk: t_response_pk,
@@ -685,11 +686,11 @@ class ArticleForm extends React.Component {
   handleReplyTextChange(e) {
     const target = e.target;
     const value = target.value;
-    this.setState({ resComment: value});
+    this.setState({ resComment: value });
     // レスコメントが空の場合
     if (value == "") {
       // レス先を空にセット
-      this.setState({resTarget: 0})
+      this.setState({ resTarget: 0 })
     }
   };
 
@@ -724,7 +725,7 @@ class ArticleForm extends React.Component {
     //垂直方向へ移動
     window.scroll(0, bottom);
   }
-  
+
   /** データ更新処理 */
   send = async () => {
     this.setState({ confirmDialogVisible: false });
@@ -737,16 +738,16 @@ class ArticleForm extends React.Component {
           alert("コメント送信でエラーが発生しました");
           return;
         }
-      // コメントリスト取得
-      this.readResponse();
-      this.setState({ 
-        resComment: "",
-        resMode: "insert",
-        resTarget: 0,
-        resResponsPk: "",
-        deleteConfirmDialogVisible: false
-      });;
-    });
+        // コメントリスト取得
+        this.readResponse();
+        this.setState({
+          resComment: "",
+          resMode: "insert",
+          resTarget: 0,
+          resResponsPk: "",
+          deleteConfirmDialogVisible: false
+        });;
+      });
 
   };
 
@@ -899,13 +900,13 @@ class ArticleForm extends React.Component {
     }
     // レスポンス制御
     this.setState({
-      
+
       viewMode: "multi",
       resComment: "",
       resMode: "insert",
       resTarget: 0,
       resResponsPk: "",
-      responseList:[]
+      responseList: []
     })
 
     // 記事リスト取得
@@ -1210,13 +1211,13 @@ class ArticleForm extends React.Component {
                               className={classes.button2}
                             >
                               <Search className={classes.extendedIcon} />
-                                検索
+                              検索
                             </Button>
                           );
                         }
                       })()}
                       {"　 "}
-                      {!this.state.speCategoryFlg && this.state.viewMode == "multi" &&(
+                      {!this.state.speCategoryFlg && this.state.viewMode == "multi" && (
                         <Button
                           onClick={this.handleOpenEntry}
                           variant="raised"
@@ -1389,7 +1390,7 @@ class ArticleForm extends React.Component {
                                   </div>
                                 );
                               }
-                             })()}
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -1401,7 +1402,18 @@ class ArticleForm extends React.Component {
                             wordBreak: "break-all",
                           }}
                         >
-                          <Linkify properties={{ target: "_blank" }}>
+                          <Linkify
+                            componentDecorator={(decoratedHref, decoratedText, key) => (
+                              <a
+                                target="blank"
+                                rel="noopener noreferrer"
+                                href={decoratedHref}
+                                key={key}
+                              >
+                                {decoratedText}
+                              </a>
+                            )}
+                          >
                             {item.contents}
                           </Linkify>
                         </span>
@@ -1452,7 +1464,7 @@ class ArticleForm extends React.Component {
                 {/* -- レス表示（繰り返し） -- */}
                 {this.state.responseList.map((item, i) => {
                   return (
-                    <Card containerStyle={{ marginTop: -1, marginBottom: 0, }}　className={classes.responseCard} key={i}>
+                    <Card containerStyle={{ marginTop: -1, marginBottom: 0, }} className={classes.responseCard} key={i}>
                       {/* 顔写真 */}
                       <div style={{ float: "left", paddingRight: 50 }}>
                         <div style={{ align: "center", paddingLeft: 10 }}>
@@ -1505,13 +1517,13 @@ class ArticleForm extends React.Component {
                                   )}
                                 />
                               );
-                            } else if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk == item.t_response_pk && this.state.resMode !== "delete"){
+                            } else if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk == item.t_response_pk && this.state.resMode !== "delete") {
                               return (
                                 <CancelIcon
                                   style={{ fontSize: 30, cursor: "pointer" }}
                                   onClick={this.onClickReplyEditCancelBtn.bind()}
                                 />
-                              );                              
+                              );
                             }
                           })()}
                         </div>
@@ -1556,7 +1568,18 @@ class ArticleForm extends React.Component {
                             wordBreak: "break-all",
                           }}
                         >
-                          <Linkify properties={{ target: "_blank" }}>
+                          <Linkify
+                            componentDecorator={(decoratedHref, decoratedText, key) => (
+                              <a
+                                target="blank"
+                                rel="noopener noreferrer"
+                                href={decoratedHref}
+                                key={key}
+                              >
+                                {decoratedText}
+                              </a>
+                            )}
+                          >
                             {item.response}
                           </Linkify>
                         </span>
@@ -1568,46 +1591,44 @@ class ArticleForm extends React.Component {
                 {(() => {
                   if (this.state.viewMode == "only") {
                     return (
-                        <Card containerStyle={{ marginTop: -1, marginBottom: 0, }}　className={classes.responseCard}>
-                          {(() => {
-                            if (this.state.resMode == "edit") {
-                              return (
-                                <div style={{ fontSize: 12, color: '#0000FF', paddingTop: 30, clear: "both" }}>
+                      <Card containerStyle={{ marginTop: -1, marginBottom: 0, }} className={classes.responseCard}>
+                        {(() => {
+                          if (this.state.resMode == "edit") {
+                            return (
+                              <div style={{ fontSize: 12, color: '#0000FF', paddingTop: 30, clear: "both" }}>
                                 <span
                                   style={{
                                     whiteSpace: "pre-wrap",
                                     wordBreak: "break-all",
                                   }}
                                 >
-                                  <Linkify properties={{ target: "_blank" }}>
-                                    編集モード
-                                  </Linkify>
+                                  編集モード
                                 </span>
                               </div>
-                              );
-                            }
-                          })()}
-                          <TextField
-                            id="resComment"
-                            name="resComment"
-                            margin="normal"
-                            label={`コメント（${CHAR_LEN_CONTENTS}文字以内）`}
-                            multiline
-                            rows="5"
-                            fullWidth
-                            value={this.state.resComment}
-                            onChange={this.handleInputChange.bind(this)}
-                          />
-                          <Button
-                            onClick={this.onSendReplyBtn}
-                            variant="raised"
-                            color="default"
-                            className={classes.button2}
-                          >
-                            <CreateIcon className={classes.extendedIcon} />
-                            送信
-                          </Button>
-                        </Card>                    
+                            );
+                          }
+                        })()}
+                        <TextField
+                          id="resComment"
+                          name="resComment"
+                          margin="normal"
+                          label={`コメント（${CHAR_LEN_CONTENTS}文字以内）`}
+                          multiline
+                          rows="5"
+                          fullWidth
+                          value={this.state.resComment}
+                          onChange={this.handleInputChange.bind(this)}
+                        />
+                        <Button
+                          onClick={this.onSendReplyBtn}
+                          variant="raised"
+                          color="default"
+                          className={classes.button2}
+                        >
+                          <CreateIcon className={classes.extendedIcon} />
+                          送信
+                        </Button>
+                      </Card>
                     );
                   }
                 })()}
@@ -2007,9 +2028,10 @@ class ArticleForm extends React.Component {
                 </Button>
                 <Button
                   onClick={() => {
-                    this.setState({ 
+                    this.setState({
                       deleteConfirmDialogVisible: false,
-                      resMode: "insert" });
+                      resMode: "insert"
+                    });
                   }}
                   color="primary"
                 >
