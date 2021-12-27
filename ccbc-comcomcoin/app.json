@@ -4,7 +4,6 @@
     "icon": "./images/app-icon.png",
     "version": "1.0.14",
     "slug": "comcomcoin",
-    "sdkVersion": "40.0.0",
     "ios": {
       "bundleIdentifier": "com.creativeconsultant.comcomcoin",
       "infoPlist": {

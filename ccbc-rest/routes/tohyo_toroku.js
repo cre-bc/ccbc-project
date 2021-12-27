@@ -4,6 +4,7 @@ const router = express.Router();
 const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
+var mainte = require("./common/maintenance_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
 const jimuAccount = require("./common/constans.js").jimuAccount;
 const jimuPassword = require("./common/constans.js").jimuPassword;
@@ -12,7 +13,13 @@ const jimuShainPk = require("./common/constans.js").jimuShainPk;
 /**
  * 投票登録_DB読み込み（初期表示時）
  */
-router.post("/find", (req, res) => {
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   var sql =
     "select tsen.t_senkyo_pk as t_senkyo_pk, tsen.senkyo_nm as senkyo_nm, tsen.tohyo_kaishi_dt as tohyo_kaishi_dt," +
     " tsen.tohyo_shuryo_dt as tohyo_shuryo_dt, tsen.haifu_coin as haifu_coin, tsen.config_coin as config_coin, tpre.t_presenter_pk as t_presenter_pk, " +
@@ -37,8 +44,6 @@ router.post("/find", (req, res) => {
     replacements: { mypk: req.body.tShainPk },
     type: db.QueryTypes.RAW,
   }).spread((datas, metadata) => {
-    console.log("★★★");
-    console.log(datas);
     res.json({ status: true, data: datas });
   });
 });
@@ -46,8 +51,13 @@ router.post("/find", (req, res) => {
 /**
  * 投票登録_DB登録
  */
-router.post("/create", (req, res) => {
-  console.log("◆◆◆");
+router.post("/create", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   var resultList = req.body.resultList;
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
@@ -64,9 +74,7 @@ router.post("/create", (req, res) => {
     replacements: { mytoken: req.body.tokenId },
     type: db.QueryTypes.RAW,
   }).spread(async (datas, metadata) => {
-    console.log(datas);
     if (datas.length == 0) {
-      console.log("トークンチェックエラー");
       res.json({ status: false });
       return;
     }
@@ -77,7 +85,6 @@ router.post("/create", (req, res) => {
     // var haifu_coin = resultList[0].config_coin * 50 * resultList.length
     for (var i in resultList) {
       var resdata = resultList[i];
-      console.log("◆１");
       var sum_coin =
         (req.body.activeStep1[i] +
           req.body.activeStep2[i] +
@@ -107,34 +114,9 @@ router.post("/create", (req, res) => {
       );
     }
 
-    // 投票のコインの流れを修正（旧：事務局→出席者→発表者、新：事務局→発表者）
-    // ※事務局から直接配布するため、余りコインの返却は発生しない
-    // console.log('★事務局返却コイン：' + haifu_coin)
-    // if (haifu_coin > 0) {
-    //   // コイン返却
-    //   var datas = await selectKanrisha(tx, req)
-    //   var transaction_id = await bcrequest(
-    //     req,
-    //     resultList[0].from_account,
-    //     datas[0].bc_account,
-    //     haifu_coin
-    //   )
-    //   await insertZoyo(
-    //     tx,
-    //     resultList[0].from_t_shain_pk,
-    //     datas[0].t_shain_pk,
-    //     resultList[0].senkyo_nm,
-    //     req.body.userid,
-    //     transaction_id,
-    //     req
-    //   )
-    // }
-
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -182,8 +164,6 @@ function insertTohyo(tx, resdatas, resdata, req, i) {
         req.body.userid,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆３");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas[0].t_tohyo_pk);
     });
@@ -210,13 +190,12 @@ function bcrequest(req, from, to, sum_coin) {
       .post(bcdomain + "/bc-api/send_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
         // 検索結果表示
-        console.log("★★★" + res);
+        // console.log("★★★" + res);
         return resolve(res.body.transaction[0]);
       });
   });
@@ -240,7 +219,6 @@ function updateTohyo(tx, t_tohyo_pk, transaction_id, req) {
       transaction: tx,
       replacements: [transaction_id, t_tohyo_pk],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });
@@ -275,7 +253,6 @@ function insertZoyo(
         userid,
       ],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas[0].t_zoyo_pk);
     });
   });
@@ -294,7 +271,6 @@ function selectKanrisha(tx, req) {
     db.query(sql, {
       transaction: tx,
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });

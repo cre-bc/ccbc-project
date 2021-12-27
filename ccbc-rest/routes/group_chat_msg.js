@@ -4,25 +4,44 @@ const router = express.Router();
 const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
+var mainte = require("./common/maintenance_helper.js");
 
 /**
  * チャット_初期表示
  */
-router.post("/find", (req, res) => {
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   findData(req, res);
 });
 
 /**
  * チャット_既読更新
  */
-router.post("/kidoku_update", (req, res) => {
+router.post("/kidoku_update", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   updateKidoku(req, res);
 });
 
 /**
  * チャット_DB登録
  */
-router.post("/create", (req, res) => {
+router.post("/create", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   var userid = req.body.userid;
   var chatGroupPk = req.body.chatGroupPk;
   var myPk = req.body.loginShainPk;
@@ -57,8 +76,6 @@ router.post("/create", (req, res) => {
  * @param {*} res
  */
 async function findData(req, res) {
-  console.log("★findData★");
-  console.log(req.body.chatGroupPk);
   var resultData = [];
   var resultMemberData = [];
   var chatPk = [];
@@ -109,8 +126,6 @@ async function findData(req, res) {
     }
   }
 
-  // console.log(resultData);
-
   res.json({
     status: true,
     data: resultData,
@@ -126,8 +141,6 @@ async function findData(req, res) {
  * @param {*} res
  */
 async function updateKidoku(req, res) {
-  console.log("★updateKidoku★");
-
   var chatPk = [];
   var resultKidokuData = [];
   var resultKidokuData2 = [];
@@ -162,12 +175,10 @@ async function updateKidoku(req, res) {
     resultKidokuData2 = await chatKidokuMemberGet(req, myPk, chatGroupPk);
 
     if (resultKidokuData.length === 0) {
-      console.log("チャット既読insert（本人）");
       // チャット既読テーブルinsert（本人）
       await insertChatKidoku(req, userid, myPk, chatGroupPk);
     }
     if (resultKidokuData2.length === 0) {
-      console.log("チャット既読insert（本人以外）");
       // チャット既読テーブルinsert（本人以外）
       await insertChatKidokuMember(req, userid, myPk, chatGroupPk);
     }
@@ -184,7 +195,6 @@ async function updateKidoku(req, res) {
  */
 async function chatMsgGet(req, chatGroupPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatMsgGet★");
     var sql =
       "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, s.image_file_nm, s.user_id, s.shimei" +
       " from t_chat c" +
@@ -202,7 +212,6 @@ async function chatMsgGet(req, chatGroupPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatMsgGet");
       return resolve(datas);
     });
   });
@@ -217,7 +226,6 @@ async function chatMsgGet(req, chatGroupPk) {
  */
 async function groupMemberGet(req, chatGroupPk, myPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start groupMemberGet");
     var sql =
       "select s.t_shain_pk,s.shimei, s.image_file_nm, s.expo_push_token from t_chat_group g " +
       "inner join t_chat_group_member cg on g.t_chat_group_pk = cg.t_chat_group_pk " +
@@ -236,7 +244,6 @@ async function groupMemberGet(req, chatGroupPk, myPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatMsgGet");
       return resolve(datas);
     });
   });
@@ -249,7 +256,6 @@ async function groupMemberGet(req, chatGroupPk, myPk) {
  */
 async function chatKidokuGet(req, myPk, chatGroupPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatKidokuGet");
     var sql =
       "select k.t_chat_pk as kidoku_pk from t_chat_kidoku k" +
       " where k.t_shain_pk = :myPk" +
@@ -266,7 +272,6 @@ async function chatKidokuGet(req, myPk, chatGroupPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatKidokuGet");
       return resolve(datas);
     });
   });
@@ -279,7 +284,6 @@ async function chatKidokuGet(req, myPk, chatGroupPk) {
  */
 async function chatKidokuMemberGet(req, myPk, chatGroupPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatKidokuMemberGet");
     var sql =
       "select k.t_chat_pk as kidoku_pk from t_chat_kidoku k" +
       " where k.t_shain_pk <> :myPk" +
@@ -296,7 +300,6 @@ async function chatKidokuMemberGet(req, myPk, chatGroupPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatKidokuMemberGet");
       return resolve(datas);
     });
   });
@@ -309,7 +312,6 @@ async function chatKidokuMemberGet(req, myPk, chatGroupPk) {
  */
 async function chatPkGet(req, chatGroupPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatPkGet");
     var sql =
       "select max(c.t_chat_pk)" +
       " from t_chat c " +
@@ -325,7 +327,6 @@ async function chatPkGet(req, chatGroupPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatPkGet");
       return resolve(datas);
     });
   });
@@ -338,7 +339,6 @@ async function chatPkGet(req, chatGroupPk) {
  */
 async function fromShainPkGet(req, maxChatPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start fromShainPkGet");
     var sql = "select from_shain_pk from t_chat c where t_chat_pk = :chatPk";
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
@@ -351,7 +351,6 @@ async function fromShainPkGet(req, maxChatPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatPkGet");
       return resolve(datas);
     });
   });
@@ -371,8 +370,6 @@ async function updateChatKidoku(
   userid
 ) {
   return new Promise((resolve, reject) => {
-    console.log("★ start updateChatKidoku★");
-    console.log(myPk);
     var sql =
       "update t_chat_kidoku set t_chat_pk = :chatPk, from_shain_pk = :fromPk, update_user_id = :userId, update_tm = current_timestamp" +
       " where t_shain_pk = :myShainPK" +
@@ -392,7 +389,6 @@ async function updateChatKidoku(
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End updateChatKidoku★");
       return resolve(datas);
     });
   });
@@ -417,7 +413,6 @@ function insertChatKidoku(req, userid, myPk, chatGroupPk) {
     db.query(sql, {
       replacements: [myPk, 0, 0, userid, null, null, chatGroupPk],
     }).spread((datas, metadata) => {
-      // console.log(datas);
       return resolve(datas);
     });
   });
@@ -445,7 +440,6 @@ function insertChatKidokuMember(req, userid, myPk, chatGroupPk) {
     db.query(sql, {
       replacements: [0, 0, userid, null, null, chatGroupPk, myPk],
     }).spread((datas, metadata) => {
-      // console.log(datas);
       return resolve(datas);
     });
   });
@@ -482,7 +476,6 @@ function insertChat(tx, req) {
         req.body.chatGroupPk,
       ],
     }).spread((datas, metadata) => {
-      // console.log(datas);
       return resolve(datas[0].t_chat_pk);
     });
   });

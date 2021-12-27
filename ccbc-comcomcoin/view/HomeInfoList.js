@@ -51,7 +51,11 @@ export default class HomeInfoList extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -62,22 +66,8 @@ export default class HomeInfoList extends BaseComponent {
           });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   }
-
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
 
   render() {
     return (

@@ -5,13 +5,14 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
 
-router.post("/find", (req, res) => {
-  // console.log('----------')
-  // console.log('id:' + req.body.id)
-  // console.log('db_name:' + req.body.db_name)
-  // console.log('saveFlg:' + req.body.saveFlg)
-  // console.log('----------')
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
 
   var sql =
     "select s.t_shain_pk, s.user_id, s.shimei, s.image_file_nm, s.kengen_cd, s.bc_account ,g.t_chat_group_pk from t_shain s" +
@@ -27,29 +28,13 @@ router.post("/find", (req, res) => {
     replacements: { mypk: req.body.id },
     type: db.QueryTypes.RAW,
   }).spread(async (datas, metadata) => {
-    // console.log('----------')
-    // console.log(datas)
-    // console.log('----------')
-
     // ユーザ情報が取得できない場合は終了
     if (datas == "") {
       res.json({ status: false });
       return;
     }
 
-    // console.log('----------')
-    // console.log(datas[0].user_id)
-    // console.log(datas[0].shimei)
-    // console.log(datas[0].image_file_nm)
-    // console.log(datas[0].bc_account)
-    // console.log('----------')
-
     var result = await bcrequest(req, datas);
-
-    // console.log('----------')
-    // console.log('result:' + result)
-    // console.log('----------')
-
     if (result == true) {
       // res.json({ status: true, data: datas })
 
@@ -64,16 +49,11 @@ router.post("/find", (req, res) => {
       for (var i = 0; i < l; i++) {
         r += c[Math.floor(Math.random() * cl)];
       }
-      // console.log('----------')
-      // console.log('トークン:' + r)
-      // console.log('----------')
       db.transaction(async function (tx) {
         await tokenUpdate(tx, req, r);
         res.json({ status: true, data: datas, token: r });
       })
         .then((result) => {
-          // コミットしたらこっち
-          console.log("正常");
         })
         .catch((e) => {
           // ロールバックしたらこっち
@@ -107,7 +87,7 @@ function bcrequest(req, datas) {
           return;
         }
         // 検索結果表示
-        console.log("bcrequest:" + res);
+        // console.log("bcrequest:" + res);
         return resolve(res.body.result);
       });
   });
@@ -137,16 +117,10 @@ function tokenUpdate(tx, req, token) {
       transaction: tx,
       replacements: param,
     }).spread((datas, metadata) => {
-      // console.log(datas)
       return resolve(datas);
     });
   });
 }
-
-router.post("/chatGroupFind", (req, res) => {
-  console.log(req.params);
-  findData(req, res);
-});
 
 /**
  * データ取得用関数
@@ -158,7 +132,6 @@ async function findData(req, res) {
   var resultData = [];
   // チャットグループを取得
   resultData = await chatGroupGet(req);
-  // console.log(resultData);
   res.json({ status: true, chatGroupData: resultData });
 }
 

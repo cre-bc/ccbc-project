@@ -11,10 +11,11 @@ import {
 import { Header, Button, Icon, ListItem } from 'react-native-elements'
 import moment from 'moment'
 import 'moment/locale/ja'
+import BaseComponent from "./components/BaseComponent"
 
 const restdomain = require('./common/constans.js').restdomain
 
-export default class TohyoIchiran extends Component {
+export default class TohyoIchiran extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
@@ -27,40 +28,13 @@ export default class TohyoIchiran extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-
-    var groupInfo = await this.getGroupInfo()
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
 
     // 初期表示情報取得
     this.findTohyoIchiran()
   }
 
-  getGroupInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
-  }
   onPressLogoutButton = () => {
     AsyncStorage.removeItem('groupInfo')
     this.props.navigation.navigate('LoginGroup')
@@ -81,7 +55,11 @@ export default class TohyoIchiran extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -91,7 +69,7 @@ export default class TohyoIchiran extends Component {
           this.setState({ resultList: dataList })
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
   // 投票照会画面遷移
   onPressTohyoShokaiButton = (e, senkyoNm, tSenkyoPk) => {

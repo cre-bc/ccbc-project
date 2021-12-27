@@ -246,20 +246,6 @@ export default class ArticleEntry extends BaseComponent {
     });
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   getPermissionAsync = async () => {
     if (Platform.OS === "ios") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -399,7 +385,7 @@ export default class ArticleEntry extends BaseComponent {
             }
           }.bind(this)
         )
-        .catch((error) => alert(error));
+        .catch((error) => this.errorApi(error));
     }
   }
 
@@ -441,7 +427,11 @@ export default class ArticleEntry extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           this.setState({ isProcessing: false });
           if (!json.status) {
             alert("投稿処理でエラーが発生しました");
@@ -461,7 +451,7 @@ export default class ArticleEntry extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => alert(error));
+      .catch((error) => this.errorApi(error));
 
     this.setState({ isProcessing: false });
   };

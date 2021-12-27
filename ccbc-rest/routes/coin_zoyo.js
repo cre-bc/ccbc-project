@@ -5,10 +5,16 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
 
-router.post("/find", (req, res) => {
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   finddata(req, res);
-  console.log("end");
 });
 
 /**
@@ -28,9 +34,6 @@ async function finddata(req, res) {
   bccoin = await bccoinget(param);
   shimei = resdatas[0].fromshimei;
   bcaccount = resdatas[0].fromshimei;
-  console.log(bccoin);
-  console.log(resdatas);
-  console.log(shimei);
   res.json({
     status: true,
     data: resdatas,
@@ -58,10 +61,6 @@ function tShainGet(req) {
       replacements: { mypk: req.body.tShainPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("★★★");
-      console.log(datas);
-      console.log(datas[0].from_bc_account);
-
       return resolve(datas);
     });
   });
@@ -77,19 +76,22 @@ function bccoinget(param) {
       .post(bcdomain + "/bc-api/get_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
-        console.log("★★★" + res.body.coin);
         return resolve(res.body.coin);
       });
   });
 }
 
-router.post("/create", (req, res) => {
-  console.log("◆◆◆");
+router.post("/create", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -105,9 +107,7 @@ router.post("/create", (req, res) => {
     replacements: { mytoken: req.body.tokenId },
     type: db.QueryTypes.RAW,
   }).spread(async (datas, metadata) => {
-    console.log(datas);
     if (datas.length == 0) {
-      console.log("トークンチェックエラー");
       res.json({ status: false });
       return;
     }
@@ -121,8 +121,6 @@ router.post("/create", (req, res) => {
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -158,8 +156,6 @@ function tZoyoInsert(tx, resdatas, req) {
         req.body.userid,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆6");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -178,18 +174,16 @@ function bcrequest(req) {
       coin: [req.body.zoyoCoin],
       bc_addr: req.body.bc_addr,
     };
-    console.log("★★★");
     request
       .post(bcdomain + "/bc-api/send_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
         // 検索結果表示
-        console.log("★★★" + res.body.transaction);
+        // console.log("★★★" + res.body.transaction);
         return resolve(res.body.transaction[0]);
       });
   });
@@ -213,7 +207,6 @@ function dbupdate(tx, transaction_id, req) {
       transaction: tx,
       replacements: [transaction_id],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });

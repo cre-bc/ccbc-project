@@ -118,20 +118,6 @@ export default class ArticleRefer extends BaseComponent {
     await this.readArticle(true);
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   readArticle = async (isFirst) => {
     // 記事API.記事リスト取得処理の呼び出し
     await fetch(restdomain + "/article/findArticle", {
@@ -144,7 +130,11 @@ export default class ArticleRefer extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (typeof json.data === "undefined") {
             // 結果が取得できない場合は終了
             this.setState({ isProcessing: false });
@@ -177,7 +167,7 @@ export default class ArticleRefer extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
 
     this.setState({ isProcessing: false });
   };
@@ -194,7 +184,11 @@ export default class ArticleRefer extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (typeof json.data === "undefined") {
             // 結果が取得できない場合は終了
             this.setState({ isProcessing: false });
@@ -203,10 +197,14 @@ export default class ArticleRefer extends BaseComponent {
             var resultList = json.data;
             this.setState({ isProcessing: false });
             this.setState({ responseList: resultList });
+
+            this.state.readLastKijiPk = ""
+            // 記事リスト取得
+            await this.readArticle(true);
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
     this.setState({ isProcessing: false });
   };
 
@@ -324,6 +322,9 @@ export default class ArticleRefer extends BaseComponent {
         responseList: [],
         readLastKijiPk: ""
       })
+      this.state.readLastKijiPk = ""
+      // 記事リスト取得
+      await this.readArticle(true);
     } else {
       // コメント閉じる→開くの場合
       // コメント対象の記事情報を設定
@@ -339,9 +340,6 @@ export default class ArticleRefer extends BaseComponent {
       // コメントリスト取得
       await this.readResponse();
     }
-    this.state.readLastKijiPk = ""
-    // 記事リスト取得
-    await this.readArticle(true);
 
     this.setState({ isLoading: false });
     // if (this.nodeRef) {
@@ -458,27 +456,30 @@ export default class ArticleRefer extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           this.setState({ isProcessing: false });
           if (!json.status) {
             alert("返信でエラーが発生しました");
           } else {
-
+            // コメントリスト取得
+            await this.readResponse();
+            this.setState({
+              isProcessing: false,
+              resComment: "",
+              resMode: "insert",
+              colorStyle: "#ffffff",
+              resResponsPk: "",
+              resTarget: "0"
+            });
+            await this.readArticle(true)
           }
         }.bind(this)
       )
-      .catch((error) => alert(error));
-    // コメントリスト取得
-    await this.readResponse();
-    this.setState({
-      isProcessing: false,
-      resComment: "",
-      resMode: "insert",
-      colorStyle: "#ffffff",
-      resResponsPk: "",
-      resTarget: "0"
-    });
-    await this.readArticle(true)
+      .catch((error) => this.errorApi(error));
   };
 
   /** お気に入りボタン押下 */
@@ -506,8 +507,13 @@ export default class ArticleRefer extends BaseComponent {
       .then(function (response) {
         return response.json();
       })
-      .then(function (json) { }.bind(this))
-      .catch((error) => console.error(error));
+      .then(async function (json) {
+        // API戻り値の確認
+        if (!await this.checkApiResult(json)) {
+          return;
+        }
+      }.bind(this))
+      .catch((error) => this.errorApi(error));
   };
 
   /** スクロール最下部到達（次の記事の読み込み） */

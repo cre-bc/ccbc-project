@@ -8,6 +8,7 @@ const bcdomain = require("./common/constans.js").bcdomain;
 const jimuAccount = require("./common/constans.js").jimuAccount;
 const jimuPassword = require("./common/constans.js").jimuPassword;
 const jimuShainPk = require("./common/constans.js").jimuShainPk;
+var mainte = require("./common/maintenance_helper.js");
 
 var multer = require("multer");
 var storage = multer.diskStorage({
@@ -28,50 +29,70 @@ const READ_COUNT = 10;
  * API : findCategory
  * 記事カテゴリ一覧（カテゴリ別、未読件数付き）を取得
  */
-router.post("/findCategory", (req, res) => {
-  console.log("API : findCategory - start");
+router.post("/findCategory", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   findCategoryList(req, res);
-  console.log("API : findCategory - end");
 });
 
 /**
  * API : findArticle
  * 記事リスト（条件により絞り込み可能）を取得
  */
-router.post("/findArticle", (req, res) => {
-  console.log("API : findArticle - start");
+router.post("/findArticle", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   findArticleList(req, res);
-  console.log("API : findArticle - end");
 });
 
 /**
  * API : findResponse
  * 記事リスト（条件により絞り込み可能）を取得
  */
-router.post("/findResponse", (req, res) => {
-  console.log("API : findResponse - start");
+router.post("/findResponse", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   findResponseList(req, res);
-  console.log("API : findResponse - end");
 });
 
 /**
  * API : edit
  * 記事情報を登録（新規登録も編集も）
  */
-router.post("/edit", (req, res) => {
-  console.log("API : edit - start");
+router.post("/edit", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   edit(req, res);
-  console.log("API : edit - end");
 });
 
 /**
  * API : sendReply
  * 記事情報を登録（新規登録も編集も）
  */
-router.post("/sendReply", (req, res) => {
-  console.log("API : edit - start");
+router.post("/sendReply", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   sendReply(req, res);
-  console.log("API : edit - end");
 });
 
 /**
@@ -79,31 +100,37 @@ router.post("/sendReply", (req, res) => {
  * 記事情報のファイルをアップロード
  */
 router.post("/upload", upload.fields([{ name: "image" }]), (req, res) => {
-  console.log("API : upload - start");
   res.json({
     status: true,
   });
-  console.log("API : upload - end");
 });
 
 /**
  * API : good
  * 記事情報をいいね登録（登録も解除も）
  */
-router.post("/good", (req, res) => {
-  console.log("API : good - start");
+router.post("/good", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   good(req, res);
-  console.log("API : good - end");
 });
 
 /**
  * API : favorite
  * 記事情報をお気に入り登録（登録も解除も）
  */
-router.post("/favorite", (req, res) => {
-  console.log("API : favorite - start");
+router.post("/favorite", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   favorite(req, res);
-  console.log("API : favorite - end");
 });
 
 // ----------------------------------------------------------------------
@@ -147,8 +174,6 @@ async function findArticleList(req, res) {
       await insertOrUpdateKijiKidoku(db, tx, req, kijiPk, kijiCategoryPk);
     })
       .then((result) => {
-        // コミットしたらこっち
-        console.log("findArticleList : 正常");
       })
       .catch((e) => {
         // ロールバックしたらこっち
@@ -176,7 +201,7 @@ async function findResponseList(req, res) {
   if (resdatas.length > 0) {
     // 自身のレスポンス既読を取得
     const responseKidoku = await selectResponseKidoku(db, req);
-    var countResponseKidoku = responseKidoku[0].count
+    var countResponseKidoku = responseKidoku[0].count;
     // 最大レスポンスPKを取得
     const responsePk = await selectMaxResponsePk(db, req);
     var maxResponsePk = responsePk[0].max;
@@ -187,8 +212,6 @@ async function findResponseList(req, res) {
         await insertOrUpdateResponseKidoku(db, tx, req, false, maxResponsePk);
       })
         .then((result) => {
-          // コミットしたらこっち
-          console.log("insertOrUpdateResponseKidoku : 正常");
         })
         .catch((e) => {
           // ロールバックしたらこっち
@@ -206,8 +229,6 @@ async function findResponseList(req, res) {
           await insertOrUpdateResponseKidoku(db, tx, req, true, maxResponsePk);
         })
           .then((result) => {
-            // コミットしたらこっち
-            console.log("findArticleList : 正常");
           })
           .catch((e) => {
             // ロールバックしたらこっち
@@ -228,14 +249,13 @@ async function sendReply(req, res) {
   db = db2.sequelizeDB(req);
 
   db.transaction(async function (tx) {
-
     var ret = await insertOrUpdateResponse(db, tx, req);
-    var resMode = req.body.resMode
+    var resMode = req.body.resMode;
     if (resMode === "insert") {
       t_response_pk = ret[0].t_response_pk;
       // 自身のレスポンス既読を取得
       const responseKidoku = await selectResponseKidoku(db, req);
-      var countResponseKidoku = responseKidoku[0].count
+      var countResponseKidoku = responseKidoku[0].count;
       // レスポンス既読が存在する場合
       if (countResponseKidoku != 0) {
         db.transaction(async function (tx) {
@@ -243,8 +263,6 @@ async function sendReply(req, res) {
           await insertOrUpdateResponseKidoku(db, tx, req, false, t_response_pk);
         })
           .then((result) => {
-            // コミットしたらこっち
-            console.log("insertOrUpdateResponseKidoku : 正常");
           })
           .catch((e) => {
             // ロールバックしたらこっち
@@ -257,8 +275,6 @@ async function sendReply(req, res) {
           await insertOrUpdateResponseKidoku(db, tx, req, true, t_response_pk);
         })
           .then((result) => {
-            // コミットしたらこっち
-            console.log("insertOrUpdateResponseKidoku : 正常");
           })
           .catch((e) => {
             // ロールバックしたらこっち
@@ -267,46 +283,8 @@ async function sendReply(req, res) {
           });
       }
     }
-
-    // // 記事ハッシュタグテーブルの更新（delete and insert）
-    // if (!isInsert) {
-    //   await deleteKijiHashtag(db, tx, req);
-    // }
-    // if (req.body.hashtag_str !== "") {
-    //   var hashtag = req.body.hashtag_str
-    //     .replace("　", " ")
-    //     .replace("　", " ")
-    //     .split(" ");
-    //   var seq = 0;
-    //   for (var i in hashtag) {
-    //     if (hashtag[i] !== "") {
-    //       var kijiHashtag = {
-    //         t_kiji_pk: req.body.t_kiji_pk,
-    //         seq_no: seq++,
-    //         t_kiji_category_pk: req.body.t_kiji_category_pk,
-    //         hashtag: hashtag[i],
-    //       };
-    //       await insertKijiHashtag(db, tx, req, kijiPk, kijiHashtag);
-    //     }
-    //   }
-    // }
-
-    // // 贈与テーブルの追加と、記事テーブルに贈与PKを更新
-    // if (isInsert) {
-    //   // BCへの書き込み
-    //   const transactionId = await bcrequest(req);
-
-    //   // 贈与テーブルの追加
-    //   var ret = await insertZoyo(db, tx, req, transactionId);
-    //   const zoyoPk = ret[0].t_zoyo_pk;
-
-    //   // 記事テーブルの更新
-    //   await updateKijiAfterZoyo(db, tx, req, kijiPk, zoyoPk);
-    // }
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("edit : 正常");
       res.json({ status: true });
     })
     .catch((e) => {
@@ -373,8 +351,6 @@ async function edit(req, res) {
     }
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("edit : 正常");
       res.json({ status: true });
     })
     .catch((e) => {
@@ -396,8 +372,6 @@ async function good(req, res) {
     await insertOrUpdateGood(db, tx, req);
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("good : 正常");
       res.json({ status: true });
     })
     .catch((e) => {
@@ -419,8 +393,6 @@ async function favorite(req, res) {
     await insertOrUpdateFavorite(db, tx, req);
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("favorite : 正常");
       res.json({ status: true });
     })
     .catch((e) => {
@@ -440,7 +412,7 @@ function selectKijiCategory(db, req) {
   return new Promise((resolve, reject) => {
     // 記事カテゴリテーブルの情報と、記事の未読件数（記事既読テーブルに登録されているIDより新しいIDの件数）を一緒に取得
     var sql =
-      "select cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg, count(kij.t_kiji_pk) AS midoku_cnt" +
+      "select cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg, cat.category_file_path, count(kij.t_kiji_pk) AS midoku_cnt" +
       " from t_kiji_category cat" +
       " left join t_kiji_kidoku kid" +
       " on cat.t_kiji_category_pk = kid.t_kiji_category_pk" +
@@ -456,8 +428,6 @@ function selectKijiCategory(db, req) {
       replacements: { shain_pk: req.body.loginShainPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectKijiCategory result...");
-      // console.log(datas)
       return resolve(datas);
     });
   });
@@ -562,11 +532,7 @@ function selectKijiWithCond(db, req) {
       sqlcond_keyword +
       " order by kij.t_kiji_pk desc";
     if (req.body.expo_push_token != null && req.body.expo_push_token != "") {
-      if (req.body.readLastKijiPk !== null && req.body.readLastKijiPk !== "") {
-        sql += " limit " + READ_COUNT;
-      } else {
-        sql += " limit :read_count";
-      }
+      sql += " limit " + READ_COUNT;
     }
 
     db.query(sql, {
@@ -578,15 +544,12 @@ function selectKijiWithCond(db, req) {
           t_kiji_pk_read_last: req.body.readLastKijiPk,
           dt_from: req.body.searchCondYear + "/01/01",
           dt_to: req.body.searchCondYear + "/12/31",
-          read_count: (req.body.readCount == "" ? READ_COUNT : req.body.readCount),
         },
         param_hashtag,
         param_keyword
       ),
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectKijiWithCond result...");
-      // console.log(datas)
       return resolve(datas);
     });
   });
@@ -657,9 +620,7 @@ function insertOrUpdateResponse(db, tx, req) {
         " where t_response_pk = :t_response_pk" +
         " returning t_response_pk";
     } else if (req.body.resMode === "delete") {
-      sql =
-        "delete from t_response" +
-        " where t_response_pk = :t_response_pk";
+      sql = "delete from t_response" + " where t_response_pk = :t_response_pk";
     }
 
     db.query(sql, {
@@ -670,7 +631,7 @@ function insertOrUpdateResponse(db, tx, req) {
         to_shain_pk: req.body.resTarget,
         resComment: req.body.resComment,
         user_id: req.body.userid,
-        t_response_pk: req.body.resResponsPk
+        t_response_pk: req.body.resResponsPk,
       },
     }).spread((datas, metadata) => {
       return resolve(datas);
@@ -692,7 +653,7 @@ function insertOrUpdateResponseKidoku(db, tx, req, isInsert, maxResponsePk) {
     if (isInsert) {
       sql =
         "insert into t_response_kidoku (t_shain_pk, t_kiji_pk, t_response_pk, insert_user_id, insert_tm, update_user_id, update_tm) " +
-        " values (:t_shain_pk, :t_kiji_pk, :t_response_pk, :user_id, current_timestamp, :user_id, current_timestamp) "
+        " values (:t_shain_pk, :t_kiji_pk, :t_response_pk, :user_id, current_timestamp, :user_id, current_timestamp) ";
     } else {
       sql =
         "update t_response_kidoku set " +
@@ -776,8 +737,6 @@ function selectResponse(db, req) {
       replacements: { t_kiji_pk: req.body.searchCondKijiPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectResponse result...");
-      // console.log(datas)
       return resolve(datas);
     });
   });
@@ -794,16 +753,15 @@ function selectCountKiji(db, req) {
     var sql =
       "select count(*) from t_kiji k" +
       " where k.t_kiji_pk = :t_kiji_pk" +
-      " and k.t_shain_pk = :t_shain_pk"
+      " and k.t_shain_pk = :t_shain_pk";
 
     db.query(sql, {
       replacements: {
         t_kiji_pk: req.body.searchCondKijiPk,
-        t_shain_pk: req.body.loginShainPk
+        t_shain_pk: req.body.loginShainPk,
       },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectCountKiji result...");
       return resolve(datas);
     });
   });
@@ -820,13 +778,12 @@ function selectMaxResponsePk(db, req) {
     var sql =
       "select max(r.t_response_pk) from t_response r" +
       " where r.t_kiji_pk = :t_kiji_pk" +
-      " and r.delete_flg = '0'"
+      " and r.delete_flg = '0'";
 
     db.query(sql, {
       replacements: { t_kiji_pk: req.body.searchCondKijiPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectMaxResponsePk result...");
       return resolve(datas);
     });
   });
@@ -843,16 +800,15 @@ function selectResponseKidoku(db, req) {
     var sql =
       "select count(*) from t_response_kidoku rk" +
       " where rk.t_kiji_pk = :t_kiji_pk" +
-      " and rk.t_shain_pk = :t_shain_pk"
+      " and rk.t_shain_pk = :t_shain_pk";
 
     db.query(sql, {
       replacements: {
         t_kiji_pk: req.body.searchCondKijiPk,
-        t_shain_pk: req.body.loginShainPk
+        t_shain_pk: req.body.loginShainPk,
       },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : selectResponseKidoku result...");
       return resolve(datas);
     });
   });
@@ -1082,8 +1038,8 @@ function bcrequest(req) {
           console.log("bcrequest.err:", err);
           return;
         }
-        // 検索結果表示
-        console.log("bcrequest.result.transaction:", res.body.transaction);
+        // // 検索結果表示
+        // console.log("bcrequest.result.transaction:", res.body.transaction);
         return resolve(res.body.transaction[0]);
       });
   });

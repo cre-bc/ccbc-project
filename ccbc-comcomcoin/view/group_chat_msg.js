@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   AppState,
   AsyncStorage,
+  BackHandler,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { GiftedChat, Send } from "react-native-gifted-chat";
@@ -65,6 +66,23 @@ export default class GroupChatMsgForm extends BaseComponent {
     // 画面遷移時処理（後処理）
     this.props.navigation.addListener("willBlur", () => this.onwillBlur());
 
+    // // Backボタン制御
+    // if (this.props.navigation.getParam("fromScreen") === "push") {
+    //   if (this.backHandler) {
+    //     this.backHandler.remove();
+    //   }
+    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+    //     // スマホのバックボタンで戻る先をシステム制御
+    //     if (this.props.navigation.isFocused()) {
+    //       this.props.navigation.navigate("ChatSelect", {
+    //         fromScreen: "push",
+    //       });
+    //       return true;
+    //     }
+    //     return false;
+    //   });
+    // }
+
     // アプリがバックグラウンド→フォアグラウンドになった場合に再表示するようベントを関連付け
     AppState.addEventListener("change", this.handleAppStateChange);
   };
@@ -75,6 +93,10 @@ export default class GroupChatMsgForm extends BaseComponent {
     socket.close();
     socket.disconnect();
     AppState.removeEventListener("change", this.handleAppStateChange);
+
+    // if (this.backHandler) {
+    //   this.backHandler.remove();
+    // }
   };
 
   /** 画面遷移時処理 */
@@ -126,20 +148,6 @@ export default class GroupChatMsgForm extends BaseComponent {
     }
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   /** 画面初期表示情報取得 */
   findChat = async () => {
     await fetch(restdomain + "/group_chat_msg/find", {
@@ -151,7 +159,11 @@ export default class GroupChatMsgForm extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -190,7 +202,7 @@ export default class GroupChatMsgForm extends BaseComponent {
           this.setState({ count: i + 2 });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** グループチャットPushボタン押下 */
@@ -218,7 +230,11 @@ export default class GroupChatMsgForm extends BaseComponent {
         }.bind(this)
       )
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             this.setState((previousState) => ({
               messages: GiftedChat.append(previousState.messages, messages),
@@ -240,7 +256,7 @@ export default class GroupChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** チャットメッセージ受信時の処理 */
@@ -254,7 +270,11 @@ export default class GroupChatMsgForm extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             var chat = JSON.parse(message);
             var user = {
@@ -274,7 +294,7 @@ export default class GroupChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** バックグラウンド→フォアグラウンドの切り替え */

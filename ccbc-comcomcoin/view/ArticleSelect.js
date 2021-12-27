@@ -5,6 +5,7 @@ import {
   View,
   TouchableHighlight,
   ScrollView,
+  Image,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import BaseComponent from "./components/BaseComponent";
@@ -45,7 +46,11 @@ export default class ArticleSelect extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -54,21 +59,7 @@ export default class ArticleSelect extends BaseComponent {
           this.setState({ categoryList: json.data });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
-  };
-
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** 記事照会画面へ遷移 */
@@ -102,8 +93,21 @@ export default class ArticleSelect extends BaseComponent {
                   style={[styles.articleLine, { backgroundColor: btnColor }]}
                 >
                   <View style={styles.articleTitleView}>
+                    <Image
+                      style={{
+                        width: 35,
+                        height: 35,
+                        marginLeft: 10,
+                        marginRight: 10,
+                      }}
+                      source={{
+                        uri:
+                          restdomain +
+                          `/uploads/category/articleSelect/${item.category_file_path}`,
+                      }}
+                    />
                     <Text style={styles.articleTitleText}>
-                      {"　　" + item.category_nm}
+                      {item.category_nm}
                     </Text>
                   </View>
                   {/* 未読マーク */}
@@ -150,13 +154,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   articleTitleView: {
-    flex: 8,
+    flexDirection: "row",
     alignItems: "center",
+    flex: 6,
   },
   articleTitleText: {
     fontSize: 26,
     color: "white",
     padding: 10,
+    flexDirection: "column",
   },
   nonReadMark: {
     textAlign: "center",

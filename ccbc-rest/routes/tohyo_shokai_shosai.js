@@ -5,11 +5,18 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
 
 /**
  * 投票照会（個別詳細）_DB読み込み（初期表示時）
  */
-router.post("/find", (req, res) => {
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   finddata(req, res);
 });
 

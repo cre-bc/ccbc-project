@@ -26,10 +26,11 @@ import { Provider, connect } from 'react-redux' // 5.0.6
 import { createStore, bindActionCreators } from 'redux' // 3.7.2
 import * as myActions from '../actions/coin_shokai'
 import { StackNavigator } from 'react-navigation' // 1.0.0-beta.21
+import BaseComponent from "./components/BaseComponent"
 
 const restdomain = require('./common/constans.js').restdomain
 
-class CoinShokai extends Component {
+class CoinShokai extends BaseComponent {
   constructor(props) {
     super(props)
     this.inputRefs = {}
@@ -71,19 +72,8 @@ class CoinShokai extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-
-    var groupInfo = await this.getGroupInfo()
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
 
     // 初期表示情報取得
     this.findCoinShokai()
@@ -110,14 +100,6 @@ class CoinShokai extends Component {
     })
   }
 
-  getGroupInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
   findCoinShokai = async () => {
     await fetch(restdomain + '/coin_shokai/find', {
       method: 'POST',
@@ -128,7 +110,11 @@ class CoinShokai extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           // 結果が取得できない場合は終了
           if (typeof json.getCoinDatas === 'undefined') {
             return
@@ -180,16 +166,9 @@ class CoinShokai extends Component {
           this.setState({ happyoSu: json.happyoSu })
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
-  }
   onPressLogoutButton = () => {
     AsyncStorage.removeItem('groupInfo')
     this.props.navigation.navigate('LoginGroup')

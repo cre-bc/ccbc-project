@@ -5,11 +5,18 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
 
 /**
  * グループチャットPush_DB登録
  */
-router.post("/create", (req, res) => {
+router.post("/create", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   pushSend(req, res);
 });
 
@@ -31,7 +38,7 @@ async function pushSend(req, res) {
     res.json({ status: true, t_chat_pk: t_chat_pk });
   })
     .then((result) => {
-      console.log("Push通知");
+      console.log("グループチャットPush通知");
       var memberList = req.body.resultMemberList;
       console.log(memberList);
       for (var i in memberList) {
@@ -70,8 +77,6 @@ async function pushSend(req, res) {
             });
         }
       }
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -87,7 +92,6 @@ async function pushSend(req, res) {
  */
 function insertChat(tx, req) {
   return new Promise((resolve, reject) => {
-    console.log("★ start insertChat");
     var sql =
       "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk) " +
       "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?) RETURNING t_chat_pk";
@@ -112,10 +116,8 @@ function insertChat(tx, req) {
         req.body.chatGroupPk,
       ],
     }).spread((datas, metadata) => {
-      // console.log(datas);
       return resolve(datas[0].t_chat_pk);
     });
-    console.log("★ end insertChat");
   });
 }
 

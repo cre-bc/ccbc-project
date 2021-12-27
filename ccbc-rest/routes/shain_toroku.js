@@ -19,10 +19,6 @@ var storage = multer.diskStorage({
 var upload = multer({ storage: storage });
 
 router.post("/find", (req, res) => {
-  console.log("----------");
-  console.log("★★★shain_toroku find：start★★★");
-  console.log(req.body);
-  console.log("----------");
   findData(req, res);
 });
 
@@ -33,8 +29,6 @@ router.post("/find", (req, res) => {
  * @param {*} res
  */
 async function findData(req, res) {
-  console.log("★★★findData★★★");
-
   // 社員マスタ取得（社員PKは前画面からのパラメータとして取得）
   var tShain = [];
   tShain = await getTShain(req.body.inputTShainPk);
@@ -46,14 +40,11 @@ async function findData(req, res) {
     kengen = tShain[0].kengen_cd;
   }
   mKengen = await getMKengen(kengen);
-  console.log(mKengen);
 
   // DBから取得できた場合、ユーザID・パスワード変更をさせないためフラグをセット
   if (req.body.inputTShainPk !== 0) {
     tShain[0].updateFlg = true;
   }
-
-  console.log(tShain);
 
   res.json({ status: true, kengenList: mKengen, shainData: tShain });
 }
@@ -63,7 +54,6 @@ async function findData(req, res) {
  */
 async function getMKengen(kengen_cd) {
   return new Promise((resolve, reject) => {
-    console.log("★★★getMKengen★★★");
     var sql =
       "select m_kengen_pk ,kengen_cd ,kengen_nm from m_kengen where kengen_cd <> '0' and delete_flg = '0' order by kengen_cd";
     if (kengen_cd === "0") {
@@ -73,7 +63,6 @@ async function getMKengen(kengen_cd) {
     db.query(sql, {
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★★★【End】getMKengen");
       return resolve(datas);
     });
   });
@@ -86,7 +75,6 @@ async function getMKengen(kengen_cd) {
  */
 async function getTShain(paramTShainPk) {
   return new Promise((resolve, reject) => {
-    console.log("★★★getTShain★★★");
     var sql =
       "select t_shain_pk ,user_id ,shimei ,shimei_kana ,image_file_nm ,kengen_cd ,bc_account  from t_shain where t_shain_pk = :tShainPk and delete_flg = '0'";
 
@@ -94,7 +82,6 @@ async function getTShain(paramTShainPk) {
       replacements: { tShainPk: paramTShainPk },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★★★【End】getTShain");
       return resolve(datas);
     });
   });
@@ -104,11 +91,6 @@ async function getTShain(paramTShainPk) {
  *
  */
 router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
-  console.log("----------");
-  console.log("★★★shain_toroku create：start★★★");
-  console.log(req.body);
-  console.log("----------");
-
   // トークンチェック
   var sql =
     "select token" +
@@ -118,9 +100,7 @@ router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
     replacements: { mytoken: req.body.tokenId },
     type: db.QueryTypes.RAW,
   }).spread(async (datas, metadata) => {
-    console.log(datas);
     if (datas.length == 0) {
-      console.log("トークンチェックエラー");
       res.json({ status: false, tokencheck: false });
       return;
     }
@@ -138,8 +118,6 @@ router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
     await processInsert(req, res, tx, resdatas);
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("★★正常★★");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -152,10 +130,6 @@ router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
  * 登録処理
  */
 async function processInsert(req, res, tx, resdatas) {
-  console.log("★★★processInsert：start★★★");
-
-  console.log("req.body.updateFlg：" + req.body.updateFlg);
-
   // 登録の場合1レコード以上取得できた場合、エラー
   var selectUserIdList = [];
   if (!req.body.updateFlg) {
@@ -171,8 +145,6 @@ async function processInsert(req, res, tx, resdatas) {
     await updateTShain(tx, req, resdatas);
   } else {
     var result = await bcrequest(req);
-    console.log(result.body.result);
-    console.log(result.body.result);
     await insertTShain(tx, req, resdatas, result.body.bc_account);
   }
 
@@ -187,7 +159,6 @@ async function processInsert(req, res, tx, resdatas) {
  */
 async function checkUserId(paramUserId, tx) {
   return new Promise((resolve, reject) => {
-    console.log("★★★checkUserId★★★");
     var sql =
       "select t_shain_pk ,user_id ,shimei ,shimei_kana ,image_file_nm ,kengen_cd ,bc_account  from t_shain where user_id = :userId and delete_flg = '0'";
 
@@ -196,7 +167,6 @@ async function checkUserId(paramUserId, tx) {
       replacements: { userId: paramUserId },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★★★【End】checkUserId");
       return resolve(datas);
     });
   });
@@ -218,14 +188,12 @@ function bcrequest(req) {
       .post(bcdomain + "/bc-api/add_account")
       .send(param)
       .end((err, res) => {
-        console.log("★★★bcrequest★★★");
-
         if (err) {
           console.log("★" + err);
           return;
         }
         // 検索結果表示
-        console.log("★★★res:" + res);
+        // console.log("★★★res:" + res);
         return resolve(res);
       });
   });
@@ -236,7 +204,6 @@ function bcrequest(req) {
  */
 async function insertTShain(tx, req, resdatas, bcaccount) {
   return new Promise((resolve, reject) => {
-    console.log("★★★insertTShain★★★");
     var sql =
       "insert into t_shain( user_id, shimei, image_file_nm, kengen_cd, bc_account, delete_flg, insert_user_id, insert_tm, shimei_kana ) values( ?, ?, ?, ?, ?, ?, ?, current_timestamp, ? )";
     db.query(sql, {
@@ -252,7 +219,6 @@ async function insertTShain(tx, req, resdatas, bcaccount) {
         req.body.inputShimeiKana,
       ],
     }).spread((datas, metadata) => {
-      console.log("★★★【End】insertTShain");
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -268,8 +234,6 @@ async function insertTShain(tx, req, resdatas, bcaccount) {
  */
 async function updateTShain(tx, req, resdatas) {
   return new Promise((resolve, reject) => {
-    console.log("★★★updateTShain★★★");
-
     var sql =
       "update t_shain set shimei = ?, image_file_nm = ?, kengen_cd = ?, update_user_id = ?, update_tm = current_timestamp, shimei_kana = ? where delete_flg = '0' and t_shain_pk = ?";
 
@@ -284,7 +248,6 @@ async function updateTShain(tx, req, resdatas) {
         req.body.inputTShainPk,
       ],
     }).spread((datas, metadata) => {
-      console.log("★★★【End】updateTShain");
       resdatas.push(datas);
       return resolve(datas);
     });

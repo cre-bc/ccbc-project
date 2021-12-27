@@ -11,24 +11,17 @@ const query = (sql, params, res) => {
       res.status(400).send(`エラーが発生しました<br />${err}`);
       return;
     }
-    console.log("success!!");
-    console.log(datas);
     res.json({ status: true, data: datas });
   });
 };
 
 router.post("/makeKenegenList", (req, res) => {
-  console.log("OK");
   const params = [];
   const sql = "select kengen_cd, kengen_nm from m_kengen order by kengen_cd ";
   query(sql, params, res);
 });
 
 router.post("/find", (req, res) => {
-  console.log("---- POST ----");
-  console.log("OK");
-  console.log("req.body.election:" + req.body.election);
-  console.log("req.body.kengen:" + req.body.kengen);
   const params = [];
   var sql =
     "select t_shain.t_shain_pk, t_shain.user_id, t_shain.shimei, t_shain.image_file_nm, t_shain.kengen_cd, m_kengen.kengen_nm, t_shain.bc_account, t_shain.shimei_kana from t_shain inner join m_kengen on t_shain.kengen_cd = m_kengen.kengen_cd where t_shain.delete_flg = '0' ";
@@ -46,7 +39,6 @@ router.post("/find", (req, res) => {
   }
   sql =
     sql + " order by t_shain.kengen_cd, convert_to(t_shain.shimei_kana,'UTF8')";
-  console.log("sql:" + sql);
 
   query(sql, params, res);
 });

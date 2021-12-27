@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { StyleSheet, View, Image, AsyncStorage, Text } from 'react-native'
 import { Header, Button, Icon, Avatar } from 'react-native-elements'
+import BaseComponent from "./components/BaseComponent"
 
-export default class Menu extends Component {
+export default class Menu extends BaseComponent {
   state = {
     open: false,
     open2: false,
@@ -32,22 +33,8 @@ export default class Menu extends Component {
   }
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-  }
-
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo();
   }
 
   onPressLogoutButton = () => {

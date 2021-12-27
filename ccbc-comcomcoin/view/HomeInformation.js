@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, ScrollView, Dimensions, Image } from "react-native";
+import { StyleSheet, View, ScrollView, Dimensions, Image, BackHandler } from "react-native";
 import { Text } from "react-native-elements";
 import Hyperlink from "react-native-hyperlink";
 import moment from "moment";
@@ -33,6 +33,22 @@ export default class HomeInformation extends BaseComponent {
     //アクセス情報登録
     this.setAccessLog();
 
+    // // Backボタン制御
+    // if (this.props.navigation.getParam("fromScreen") === "push") {
+    //   if (this.backHandler) {
+    //     this.backHandler.remove();
+    //   }
+    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+    //     // スマホのバックボタンで戻る先をシステム制御
+    //     if (this.props.navigation.isFocused()) {
+    //       this.props.navigation.navigate("Home");
+    //       this.props.navigation.goBack(null);
+    //       return true;
+    //     }
+    //     return false;
+    //   });
+    // }
+
     // 引き継ぎパラメータの取得
     const renban = this.props.navigation.getParam("renban");
     this.state.renban = renban;
@@ -48,7 +64,11 @@ export default class HomeInformation extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -63,21 +83,7 @@ export default class HomeInformation extends BaseComponent {
           });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
-  };
-
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   render() {

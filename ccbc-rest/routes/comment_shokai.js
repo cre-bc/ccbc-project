@@ -5,18 +5,19 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
 
 /**
  * コメント_DB読み込み（初期表示時）
  */
 router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   var datas = null;
-  console.log("◯◯◯◯◯◯");
-  console.log(req.body.tTohyoPk);
-  console.log(req.body.tZoyoPk);
-  console.log(req.body.title);
-  console.log(req.body.shimei);
-  console.log(req.body.coin);
   if (req.body.tTohyoPk != null) {
     datas = await selectTohyo(req);
   } else {
@@ -37,7 +38,6 @@ function selectTohyo(req) {
     db.query(sql, {
       replacements: [req.body.tTohyoPk],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });
@@ -55,7 +55,6 @@ function selectZoyo(req) {
     db.query(sql, {
       replacements: [req.body.tZoyoPk],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });

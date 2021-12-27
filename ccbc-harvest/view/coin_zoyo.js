@@ -26,10 +26,11 @@ import TextInput from './common/TextInput'
 import RNPickerSelect from 'react-native-picker-select'
 import InputNumberStyles from 'rmc-input-number/lib/styles'
 import InputNumber from 'rmc-input-number'
+import BaseComponent from "./components/BaseComponent"
 
 const restdomain = require('./common/constans.js').restdomain
 
-export default class CoinZoyo extends Component {
+export default class CoinZoyo extends BaseComponent {
   constructor(props) {
     super(props)
     this.inputRefs = {}
@@ -59,16 +60,9 @@ export default class CoinZoyo extends Component {
   }
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
 
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.state.tShainPk = Number(loginInfo['tShainPk'])
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-    this.setState({ tokenId: loginInfo['tokenId'] })
     this.setState({ modalVisible: false })
     this.setState({ modalVisible2: false })
     this.setState({ modalVisible3: false })
@@ -77,31 +71,8 @@ export default class CoinZoyo extends Component {
       this._handleKeyboardWillShow.bind(this)
     )
 
-    var groupInfo = await this.getGroupInfo()
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
-
     // 初期表示情報取得
     this.findCoinZoyo()
-  }
-
-  getGroupInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
-  //ログイン情報取得
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
   }
 
   //画面初期表示情報取得
@@ -115,7 +86,11 @@ export default class CoinZoyo extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -143,7 +118,7 @@ export default class CoinZoyo extends Component {
           this.setState({ shainList: this.state.shainList })
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
   handleSubmit = async () => {
@@ -154,19 +129,6 @@ export default class CoinZoyo extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      // .then(
-      //   function(json) {
-      //     this.closeModal()
-      //     alert(json.status)
-      //     if (!json.status) {
-      //       alert(json.status)
-      //       this.openModal3()
-      //     } else {
-      //       this.props.navigation.navigate('Menu')
-      //     }
-      //   }.bind(this)
-      // )
-      // .catch(error => console.error(error))
       .then(
         function (response) {
           this.closeModal()
@@ -174,7 +136,11 @@ export default class CoinZoyo extends Component {
         }.bind(this)
       )
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           if (!json.status) {
             this.openModal3()
           } else {
@@ -182,7 +148,7 @@ export default class CoinZoyo extends Component {
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
     this.setState({ loadFlg: false })
   }
 
@@ -327,7 +293,7 @@ export default class CoinZoyo extends Component {
             <Card>
               <Text style={{ fontSize: 18 }}>
                 {this.state.shimei}
-                　の所持コイン数
+                の所持コイン数
                 {'\n'}
                 {this.state.bccoin}
                 コイン

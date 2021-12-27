@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AsyncStorage, View, Image } from "react-native";
+import { AsyncStorage, View, Image, Platform } from "react-native";
 import { Header, Icon } from "react-native-elements";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -31,14 +31,20 @@ class InAppHeader extends Component {
           outerContainerStyles={{ height: 50 }}
           leftComponent={
             <View>
-              <Icon
-                containerStyle={{ marginTop: 22 }}
-                size={32}
-                name={"home"}
-                type={"font-awesome"}
-                color="#fff"
-                onPress={() => this.onPressHomeButton()}
-              />
+              {(() => {
+                if (Platform.OS !== "ios") {
+                  return (
+                    <Icon
+                      containerStyle={{ marginBottom: -5, height: 32 }}
+                      size={32}
+                      name="home"
+                      type="font-awesome"
+                      color="white"
+                      onPress={() => this.onPressHomeButton()}
+                    />
+                  )
+                }
+              })()}
             </View>
           }
           centerComponent={
@@ -56,16 +62,22 @@ class InAppHeader extends Component {
           }
           rightComponent={
             <View>
-              <Icon
-                containerStyle={{ marginTop: 22 }}
-                size={32}
-                name={"sign-out"}
-                type={"font-awesome"}
-                color="#fff"
-                onPress={() =>
-                  this.setState({ confirmLogoutDialogVisible: true })
+              {(() => {
+                if (Platform.OS !== "ios") {
+                  return (
+                    <Icon
+                      containerStyle={{ marginBottom: -5, height: 32 }}
+                      size={32}
+                      name="sign-out"
+                      type="font-awesome"
+                      color="white"
+                      onPress={() =>
+                        this.setState({ confirmLogoutDialogVisible: true })
+                      }
+                    />
+                  )
                 }
-              />
+              })()}
             </View>
           }
           backgroundColor="#ff5622"

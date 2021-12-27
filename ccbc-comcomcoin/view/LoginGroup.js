@@ -11,10 +11,12 @@ import {
 } from "react-native";
 import { Button, FormInput, Card } from "react-native-elements";
 import * as Notifications from "expo-notifications";
+import BaseComponent from "./components/BaseComponent";
+import { expo } from "../app.json";
 
 const restdomain = require("./common/constans.js").restdomain;
 
-export default class LoginGroupForm extends Component {
+export default class LoginGroupForm extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,6 +29,9 @@ export default class LoginGroupForm extends Component {
       msg: "",
       modalVisible: false,
       checked: false,
+      app_ver: expo.version,
+      app_type: "ccc",
+      os_type: Platform.OS,
     };
   }
 
@@ -48,7 +53,7 @@ export default class LoginGroupForm extends Component {
     });
   }
 
-  getGroupInfo = async () => {
+  getGroupInfoStorage = async () => {
     try {
       return JSON.parse(await AsyncStorage.getItem("groupInfo"));
     } catch (error) {
@@ -56,7 +61,7 @@ export default class LoginGroupForm extends Component {
     }
   };
 
-  getLoginInfo = async () => {
+  getLoginInfoStorage = async () => {
     try {
       return JSON.parse(await AsyncStorage.getItem("loginInfo"));
     } catch (error) {
@@ -90,8 +95,8 @@ export default class LoginGroupForm extends Component {
   };
 
   onPressButton = async () => {
-    var groupInfo = await this.getGroupInfo();
-    var loginInfo = await this.getLoginInfo();
+    var groupInfo = await this.getGroupInfoStorage();
+    var loginInfo = await this.getLoginInfoStorage();
     // var chatInfo = await this.getChatInfo()
     // await this.removeChatInfo()
     if (groupInfo == null) {
@@ -122,7 +127,7 @@ export default class LoginGroupForm extends Component {
     });
 
     // ログインしていない場合は何もしない
-    var loginInfo = await this.getLoginInfo();
+    var loginInfo = await this.getLoginInfoStorage();
     if (loginInfo == null) {
       return;
     }
@@ -130,22 +135,30 @@ export default class LoginGroupForm extends Component {
     // バックグラウンドでプッシュ通知をタップした時
     if (data && "chatGroupPk" in data) {
       // チャット画面に遷移
+      this.props.navigation.navigate("Home");
+      this.props.navigation.navigate("ChatSelect");
       this.props.navigation.navigate("GroupChatMsg", {
         chatGroupPk: data.chatGroupPk,
         chatGroupNm: data.chatGroupNm,
+        fromScreen: "push",
       });
     } else if (data && "fromShainPk" in data) {
       // チャット画面に遷移
+      this.props.navigation.navigate("Home");
+      this.props.navigation.navigate("ChatSelect");
       this.props.navigation.navigate("ChatMsg", {
         fromShainPk: data.fromShainPk,
         fromShimei: data.fromShimei,
         fromImageFileNm: data.fromImageFileNm,
         fromExpoPushToken: data.fromExpoPushToken,
+        fromScreen: "push",
       });
     } else if (data && "infoRenban" in data) {
       // お知らせ詳細画面に遷移
+      this.props.navigation.navigate("Home");
       this.props.navigation.navigate("HomeInformation", {
         renban: data.infoRenban,
+        fromScreen: "push",
       });
     } else if (data) {
       // 未読関連のプッシュ通知の場合、ホーム画面に遷移
@@ -175,7 +188,11 @@ export default class LoginGroupForm extends Component {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === "undefined") {
@@ -200,7 +217,7 @@ export default class LoginGroupForm extends Component {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   render() {
@@ -272,7 +289,7 @@ export default class LoginGroupForm extends Component {
             visible={this.state.modalVisible}
             animationType={"slide"}
             onRequestClose={() => this.closeModal()}
-            //transparent={true}
+          //transparent={true}
           >
             <View style={styles.modal_style}>
               <View style={{ flex: 1 }} />

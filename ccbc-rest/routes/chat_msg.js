@@ -4,6 +4,7 @@ const router = express.Router();
 const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
+var mainte = require("./common/maintenance_helper.js");
 
 var multer = require('multer')
 var storage = multer.diskStorage({
@@ -20,27 +21,39 @@ var upload = multer({ storage: storage })
 /**
  * チャット_初期表示
  */
-router.post("/find", (req, res) => {
-  // console.log("OK");
-  // console.log(req.params);
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   findData(req, res);
 });
 
 /**
  * チャット_既読更新
  */
-router.post("/kidoku_update", (req, res) => {
-  // console.log("OK");
-  // console.log(req.params);
+router.post("/kidoku_update", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   updateKidoku(req, res);
 });
 
 /**
  * チャット_DB登録
  */
-router.post("/create", (req, res) => {
-  // console.log("◆◆◆");
-  // var resultList = req.body.resultList
+router.post("/create", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -49,16 +62,7 @@ router.post("/create", (req, res) => {
   db.transaction(async function (tx) {
     // チャットテーブルinsert
     var t_chat_pk = await insertChat(tx, req);
-    // console.log("t_chat_pk:", t_chat_pk);
-    // チャット既読テーブル更新
-    // await updateChatKidoku(
-    //   req,
-    //   t_chat_pk,
-    //   req.body.loginShainPk,
-    //   req.body.fromShainPk
-    // )
     res.json({ status: true });
-    // console.log("res.json:", res.json);
   })
     .then((result) => {
       // プッシュ通知
@@ -67,25 +71,24 @@ router.post("/create", (req, res) => {
         req.body.fromExpoPushToken !== null
       ) {
         var pushData = [];
-        console.log("ファイルパス：" + req.body.filePath)
-        if(req.body.filePath != null && req.body.filePath != ""){
+        if (req.body.filePath != null && req.body.filePath != "") {
           pushData.push({
-              to: req.body.fromExpoPushToken,
+            to: req.body.fromExpoPushToken,
+            title: req.body.shimei,
+            body: "写真が送信されました",
+            sound: "default",
+            badge: 1,
+            data: {
               title: req.body.shimei,
-              body: "写真が送信されました",
-              sound: "default",
-              badge: 1,
-              data: {
-                title: req.body.shimei,
-                message: "写真が送信されました",
-                fromShainPk: req.body.loginShainPk,
-                fromShimei: req.body.shimei,
-                fromImageFileNm: req.body.imageFileName,
-                fromExpoPushToken: req.body.expo_push_token,
-              },
+              message: "写真が送信されました",
+              fromShainPk: req.body.loginShainPk,
+              fromShimei: req.body.shimei,
+              fromImageFileNm: req.body.imageFileName,
+              fromExpoPushToken: req.body.expo_push_token,
             },
+          },
           );
-        }else{
+        } else {
           pushData = [
             {
               to: req.body.fromExpoPushToken,
@@ -115,8 +118,6 @@ router.post("/create", (req, res) => {
             }
           });
       }
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -129,12 +130,10 @@ router.post("/create", (req, res) => {
  * API : upload
  * チャット画像のファイルをアップロード
  */
- router.post('/upload', upload.fields([{ name: 'image' }]), (req, res) => {
-  console.log('API : upload - start')
+router.post('/upload', upload.fields([{ name: 'image' }]), (req, res) => {
   res.json({
     status: true
   })
-  console.log('API : upload - end')
 })
 
 /**
@@ -144,8 +143,6 @@ router.post("/create", (req, res) => {
  * @param {*} res
  */
 async function findData(req, res) {
-  console.log("★findData★");
-
   var resultData = [];
   var chatPk = [];
   var resultKidokuData = [];
@@ -159,12 +156,8 @@ async function findData(req, res) {
 
   // 最大チャットPKを取得
   chatPk = await chatPkGet(req);
-  // console.log(chatPk);
-  // console.log(fromShainPk);
-  // console.log(toShainPk);
 
   var maxChatPk = chatPk[0].max;
-  // console.log(maxChatPk);
 
   //チャットが存在する場合
   if (maxChatPk != null) {
@@ -177,19 +170,14 @@ async function findData(req, res) {
     resultKidokuData2 = await chatKidokuGet(req, toShainPk, fromShainPk);
 
     if (resultKidokuData.length === 0) {
-      console.log("チャット既読insert（本人）");
       // チャット既読テーブルinsert（本人）
       await insertChatKidoku(req, userid, fromShainPk, toShainPk);
     }
     if (resultKidokuData2.length === 0) {
-      console.log("チャット既読insert（相手）");
       // チャット既読テーブルinsert（本人）
       await insertChatKidoku(req, userid, toShainPk, fromShainPk);
     }
   }
-
-  // console.log(resultData);
-
   res.json({ status: true, data: resultData, kidokuData: resultKidokuData });
 }
 
@@ -200,8 +188,6 @@ async function findData(req, res) {
  * @param {*} res
  */
 async function updateKidoku(req, res) {
-  console.log("★updateKidoku★");
-
   var chatPk = [];
   var resultKidokuData = [];
   var resultKidokuData2 = [];
@@ -225,12 +211,10 @@ async function updateKidoku(req, res) {
     resultKidokuData2 = await chatKidokuGet(req, toShainPk, fromShainPk);
 
     if (resultKidokuData.length === 0) {
-      console.log("チャット既読insert（本人）");
       // チャット既読テーブルinsert（本人）
       await insertChatKidoku(req, userid, fromShainPk, toShainPk);
     }
     if (resultKidokuData2.length === 0) {
-      console.log("チャット既読insert（相手）");
       // チャット既読テーブルinsert（本人）
       await insertChatKidoku(req, userid, toShainPk, fromShainPk);
     }
@@ -246,7 +230,6 @@ async function updateKidoku(req, res) {
  */
 async function chatMsgGet(req) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatMsgGet★");
     var sql =
       "select c.t_chat_pk, c.from_shain_pk, c.to_shain_pk, pgp_sym_decrypt(c.comment, 'comcomcoin_chat') as comment, c.post_dt, c.post_tm, c.post_dt + c.post_tm as post_dttm, c.t_coin_ido_pk, file_path from t_chat c where (c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk) or (c.from_shain_pk = :myPk and c.to_shain_pk = :fromPk) and c.t_chat_group_pk = 0 order by post_dt + post_tm desc";
     if (req.body.db_name != null && req.body.db_name != "") {
@@ -261,7 +244,6 @@ async function chatMsgGet(req) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatMsgGet");
       return resolve(datas);
     });
   });
@@ -274,7 +256,6 @@ async function chatMsgGet(req) {
  */
 async function chatKidokuGet(req, fromShainPk, toShainPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatKidokuGet");
     var sql =
       "select k.t_chat_pk as kidoku_pk from t_chat_kidoku k where k.from_shain_pk = :fromPk and k.t_shain_pk = :myPk and from_chat_group_pk = 0";
     if (req.body.db_name != null && req.body.db_name != "") {
@@ -289,7 +270,6 @@ async function chatKidokuGet(req, fromShainPk, toShainPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatKidokuGet");
       return resolve(datas);
     });
   });
@@ -302,7 +282,6 @@ async function chatKidokuGet(req, fromShainPk, toShainPk) {
  */
 async function chatPkGet(req) {
   return new Promise((resolve, reject) => {
-    console.log("★ start chatPkGet");
     var sql =
       "select max(c.t_chat_pk) from t_chat c where c.from_shain_pk = :fromPk and c.to_shain_pk = :myPk and c.t_chat_group_pk = 0";
     if (req.body.db_name != null && req.body.db_name != "") {
@@ -317,7 +296,6 @@ async function chatPkGet(req) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End chatPkGet");
       return resolve(datas);
     });
   });
@@ -330,7 +308,6 @@ async function chatPkGet(req) {
  */
 async function updateChatKidoku(req, maxChatPk, fromShainPk, toShainPk) {
   return new Promise((resolve, reject) => {
-    console.log("★ start updateChatKidoku★");
     var sql =
       "update t_chat_kidoku set t_chat_pk = :chatPk, update_user_id = :userId, update_tm = current_timestamp where from_shain_pk = :fromPk and t_shain_pk = :myPk and from_chat_group_pk = 0";
     if (req.body.db_name != null && req.body.db_name != "") {
@@ -347,7 +324,6 @@ async function updateChatKidoku(req, maxChatPk, fromShainPk, toShainPk) {
       },
       type: db.QueryTypes.RAW,
     }).spread(async (datas, metadata) => {
-      console.log("★End updateChatKidoku★");
       return resolve(datas);
     });
   });
@@ -372,7 +348,6 @@ function insertChatKidoku(req, userid, fromShainPk, toShainPk) {
     db.query(sql, {
       replacements: [toShainPk, fromShainPk, 0, userid, null, null],
     }).spread((datas, metadata) => {
-      // console.log(datas);
       return resolve(datas);
     });
   });
@@ -391,47 +366,47 @@ function insertChat(tx, req) {
       db = require("./common/sequelize_helper.js").sequelize;
     }
     // 画像を送信する場合
-    if(req.body.filePath != null && req.body.filePath != ""){
+    if (req.body.filePath != null && req.body.filePath != "") {
       var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
-      "VALUES (?, ?, ?, current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
+        "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
+        "VALUES (?, ?, ?, current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
       db.query(sql, {
         transaction: tx,
         replacements: [
-        req.body.loginShainPk,
-        req.body.fromShainPk,
-        null,
-        0,
-        0,
-        req.body.userid,
-        null,
-        null,
-        null,
-        0,
-        req.body.filePath
+          req.body.loginShainPk,
+          req.body.fromShainPk,
+          null,
+          0,
+          0,
+          req.body.userid,
+          null,
+          null,
+          null,
+          0,
+          req.body.filePath
         ],
       }).spread((datas, metadata) => {
         return resolve(datas[0].t_chat_pk);
       });
-    // 通常のチャットメッセージ送信
+      // 通常のチャットメッセージ送信
     } else {
       var sql =
-      "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
-      "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
+        "insert into t_chat (from_shain_pk, to_shain_pk, comment, post_dt, post_tm, t_coin_ido_pk, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm, shonin_cd, t_chat_group_pk, file_path) " +
+        "VALUES (?, ?, pgp_sym_encrypt(?, 'comcomcoin_chat'), current_timestamp, current_timestamp, ?, ?, ?, current_timestamp, ?, ?, ?, ?, ?) RETURNING t_chat_pk";
       db.query(sql, {
         transaction: tx,
         replacements: [
-        req.body.loginShainPk,
-        req.body.fromShainPk,
-        req.body.message,
-        0,
-        0,
-        req.body.userid,
-        null,
-        null,
-        null,
-        0,
-        null
+          req.body.loginShainPk,
+          req.body.fromShainPk,
+          req.body.message,
+          0,
+          0,
+          req.body.userid,
+          null,
+          null,
+          null,
+          0,
+          null
         ],
       }).spread((datas, metadata) => {
         return resolve(datas[0].t_chat_pk);

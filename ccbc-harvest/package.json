@@ -10,25 +10,26 @@
   },
   "dependencies": {
     "emoji-utils": "^1.0.1",
-    "expo": "^40.0.0",
+    "expo": "^44.0.0",
     "moment": "^2.29.1",
-    "react": "17.0.2",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.0.tar.gz",
+    "react": "17.0.1",
+    "react-native": "0.64.3",
     "react-native-animated-bar": "^0.2.0",
     "react-native-chart-kit": "^6.11.0",
     "react-native-elements": "^0.19.1",
-    "react-native-gesture-handler": "^1.8.0",
+    "react-native-gesture-handler": "~2.1.0",
     "react-native-gifted-chat": "^0.16.3",
     "react-native-input-scroll-view": "^1.11.0",
     "react-native-keyboard-aware-view": "0.0.14",
     "react-native-picker-select": "^8.0.3",
     "react-native-ratings": "^7.3.0",
+    "react-native-safe-area-context": "^3.3.2",
     "react-native-scrollable-tab-view": "^1.0.0",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-star-rating": "^1.1.0",
-    "react-native-svg": "9.9.5",
+    "react-native-svg": "12.1.1",
     "react-native-table-component": "^1.2.1",
-    "react-navigation": "^4.4.3",
+    "react-navigation": "^4.4.4",
     "react-navigation-redux-helpers": "^4.0.1",
     "react-navigation-stack": "^2.10.1",
     "react-redux": "^7.2.2",
@@ -38,6 +39,6 @@
   },
   "devDependencies": {
     "babel-polyfill": "^6.26.0",
-    "babel-preset-expo": "^8.3.0"
+    "babel-preset-expo": "9.0.1"
   }
 }

@@ -5,6 +5,8 @@ const async = require("async");
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
 const bcdomain = require("./common/constans.js").bcdomain;
+var mainte = require("./common/maintenance_helper.js");
+
 const findGetCoinAllSql =
   "select row_number() over () as id, tsha.t_shain_pk as t_shain_pk, tsha2.shimei as shimei, tsha.bc_account as bc_account, tzo.zoyo_saki_shain_pk as zoyo_saki_shain_pk, to_char(tzo.insert_tm,'yyyy/mm/dd') as insert_tm, tzo.transaction_id as transaction_id, tzo.t_zoyo_pk as t_zoyo_pk, tto.t_tohyo_pk as t_tohyo_pk, (case when tto.t_tohyo_pk is null then '贈与' else tpr.title end) as title" +
   " from t_shain tsha inner join t_zoyo tzo on tsha.t_shain_pk = tzo.zoyo_saki_shain_pk" +
@@ -37,15 +39,23 @@ const countHappyoSuSql =
   "select count(*) as happyoSu" +
   " from t_presenter tpre" +
   " where tpre.delete_flg = '0' and tpre.t_shain_pk = :mypk ";
-router.post("/find", (req, res) => {
+
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
   finddata(req, res);
-  console.log("end");
 });
 
-router.post("/findChange", (req, res) => {
-  console.log("findChange実行");
+router.post("/findChange", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
   finddataChange(req, res);
-  console.log("end");
 });
 
 /**
@@ -64,17 +74,9 @@ async function finddata(req, res) {
   var bccoin = 0;
   shainDatas = await findTShain(req);
   nendoDatas = await findNendo(req);
-  // if (req.body.kengenCd === '2' || req.body.kengenCd === '3') {
-  //   happyoSuData = await countHappyoSu(req, 0)
-  //   var happyoSu = happyoSuData[0].happyosu
-  //   console.log(happyoSu)
-  // } else {
-  //   var happyoSu = '-'
-  //   console.log('発表数：' + happyoSu)
-  // }
+
   happyoSuData = await countHappyoSu(req, 0);
   var happyoSu = happyoSuData[0].happyosu;
-  console.log(happyoSu);
 
   var allGetCoinSu = 0;
   var getCoinSu = 0;
@@ -110,7 +112,6 @@ async function finddataChange(req, res) {
   var bccoin = 0;
   happyoSuData = await countHappyoSu(req, 1);
   var happyoSu = happyoSuData[0].happyosu;
-  console.log(happyoSu);
 
   getCoinDatasAll = await findGetCoinAll(req, 1);
   getCoinDatas = await findGetCoin(req, 1);
@@ -166,58 +167,6 @@ async function finddataChange(req, res) {
     }
   }
 
-  // var getCoinDatasAllTrans = []
-  // for (var x in getCoinDatasAll) {
-  //   getCoinDatasAllTrans.push(getCoinDatasAll[x].transaction_id)
-  // }
-  // var getCoinDatasAllParam = {
-  //   transaction: getCoinDatasAllTrans
-  // }
-  // var getCoinDatasAllRes = await bccoinget(getCoinDatasAllParam)
-  // for (var i in getCoinDatasAllRes.body.trans) {
-  //   getCoinDatasAll[i].coin = getCoinDatasAllRes.body.trans[i].coin
-  //   allGetCoinSu = allGetCoinSu + getCoinDatasAllRes.body.trans[i].coin
-  // }
-
-  // var getCoinDatasTrans = []
-  // for (var x in getCoinDatas) {
-  //   getCoinDatasTrans.push(getCoinDatas[x].transaction_id)
-  // }
-  // var getCoinDatasParam = {
-  //   transaction: getCoinDatasTrans
-  // }
-  // var getCoinDatasRes = await bccoinget(getCoinDatasParam)
-  // for (var i in getCoinDatasRes.body.trans) {
-  //   getCoinDatas[i].coin = getCoinDatasRes.body.trans[i].coin
-  //   getCoinSu = getCoinSu + getCoinDatasRes.body.trans[i].coin
-  // }
-
-  // var takeCoinDatasAllTrans = []
-  // for (var x in takeCoinDatasAll) {
-  //   takeCoinDatasAllTrans.push(takeCoinDatasAll[x].transaction_id)
-  // }
-  // var takeCoinDatasAllParam = {
-  //   transaction: takeCoinDatasAllTrans
-  // }
-  // var takeCoinDatasAllRes = await bccoinget(takeCoinDatasAllParam)
-  // for (var i in takeCoinDatasAllRes.body.trans) {
-  //   takeCoinDatasAll[i].coin = takeCoinDatasAllRes.body.trans[i].coin
-  //   allTakeCoinSu = allTakeCoinSu + takeCoinDatasAllRes.body.trans[i].coin
-  // }
-
-  // var takeCoinDatasTrans = []
-  // for (var x in takeCoinDatas) {
-  //   takeCoinDatasTrans.push(takeCoinDatas[x].transaction_id)
-  // }
-  // var takeCoinDatasParam = {
-  //   transaction: takeCoinDatasTrans
-  // }
-  // var takeCoinDatasRes = await bccoinget(takeCoinDatasParam)
-  // for (var i in takeCoinDatasRes.body.trans) {
-  //   takeCoinDatas[i].coin = takeCoinDatasRes.body.trans[i].coin
-  //   takeCoinSu = takeCoinSu + takeCoinDatasRes.body.trans[i].coin
-  // }
-
   res.json({
     status: true,
     getCoinDatasAll: getCoinDatasAll,
@@ -239,11 +188,6 @@ async function finddataChange(req, res) {
  */
 function findGetCoinAll(req, shoriId) {
   return new Promise((resolve, reject) => {
-    console.log("社員PK:" + req.body.tShainPk);
-    console.log("処理ID:" + shoriId);
-    console.log("権限CD:" + req.body.kengenCd);
-    console.log("年度:" + req.body.year_info);
-    console.log("氏名:" + req.body.target_manager);
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
@@ -270,8 +214,6 @@ function findGetCoinAll(req, shoriId) {
         });
       }
     } else {
-      console.log("検索処理実行");
-      console.log("権限CD:" + req.body.kengenCd);
       // 検索条件ありの場合
       var nendo = req.body.year_info;
       var manager = req.body.target_manager;
@@ -369,11 +311,6 @@ function findGetCoinAll(req, shoriId) {
  */
 function findGetCoin(req, shoriId) {
   return new Promise((resolve, reject) => {
-    console.log("社員PK:" + req.body.tShainPk);
-    console.log("処理ID:" + shoriId);
-    console.log("権限CD:" + req.body.kengenCd);
-    console.log("年度:" + req.body.year_info);
-    console.log("氏名:" + req.body.target_manager);
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
@@ -381,7 +318,6 @@ function findGetCoin(req, shoriId) {
     }
     // 初期表示の場合
     if (shoriId == 0) {
-      console.log("初期処理実行");
       if (req.body.kengenCd == "1" || req.body.kengenCd == "0") {
         var sql = findGetCoinSql + "order by tzo.insert_tm desc";
         db.query(sql, {
@@ -401,7 +337,6 @@ function findGetCoin(req, shoriId) {
         });
       }
     } else {
-      console.log("検索処理実行");
       // 検索条件ありの場合
       var nendo = req.body.year_info;
       var manager = req.body.target_manager;
@@ -787,7 +722,6 @@ function countHappyoSu(req, shoriId) {
         },
         type: db.QueryTypes.RAW,
       }).spread((datas, metadata) => {
-        console.log(datas);
         return resolve(datas);
       });
     } else {
@@ -882,12 +816,10 @@ function bccoinget(param) {
       .post(bcdomain + "/bc-api/get_transactions")
       .send(param)
       .end((err, res) => {
-        // console.log('★★★')
         if (err) {
-          // console.log('★' + err)
+          console.log('★' + err)
           reject(err);
         }
-        // console.log('★★★' + res.body.coin)
         return resolve(res);
       });
   });

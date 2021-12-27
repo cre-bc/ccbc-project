@@ -6,12 +6,15 @@ import {
   ImageBackground,
   AsyncStorage,
   Image,
+  Platform,
 } from "react-native";
 import { Button, FormLabel, FormInput, Card } from "react-native-elements";
+import BaseComponent from "./components/BaseComponent";
+import { expo } from "../app.json";
 
 const restdomain = require("./common/constans.js").restdomain;
 
-export default class Login extends Component {
+export default class Login extends BaseComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,6 +30,9 @@ export default class Login extends Component {
       db_name: "",
       bc_addr: "",
       expo_push_token: "",
+      app_ver: expo.version,
+      app_type: "ccc",
+      os_type: Platform.OS,
     };
   }
 
@@ -61,7 +67,7 @@ export default class Login extends Component {
     }
   };
 
-  setLoginInfo = async (loginInfo) => {
+  setLoginInfoStorage = async (loginInfo) => {
     try {
       await AsyncStorage.setItem("loginInfo", loginInfo);
     } catch (error) {
@@ -81,7 +87,11 @@ export default class Login extends Component {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === "undefined") {
@@ -99,7 +109,7 @@ export default class Login extends Component {
               tokenId: json.token,
               chatGroupPk: resList.t_chat_group_pk,
             };
-            this.setLoginInfo(JSON.stringify(loginInfo));
+            this.setLoginInfoStorage(JSON.stringify(loginInfo));
 
             this.props.navigation.navigate("Home");
           } else {
@@ -110,7 +120,7 @@ export default class Login extends Component {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   onPressButton2 = () => {

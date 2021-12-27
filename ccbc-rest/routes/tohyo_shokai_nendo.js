@@ -28,10 +28,6 @@ async function finddata(req, res) {
   resdatas = await PresenCntGet(req);
   resbccoin = await ZoyoCoinGet(req);
 
-  console.log("★★★取得後");
-  console.log(resdatas);
-  console.log(resbccoin);
-
   dcnt = resdatas.length;
 
   var trans = [];
@@ -62,20 +58,6 @@ async function finddata(req, res) {
     sakicoin_sum = 0;
     index = length;
   }
-
-  // for (let i in resdatas) {
-  //   for (let n in resbccoin) {
-  //     if (resdatas[i].t_shain_pk === resbccoin[n].zsakishain) {
-  //       param = {
-  //         transaction: resbccoin[n].transaction_id
-  //       }
-  //       sakicoin = await bccoinget(param)
-  //       sakicoin_sum += sakicoin
-  //     }
-  //   }
-  //   getcoin[i] = sakicoin_sum
-  //   sakicoin_sum = 0
-  // }
 
   res.json({ status: true, data: resdatas, getcoin: getcoin, dcnt: dcnt });
 }

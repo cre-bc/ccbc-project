@@ -5,13 +5,16 @@ import {
   View,
   ImageBackground,
   AsyncStorage,
-  Image
+  Image,
+  Platform
 } from 'react-native'
 import { Button, FormLabel, FormInput, Card } from 'react-native-elements'
+import BaseComponent from "./components/BaseComponent"
+import { expo } from "../app.json"
 
 const restdomain = require('./common/constans.js').restdomain
 
-export default class Login extends Component {
+export default class Login extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
@@ -25,7 +28,10 @@ export default class Login extends Component {
       saveFlg: false,
       group_id: '',
       db_name: '',
-      bc_addr: ''
+      bc_addr: '',
+      app_ver: expo.version,
+      app_type: "hvt",
+      os_type: Platform.OS,
     }
   }
 
@@ -57,7 +63,7 @@ export default class Login extends Component {
     }
   }
 
-  setLoginInfo = async loginInfo => {
+  setLoginInfoStorage = async loginInfo => {
     try {
       await AsyncStorage.setItem('loginInfo', loginInfo)
     } catch (error) {
@@ -73,11 +79,15 @@ export default class Login extends Component {
       body: JSON.stringify(this.state),
       headers: new Headers({ 'Content-type': 'application/json' })
     })
-      .then(function(response) {
+      .then(function (response) {
         return response.json()
       })
       .then(
-        function(json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -93,7 +103,7 @@ export default class Login extends Component {
               kengenCd: resList.kengen_cd,
               tokenId: json.token
             }
-            this.setLoginInfo(JSON.stringify(loginInfo))
+            this.setLoginInfoStorage(JSON.stringify(loginInfo))
 
             this.props.navigation.navigate('Menu')
           } else {
@@ -104,7 +114,7 @@ export default class Login extends Component {
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
   onPressButton2 = () => {
@@ -154,7 +164,7 @@ export default class Login extends Component {
             </View>
             <View>
               <Text style={{ textAlign: 'right' }}>
-                　※ID、パスワード紛失時は管理者に連絡してください
+                ※ID、パスワード紛失時は管理者に連絡してください
               </Text>
             </View>
           </Card>

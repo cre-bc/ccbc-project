@@ -15,10 +15,12 @@ import {
   Card,
   CheckBox
 } from 'react-native-elements'
+import BaseComponent from "./components/BaseComponent"
+import { expo } from "../app.json"
 
 const restdomain = require('./common/constans.js').restdomain
 
-export default class LoginGroupForm extends Component {
+export default class LoginGroupForm extends BaseComponent {
   constructor(props) {
     super(props)
     this.state = {
@@ -30,7 +32,10 @@ export default class LoginGroupForm extends Component {
       kengen_cd: '',
       msg: '',
       modalVisible: false,
-      checked: false
+      checked: false,
+      app_ver: expo.version,
+      app_type: "hvt",
+      os_type: Platform.OS,
     }
   }
 
@@ -39,7 +44,7 @@ export default class LoginGroupForm extends Component {
     // this.removeLoginInfo()
   }
 
-  getGroupInfo = async () => {
+  getGroupInfoStorage = async () => {
     try {
       return JSON.parse(await AsyncStorage.getItem('groupInfo'))
     } catch (error) {
@@ -56,7 +61,7 @@ export default class LoginGroupForm extends Component {
     }
   }
 
-  setGroupInfo = async groupInfo => {
+  setGroupInfoStorage = async groupInfo => {
     try {
       await AsyncStorage.setItem('groupInfo', groupInfo)
     } catch (error) {
@@ -65,7 +70,16 @@ export default class LoginGroupForm extends Component {
     }
   }
 
-  getLoginInfo = async () => {
+  setLoginInfoStorage = async loginInfo => {
+    try {
+      await AsyncStorage.setItem('loginInfo', loginInfo)
+    } catch (error) {
+      //alert(error)
+      return
+    }
+  }
+
+  getLoginInfoStorage = async () => {
     try {
       return JSON.parse(await AsyncStorage.getItem("loginInfo"))
     } catch (error) {
@@ -74,20 +88,69 @@ export default class LoginGroupForm extends Component {
   }
 
   onPressButton = async () => {
-    var groupInfo = await this.getGroupInfo()
-    var loginInfo = await this.getLoginInfo()
+    var groupInfo = await this.getGroupInfoStorage()
+    var loginInfo = await this.getLoginInfoStorage()
     // if (groupInfo != null && groupInfo['saveFlg']) {
     //   this.props.navigation.navigate('Login')
     // } else {
     //   this.openModal()
     // }
     if (groupInfo == null) {
+      // グループ情報なし場合、グループID入力欄を表示
       this.openModal()
     } else if (groupInfo != null && loginInfo == null) {
+      // ログイン情報なしの場合、ログイン画面に遷移
       this.props.navigation.navigate("Login")
     } else {
-      // ログイン情報が保持されている場合は、メニュー画面に遷移する
-      this.props.navigation.navigate("Menu");
+      // ログイン情報の取得
+      this.state.id = loginInfo["userid"]
+      this.state.passwordInput = loginInfo["password"]
+      this.state.group_id = groupInfo["group_id"]
+      this.state.bc_addr = groupInfo["bc_addr"]
+
+      // ログイン情報のチェック
+      fetch(restdomain + '/login/find', {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify(this.state),
+        headers: new Headers({ 'Content-type': 'application/json' })
+      })
+        .then(function (response) {
+          return response.json()
+        })
+        .then(
+          async function (json) {
+            // API戻り値の確認
+            if (!await this.checkApiResult(json)) {
+              return
+            }
+            if (json.status) {
+              // 結果が取得できない場合は終了
+              if (typeof json.data === 'undefined') {
+                return
+              }
+              // ログイン情報を格納
+              var resList = json.data[0]
+              let resLoginInfo = {
+                userid: this.state.id,
+                password: this.state.passwordInput,
+                tShainPk: resList.t_shain_pk,
+                imageFileName: resList.image_file_nm,
+                shimei: resList.shimei,
+                kengenCd: resList.kengen_cd,
+                tokenId: json.token
+              }
+              this.setLoginInfoStorage(JSON.stringify(resLoginInfo))
+              // ログイン情報が保持されている場合は、メニュー画面に遷移
+              this.props.navigation.navigate("Menu")
+            } else {
+              // ログイン情報が正しくない場合は、ログイン画面に遷移
+              this.props.navigation.navigate("Login")
+            }
+          }.bind(this)
+        )
+        .catch((error) => this.errorApi(error))
+      // this.props.navigation.navigate("Menu")
     }
   }
 
@@ -113,7 +176,11 @@ export default class LoginGroupForm extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           if (json.status) {
             // 結果が取得できない場合は終了
             if (typeof json.data === 'undefined') {
@@ -126,7 +193,7 @@ export default class LoginGroupForm extends Component {
               db_name: resList.db_name,
               bc_addr: resList.bc_addr
             }
-            this.setGroupInfo(JSON.stringify(groupInfo))
+            this.setGroupInfoStorage(JSON.stringify(groupInfo))
             this.closeModal()
             this.props.navigation.navigate('Login')
           } else {
@@ -137,7 +204,7 @@ export default class LoginGroupForm extends Component {
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
   render() {

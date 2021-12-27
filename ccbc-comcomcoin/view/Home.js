@@ -72,20 +72,6 @@ export default class Home extends BaseComponent {
     this.props.navigation.addListener("willBlur", () => this.onwillBlur());
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   /** 画面遷移時処理 */
   onWillFocus = async () => {
     this.setState({ isProcessing: true });
@@ -145,7 +131,11 @@ export default class Home extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (typeof json.data === "undefined") {
             // 結果が取得できない場合は終了
           } else {
@@ -180,21 +170,7 @@ export default class Home extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
-  };
-
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** ログアウト処理 */
@@ -313,7 +289,7 @@ export default class Home extends BaseComponent {
                       this.props.navigation.navigate("ArticleRefer", {
                         mode: "home",
                         selectKijiPk: this.state.unreadArticleList[0].t_kiji_pk,
-                        viewMode: "multi"
+                        viewMode: "multi",
                       });
                     } else {
                       this.props.navigation.navigate("HomeArticleList", {
@@ -481,7 +457,7 @@ export default class Home extends BaseComponent {
                       this.props.navigation.navigate("ArticleRefer", {
                         mode: "home",
                         selectKijiPk: item.t_kiji_pk,
-                        viewMode: "multi"
+                        viewMode: "multi",
                       })
                     }
                   >
@@ -504,12 +480,12 @@ export default class Home extends BaseComponent {
                           {/* 画像が未登録の場合はNo-Imageを表示 */}
                           {(item.file_path === "" ||
                             item.file_path === null) && (
-                            <Image
-                              source={require("./../images/icon-noimage.png")}
-                              style={styles.articleImage}
-                              resizeMode="cover"
-                            />
-                          )}
+                              <Image
+                                source={require("./../images/icon-noimage.png")}
+                                style={styles.articleImage}
+                                resizeMode="cover"
+                              />
+                            )}
                         </View>
                         <View style={{ flex: 2 }}>
                           {/* タイトル */}
@@ -626,6 +602,31 @@ export default class Home extends BaseComponent {
                   Hidden={this.state.articleCnt == 0}
                 />
                 <Text style={{ textAlign: "center" }}>情報ひろば</Text>
+              </TouchableOpacity>
+            </View>
+            {/* My記事リスト */}
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+                width: windowWidth / 4,
+              }}
+            >
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() =>
+                  this.props.navigation.navigate("HomeArticleList", {
+                    mode: "my",
+                  })
+                }
+              >
+                <Image
+                  resizeMode="contain"
+                  source={require("./../images/icons8-my48_β.png")}
+                />
+                <Text style={{ textAlign: "center" }}>My記事</Text>
               </TouchableOpacity>
             </View>
             {/* お気に入り */}

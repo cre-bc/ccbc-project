@@ -1,6 +1,6 @@
 import React from "react";
 import * as Notifications from "expo-notifications";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, BackHandler } from "react-native";
 import { ListItem, Avatar } from "react-native-elements";
 import io from "socket.io-client";
 
@@ -37,6 +37,21 @@ export default class ChatSelectForm extends BaseComponent {
 
     // 画面遷移時処理（後処理）
     this.props.navigation.addListener("willBlur", () => this.onwillBlur());
+
+    // // Backボタン制御
+    // if (this.props.navigation.getParam("fromScreen") === "push") {
+    //   if (this.backHandler) {
+    //     this.backHandler.remove();
+    //   }
+    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+    //     // スマホのバックボタンで戻る先をシステム制御
+    //     if (this.props.navigation.isFocused()) {
+    //       this.props.navigation.navigate("Home");
+    //       return true;
+    //     }
+    //     return false;
+    //   });
+    // }
   };
 
   /** 画面遷移時処理 */
@@ -79,19 +94,12 @@ export default class ChatSelectForm extends BaseComponent {
     }
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
+  // /** コンポーネントのアンマウント時処理 */
+  // componentWillUnmount = async () => {
+  //   if (this.backHandler) {
+  //     this.backHandler.remove();
+  //   }
+  // };
 
   /** 画面初期表示情報取得 */
   findChatUser = async (isSocketJoin) => {
@@ -104,7 +112,11 @@ export default class ChatSelectForm extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -123,7 +135,7 @@ export default class ChatSelectForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** チャットユーザー選択 */

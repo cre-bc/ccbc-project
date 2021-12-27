@@ -7,7 +7,6 @@ const bcdomain = require("./common/constans.js").bcdomain;
 
 router.post("/find", (req, res) => {
   finddata(req, res);
-  console.log("end");
 });
 
 /**
@@ -24,8 +23,6 @@ async function finddata(req, res) {
     bc_addr: req.body.bc_addr,
   };
   bccoin = await bccoinget(param);
-  console.log(bccoin);
-  console.log(resdatas);
   res.json({ status: true, data: resdatas, bccoin: bccoin });
 }
 /**
@@ -42,10 +39,6 @@ function tShainGet(req) {
       replacements: { mypk: req.body.tShainPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("★★★");
-      console.log(datas);
-      console.log(datas[0].from_bc_account);
-
       return resolve(datas);
     });
   });
@@ -61,12 +54,11 @@ function bccoinget(param) {
       .post(bcdomain + "/bc-api/get_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
-        console.log("★★★" + res.body.coin);
+        // console.log("★★★" + res.body.coin);
         return resolve(res.body.coin);
       });
   });
@@ -74,7 +66,6 @@ function bccoinget(param) {
 
 router.post("/findShokai", (req, res) => {
   findShokaidata(req, res);
-  console.log("end");
 });
 
 /**
@@ -87,8 +78,6 @@ async function findShokaidata(req, res) {
   var resdatas2 = [];
   resdatas = await tShainShokaiGet(req);
   resdatas2 = await tSenkyoGet(req);
-  console.log(resdatas);
-  console.log(resdatas2);
   res.json({ status: true, data: resdatas, senkyoData: resdatas2 });
 }
 
@@ -108,8 +97,6 @@ function tShainShokaiGet(req) {
       replacements: { senkyoPk: req.body.tSenkyoPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("★★★");
-      console.log(datas);
       return resolve(datas);
     });
   });
@@ -129,15 +116,12 @@ function tSenkyoGet(req) {
       replacements: { senkyoPk: req.body.tSenkyoPk },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("★★★");
-      console.log(datas);
       return resolve(datas);
     });
   });
 }
 
 router.post("/create", (req, res) => {
-  console.log("◆◆◆");
   var resultList = req.body.resultList;
   var selected = req.body.selected;
   var selected2 = req.body.selected2;
@@ -151,9 +135,7 @@ router.post("/create", (req, res) => {
     replacements: { mytoken: req.body.tokenId },
     type: db.QueryTypes.RAW,
   }).spread(async (datas, metadata) => {
-    console.log(datas);
     if (datas.length == 0) {
-      console.log("★★★★★トークンチェックエラー");
       res.json({ status: false });
       return;
     }
@@ -163,10 +145,8 @@ router.post("/create", (req, res) => {
     var resdatas = [];
     var t_senkyo_pk = await tSenkyoInsert(tx, resdatas, req);
     var selected = req.body.selected;
-    console.log(t_senkyo_pk);
     for (var i in resultList) {
       var resultdata = resultList[i];
-      console.log(resultdata);
       for (var x in selected) {
         if (resultdata.id == selected[x]) {
           var t_shussekisha_pk = await tShussekishaInsert(
@@ -194,8 +174,6 @@ router.post("/create", (req, res) => {
     // このあとにawait sequelizeXXXXを記載することで連続して処理をかける
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -228,8 +206,6 @@ function tSenkyoInsert(tx, resdatas, req) {
         req.body.userid,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆３");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas[0].t_senkyo_pk);
     });
@@ -246,8 +222,6 @@ function tSenkyoInsert(tx, resdatas, req) {
  */
 function tShussekishaInsert(tx, resdatas, req, t_senkyo_pk, resultdata) {
   return new Promise((resolve, reject) => {
-    console.log("◆4");
-    console.log(resultdata);
     var sql2 =
       "insert into t_shussekisha (t_senkyo_pk, t_shain_pk, delete_flg, insert_user_id, insert_tm) " +
       "VALUES (?, ?, ?, ?, current_timestamp) RETURNING t_shussekisha_pk";
@@ -255,8 +229,6 @@ function tShussekishaInsert(tx, resdatas, req, t_senkyo_pk, resultdata) {
       transaction: tx,
       replacements: [t_senkyo_pk, resultdata.t_shain_pk, "0", req.body.userid],
     }).spread((datas, metadata) => {
-      console.log("◆5");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas[0].t_shussekisha_pk);
     });
@@ -287,8 +259,6 @@ function tZoyoInsert(tx, resdatas, req, resultdata) {
         req.body.userid,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆6");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -307,9 +277,6 @@ function bcrequest(req, resultdata, i) {
       var haifuCoinData = req.body.haifuCoinList[x];
       if (resultdata.t_shain_pk === haifuCoinData.tShainPk) {
         haifuCoin = haifuCoinData.haifuCoin;
-        console.log("▲▲▲▲▲▲▲▲▲▲▲▲▲");
-        console.log("社員PK：" + haifuCoinData.tShainPk);
-        console.log("配布コイン：" + haifuCoin);
         break;
       }
     }
@@ -325,13 +292,12 @@ function bcrequest(req, resultdata, i) {
       .post(bcdomain + "/bc-api/send_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
         // 検索結果表示
-        console.log("★★★" + res.body.transaction);
+        // console.log("★★★" + res.body.transaction);
         return resolve(res.body.transaction[0]);
       });
   });
@@ -361,8 +327,6 @@ function tPresenterInsert(tx, resdatas, req, t_senkyo_pk, resultdata, i) {
         req.body.userid,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆7");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -382,7 +346,6 @@ function dbupdate(tx, transaction_id) {
       transaction: tx,
       replacements: [transaction_id],
     }).spread((datas, metadata) => {
-      console.log(datas);
       return resolve(datas);
     });
   });

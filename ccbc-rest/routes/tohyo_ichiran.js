@@ -4,6 +4,7 @@ const router = express.Router();
 
 var db = require("./common/sequelize_helper.js").sequelize;
 var db2 = require("./common/sequelize_helper.js");
+var mainte = require("./common/maintenance_helper.js");
 
 const query = (sql, params, res, req) => {
   if (req.body.db_name != null && req.body.db_name != "") {
@@ -20,9 +21,12 @@ const query = (sql, params, res, req) => {
 };
 
 router.get("/find", async (req, res) => {
-  console.log("OK");
-  console.log("req.params:" + req.params);
-  console.log("req.body.Target_year:" + req.body.Target_year);
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   const params = [];
   const sql =
     "select t_senkyo_pk, senkyo_nm, tohyo_kaishi_dt, tohyo_shuryo_dt, haifu_coin from t_senkyo where delete_flg = '0' order by tohyo_kaishi_dt desc";
@@ -30,19 +34,25 @@ router.get("/find", async (req, res) => {
 });
 
 router.post("/find2", async (req, res) => {
-  console.log("OK");
-  console.log("req.params:" + req.params);
-  console.log("req.body.Target_year:" + req.body.Target_year);
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   const params = [];
   const sql =
     "select t_senkyo_pk, senkyo_nm, tohyo_kaishi_dt, tohyo_shuryo_dt, haifu_coin from t_senkyo where delete_flg = '0' order by tohyo_kaishi_dt desc";
   query(sql, params, res, req);
 });
 
-router.post("/find", (req, res) => {
-  console.log("---- POST ----");
-  console.log("OK");
-  console.log("req.body.targetYear:" + req.body.targetYear);
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   const params = [];
   const sql =
     "select t_senkyo_pk, senkyo_nm, tohyo_kaishi_dt, tohyo_shuryo_dt, haifu_coin from t_senkyo where delete_flg = '0' and tohyo_kaishi_dt between '" +

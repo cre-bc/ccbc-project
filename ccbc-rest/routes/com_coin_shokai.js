@@ -28,13 +28,10 @@ const commonSql =
 
 router.post("/find", (req, res) => {
   finddata(req, res);
-  console.log("end");
 });
 
 router.post("/findChange", (req, res) => {
-  console.log("findChange実行");
   finddataChange(req, res);
-  console.log("end");
 });
 
 /**
@@ -94,21 +91,11 @@ async function finddataChange(req, res) {
  */
 function findGetCoin(req) {
   return new Promise((resolve, reject) => {
-    console.log("社員PK:" + req.body.tShainPk);
-    console.log("年度:" + req.body.year);
-    console.log("開始日:" + req.body.date_start);
-    console.log("終了日:" + req.body.date_end);
-    console.log("操作者:" + req.body.operator);
-    console.log("取引相手:" + req.body.trading_partner);
-    console.log("取引種類:" + req.body.trading_type);
-    console.log("アクション:" + req.body.event_type);
     if (req.body.db_name != null && req.body.db_name != "") {
       db = db2.sequelize3(req.body.db_name);
     } else {
       db = require("./common/sequelize_helper.js").sequelize;
     }
-
-    console.log("検索処理実行");
 
     var nendo = req.body.year;
     var manager = req.body.operator;
@@ -278,9 +265,8 @@ function bccoinget(param) {
       .post(bcdomain + "/bc-api/get_transactions")
       .send(param)
       .end((err, res) => {
-        // console.log('★★★')
         if (err) {
-          // console.log('★' + err)
+          console.log('★' + err)
           reject(err);
         }
         // console.log('★★★' + res.body.coin)

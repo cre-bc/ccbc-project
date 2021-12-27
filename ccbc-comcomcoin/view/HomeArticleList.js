@@ -40,8 +40,10 @@ export default class HomeArticleList extends BaseComponent {
       mode === "new"
         ? "最新の記事"
         : mode === "unread"
-        ? "未読レスの記事"
-        : "お気に入り";
+          ? "未読レスの記事"
+          : mode === "my"
+            ? "My記事リスト"
+            : "お気に入り";
     this.state.mode = mode;
     this.setState({
       mode: mode,
@@ -69,7 +71,11 @@ export default class HomeArticleList extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (typeof json.data === "undefined") {
             // 結果が取得できない場合は終了
           } else {
@@ -78,23 +84,9 @@ export default class HomeArticleList extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
 
     this.setState({ isProcessing: false });
-  };
-
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
   };
 
   render() {
@@ -120,10 +112,80 @@ export default class HomeArticleList extends BaseComponent {
               style={{ backgroundColor: "silver", height: 1.5, marginTop: 5 }}
             />
             {this.state.articleList.map((item, i) => {
+              var cnt =
+                item.res_cnt < 10
+                  ? item.res_cnt + " "
+                  : item.res_cnt > 99
+                    ? "99"
+                    : item.res_cnt;
+
+              var mode = this.props.navigation.getParam("mode");
+              var comcompark = 5;
+              var lifehack = 1;
+              var culture = 2;
+              var information = 3;
+              var eat = 4;
+              var eventplan = 7;
+              var convenience = 8;
+              var relay = 50;
+
+              if (mode === "my") {
+                var avatarStyleWidth = 50;
+                var avatarStyleHeight = 50;
+              } else {
+                var avatarStyleWidth = 60;
+                var avatarStyleHeight = 45;
+              }
+
               var avatar =
                 item.file_path === "" || item.file_path === null
                   ? require("./../images/icon-noimage.png")
                   : { uri: restdomain + `/uploads/article/${item.file_path}` };
+
+              // modeが「my」の場合、カテゴリー別でサムネをアイコンに設定
+              avatar =
+                // 「ComComひろば」の場合
+                mode === "my" && item.t_kiji_category_pk === comcompark
+                  ? {
+                    uri: restdomain + `/uploads/category/list/comcompark.png`,
+                  }
+                  : // 「イベント企画」の場合
+                  mode === "my" && item.t_kiji_category_pk === lifehack
+                    ? {
+                      uri: restdomain + `/uploads/category/list/lifehack.png`,
+                    }
+                    : // 「カルチャー」の場合
+                    mode === "my" && item.t_kiji_category_pk === culture
+                      ? {
+                        uri: restdomain + `/uploads/category/list/culture.png`,
+                      }
+                      : // 「イベントinfo」の場合
+                      mode === "my" && item.t_kiji_category_pk === information
+                        ? {
+                          uri: restdomain + `/uploads/category/list/infomation.png`,
+                        }
+                        : // 「おいしいお店」の場合
+                        mode === "my" && item.t_kiji_category_pk === eat
+                          ? { uri: restdomain + `/uploads/category/list/eat.png` }
+                          : // 「イベント★企画」の場合
+                          mode === "my" && item.t_kiji_category_pk === eventplan
+                            ? {
+                              uri: restdomain + `/uploads/category/list/event.png`,
+                            }
+                            : // 「社内コンビニ」の場合
+                            mode === "my" && item.t_kiji_category_pk === convenience
+                              ? {
+                                uri:
+                                  restdomain + `/uploads/category/list/convenience.png`,
+                              }
+                              : // 「記事投稿リレー」の場合
+                              mode === "my" && item.t_kiji_category_pk === relay
+                                ? {
+                                  uri: restdomain + `/uploads/category/list/relay.png`,
+                                }
+                                : // 何もしない
+                                avatar;
+
               return (
                 <ListItem
                   key={i}
@@ -141,16 +203,20 @@ export default class HomeArticleList extends BaseComponent {
                   // avatar={require('./../images/icon-noimage.png')}
                   avatar={avatar}
                   avatarContainerStyle={{ padding: 5, marginLeft: 5 }}
-                  avatarStyle={{ width: 60, height: (60 * 3) / 4 }}
+                  avatarStyle={{
+                    width: avatarStyleWidth,
+                    height: avatarStyleHeight,
+                  }}
                   badge={{
-                    value: "レス数 " + item.res_cnt,
+                    value: "レス " + cnt,
+                    containerStyle: { width: 65 },
                     textStyle: { fontSize: 12 },
                   }}
                   onPress={() =>
                     this.props.navigation.navigate("ArticleRefer", {
                       mode: "home",
                       selectKijiPk: item.t_kiji_pk,
-                      viewMode: "multi"
+                      viewMode: "multi",
                     })
                   }
                 />

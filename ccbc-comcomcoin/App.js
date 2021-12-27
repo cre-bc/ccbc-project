@@ -5,8 +5,8 @@ import { createStackNavigator } from "react-navigation-stack";
 import * as Permissions from "expo-permissions";
 import * as Notifications from "expo-notifications";
 
-// テスト用メニュー画面
-import MenuForm from "./view/Menu";
+// // テスト用メニュー画面
+// import MenuForm from "./view/Menu";
 // ログイン機能
 import LoginGroupForm from "./view/LoginGroup";
 import LoginForm from "./view/Login";
@@ -34,7 +34,7 @@ export const createRootNavigator = (load) => {
   console.disableYellowBox = true;
   var HomeNavigator = createStackNavigator(
     {
-      Menu: { screen: MenuForm },
+      // Menu: { screen: MenuForm },
       LoginGroup: { screen: LoginGroupForm },
       Login: { screen: LoginForm },
       Home: { screen: HomeForm },

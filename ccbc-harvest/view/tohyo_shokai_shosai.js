@@ -17,6 +17,7 @@ import {
   Divider
 } from 'react-native-elements'
 import { BarChart } from 'react-native-chart-kit'
+import BaseComponent from "./components/BaseComponent"
 
 const width = Dimensions.get("window").width
 const restdomain = require('./common/constans.js').restdomain
@@ -28,7 +29,7 @@ const chartConfig = {
   decimalPlaces: 1,
 }
 
-export default class TohyoShokaiShosai extends Component {
+export default class TohyoShokaiShosai extends BaseComponent {
   constructor(props) {
     super()
     this.state = {
@@ -48,20 +49,8 @@ export default class TohyoShokaiShosai extends Component {
 
   /** コンポーネントのマウント時処理 */
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.state.tShainPk = Number(loginInfo['tShainPk'])
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-
-    var groupInfo = await this.getGroupInfo()
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
 
     var tohyoShokaiShosaiInfo = await this.getTohyoShokaiShosaiInfo()
     this.setState({ senkyoNm: tohyoShokaiShosaiInfo['senkyoNm'] })
@@ -79,21 +68,6 @@ export default class TohyoShokaiShosai extends Component {
     this.findTohyoShokaiShosai()
   }
 
-  getGroupInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
-  }
   onPressLogoutButton = () => {
     AsyncStorage.removeItem('groupInfo')
     this.props.navigation.navigate('LoginGroup')
@@ -122,7 +96,11 @@ export default class TohyoShokaiShosai extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -161,7 +139,7 @@ export default class TohyoShokaiShosai extends Component {
           })
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
   render() {

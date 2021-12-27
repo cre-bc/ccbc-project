@@ -24,10 +24,11 @@ import {
 } from 'react-native-elements'
 import StarRating from 'react-native-star-rating'
 // import TextInput from './common/TextInput'
+import BaseComponent from "./components/BaseComponent"
 
 const restdomain = require('./common/constans.js').restdomain
 
-export default class TohyoToroku extends Component {
+export default class TohyoToroku extends BaseComponent {
   constructor(props) {
     super()
     this.state = {
@@ -64,22 +65,8 @@ export default class TohyoToroku extends Component {
   }
 
   async componentWillMount() {
-    var loginInfo = await this.getLoginInfo()
-
-    this.setState({ userid: loginInfo['userid'] })
-    this.setState({ password: loginInfo['password'] })
-    this.setState({ tShainPk: loginInfo['tShainPk'] })
-    this.state.tShainPk = Number(loginInfo['tShainPk'])
-    this.setState({ imageFileName: loginInfo['imageFileName'] })
-    this.setState({ shimei: loginInfo['shimei'] })
-    this.setState({ kengenCd: loginInfo['kengenCd'] })
-    this.setState({ tokenId: loginInfo['tokenId'] })
-
-    var groupInfo = await this.getGroupInfo()
-    this.setState({ saveFlg: groupInfo['saveFlg'] })
-    this.setState({ group_id: groupInfo['group_id'] })
-    this.setState({ db_name: groupInfo['db_name'] })
-    this.setState({ bc_addr: groupInfo['bc_addr'] })
+    // ログイン情報の取得（BaseComponent）
+    await this.getLoginInfo()
 
     this.setState({ starCount1: 1 })
     this.setState({ starCount2: 1 })
@@ -99,22 +86,6 @@ export default class TohyoToroku extends Component {
     this.findTohyoToroku()
   }
 
-  getGroupInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('groupInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
-  getLoginInfo = async () => {
-    try {
-      return JSON.parse(await AsyncStorage.getItem('loginInfo'))
-    } catch (error) {
-      return
-    }
-  }
-
   findTohyoToroku = async () => {
     await fetch(restdomain + '/tohyo_toroku/find', {
       method: 'POST',
@@ -126,7 +97,11 @@ export default class TohyoToroku extends Component {
         return response.json()
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === 'undefined') {
             return
@@ -152,7 +127,7 @@ export default class TohyoToroku extends Component {
           this.calculateCoin()
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
   }
 
   handleSubmit = async () => {
@@ -180,7 +155,11 @@ export default class TohyoToroku extends Component {
         }.bind(this)
       )
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return
+          }
           if (!json.status) {
             this.openModal4()
           } else {
@@ -188,7 +167,7 @@ export default class TohyoToroku extends Component {
           }
         }.bind(this)
       )
-      .catch(error => console.error(error))
+      .catch((error) => this.errorApi(error))
     this.setState({ loadFlg: false })
   }
 

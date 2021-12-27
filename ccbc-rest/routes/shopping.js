@@ -8,6 +8,7 @@ const bcdomain = require("./common/constans.js").bcdomain;
 const jimuAccount = require("./common/constans.js").jimuAccount;
 const jimuPassword = require("./common/constans.js").jimuPassword;
 const jimuShainPk = require("./common/constans.js").jimuShainPk;
+var mainte = require("./common/maintenance_helper.js");
 
 /**
  * ★★★ TODOメモ ★★★
@@ -22,30 +23,42 @@ const jimuShainPk = require("./common/constans.js").jimuShainPk;
  * API : find
  * 現在の所持コイン数と募金先情報を取得
  */
-router.post("/find", (req, res) => {
-  console.log("API : find - start");
+router.post("/find", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   find(req, res);
-  console.log("API : find - end");
 });
 
 /**
  * API : checkQRCode
  * QRコードを解析し、ComComCoin用のQRコードであれば、商品情報を取得
  */
-router.post("/checkQRCode", (req, res) => {
-  console.log("API : checkQRCode - start");
+router.post("/checkQRCode", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   checkQRCode(req, res);
-  console.log("API : checkQRCode - end");
 });
 
 /**
  * API : pay
  * 支払情報を登録し、BCのコインを移動
  */
-router.post("/pay", (req, res) => {
-  console.log("API : pay - start");
+router.post("/pay", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
   pay(req, res);
-  console.log("API : pay - end");
 });
 
 // ----------------------------------------------------------------------
@@ -60,8 +73,6 @@ async function find(req, res) {
 
   // 募金先マスタの取得
   const resdatas = await selectBokin(db, req);
-
-  // console.log(resdatas);
 
   // BCコイン数を取得
   const param = {
@@ -87,7 +98,7 @@ async function checkQRCode(req, res) {
   db = db2.sequelizeDB(req);
 
   var qrcode = req.body.qrcode;
-  console.log("QRコード:", qrcode);
+  // console.log("QRコード:", qrcode);
 
   // QRコードを解析（NGの場合はstatus = falseで返却）
   var isError = false;
@@ -107,7 +118,6 @@ async function checkQRCode(req, res) {
 
   // 末尾4桁の商品コードを取得
   var shohin_code = qrcode.substr(4, 4);
-  console.log("商品コード:", shohin_code);
 
   // 商品マスタを取得
   const resdatas = await selectShohin(db, shohin_code);
@@ -159,7 +169,6 @@ async function pay(req, res) {
     // 支払テーブルの追加
     var ret = await insertShiharai(db, tx, req, totalCoin);
     var shiharaiPk = ret[0].t_shiharai_pk;
-    // console.log("shiharaiPk:", shiharaiPk);
 
     // 支払明細テーブルの追加
     var seq = 0;
@@ -210,8 +219,6 @@ async function pay(req, res) {
     await updateShiharaiAfterZoyo(db, tx, req, shiharaiPk, zoyoPk, bokinCoin);
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
       res.json({ status: true });
     })
     .catch((e) => {
@@ -230,20 +237,17 @@ async function pay(req, res) {
  */
 function bccoinget(param) {
   return new Promise((resolve, reject) => {
-    console.log("★start bccoinget★");
     request
       .post(bcdomain + "/bc-api/get_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
-        console.log("★★★" + res.body.coin);
+        // console.log("★★★" + res.body.coin);
         return resolve(res.body.coin);
       });
-    console.log("★end bccoinget★");
   });
 }
 
@@ -444,7 +448,6 @@ function bcrequest(req, coin, fromAccount, toAccount, password) {
       coin: [coin],
       bc_addr: req.body.bc_addr,
     };
-    console.log("bcrequest.param:", param);
     request
       .post(bcdomain + "/bc-api/send_coin")
       .send(param)
@@ -454,7 +457,7 @@ function bcrequest(req, coin, fromAccount, toAccount, password) {
           return;
         }
         // 検索結果表示
-        console.log("bcrequest.result.transaction:", res.body.transaction);
+        // console.log("bcrequest.result.transaction:", res.body.transaction);
         return resolve(res.body.transaction[0]);
       });
   });

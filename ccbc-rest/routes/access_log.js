@@ -16,14 +16,14 @@ router.post("/create", (req, res) => {
     db = require("./common/sequelize_helper.js").sequelize;
   }
   db.transaction(async function (tx) {
-    console.log(req);
+    // console.log(req);
     // アクセスログテーブルinsert
     await tAccessLogInsert(tx, req);
     res.json({ status: true });
   })
     .then((result) => {
       // コミットしたらこっち
-      console.log("正常");
+      // console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち

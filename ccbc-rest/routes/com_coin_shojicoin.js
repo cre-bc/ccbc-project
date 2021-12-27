@@ -11,9 +11,7 @@ const bcdomain = require("./common/constans.js").bcdomain;
  * 所持コイン一覧に表示する情報を取得
  */
 router.post("/findshojicoin", (req, res) => {
-  console.log("API : findshojicoin - start");
   findshojicoin(req, res);
-  console.log("API : findshojicoin - end");
 });
 
 /**
@@ -25,8 +23,6 @@ router.post("/findshojicoin", (req, res) => {
 async function findshojicoin(req, res) {
   var resdatas = [];
   var bccoin = 0;
-
-  console.log("API : findshojicoin →中身");
 
   // BCアカウントを取得
   resdatas = await bcAccountGet(db, req);
@@ -41,7 +37,6 @@ async function findshojicoin(req, res) {
     resdatas[i].sakicoin = Number(bccoin);
   }
 
-  console.log(resdatas);
   res.json({
     status: true,
     data: resdatas,
@@ -57,8 +52,6 @@ async function findshojicoin(req, res) {
 function bcAccountGet(db, req) {
   return new Promise((resolve, reject) => {
     // SQLとパラメータを指定
-    console.log("API : bcAccountGet →中身");
-
     var sql =
       "select " +
       "tsha.t_shain_pk" +
@@ -75,8 +68,6 @@ function bcAccountGet(db, req) {
       },
       type: db.QueryTypes.RAW,
     }).spread((datas, metadata) => {
-      console.log("DBAccess : getshojicoinList result...");
-      console.log(datas);
       return resolve(datas);
     });
   });
@@ -88,20 +79,17 @@ function bcAccountGet(db, req) {
  */
 function bccoinget(param) {
   return new Promise((resolve, reject) => {
-    console.log("★start bccoinget★");
     request
       .post(bcdomain + "/bc-api/get_coin")
       .send(param)
       .end((err, res) => {
-        console.log("★★★");
         if (err) {
           console.log("★" + err);
           return;
         }
-        console.log("★★★" + res.body.coin);
+        // console.log("★★★" + res.body.coin);
         return resolve(res.body.coin);
       });
-    console.log("★end bccoinget★");
   });
 }
 

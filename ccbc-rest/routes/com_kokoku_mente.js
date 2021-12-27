@@ -49,17 +49,11 @@ router.post("/find", (req, res) => {
  *
  */
 router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
-  console.log("◆create◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
     db = require("./common/sequelize_helper.js").sequelize;
   }
-
-  console.log("renban: ", req.body.renban);
-  console.log("file_path: ", req.body.file_path);
-  console.log("comment: ", req.body.comment);
-  console.log("delete_flg: ", req.body.delete_flg);
 
   db.transaction(async function (tx) {
     var resdatas = [];
@@ -71,8 +65,6 @@ router.post("/create", upload.fields([{ name: "image" }]), (req, res) => {
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -104,8 +96,6 @@ function tkokokuInsert(tx, resdatas, req) {
         null,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });

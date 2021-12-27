@@ -18,30 +18,12 @@ const query = (sql, params, res, req) => {
   });
 };
 
-// /**
-//  *
-//  * 年度リスト取得
-//  *
-//  */
-// router.get('/find', async (req, res) => {
-//   console.log('OK!')
-//   console.log('req.params:' + req.params)
-//   console.log('req.body.Target_year:' + req.body.Target_year)
-//   const params = []
-//   const sql =
-//     "select m_shohin_pk, shohin_code, shohin_nm1, shohin_nm2, coin, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm from m_shohin where delete_flg = '0' order by insert_tm desc"
-//   query(sql, params, res, req)
-// })
-
 /**
  *
  * 検索結果表示（検索条件反映要）
  *
  */
 router.post("/find", (req, res) => {
-  console.log("OK!!");
-  console.log("req.params:" + req.params);
-  console.log("req.body.targetCode:" + req.body.targetCode);
   finddata(req, res);
 });
 
@@ -121,7 +103,6 @@ function findTShain(req) {
  *
  */
 router.post("/create", (req, res) => {
-  console.log("◆create◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -130,13 +111,10 @@ router.post("/create", (req, res) => {
 
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     await mshohinInsert(tx, resdatas, req);
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -151,7 +129,6 @@ router.post("/create", (req, res) => {
  *
  */
 router.post("/edit", (req, res) => {
-  console.log("◆edit◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -159,13 +136,10 @@ router.post("/edit", (req, res) => {
   }
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     await mshohinUpdate(tx, resdatas, req);
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -180,7 +154,6 @@ router.post("/edit", (req, res) => {
  *
  */
 router.post("/delete", (req, res) => {
-  console.log("◆delete◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -188,13 +161,10 @@ router.post("/delete", (req, res) => {
   }
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     await mshohinDelete(tx, resdatas, req);
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -230,8 +200,6 @@ function mshohinInsert(tx, resdatas, req) {
         req.body.shohin_bunrui,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -263,8 +231,6 @@ function mshohinUpdate(tx, resdatas, req) {
         req.body.m_shohin_pk,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -285,8 +251,6 @@ function mshohinDelete(tx, resdatas, req) {
       transaction: tx,
       replacements: [req.body.m_shohin_pk],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });

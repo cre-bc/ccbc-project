@@ -69,20 +69,6 @@ export default class Shopping extends BaseComponent {
     this.setState({ isProcessing: false });
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   /** 画面初期表示情報取得 */
   findShopping = async () => {
     await fetch(restdomain + "/shopping/find", {
@@ -94,7 +80,11 @@ export default class Shopping extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.bokinList === "undefined") {
             return;
@@ -124,7 +114,7 @@ export default class Shopping extends BaseComponent {
           });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** QRコードのスキャン処理 */
@@ -144,7 +134,11 @@ export default class Shopping extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           this.setState({ isScaning: false });
           this.state.isScaning = false;
 
@@ -214,7 +208,7 @@ export default class Shopping extends BaseComponent {
           });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** 合計コイン数を算出 */
@@ -288,7 +282,11 @@ export default class Shopping extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (typeof json.status === "undefined" || json.status === false) {
             var alertMessage = "";
             if (typeof json.coin === "undefined") {
@@ -313,7 +311,7 @@ export default class Shopping extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => alert(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** 購入リストより１件削除 */

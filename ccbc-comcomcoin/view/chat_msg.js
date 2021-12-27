@@ -10,6 +10,7 @@ import {
   Platform,
   Alert,
   AsyncStorage,
+  BackHandler,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { GiftedChat, Send, Actions } from "react-native-gifted-chat";
@@ -81,6 +82,23 @@ export default class ChatMsgForm extends BaseComponent {
 
     // 画面遷移時処理（後処理）
     this.props.navigation.addListener("willBlur", () => this.onwillBlur());
+
+    // // Backボタン制御
+    // if (this.props.navigation.getParam("fromScreen") === "push") {
+    //   if (this.backHandler) {
+    //     this.backHandler.remove();
+    //   }
+    //   this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+    //     // スマホのバックボタンで戻る先をシステム制御
+    //     if (this.props.navigation.isFocused()) {
+    //       this.props.navigation.navigate("ChatSelect", {
+    //         fromScreen: "push",
+    //       });
+    //       return true;
+    //     }
+    //     return false;
+    //   });
+    // }
 
     this.renderActions = (props) => (
       <Actions
@@ -165,7 +183,7 @@ export default class ChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => alert(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** 画像送信用更新処理 */
@@ -182,7 +200,11 @@ export default class ChatMsgForm extends BaseComponent {
         }.bind(this)
       )
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             var chat = [];
             chat.push({
@@ -219,7 +241,7 @@ export default class ChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** ファイルパスよりファイルの拡張子を取得 */
@@ -245,6 +267,10 @@ export default class ChatMsgForm extends BaseComponent {
       socket.disconnect();
     }
     AppState.removeEventListener("change", this.handleAppStateChange);
+
+    // if (this.backHandler) {
+    //   this.backHandler.remove();
+    // }
   };
 
   /** 画面遷移時処理 */
@@ -307,20 +333,6 @@ export default class ChatMsgForm extends BaseComponent {
     }
   };
 
-  /** アクセス情報登録 */
-  setAccessLog = async () => {
-    await fetch(restdomain + "/access_log/create", {
-      method: "POST",
-      mode: "cors",
-      body: JSON.stringify(this.state),
-      headers: new Headers({ "Content-type": "application/json" }),
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .catch((error) => console.error(error));
-  };
-
   getPermissionAsync = async () => {
     if (Platform.OS === "ios") {
       const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -341,7 +353,11 @@ export default class ChatMsgForm extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           // 結果が取得できない場合は終了
           if (typeof json.data === "undefined") {
             return;
@@ -392,7 +408,7 @@ export default class ChatMsgForm extends BaseComponent {
           this.setState({ messages: chat });
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** コイン送付ボタン押下 */
@@ -422,7 +438,11 @@ export default class ChatMsgForm extends BaseComponent {
         }.bind(this)
       )
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             this.setState((previousState) => ({
               messages: GiftedChat.append(previousState.messages, messages),
@@ -445,7 +465,7 @@ export default class ChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** チャットメッセージ受信時の処理 */
@@ -459,7 +479,11 @@ export default class ChatMsgForm extends BaseComponent {
         return response.json();
       })
       .then(
-        function (json) {
+        async function (json) {
+          // API戻り値の確認
+          if (!await this.checkApiResult(json)) {
+            return;
+          }
           if (json.status) {
             var chat = JSON.parse(message);
             var user = {
@@ -479,7 +503,7 @@ export default class ChatMsgForm extends BaseComponent {
           }
         }.bind(this)
       )
-      .catch((error) => console.error(error));
+      .catch((error) => this.errorApi(error));
   };
 
   /** バックグラウンド→フォアグラウンドの切り替え */

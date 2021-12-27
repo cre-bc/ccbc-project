@@ -1,7 +1,6 @@
 import { Component } from "react";
 import { Platform, Linking, Alert, AsyncStorage } from "react-native";
 import { expo } from "../../app.json";
-const restdomain = require("../common/constans.js").restdomain;
 
 export default class BaseComponent extends Component {
   constructor(props) {
@@ -15,19 +14,19 @@ export default class BaseComponent extends Component {
     this.state.db_name = groupInfo["db_name"];
     this.state.bc_addr = groupInfo["bc_addr"];
     this.state.app_ver = expo.version;
-    this.state.app_type = "ccc";
+    this.state.app_type = "hvt";
     this.state.os_type = Platform.OS;
 
     const loginInfo = JSON.parse(await AsyncStorage.getItem("loginInfo"));
     this.state.userid = loginInfo["userid"];
     this.state.password = loginInfo["password"];
     this.state.loginShainPk = loginInfo["tShainPk"];
+    this.state.tShainPk = Number(loginInfo["tShainPk"]);
     this.state.imageFileName = loginInfo["imageFileName"];
     this.state.shimei = loginInfo["shimei"];
     this.state.kengenCd = loginInfo["kengenCd"];
     this.state.tokenId = loginInfo["tokenId"];
     this.state.bcAccount = loginInfo["bcAccount"];
-    this.state.chatGroupPk = loginInfo["chatGroupPk"];
 
     this.state.expo_push_token = await AsyncStorage.getItem("expo_push_token");
   };
@@ -37,13 +36,13 @@ export default class BaseComponent extends Component {
       if (json.status_cd == "1") {
         // メンテナンス中
         await new Promise(resolve => {
-          Alert.alert("ComComCoin", "メンテナンス中です。\nアナウンスがあるまで利用を控えてください。", [{ onPress: resolve }]);
+          Alert.alert("HARVEST", "メンテナンス中です。\nアナウンスがあるまで利用を控えてください。", [{ onPress: resolve }]);
         });
         this.props.navigation.navigate("LoginGroup");
       } else if (json.status_cd == "2") {
         // バージョンアップが必要
         await new Promise(resolve => {
-          Alert.alert("ComComCoin", "最新バージョンがリリースされています。\nストアよりアップデートをしてください。", [{ onPress: resolve }]);
+          Alert.alert("HARVEST", "最新バージョンがリリースされています。\nストアよりアップデートをしてください。", [{ onPress: resolve }]);
         });
         this.props.navigation.navigate("LoginGroup");
         this.openStoreUrl();
@@ -57,7 +56,7 @@ export default class BaseComponent extends Component {
   openStoreUrl = () => {
     // iOSとAndroidでストアのURLが違うので分岐する
     if (Platform.OS === "ios") {
-      const appId = 1498430930; // AppStoreのURLから確認できるアプリ固有の数値
+      const appId = 1448055815; // AppStoreのURLから確認できるアプリ固有の数値
       const itunesURLScheme = `itms-apps://itunes.apple.com/jp/app/id${appId}?mt=8`;
       const itunesURL = `https://itunes.apple.com/jp/app/id${appId}?mt=8`;
 
@@ -70,7 +69,7 @@ export default class BaseComponent extends Component {
         }
       });
     } else {
-      const appId = "com.creativeconsultant.comcomcoin"; // PlayストアのURLから確認できるid=?の部分
+      const appId = "com.creativeconsultant.harvest"; // PlayストアのURLから確認できるid=?の部分
       const playStoreURLScheme = `market://details?id=${appId}`;
       const playStoreURL = `https://play.google.com/store/apps/details?id=${appId}`;
 
@@ -87,7 +86,7 @@ export default class BaseComponent extends Component {
 
   errorApi = async (error) => {
     await new Promise(resolve => {
-      Alert.alert("ComComCoin", "通信ができないか、サーバがメンテナンス中の可能性があります。\nしばらく時間をおいてからご利用ください。", [{ onPress: resolve }]);
+      Alert.alert("HARVEST", "通信ができないか、サーバがメンテナンス中の可能性があります。\nしばらく時間をおいてからご利用ください。", [{ onPress: resolve }]);
     });
     console.error(error);
     this.props.navigation.navigate("LoginGroup");

@@ -37,9 +37,6 @@ const query = (sql, params, res, req) => {
  *
  */
 router.get("/find", async (req, res) => {
-  console.log("OK!");
-  console.log("req.params:" + req.params);
-  console.log("req.body.Target_year:" + req.body.Target_year);
   const params = [];
   const sql =
     "select renban, title, comment, notice_dt, delete_flg, insert_user_id, insert_tm, update_user_id, update_tm from t_oshirase where delete_flg = '0' order by notice_dt desc";
@@ -52,9 +49,6 @@ router.get("/find", async (req, res) => {
  *
  */
 router.post("/find", (req, res) => {
-  console.log("OK!!");
-  console.log("req.params:" + req.params);
-  console.log("req.body.targetYear:" + req.body.targetYear);
   const params = [];
   const sql =
     "select renban, title, comment, notice_dt, file_path, kanrika_flg from t_oshirase where delete_flg = '0' and notice_dt between '" +
@@ -72,45 +66,20 @@ router.post("/find", (req, res) => {
  *
  */
 router.post("/create", (req, res) => {
-  console.log("◆create◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
     db = require("./common/sequelize_helper.js").sequelize;
   }
-
-  // // トークンチェック
-  // var sql =
-  //     'select token' +
-  //     ' from t_shain tsha' +
-  //     " where tsha.delete_flg = '0' and tsha.token = :mytoken"
-  // db
-  //     .query(sql, {
-  //         replacements: { mytoken: req.body.tokenId },
-  //         type: db.QueryTypes.RAW
-  //     })
-  //     .spread(async (datas, metadata) => {
-  //         console.log(datas)
-  //         if (datas.length == 0) {
-  //             console.log('★★★★★トークンチェックエラー')
-  //             res.json({ status: false })
-  //             return
-  //         }
-  //     })
-
   var renban = "";
 
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     var ret = await tOshiraseInsert(tx, resdatas, req);
     renban = ret[0].renban;
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
-
       // プッシュ通知先の取得
       const sql =
         "select expo_push_token from t_shain where expo_push_token is not null and delete_flg = '0'";
@@ -152,11 +121,9 @@ router.post("/create", (req, res) => {
  * ファイルをアップロード
  */
 router.post("/upload", upload.fields([{ name: "image" }]), (req, res) => {
-  console.log("API : upload - start");
   res.json({
     status: true,
   });
-  console.log("API : upload - end");
 });
 
 /**
@@ -165,7 +132,6 @@ router.post("/upload", upload.fields([{ name: "image" }]), (req, res) => {
  *
  */
 router.post("/edit", (req, res) => {
-  console.log("◆edit◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -173,13 +139,10 @@ router.post("/edit", (req, res) => {
   }
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     await tOshiraseUpdate(tx, resdatas, req);
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -194,7 +157,6 @@ router.post("/edit", (req, res) => {
  *
  */
 router.post("/delete", (req, res) => {
-  console.log("◆delete◆");
   if (req.body.db_name != null && req.body.db_name != "") {
     db = db2.sequelize3(req.body.db_name);
   } else {
@@ -202,13 +164,10 @@ router.post("/delete", (req, res) => {
   }
   db.transaction(async function (tx) {
     var resdatas = [];
-    console.log(req);
     await tOshiraseDelete(tx, resdatas, req);
     res.json({ status: true, data: resdatas });
   })
     .then((result) => {
-      // コミットしたらこっち
-      console.log("正常");
     })
     .catch((e) => {
       // ロールバックしたらこっち
@@ -243,8 +202,6 @@ function tOshiraseInsert(tx, resdatas, req) {
         req.body.kanrika_flg,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -275,8 +232,6 @@ function tOshiraseUpdate(tx, resdatas, req) {
         req.body.renban,
       ],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
@@ -297,8 +252,6 @@ function tOshiraseDelete(tx, resdatas, req) {
       transaction: tx,
       replacements: [req.body.renban],
     }).spread((datas, metadata) => {
-      console.log("◆◆◆◆◆");
-      console.log(datas);
       resdatas.push(datas);
       return resolve(datas);
     });
