@@ -82,7 +82,7 @@ export default class Shopping extends BaseComponent {
       .then(
         async function (json) {
           // API戻り値の確認
-          if (!await this.checkApiResult(json)) {
+          if (!(await this.checkApiResult(json))) {
             return;
           }
           // 結果が取得できない場合は終了
@@ -100,6 +100,10 @@ export default class Shopping extends BaseComponent {
               value: dataList[i].m_bokin_pk,
               key: dataList[i].m_bokin_pk,
             });
+          }
+          // [2022年度対応] 寄付先が１件になったため、初期表示しておく
+          if (bokinList.length > 0) {
+            this.setState({ m_bokin_pk: bokinList[0].value });
           }
           // コイン数を3桁カンマ区切り
           var s = String(coin).split(".");
@@ -136,7 +140,7 @@ export default class Shopping extends BaseComponent {
       .then(
         async function (json) {
           // API戻り値の確認
-          if (!await this.checkApiResult(json)) {
+          if (!(await this.checkApiResult(json))) {
             return;
           }
           this.setState({ isScaning: false });
@@ -284,7 +288,7 @@ export default class Shopping extends BaseComponent {
       .then(
         async function (json) {
           // API戻り値の確認
-          if (!await this.checkApiResult(json)) {
+          if (!(await this.checkApiResult(json))) {
             return;
           }
           if (typeof json.status === "undefined" || json.status === false) {

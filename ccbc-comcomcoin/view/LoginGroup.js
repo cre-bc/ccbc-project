@@ -8,6 +8,8 @@ import {
   Image,
   Modal,
   Platform,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { Button, FormInput, Card } from "react-native-elements";
 import * as Notifications from "expo-notifications";
@@ -190,7 +192,7 @@ export default class LoginGroupForm extends BaseComponent {
       .then(
         async function (json) {
           // API戻り値の確認
-          if (!await this.checkApiResult(json)) {
+          if (!(await this.checkApiResult(json))) {
             return;
           }
           if (json.status) {
@@ -222,7 +224,7 @@ export default class LoginGroupForm extends BaseComponent {
 
   render() {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <ImageBackground
           source={require("./../images/title2.jpg")}
           style={styles.backgroud_image}
@@ -289,7 +291,7 @@ export default class LoginGroupForm extends BaseComponent {
             visible={this.state.modalVisible}
             animationType={"slide"}
             onRequestClose={() => this.closeModal()}
-          //transparent={true}
+            //transparent={true}
           >
             <View style={styles.modal_style}>
               <View style={{ flex: 1 }} />
@@ -332,7 +334,7 @@ export default class LoginGroupForm extends BaseComponent {
             </View>
           </Modal>
         </ImageBackground>
-      </View>
+      </SafeAreaView>
     );
   }
 }
@@ -343,6 +345,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#F5FCFF",
+    paddingTop: 0,
+    marginTop: Platform.OS === "android" ? 0 : -50,
+    marginBottom: Platform.OS === "android" ? 0 : -50,
   },
   backgroud_image: {
     width: "100%",

@@ -4,6 +4,8 @@ import {
   Platform,
   Dimensions,
   StyleSheet,
+  SafeAreaView,
+  StatusBar,
   View,
   Text,
   Image,
@@ -133,7 +135,7 @@ export default class Home extends BaseComponent {
       .then(
         async function (json) {
           // API戻り値の確認
-          if (!await this.checkApiResult(json)) {
+          if (!(await this.checkApiResult(json))) {
             return;
           }
           if (typeof json.data === "undefined") {
@@ -186,6 +188,7 @@ export default class Home extends BaseComponent {
     <View style={styles.tile}>
       <TouchableOpacity
         activeOpacity={1}
+        key={index.toString()}
         onPress={() =>
           this.props.navigation.navigate("HomeAdvertise", {
             renban: item.renban,
@@ -215,12 +218,14 @@ export default class Home extends BaseComponent {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "ivory" }}>
-        {/* -- 処理中アニメーション -- */}
-        <Spinner
-          visible={this.state.isProcessing}
-          textContent={"Processing…"}
-          textStyle={styles.spinnerTextStyle}
-        />
+        <SafeAreaView style={{ paddingTop: 0 }}>
+          {Platform.OS == "ios" && (
+            <StatusBar
+              barStyle={"dark-content"}
+              style={{ innerHeight: 0, outerHeight: 0 }}
+            />
+          )}
+        </SafeAreaView>
 
         {/* -- コンテンツ -- */}
         <View style={{ flex: 8, flexDirection: "row" }}>
@@ -241,23 +246,28 @@ export default class Home extends BaseComponent {
                   <Carousel
                     data={this.state.adList}
                     firstItem={0}
-                    layout={"default"}
-                    renderItem={this.renderItem.bind(this)}
+                    // layout={"default"}
+                    renderItem={this.renderItem}
                     onSnapToItem={(index) => {
                       this.setState({ activeSlide: index });
                     }}
                     itemWidth={windowWidth}
+                    itemHeight={41}
                     sliderWidth={windowWidth}
+                    sliderHeight={41}
                     containerCustomStyle={styles.carousel}
-                    slideStyle={{ flex: 1 }}
+                    // slideStyle={{ flex: 1 }}
                     loop={true}
                     autoplay={true}
                     lockScrollWhileSnapping={true}
+                    loopClonesPerSide={this.state.adList.length}
                   />
                   <Pagination
                     dotsLength={this.state.adList.length}
                     activeDotIndex={this.state.activeSlide}
-                    containerStyle={{ paddingVertical: 5 }}
+                    containerStyle={{
+                      paddingVertical: this.state.adList.length,
+                    }}
                     dotStyle={{
                       width: 10,
                       height: 10,
@@ -269,7 +279,6 @@ export default class Home extends BaseComponent {
                     inactiveDotOpacity={0.4}
                     inactiveDotScale={0.6}
                   />
-                  {/* <Text>{this.state.activeSlide}</Text> */}
                 </View>
               )}
             </View>
@@ -480,12 +489,12 @@ export default class Home extends BaseComponent {
                           {/* 画像が未登録の場合はNo-Imageを表示 */}
                           {(item.file_path === "" ||
                             item.file_path === null) && (
-                              <Image
-                                source={require("./../images/icon-noimage.png")}
-                                style={styles.articleImage}
-                                resizeMode="cover"
-                              />
-                            )}
+                            <Image
+                              source={require("./../images/icon-noimage.png")}
+                              style={styles.articleImage}
+                              resizeMode="cover"
+                            />
+                          )}
                         </View>
                         <View style={{ flex: 2 }}>
                           {/* タイトル */}
@@ -722,6 +731,13 @@ export default class Home extends BaseComponent {
             this.setState({ confirmDialogVisible: false });
           }}
         />
+
+        {/* -- 処理中アニメーション -- */}
+        <Spinner
+          visible={this.state.isProcessing}
+          textContent={"Processing…"}
+          textStyle={styles.spinnerTextStyle}
+        />
       </View>
     );
   }
@@ -729,10 +745,10 @@ export default class Home extends BaseComponent {
 
 const styles = StyleSheet.create({
   carousel: {
-    flex: 1,
+    // flex: 1,
   },
   tile: {
-    flex: 1,
+    // flex: 1,
     // width: Dimensions.get('window').width * 0.85
   },
   articleCard: {

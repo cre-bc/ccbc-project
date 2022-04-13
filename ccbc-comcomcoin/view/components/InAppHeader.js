@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { AsyncStorage, View, Image, Platform } from "react-native";
+import {
+  AsyncStorage,
+  View,
+  Image,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { Header, Icon } from "react-native-elements";
 import ConfirmDialog from "./ConfirmDialog";
 
@@ -26,25 +33,25 @@ class InAppHeader extends Component {
 
   render() {
     return (
-      <View>
+      <SafeAreaView style={{ paddingTop: 0 }}>
+        {Platform.OS == "ios" && (
+          <StatusBar
+            barStyle={"dark-content"}
+            style={{ innerHeight: 0, outerHeight: 0 }}
+          />
+        )}
         <Header
           outerContainerStyles={{ height: 50 }}
           leftComponent={
             <View>
-              {(() => {
-                if (Platform.OS !== "ios") {
-                  return (
-                    <Icon
-                      containerStyle={{ marginBottom: -5, height: 32 }}
-                      size={32}
-                      name="home"
-                      type="font-awesome"
-                      color="white"
-                      onPress={() => this.onPressHomeButton()}
-                    />
-                  )
-                }
-              })()}
+              <Icon
+                containerStyle={{ marginBottom: -5, height: 32 }}
+                size={32}
+                name="home"
+                type="font-awesome"
+                color="white"
+                onPress={() => this.onPressHomeButton()}
+              />
             </View>
           }
           centerComponent={
@@ -60,26 +67,26 @@ class InAppHeader extends Component {
               />
             </View>
           }
-          rightComponent={
-            <View>
-              {(() => {
-                if (Platform.OS !== "ios") {
-                  return (
-                    <Icon
-                      containerStyle={{ marginBottom: -5, height: 32 }}
-                      size={32}
-                      name="sign-out"
-                      type="font-awesome"
-                      color="white"
-                      onPress={() =>
-                        this.setState({ confirmLogoutDialogVisible: true })
-                      }
-                    />
-                  )
-                }
-              })()}
-            </View>
-          }
+          // rightComponent={
+          //   <View>
+          //     {(() => {
+          //       if (Platform.OS !== "ios") {
+          //         return (
+          //           <Icon
+          //             containerStyle={{ marginBottom: -5, height: 32 }}
+          //             size={32}
+          //             name="sign-out"
+          //             type="font-awesome"
+          //             color="white"
+          //             onPress={() =>
+          //               this.setState({ confirmLogoutDialogVisible: true })
+          //             }
+          //           />
+          //         );
+          //       }
+          //     })()}
+          //   </View>
+          // }
           backgroundColor="#ff5622"
         />
 
@@ -95,7 +102,7 @@ class InAppHeader extends Component {
             this.setState({ confirmLogoutDialogVisible: false });
           }}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 }
