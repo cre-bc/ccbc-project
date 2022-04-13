@@ -413,6 +413,7 @@ class ComOshiraseMenteForm extends React.Component {
     tokenId: null,
     msg: null,
     loadFlg: false,
+    input_dt:moment(new Date()).format("YYYY-MM-DD"),
   };
 
   constructor(props) {
@@ -444,6 +445,7 @@ class ComOshiraseMenteForm extends React.Component {
       kanrika_flg: "",
       inputImage: null,
       gazo: null,
+      input_dt:moment(new Date()).format("YYYY-MM-DD"),
     };
   }
 
@@ -658,6 +660,11 @@ class ComOshiraseMenteForm extends React.Component {
   };
 
   handleSubmit = async () => {
+    if(this.state.notice_dt == ""){
+      this.setState({ notice_dt: moment(new Date()).format("YYYY-MM-DD")});
+      console.log(this.state.notice_dt)
+    }
+    console.log(this.state.notice_dt)
     await this.fileUpload();
     await fetch(restdomain + "/com_oshirase_mente/create", {
       // request
@@ -883,6 +890,7 @@ class ComOshiraseMenteForm extends React.Component {
 
   handleChange_notice_dt(e) {
     this.setState({ notice_dt: e.target.value });
+    this.setState({ input_dt: e.target.value });
   }
 
   handleChange_title(e) {
@@ -895,6 +903,13 @@ class ComOshiraseMenteForm extends React.Component {
 
   handleChange_kanrika_flg(e) {
     this.setState({ kanrika_flg: (e.target.checked ? "1" : "0") });
+  }
+
+  onBlurFuncDate(){
+    if(new Date(this.state.notice_dt) > moment(new Date())){
+       this.setState({notice_dt:moment(new Date()).format("YYYY-MM-DD")})
+       this.setState({input_dt:moment(new Date()).format("YYYY-MM-DD")})
+    }
   }
 
   isSelected = (id) => this.state.selected.indexOf(id) !== -1;
@@ -984,7 +999,7 @@ class ComOshiraseMenteForm extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          <AppBar
+          <AppBar position="static"
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
               [classes[`appBarShift-${anchor}`]]: open,
@@ -1025,7 +1040,10 @@ class ComOshiraseMenteForm extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: "100%" }}
+                      style={{ 
+                        fontSize: "100%",
+                        marginBlockStart:"5%"
+                      }}
                     />
                   </div>
                 </Target>
@@ -1268,8 +1286,11 @@ class ComOshiraseMenteForm extends React.Component {
                     id="notice_dt"
                     name="notice_dt"
                     type="date"
+                    value={this.state.input_dt}
+                    inputProps={{min:"1000-01-01",max: moment(new Date()).format("YYYY-MM-DD")}}
                     fullWidth
                     onChange={this.handleChange_notice_dt.bind(this)}
+                    onBlur={() => this.onBlurFuncDate()}
                   />
                   <TextField
                     margin="normal"

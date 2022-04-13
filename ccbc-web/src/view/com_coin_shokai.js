@@ -348,7 +348,7 @@ class ComCoinShokaiForm extends React.Component {
     data: [],
     year: "",
     date_start: "",
-    date_end: "",
+    date_end: moment(new Date()).format("YYYY-MM-DD"),
     operator: "",
     trading_partner: "",
     trading_type: "",
@@ -415,7 +415,7 @@ class ComCoinShokaiForm extends React.Component {
       return;
     } else if (
       this.state.selectedValue == "b" &&
-      (this.state.date_start == "" || this.state.date_end == "")
+      (this.state.date_end == "")
     ) {
       window.alert("日付を入力してください");
       return;
@@ -435,7 +435,6 @@ class ComCoinShokaiForm extends React.Component {
       window.alert("取引種類を入力してください");
       return;
     }
-
     await fetch(restdomain + "/com_coin_shokai/findChange", {
       method: "POST",
       body: JSON.stringify(this.state),
@@ -471,6 +470,18 @@ class ComCoinShokaiForm extends React.Component {
       .catch((error) => console.error(error));
   };
 
+  /** 日付(開始)のフォーカスが外れた時の処理 */
+  onBlurFuncStart(){
+    if(new Date(this.state.date_start) > moment(new Date())){
+       this.setState({date_start:moment(new Date()).format("YYYY-MM-DD")})
+    }
+  }
+  /** 日付(終了)のフォーカスが外れた時の処理 */
+  onBlurFuncEnd(){
+    if(new Date(this.state.date_end) > moment(new Date())){
+       this.setState({date_end:moment(new Date()).format("YYYY-MM-DD")})
+    }
+  }
   /** コンポーネントのマウント時処理 */
   componentWillMount() {
     var loginInfos = JSON.parse(sessionStorage.getItem("loginInfo"));
@@ -603,11 +614,12 @@ class ComCoinShokaiForm extends React.Component {
     } else {
       after = drawer;
     }
+    const date = moment(new Date()).format("YYYY-MM-DD");
 
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          <AppBar
+          <AppBar position="static"
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
               [classes[`appBarShift-${anchor}`]]: open,
@@ -648,7 +660,10 @@ class ComCoinShokaiForm extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: "100%" }}
+                      style={{ 
+                        fontSize: "100%", 
+                        marginBlockStart:"5%"
+                      }}
                     />
                   </div>
                 </Target>
@@ -740,50 +755,96 @@ class ComCoinShokaiForm extends React.Component {
               </div>
               {/* 二行目の検索条件 */}
               <form className={classes.container} noValidate>
-                <TextField
+                {this.state.selectedValue === "a" ? 
+                  <TextField
+                    select
+                    disabled={this.state.selectedValue === "b"}
+                    label="日付（年）"
+                    className={classes.textField}
+                    value={this.state.weightRange}
+                    onChange={this.handleChange("weightRange")}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start" />,
+                    }}
+                  >
+                    {this.state.yearList.map((option) => {
+                      return (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                :
+                  <TextField
                   select
                   disabled={this.state.selectedValue === "b"}
                   label="日付（年）"
                   className={classes.textField}
-                  value={this.state.weightRange}
-                  onChange={this.handleChange("weightRange")}
+                  value=""
                   InputProps={{
                     startAdornment: <InputAdornment position="start" />,
-                  }}
-                >
-                  {this.state.yearList.map((option) => {
-                    return (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    );
-                  })}
+                    }}
+                  >
                 </TextField>
-
-                <TextField
+                }
+                {/* 年度を選択した時は空白で表示 */}
+                {this.state.selectedValue === "b" ?
+                  <TextField
+                    disabled={this.state.selectedValue === "a"}
+                    id="date_start"
+                    label="日付（開始）"
+                    type="date"
+                    value={this.state.date_start}
+                    inputProps={{min:"1000-01-01",max: date}}
+                    className={classes.textField}
+                    onChange={this.handleChange_date_start}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    onBlur={() => this.onBlurFuncStart()}
+                  />
+                :
+                  <TextField
                   disabled={this.state.selectedValue === "a"}
-                  id="date"
+                  id="date_start"
                   label="日付（開始）"
                   type="date"
-                  defaultValue="2019-6-23"
+                  value=""
                   className={classes.textField}
-                  onChange={this.handleChange_date_start}
                   InputLabelProps={{
                     shrink: true,
                   }}
-                />
-                <TextField
+                  />
+                }
+                {this.state.selectedValue === "b" ? 
+                  <TextField
                   disabled={this.state.selectedValue === "a"}
-                  id="date"
+                  id="date_end"
                   label="日付（終了）"
                   type="date"
-                  defaultValue="2019-6-23"
+                  value={this.state.date_end}
+                  inputProps={{ min:"1000-01-01",max: date }}
                   className={classes.textField}
-                  onChange={this.handleChange_date_end}
+                  onChange={this.handleChange_date_end  }
                   InputLabelProps={{
                     shrink: true,
                   }}
-                />
+                  onBlur={() => this.onBlurFuncEnd()}
+                 />                
+                :
+                  <TextField
+                   disabled={this.state.selectedValue === "a"}
+                   id="date_end"
+                   label="日付（終了）"
+                   type="date"
+                   value=""
+                   className={classes.textField}
+                   InputLabelProps={{
+                     shrink: true,
+                   }}
+                  />
+                }
               </form>
 
               {/* 三行目の検索条件 */}

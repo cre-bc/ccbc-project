@@ -619,7 +619,7 @@ class CoinZoyoForm extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
-          <AppBar
+          <AppBar position="static"
             className={classNames(classes.appBar, {
               [classes.appBarShift]: open,
               [classes[`appBarShift-${anchor}`]]: open,
@@ -657,7 +657,10 @@ class CoinZoyoForm extends React.Component {
                         !open && classes.buttonFrame,
                         open && classes.buttonFrame2
                       )}
-                      style={{ fontSize: "100%" }}
+                      style={{ 
+                        fontSize: "100%",
+                        marginBlockStart:"5%"
+                      }}
                     />
                   </div>
                 </Target>

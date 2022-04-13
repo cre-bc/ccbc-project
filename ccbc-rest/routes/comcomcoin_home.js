@@ -557,7 +557,7 @@ function getKijiList(db, req, mode) {
           " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
           " where kij.delete_flg = '0'" +
           " and kij.t_shain_pk = :t_shain_pk) myKij" +
-          " order by update_tm desc, post_dt desc, post_tm desc ";
+          " order by coalesce(update_tm, '2000/01/01') desc, post_dt desc, post_tm desc ";
         break;
     }
 
