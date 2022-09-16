@@ -127,6 +127,7 @@ export default class HomeArticleList extends BaseComponent {
               var eat = 4;
               var eventplan = 7;
               var convenience = 8;
+              var tsubuyaki = 9;
               var relay = 50;
 
               if (mode === "my") {
@@ -183,6 +184,11 @@ export default class HomeArticleList extends BaseComponent {
                                 ? {
                                   uri: restdomain + `/uploads/category/list/relay.png`,
                                 }
+                                : // 「つぶやき」の場合
+                                mode === "my" && item.t_kiji_category_pk === tsubuyaki
+                                  ? {
+                                    uri: restdomain + `/uploads/category/list/tsubuyaki.png`,
+                                  }
                                 : // 何もしない
                                 avatar;
 

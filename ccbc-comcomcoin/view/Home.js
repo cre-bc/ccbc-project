@@ -49,9 +49,16 @@ export default class Home extends BaseComponent {
       confirmDialogMessage: "",
       chatCnt: 0,
       articleCnt: 0,
+      tsubuyakiCnt: 0,
       unreadArticleList: [],
       bccoin: 0,
       screenNo: 4,
+      selectCategory: {
+        t_kiji_category_pk: 9,
+        spe_category_flg: "0",
+        category_nm: "つぶやき",
+        get_coin: 2
+      },
     };
   }
 
@@ -166,6 +173,7 @@ export default class Home extends BaseComponent {
               popularArticleList: json.data.popularArticleList,
               chatCnt: json.data.chatCnt,
               articleCnt: json.data.articleCnt,
+              tsubuyakiCnt: json.data.tsubuyakiCnt,
               unreadArticleList: json.data.unreadArticleList,
               bccoin: retCoin,
             });
@@ -215,6 +223,15 @@ export default class Home extends BaseComponent {
     this.setState({ refreshing: false });
   };
 
+  /** 記事照会画面へ遷移 */
+  onPressTsubuyaki = async () => {
+    this.props.navigation.navigate("ArticleRefer", {
+      mode: "article",
+      selectCategory: this.state.selectCategory,
+      viewMode: "multi"
+    });
+  };
+  
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "ivory" }}>
@@ -611,6 +628,33 @@ export default class Home extends BaseComponent {
                   Hidden={this.state.articleCnt == 0}
                 />
                 <Text style={{ textAlign: "center" }}>情報ひろば</Text>
+              </TouchableOpacity>
+            </View>
+            {/* つぶやき */}
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+                width: windowWidth / 4,
+              }}
+            >
+              <TouchableOpacity
+                activeOpacity={1}
+                onPress={() => this.onPressTsubuyaki()}
+              >
+                <IconBadge
+                  MainElement={
+                    <Image
+                      resizeMode="contain"
+                      source={require("./../images/icons8-twitter.png")}
+                    />
+                  }
+                  IconBadgeStyle={styles.iconBadgeStyle}
+                  Hidden={this.state.tsubuyakiCnt == 0}
+                />
+                <Text style={{ textAlign: "center" }}>つぶやき</Text>
               </TouchableOpacity>
             </View>
             {/* My記事リスト */}

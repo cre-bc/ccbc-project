@@ -67,6 +67,7 @@ export default class ArticleSelect extends BaseComponent {
     this.props.navigation.navigate("ArticleRefer", {
       mode: "article",
       selectCategory: selectCategory,
+      viewMode: "multi"
     });
   };
 
