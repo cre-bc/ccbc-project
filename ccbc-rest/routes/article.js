@@ -40,6 +40,20 @@ router.post("/findCategory", async (req, res) => {
 });
 
 /**
+ * API : findCategoryApp
+ * 記事カテゴリ一覧（カテゴリ別、未読件数付き）を取得（アプリ用）
+ */
+router.post("/findCategoryApp", async (req, res) => {
+  var mntRes = await mainte.checkAppStatus(req)
+  if (mntRes != null) {
+    res.json(mntRes);
+    return;
+  }
+
+  findCategoryListApp(req, res);
+});
+
+/**
  * API : findArticle
  * 記事リスト（条件により絞り込み可能）を取得
  */
@@ -144,6 +158,23 @@ async function findCategoryList(req, res) {
 
   // 記事カテゴリの取得
   const resdatas = await selectKijiCategory(db, req);
+  res.json({
+    status: true,
+    data: resdatas,
+  });
+}
+
+// ----------------------------------------------------------------------
+/**
+ * 記事カテゴリ一覧（カテゴリ別、未読件数付き）を取得（アプリ用）
+ * @param req リクエスト
+ * @param res レスポンス
+ */
+async function findCategoryListApp(req, res) {
+  db = db2.sequelizeDB(req);
+
+  // 記事カテゴリの取得
+  const resdatas = await selectKijiCategoryApp(db, req);
   res.json({
     status: true,
     data: resdatas,
@@ -348,6 +379,10 @@ async function edit(req, res) {
 
       // 記事テーブルの更新
       await updateKijiAfterZoyo(db, tx, req, kijiPk, zoyoPk);
+      // つぶやき記事のPush送信
+      if (req.body.t_kiji_category_pk == '9') {
+          await pushSend(req, res, kijiPk)
+      }
     }
   })
     .then((result) => {
@@ -358,6 +393,56 @@ async function edit(req, res) {
       console.log("edit : 異常", e);
       res.json({ status: false });
     });
+}
+
+/**
+ * 投稿されたつぶやき記事を検索し、Push通知を行う
+ * @param req リクエスト
+ * @param res レスポンス
+ * @param kijiPk 記事PK（投稿した記事）
+ */
+async function pushSend(req, res, kijiPk) {
+  if (req.body.db_name != null && req.body.db_name != "") {
+    db = db2.sequelize3(req.body.db_name);
+  } else {
+    db = require("./common/sequelize_helper.js").sequelize;
+  }
+
+  // プッシュ通知先（未読記事あり）の取得
+  const sql =
+    "select sha.expo_push_token from t_shain sha where sha.expo_push_token is not null and sha.delete_flg = '0' and sha.t_shain_pk <> :shain_pk" +
+    " and exists (select * from t_kiji kij" +
+    " left join t_kiji_kidoku kid on kij.t_kiji_category_pk = kid.t_kiji_category_pk and kid.t_shain_pk = sha.t_shain_pk" +
+    " where kij.delete_flg = '0' and kij.t_kiji_pk = :kiji_pk" +
+    " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, 0))";
+
+  db.query(sql, {
+    replacements: { 
+      shain_pk: req.body.loginShainPk,
+      kiji_pk: kijiPk
+    },
+    type: db.QueryTypes.RAW,
+  }).spread(async (datas, metadata) => {
+    for (var i in datas) {
+      const pushData = {
+        to: datas[i].expo_push_token,
+        title: "ComComCoinからのお知らせです",
+        body: "新しいつぶやきが投稿されましたよ！",
+        sound: "default",
+        badge: 1,
+      };
+      request
+        .post("https://exp.host/--/api/v2/push/send")
+        .send(pushData)
+        .end((err, res) => {
+          if (err) {
+            console.log("article_push:", "Push send error:", err);
+          } else {
+            console.log("article_push:", "Push send data:", pushData);
+          }
+        });
+    }
+  });
 }
 
 /**
@@ -422,6 +507,38 @@ function selectKijiCategory(db, req) {
       " and kij.delete_flg = '0'" +
       " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, -1)" +
       " where cat.delete_flg = '0'" +
+      " group by cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg" +
+      " order by cat.sort_num, cat.t_kiji_category_pk";
+    db.query(sql, {
+      replacements: { shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
+  });
+}
+
+// ----------------------------------------------------------------------
+/**
+ * 記事カテゴリ一覧（カテゴリ別、未読件数付き）を取得（DBアクセス）（アプリ用）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+function selectKijiCategoryApp(db, req) {
+  return new Promise((resolve, reject) => {
+    // 記事カテゴリテーブルの情報と、記事の未読件数（記事既読テーブルに登録されているIDより新しいIDの件数）を一緒に取得
+    var sql =
+      "select cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg, cat.category_file_path, count(kij.t_kiji_pk) AS midoku_cnt" +
+      " from t_kiji_category cat" +
+      " left join t_kiji_kidoku kid" +
+      " on cat.t_kiji_category_pk = kid.t_kiji_category_pk" +
+      " and kid.t_shain_pk = :shain_pk" +
+      " left join t_kiji kij " +
+      " on cat.t_kiji_category_pk = kij.t_kiji_category_pk" +
+      " and kij.delete_flg = '0'" +
+      " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, -1)" +
+      " where cat.delete_flg = '0'" +
+      " and cat.t_kiji_category_pk <> 9" +
       " group by cat.t_kiji_category_pk, cat.category_nm, cat.get_coin, cat.sort_num, cat.spe_category_flg" +
       " order by cat.sort_num, cat.t_kiji_category_pk";
     db.query(sql, {

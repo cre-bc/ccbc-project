@@ -156,6 +156,9 @@ async function findHomeInfo(req, res) {
   // 記事の未読件数の取得
   var resArticle = await getArticleMidoku(db, req);
   resdatas.articleCnt = resArticle[0].article_cnt;
+  // つぶやきの未読件数の取得
+  var resTsubuyaki = await getTsubuyakiMidoku(db, req);
+  resdatas.tsubuyakiCnt = resTsubuyaki[0].tsubuyaki_cnt;
   // 記事レスの未読件数の取得
   resdatas.unreadArticleList = await getUnreadArticleMidoku(db, req);
   // BCコイン数を取得　 - 2020/09 追加
@@ -358,7 +361,8 @@ function getHomeKiji(db, req, isNew) {
       " from t_kiji kij" +
       " left join (select t_kiji_pk, count(*) as cnt from t_response group by t_kiji_pk) res on kij.t_kiji_pk = res.t_kiji_pk" +
       " where kij.delete_flg = '0'" +
-      " and kij.post_dt >= current_timestamp + '-1 months'";
+      " and kij.post_dt >= current_timestamp + '-1 months'" +
+      " and kij.t_kiji_category_pk <> 9";
     if (isNew) {
       sql += " order by kij.post_dt desc, kij.post_tm desc";
       sql += " limit 8";
@@ -419,6 +423,30 @@ function getArticleMidoku(db, req) {
       " from t_kiji kij" +
       " left join t_kiji_kidoku kid on kij.t_kiji_category_pk = kid.t_kiji_category_pk and kid.t_shain_pk = :t_shain_pk" +
       " where kij.delete_flg = '0'" +
+      " and kij.t_kiji_category_pk <> 9" +
+      " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, 0)";
+    db.query(sql, {
+      replacements: { t_shain_pk: req.body.loginShainPk },
+      type: db.QueryTypes.RAW,
+    }).spread((datas, metadata) => {
+      return resolve(datas);
+    });
+  });
+}
+
+/**
+ * ホーム画面に表示するつぶやき未読件数を取得（DBアクセス）
+ * @param db SequelizeされたDBインスタンス
+ * @param req リクエスト
+ */
+ function getTsubuyakiMidoku(db, req) {
+  return new Promise((resolve, reject) => {
+    var sql =
+      "select count(*)  as tsubuyaki_cnt" +
+      " from t_kiji kij" +
+      " left join t_kiji_kidoku kid on kij.t_kiji_category_pk = kid.t_kiji_category_pk and kid.t_shain_pk = :t_shain_pk" +
+      " where kij.delete_flg = '0'" +
+      " and kij.t_kiji_category_pk = 9" +
       " and kij.t_kiji_pk > coalesce(kid.t_kiji_pk, 0)";
     db.query(sql, {
       replacements: { t_shain_pk: req.body.loginShainPk },
@@ -557,7 +585,7 @@ function getKijiList(db, req, mode) {
           " left join t_response on kij.t_kiji_pk = t_response.t_kiji_pk" +
           " where kij.delete_flg = '0'" +
           " and kij.t_shain_pk = :t_shain_pk) myKij" +
-          " order by coalesce(update_tm, '2000/01/01') desc, post_dt desc, post_tm desc ";
+          " order by post_dt desc, post_tm desc ";
         break;
     }
 
