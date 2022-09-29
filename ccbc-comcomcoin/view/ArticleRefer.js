@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Alert,
   StyleSheet,
   Text,
   View,
@@ -22,6 +23,7 @@ import InAppHeader from "./components/InAppHeader";
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ConfirmDialog from "./components/ConfirmDialog";
 import AlertDialog from "./components/AlertDialog";
+// import CommentDialog from "./components/CommentDialog";
 
 const windowWidth = Dimensions.get("window").width;
 const articleImageWidth = windowWidth * 0.8;
@@ -72,6 +74,7 @@ export default class ArticleRefer extends BaseComponent {
       scrollHeightNow: 0,
       scrollViewHeight: 0,
       isLoading: false,
+      commentDialogVisible: false
     };
   }
 
@@ -320,7 +323,8 @@ export default class ArticleRefer extends BaseComponent {
         viewMode: "multi",
         resMode: "",
         responseList: [],
-        readLastKijiPk: ""
+        readLastKijiPk: "",
+        commentDialogVisible: false,
       })
       this.state.readLastKijiPk = ""
       // 記事リスト取得
@@ -339,6 +343,11 @@ export default class ArticleRefer extends BaseComponent {
       });
       // コメントリスト取得
       await this.readResponse();
+      // コメントダイアログを表示（YESの場合、pay()を実行）
+      this.setState({
+        commentDialogVisible: true,
+      });
+      //this.nodeRef.scrollToEnd()
     }
 
     this.setState({ isLoading: false });
@@ -391,9 +400,24 @@ export default class ArticleRefer extends BaseComponent {
     this.setState({
       resResponsPk: t_response_pk,
       resMode: "delete",
-      confirmDialogVisible: true,
-      confirmDialogMessage: "コメントを削除します。よろしいですか？",
     });
+    Alert.alert(
+      '確認', 
+      'コメントを削除します。よろしいですか？',
+      [
+        {text: 'はい', onPress: () => this.send()},
+        {text: 'いいえ', onPress:() => this.onClickReplyDelCancelBtn()}
+      ]
+    );
+  };
+
+  /** レス削除キャンセルボタン押下 */
+  onClickReplyDelCancelBtn = async () => {
+    this.setState({
+      resResponsPk: "",
+      resMode: "insert",
+      colorStyle: "#ffffff"
+    })
   };
 
   // レスコメントの入力テキスト変更時
@@ -420,22 +444,27 @@ export default class ArticleRefer extends BaseComponent {
 
     // エラーメッセージを設定
     if (alertMessage !== "") {
-      this.setState({
-        alertDialogVisible: true,
-        alertDialogMessage: alertMessage,
-      });
-      return;
+      Alert.alert(
+        '', 
+        'コメントが未入力です',
+        [
+          {text: '確認'}
+        ]);
     } else {
       // 記事API.レス送信処理の呼び出し（DB登録）
       await this.send();
-      // if (this.nodeRef) {
-      //   this.nodeRef.scrollToEnd();
-      // }
+      //if (this.nodeRef) {
+        //this.nodeRef.scrollToEnd();
+      //}
     }
   };
 
   setRef = (node) => {
     this.nodeRef = node;
+  }
+
+  setResRef = (node) => {
+    this.nodeResRef = node;
   }
 
   /** データ更新処理 */
@@ -723,8 +752,9 @@ export default class ArticleRefer extends BaseComponent {
                           {/* 自身の投稿記事の場合、編集アイコンを表示する */}
                           <View style={{ flex: 1 }}>
                             {(() => {
-                              if (this.state.viewMode !== "only" && item.t_shain_pk == this.state.loginShainPk) {
-                                return (
+                              // if (this.state.viewMode !== "only" && item.t_shain_pk == this.state.loginShainPk) {
+                                if (item.t_shain_pk == this.state.loginShainPk) {
+                                  return (
                                   <Icon
                                     name="pencil"
                                     type="font-awesome"
@@ -762,7 +792,7 @@ export default class ArticleRefer extends BaseComponent {
                           {/* お気に入り */}
                           <View style={{ flex: 1, alignItems: "flex-end" }}>
                             {(() => {
-                              if (this.state.viewMode !== "only") {
+                              // if (this.state.viewMode !== "only") {
                                 return (
                                   <View>
                                     {(() => {
@@ -779,7 +809,7 @@ export default class ArticleRefer extends BaseComponent {
                                     })()}
                                   </View>
                                 );
-                              }
+                              // }
                             })()}
                           </View>
                         </View>
@@ -895,135 +925,9 @@ export default class ArticleRefer extends BaseComponent {
                   </Card>
                 );
               })}
-
-              {/* -- レス表示（繰り返し） -- */}
-              {this.state.responseList.map((item, i) => {
-                return (
-                  <Card key={i} containerStyle={{ marginTop: -1, marginBottom: 0, }}>
-                    {/* 投稿情報 */}
-                    <View style={{ flexDirection: "row" }}>
-                      {/* 社員画像 */}
-                      <Avatar
-                        rounded
-                        source={{
-                          uri: restdomain + `/uploads/${item.image_file_nm}`,
-                        }}
-                        activeOpacity={0.5}
-                      />
-                      {/* 投稿者名 */}
-                      <Text>
-                        {"　"}
-                      </Text>
-                      <View style={{ flex: 2 }}>
-                        <Text>
-                          {"　"}
-                        </Text>
-                        <Text style={{ fontSize: 13, color: "black" }}>
-                          {item.shimei}
-                        </Text>
-                      </View>
-
-                      <View style={{ alignItems: "flex-end", flex: 2 }}>
-                        {(() => {
-                          if (item.from_shain_pk !== this.state.loginShainPk) {
-                            return (
-                              <MaterialCommunityIcons name="comment-edit-outline" size={22} onPress={() => this.onClickReplyBtn(item.shimei, item.from_shain_pk)} />
-                            );
-                          }
-                        })()}
-                      </View>
-                      <View style={{ alignItems: "flex-end", flex: 1 }}>
-                        {(() => {
-                          if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk !== item.t_response_pk) {
-                            return (
-                              <Icon name="pencil" type="font-awesome" size={22} onPress={() => this.onClickReplyEditBtn(item.t_response_pk, item.response)} />
-                            );
-                          } else if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk == item.t_response_pk && this.state.resMode !== "delete")
-                            return (
-                              <Icon
-                                name="times-circle"
-                                type="font-awesome"
-                                color="black"
-                                size={22}
-                                onPress={() => {
-                                  this.onClickReplyEditCancelBtn();
-                                }}
-                              />
-                            );
-                        })()}
-                      </View>
-                      <View style={{ alignItems: "flex-end", flex: 1 }}>
-                        {(() => {
-                          if (item.from_shain_pk == this.state.loginShainPk && this.state.resMode !== "edit") {
-                            return (
-                              <Icon name="trash" type="font-awesome" size={22} onPress={() => this.onClickReplyDelBtn(item.t_response_pk)} />
-                            );
-                          }
-                        })()}
-                      </View>
-                      {/* 投稿日時 */}
-                      <View>
-                        <Text>
-                          {"　"}
-                        </Text>
-                        <View style={{ flexDirection: "row" }}>
-                          <Text style={styles.dateTimeText}>
-                            {moment(new Date(item.post_dt)).format("YYYY/MM/DD")}
-                          </Text>
-                          <Text>
-                            {" "}
-                          </Text>
-                          <Text style={styles.dateTimeText}>
-                            {moment(item.post_tm, "HH:mm:ss").format("H:mm")}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                    <View style={{ flex: 2 }}>
-                      <Text>
-                        {"　"}
-                      </Text>
-                      <Text style={{ fontSize: 16 }}>
-                        {item.response}
-                      </Text>
-                    </View>
-                  </Card>
-                );
-              })}
-              {/* スクロールが最下部まで表示されないことの暫定対応... */}
-              <View style={{ marginBottom: 50 }} />
-
             </ScrollView>
           </View>
 
-          {(() => {
-            if (this.state.viewMode == "only") {
-              return (
-                <View style={styles.inputContainer}>
-                  <View style={styles.textContainer}>
-                    <View>
-                      <TextInput
-                        multiline={true}
-                        value={this.state.resComment}
-                        style={styles.input}
-                        placeholder="コメントを入力"
-                        onChangeText={this.handleReplyTextChange}
-                        backgroundColor={this.state.colorStyle}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.sendContainer}>
-                    <TouchableHighlight
-                      underlayColor={'#rgba(255, 136, 0, 0.92)'}
-                      onPress={() => this.onSendReplyBtn()}
-                    >
-                      <Text style={styles.sendLabel}>返信</Text>
-                    </TouchableHighlight>
-                  </View>
-                </View>
-              );
-            }
-          })()}
           {/* -- 検索ダイアログ -- */}
           <Modal
             visible={this.state.searchDialogVisible}
@@ -1153,6 +1057,305 @@ export default class ArticleRefer extends BaseComponent {
               this.setState({ alertDialogVisible: false });
             }}
           />
+
+          {/* -- コメントダイアログ -- */}
+          <Modal
+            visible={this.state.commentDialogVisible}
+            animationType={"slide"}
+            onRequestClose={() => {
+              this.setState({ searchDialogVisible: false });
+            }}
+          >
+            <KeyboardAvoidingView style={{ flex: 2 }} behavior={Platform.OS == "ios" ? "padding" : ""}>
+              <View style={{ flex: 1, backgroundColor: "ivory" }}>
+               {/* -- 共有ヘッダ -- */}
+                <InAppHeader navigate={this.props.navigation.navigate} />
+                {/* -- 画面タイトル -- */}
+                <View style={[styles.screenTitleView, { flexDirection: "row" }]}/>
+                  <View style={[{ flex: 8, flexDirection: "row" }]}>
+                    <ScrollView
+                      showsVerticalScrollIndicator={false}
+                      maximumZoomScale={2}
+                      refreshControl={
+                        <RefreshControl
+                          refreshing={this.state.refreshing}
+                          onRefresh={this.onRefresh}
+                        />
+                      }
+		      		  ref={this.setResRef}
+                      onContentSizeChange={(width, height) => {
+                        // Viewサイズが変更した際にスクロール（コメント表示時は最下部へ、コメントから戻った際は前回スクロール位置へ）
+                        if (this.nodeResRef) {
+                            this.nodeResRef.scrollToEnd();
+                        }
+                      }}
+                    >
+                      {/* -- 記事表示（繰り返し） -- */}
+                      {this.state.articleList.map((item, i) => {
+                        return (
+                          <Card key={i}>
+                            {/* 投稿情報 */}
+                            <View style={{ flexDirection: "row" }}>
+                              <View
+                                style={{ flex: 1, alignItems: "center", marginRight: 5 }}
+                              >
+                                {/* 投稿日時 */}
+                                <Text style={styles.dateTimeText}>
+                                  {moment(new Date(item.post_dt)).format("YYYY/MM/DD")}
+                                </Text>
+                                <Text style={styles.dateTimeText}>
+                                  {moment(item.post_tm, "HH:mm:ss").format("H:mm")}
+                                </Text>
+
+                                {/* 社員画像 */}
+                                <Avatar
+                                  rounded
+                                  source={{
+                                    uri: restdomain + `/uploads/${item.shain_image_path}`,
+                                  }}
+                                  activeOpacity={0.7}
+                                />
+                              </View>
+
+                              <View style={{ flex: 4 }}>
+                                <View style={{ flexDirection: "row" }}>
+                                  {/* 投稿者名 */}
+                                  <View style={{ flex: 4 }}>
+                                    <Text style={{ fontSize: 18, color: "black" }}>
+                                      {"　"}
+                                      {item.shain_nm}
+                                    </Text>
+                                  </View>
+                                </View>
+
+                                {/* タイトル */}
+                                <Text style={{ fontSize: 16, color: "blue" }}>
+                                  {item.title}
+                                </Text>
+
+                                {/* ハッシュタグ */}
+                                <Text style={{ fontSize: 12, color: "gray" }}>
+                                  {item.hashtag_str}
+                                </Text>
+                              </View>
+                            </View>
+
+                            {/* 記事内容 */}
+                            <View style={{ marginTop: 10, marginBottom: 10 }}>
+                              <Hyperlink
+                                linkDefault={true}
+                                linkStyle={{
+                                  color: "#2980b9",
+                                  textDecorationLine: "underline",
+                                }}
+                              >
+                                <Text
+                                  selectable
+                                  style={{ fontSize: 16, lineHeight: 16 * 1.5 }}
+                                >
+                                  {item.contents}
+                                </Text>
+                              </Hyperlink>
+                            </View>
+
+                            {/* 画像（1 - メイン） */}
+                            <View
+                              style={{
+                                marginTop: 10,
+                                marginBottom: 5,
+                                alignItems: "center",
+                              }}
+                            >
+                              {item.file_path !== "" && item.file_path !== null && (
+                                <Image
+                                  source={{
+                                    uri: restdomain + `/uploads/article/${item.file_path}`,
+                                  }}
+                                  style={{
+                                    width: articleImageWidth,
+                                    height: articleImageWidth,
+                                  }}
+                                  resizeMode="contain"
+                                />
+                              )}
+                            </View>
+
+                            {/* 画像（2） */}
+                            {item.file_path2 !== "" && item.file_path2 !== null && (
+                              <View
+                                style={{
+                                  marginTop: 10,
+                                  marginBottom: 0,
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image
+                                  source={{
+                                    uri: restdomain + `/uploads/article/${item.file_path2}`,
+                                  }}
+                                  style={{
+                                    width: articleImageWidth,
+                                    height: articleImageWidth,
+                                  }}
+                                  resizeMode="contain"
+                                />
+                              </View>
+                            )}
+
+                            {/* 画像（3） */}
+                            {item.file_path3 !== "" && item.file_path3 !== null && (
+                              <View
+                                style={{
+                                  marginTop: 10,
+                                  marginBottom: 0,
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image
+                                  source={{
+                                    uri: restdomain + `/uploads/article/${item.file_path3}`,
+                                  }}
+                                  style={{
+                                    width: articleImageWidth,
+                                    height: articleImageWidth,
+                                  }}
+                                  resizeMode="contain"
+                                />
+                              </View>
+                            )}
+                            <View style={{ flexDirection: 'row', flex: 1 }}>
+                              <MaterialCommunityIcons name="comment-text-multiple-outline" size={30} onPress={() => this.onClickResponseBtn(i)} />
+                              <Text style={{ fontSize: 18 }}>
+                                {" "}
+                                {item.res_cnt}
+                              </Text>
+                            </View>
+                          </Card>
+                        );
+                      })}
+                      {/* -- レス表示（繰り返し） -- */}
+                      {this.state.responseList.map((item, i) => {
+                        return (
+                          <Card key={i} containerStyle={{ marginTop: -1, marginBottom: 0, }}>
+                            {/* 投稿情報 */}
+                            <View style={{ flexDirection: "row" }}>
+                              {/* 社員画像 */}
+                              <Avatar
+                                rounded
+                                source={{
+                                  uri: restdomain + `/uploads/${item.image_file_nm}`,
+                                }}
+                                activeOpacity={0.5}
+                              />
+                              {/* 投稿者名 */}
+                              <Text>
+                                {"　"}
+                              </Text>
+                              <View style={{ flex: 2 }}>
+                                <Text>
+                                  {"　"}
+                                </Text>
+                                <Text style={{ fontSize: 13, color: "black" }}>
+                                  {item.shimei}
+                                </Text>
+                              </View>
+
+                              <View style={{ alignItems: "flex-end", flex: 2 }}>
+                                {(() => {
+                                  if (item.from_shain_pk !== this.state.loginShainPk) {
+                                    return (
+                                      <MaterialCommunityIcons name="comment-edit-outline" size={22} onPress={() => this.onClickReplyBtn(item.shimei, item.from_shain_pk)} />
+                                    );
+                                  }
+                                })()}
+                              </View>
+                              <View style={{ alignItems: "flex-end", flex: 1 }}>
+                                {(() => {
+                                  if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk !== item.t_response_pk) {
+                                    return (
+                                      <Icon name="pencil" type="font-awesome" size={22} onPress={() => this.onClickReplyEditBtn(item.t_response_pk, item.response)} />
+                                    );
+                                  } else if (item.from_shain_pk == this.state.loginShainPk && this.state.resResponsPk == item.t_response_pk && this.state.resMode !== "delete")
+                                    return (
+                                      <Icon
+                                        name="times-circle"
+                                        type="font-awesome"
+                                        color="black"
+                                        size={22}
+                                        onPress={() => {
+                                          this.onClickReplyEditCancelBtn();
+                                        }}
+                                      />
+                                    );
+                                })()}
+                              </View>
+                              <View style={{ alignItems: "flex-end", flex: 1 }}>
+                                {(() => {
+                                  if (item.from_shain_pk == this.state.loginShainPk && this.state.resMode !== "edit") {
+                                    return (
+                                      <Icon name="trash" type="font-awesome" size={22} onPress={() => this.onClickReplyDelBtn(item.t_response_pk)} />
+                                    );
+                                  }
+                                })()}
+                              </View>
+                              {/* 投稿日時 */}
+                              <View>
+                                <Text>
+                                  {"　"}
+                                </Text>
+                                <View style={{ flexDirection: "row" }}>
+                                  <Text style={styles.dateTimeText}>
+                                    {moment(new Date(item.post_dt)).format("YYYY/MM/DD")}
+                                  </Text>
+                                  <Text>
+                                    {" "}
+                                  </Text>
+                                  <Text style={styles.dateTimeText}>
+                                    {moment(item.post_tm, "HH:mm:ss").format("H:mm")}
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                            <View style={{ flex: 2 }}>
+                              <Text>
+                                {"　"}
+                              </Text>
+                              <Text style={{ fontSize: 16 }}>
+                                {item.response}
+                              </Text>
+                            </View>
+                          </Card>
+                        );
+                      })}
+                      {/* スクロールが最下部まで表示されないことの暫定対応... */}
+                      <View style={{ marginBottom: 50 }} />
+                    </ScrollView>
+                  </View>
+                      <View style={styles.inputContainer}>
+                        <View style={styles.textContainer}>
+                          <View>
+                            <TextInput
+                              multiline={true}
+                              value={this.state.resComment}
+                              style={styles.input}
+                              placeholder="コメントを入力"
+                              onChangeText={this.handleReplyTextChange}
+                              backgroundColor={this.state.colorStyle}
+                            />
+                          </View>
+                        </View>
+                        <View style={styles.sendContainer}>
+                          <TouchableHighlight
+                            underlayColor={'#rgba(255, 136, 0, 0.92)'}
+                            onPress={() => this.onSendReplyBtn()}
+                          >
+                            <Text style={styles.sendLabel}>返信</Text>
+                          </TouchableHighlight>
+                          </View>
+                        </View>
+                      </View>
+            </KeyboardAvoidingView>              
+          </Modal>
         </View>
       </KeyboardAvoidingView>
     );

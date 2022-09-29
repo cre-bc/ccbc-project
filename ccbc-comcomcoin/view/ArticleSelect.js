@@ -36,7 +36,7 @@ export default class ArticleSelect extends BaseComponent {
     this.setAccessLog();
 
     // 記事API.記事カテゴリ一覧取得処理の呼び出し
-    await fetch(restdomain + "/article/findCategory", {
+    await fetch(restdomain + "/article/findCategoryApp", {
       method: "POST",
       mode: "cors",
       body: JSON.stringify(this.state),
