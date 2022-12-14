@@ -658,10 +658,10 @@ class ComKokokuMenteForm extends React.Component {
                           <TextField
                             value={this.state.comment}
                             id="massage"
-                            label="広告メッセージ(1000文字)"
+                            label="広告メッセージ(2000文字)"
                             placeholder="内容"
                             rows="10"
-                            inputProps={{ maxLength: "1000" }}
+                            inputProps={{ maxLength: "2000" }}
                             multiline
                             fullWidth
                             className={classes.textField}
