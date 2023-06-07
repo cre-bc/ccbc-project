@@ -57,7 +57,7 @@ export default class Home extends BaseComponent {
         t_kiji_category_pk: 9,
         spe_category_flg: "0",
         category_nm: "つぶやき",
-        get_coin: 2
+        get_coin: 20
       },
     };
   }
@@ -231,7 +231,7 @@ export default class Home extends BaseComponent {
       viewMode: "multi"
     });
   };
-  
+
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: "ivory" }}>
@@ -506,12 +506,12 @@ export default class Home extends BaseComponent {
                           {/* 画像が未登録の場合はNo-Imageを表示 */}
                           {(item.file_path === "" ||
                             item.file_path === null) && (
-                            <Image
-                              source={require("./../images/icon-noimage.png")}
-                              style={styles.articleImage}
-                              resizeMode="cover"
-                            />
-                          )}
+                              <Image
+                                source={require("./../images/icon-noimage.png")}
+                                style={styles.articleImage}
+                                resizeMode="cover"
+                              />
+                            )}
                         </View>
                         <View style={{ flex: 2 }}>
                           {/* タイトル */}
